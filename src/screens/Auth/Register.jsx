@@ -148,140 +148,17 @@ const RegisterationScreen = () => {
 
   if (cameraActivated) {
     return (
-      <View style={{
-        flex: 1,
-        backgroundColor: '#000',
-      }}
-      >
-        {hasCameraPermission && hasAudioPermission
-          ? (
-            <Camera
-              mirror
-              style={{
-                width: screenWidth,
-                height: screenWidth * 1.33,
-                marginTop: (screenHeight - screenWidth * 1.33) / 2,
-                marginBottom: (screenHeight - screenWidth * 1.33) / 2,
-              }}
-              ratio="4:3"
-              type={type}
-              ref={(ref) => {
-                setCameraRef(ref);
-              }}
-              onFacesDetected={(e) => handleFacesDetected(e)}
-              faceDetectorSettings={{
-                mode: FaceDetector.Constants.Mode.fast,
-                detectLandmarks: FaceDetector.Constants.Landmarks.none,
-                runClassifications: FaceDetector.Constants.Classifications.none,
-                minDetectionInterval: 100,
-                tracking: true,
-              }}
-            >
-              <View
-                style={{
-                  flex: 1,
-                  backgroundColor: 'transparent',
-                  justifyContent: 'flex-end',
-                }}
-              >
-                <Text>{recordingLength}</Text>
-                <View style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  justifyContent: 'space-evenly',
-                }}
-                >
-                  <View style={{
-                    flex: 0.3,
-                  }}
-                  >
-                    <TouchableOpacity
-                      style={{
-                        width: 50,
-                        height: 50,
-                      }}
-                      onPress={() => {
-                        setType(
-                          type === Camera.Constants.Type.back
-                            ? Camera.Constants.Type.front
-                            : Camera.Constants.Type.back,
-                        );
-                      }}
-                    >
-                      <Ionicons name="camera-reverse-outline" size={40} color={themeStyle.colors.grayscale.white} />
-                    </TouchableOpacity>
-                  </View>
-                  <View style={{
-                    flex: 0.5,
-                  }}
-                  >
-                    <TouchableOpacity
-                      style={{
-                        width: 50,
-                        height: 50,
-                      }}
-                      disabled={recording && recordingLength > 12}
-                      onPress={() => handleRecordClick()}
-                    >
-                      <View style={{
-                        borderWidth: 2,
-                        borderRadius: 25,
-                        borderColor: recording && recordingLength > 12 ? 'grey' : 'red',
-                        height: 50,
-                        width: 50,
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}
-                      >
-                        {recording
-                          ? (
-                            <View style={{
-                              borderWidth: 2,
-                              borderRadius: 5,
-                              borderColor: recordingLength > 12 ? 'grey' : 'red',
-                              height: 25,
-                              width: 25,
-                              backgroundColor: recordingLength > 12 ? 'grey' : 'red',
-                            }}
-                            />
-                          ) : (
-                            <View style={{
-                              borderWidth: 2,
-                              borderRadius: 25,
-                              borderColor: 'red',
-                              height: 40,
-                              width: 40,
-                              backgroundColor: 'red',
-                            }}
-                            />
-                          )}
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            </Camera>
-          )
-          : (
-            <View>
-              <Text>
-                Please enable camera and audio permissions to record a profile video.
-              </Text>
-            </View>
-          )}
-      </View>
-      // <ProfileVideoCamera
-      //   recording={recording}
-      //   setRecording={setRecording}
-      //   setProfileVideo={setProfileVideo}
-      //   setCameraActivated={setCameraActivated}
-      //   recordingLength={recordingLength}
-      //   setRecordingLength={setRecordingLength}
-      //   hasCameraPermission={hasCameraPermission}
-      //   hasAudioPermission={hasAudioPermission}
-      //   handleFacesDetected={handleFacesDetected}
-      // />
+      <ProfileVideoCamera
+        recording={recording}
+        setRecording={setRecording}
+        setProfileVideo={setProfileVideo}
+        setCameraActivated={setCameraActivated}
+        recordingLength={recordingLength}
+        setRecordingLength={setRecordingLength}
+        hasCameraPermission={hasCameraPermission}
+        hasAudioPermission={hasAudioPermission}
+        handleFacesDetected={handleFacesDetected}
+      />
     );
   }
 
