@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, TextInput, StyleSheet, Button, Text, TouchableOpacity,
-  Dimensions, Platform, ScrollView, ActivityIndicator,
+  View, StyleSheet, Text, TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 
 import { Camera } from 'expo-camera';
@@ -55,22 +55,18 @@ const ProfileVideoCamera = ({
     }, 1000);
     return () => clearInterval(interval);
   }, [recording]);
-
+  const cameraHeight = screenWidth * 1.33;
   return (
-    <View style={{
-      flex: 1,
-      backgroundColor: '#000',
-    }}
-    >
+    <View style={styles.container}>
       {hasCameraPermission && hasAudioPermission
         ? (
           <Camera
             mirror
             style={{
               width: screenWidth,
-              height: screenWidth * 1.33,
-              marginTop: (screenHeight - screenWidth * 1.33) / 2,
-              marginBottom: (screenHeight - screenWidth * 1.33) / 2,
+              height: cameraHeight,
+              marginTop: (screenHeight - cameraHeight) / 2.5,
+              marginBottom: (screenHeight - cameraHeight) / 1.5,
             }}
             ratio="4:3"
             type={type}
@@ -87,19 +83,10 @@ const ProfileVideoCamera = ({
             }}
           >
             <View
-              style={{
-                flex: 1,
-                backgroundColor: 'transparent',
-                justifyContent: 'flex-end',
-              }}
+              style={styles.cameraBottomSection}
             >
               <Text>{recordingLength}</Text>
-              <View style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'space-evenly',
-              }}
-              >
+              <View style={styles.controlsContainer}>
                 <View style={{
                   flex: 0.3,
                 }}
@@ -182,5 +169,22 @@ const ProfileVideoCamera = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  cameraBottomSection: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    justifyContent: 'flex-end',
+  },
+  controlsContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
+});
 
 export default ProfileVideoCamera;

@@ -19,8 +19,8 @@ const LoginScreen = () => {
   const navigation = useNavigation();
 
   const authenticateUser = async () => {
-    const { response, success, message } = await apiCall('POST', '/user/login', { identifier, password });
-    console.log(message);
+    const { response, success } = await apiCall('POST', '/user/login', { identifier, password });
+
     if (success && response.token) {
       await setItemAsync('authToken', response.token);
       dispatch({ type: 'SET_USER_LOGGED_IN', payload: true });
@@ -62,7 +62,11 @@ const LoginScreen = () => {
         <TouchableOpacity style={styles.forgotPassword}>
           <Text>Forgot Password</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.loginButton} onPress={() => authenticateUser()}>
+        <TouchableOpacity
+          style={[styles.loginButton, { opacity: !(identifier && password) ? 0.5 : 1 }]}
+          onPress={() => authenticateUser()}
+          disabled={!(identifier && password)}
+        >
           <Text style={styles.loginButtonText}>Log me in!</Text>
         </TouchableOpacity>
         {loginError ? <Text style={styles.loginError}>{loginError}</Text> : null}

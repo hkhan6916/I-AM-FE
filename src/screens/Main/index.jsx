@@ -10,6 +10,7 @@ import FriendsScreen from './Friends';
 import themeStyle from '../../theme.style';
 
 const Tab = createBottomTabNavigator();
+
 const MainScreens = () => (
   <Tab.Navigator
     screenOptions={({ route }) => ({
@@ -21,6 +22,7 @@ const MainScreens = () => (
         },
         null,
       ],
+
       headerShown: false,
       tabBarIcon: ({ color, size }) => {
         let iconName;

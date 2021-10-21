@@ -38,7 +38,7 @@ const SearchScreen = () => {
           style={styles.searchBar}
           placeholderTextColor="#b8b894"
           autoCorrect={false}
-          placeholder="Password"
+          placeholder="Type a username..."
           onChangeText={(v) => handleSearch(v)}
         />
       </View>

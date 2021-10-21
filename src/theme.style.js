@@ -5,7 +5,7 @@ export default {
       light: '#8EE3F0',
     },
     secondary: {
-      default: '#41FFDF',
+      default: '#00C7FF',
       light: '#88FFEB',
     },
     warning: {

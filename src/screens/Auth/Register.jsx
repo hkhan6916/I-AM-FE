@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, TextInput, StyleSheet, Button, Text, TouchableOpacity,
-  Dimensions, Platform, ScrollView, ActivityIndicator,
+  Dimensions, ScrollView, ActivityIndicator,
 } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import { Camera } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { Video } from 'expo-av';
-import * as FaceDetector from 'expo-face-detector';
 import themeStyle from '../../theme.style';
 import apiCall from '../../helpers/apiCall';
 import ProfileVideoCamera from '../../components/ProfileVideoCamera';
@@ -27,14 +26,12 @@ const RegisterationScreen = () => {
   const [hasAudioPermission, setHasAudioPermission] = useState(null);
 
   const [cameraActivated, setCameraActivated] = useState(false);
-  const [cameraRef, setCameraRef] = useState(null);
 
   const [recording, setRecording] = useState(false);
   const [recordingLength, setRecordingLength] = useState(15);
 
-  const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
+  const { width: screenWidth } = Dimensions.get('window');
   const [faceDectected, setFaceDetected] = useState(false);
-  const [type, setType] = useState(Camera.Constants.Type.front);
 
   const [profileVideo, setProfileVideo] = useState('');
   const [profileVideoPlaying, setProfileVideoPlaying] = useState(false);
@@ -42,21 +39,6 @@ const RegisterationScreen = () => {
 
   const [registerationError, setRegisterationError] = useState('');
   const navigation = useNavigation();
-
-  const handleRecordClick = async () => {
-    if (!recording) {
-      setRecordingLength(15);
-      setRecording(true);
-      setTimeout(async () => {
-        const video = await cameraRef.recordAsync();
-        setProfileVideo(video.uri);
-      }, 500);
-    } else {
-      setRecording(false);
-      cameraRef.stopRecording();
-      setCameraActivated(false);
-    }
-  };
 
   const validateUserInformation = () => {
     if (firstName
@@ -97,13 +79,13 @@ const RegisterationScreen = () => {
     });
     setLoading(true);
     const { success, message } = await apiCall('POST', '/user/register', formData);
-    console.log(message);
-    setLoading(false);
     if (success) {
       navigation.navigate('Login');
     } else if (message === 'exists') {
+      setLoading(false);
       setRegisterationError('A user already exists with this Email Address.');
     } else {
+      setLoading(false);
       setRegisterationError('Error, maybe network error.');
     }
   };
@@ -121,23 +103,6 @@ const RegisterationScreen = () => {
     };
   }, []);
 
-  useEffect(() => {
-    let length = recordingLength;
-    const interval = setInterval(() => {
-      if (recording && length > 0) {
-        length -= 1;
-        setRecordingLength(length);
-      }
-
-      if (recording && length === 0) {
-        setRecording(false);
-        cameraRef.stopRecording();
-        setCameraActivated(false);
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [recording]);
-
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -149,15 +114,15 @@ const RegisterationScreen = () => {
   if (cameraActivated) {
     return (
       <ProfileVideoCamera
-        recording={recording}
         setRecording={setRecording}
         setProfileVideo={setProfileVideo}
         setCameraActivated={setCameraActivated}
-        recordingLength={recordingLength}
         setRecordingLength={setRecordingLength}
+        handleFacesDetected={handleFacesDetected}
+        recording={recording}
+        recordingLength={recordingLength}
         hasCameraPermission={hasCameraPermission}
         hasAudioPermission={hasAudioPermission}
-        handleFacesDetected={handleFacesDetected}
       />
     );
   }
@@ -166,6 +131,7 @@ const RegisterationScreen = () => {
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.formContainer}>
+          <Text style={styles.formHeader}>I AM Sign Up</Text>
           <TextInput
             style={styles.visibleTextInputs}
             value={firstName}
@@ -275,8 +241,26 @@ const RegisterationScreen = () => {
             </Text>
           )
             : null}
-          <Button title="Register" onPress={() => registerUser()} disabled={!validateUserInformation()} />
-          <Button title={profileVideo ? 'Retake profile video' : 'Take profile video'} onPress={() => { setFaceDetected(false); setCameraActivated(true); }} />
+          <TouchableOpacity style={styles.takeVideoButton} onPress={() => { setFaceDetected(false); setCameraActivated(true); }}>
+            <Text style={styles.takeVideoButtonText}>{profileVideo ? 'Retake profile video' : 'Take profile video'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.registerationButton, {
+              opacity:
+              !validateUserInformation() ? 0.5 : 1,
+            }]}
+            onPress={() => registerUser()}
+            disabled={!validateUserInformation()}
+          >
+            <Text style={styles.registerationButtonText}>
+              Submit
+              {' '}
+              <Ionicons
+                name="paper-plane-outline"
+                size={14}
+              />
+            </Text>
+          </TouchableOpacity>
           {registerationError
             ? <Text style={styles.registerationError}>{registerationError}</Text> : null}
         </View>
@@ -294,6 +278,10 @@ const styles = StyleSheet.create({
     backgroundColor: themeStyle.colors.grayscale.white,
     alignItems: 'center',
     justifyContent: 'center',
+    textAlign: 'center',
+  },
+  formHeader: {
+    fontSize: 20,
   },
   cameraContainer: {
     backgroundColor: '#000',
@@ -314,6 +302,27 @@ const styles = StyleSheet.create({
     flex: 0.1,
     alignSelf: 'flex-end',
     alignItems: 'center',
+  },
+  registerationButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    margin: 20,
+    borderRadius: 50,
+    backgroundColor: themeStyle.colors.primary.default,
+  },
+  registerationButtonText: {
+    color: themeStyle.colors.grayscale.white,
+  },
+  takeVideoButton: {
+    margin: 10,
+    padding: 10,
+    borderWidth: 2,
+    borderColor: themeStyle.colors.primary.default,
+    borderRadius: 5,
+  },
+  takeVideoButtonText: {
+    color: themeStyle.colors.grayscale.black,
+    fontWeight: '700',
   },
   text: {
     fontSize: 18,

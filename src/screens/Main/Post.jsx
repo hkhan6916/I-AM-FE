@@ -1,50 +1,123 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, StyleSheet, Button,
+  View, Text, TextInput, StyleSheet, Button, Image,
 } from 'react-native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+import Constants from 'expo-constants';
+import { useDispatch } from 'react-redux';
+import { Video } from 'expo-av';
 import themeStyle from '../../theme.style';
 import apiCall from '../../helpers/apiCall';
+import CameraStandard from '../../components/CameraStandard';
+
+const { statusBarHeight } = Constants;
 
 const PostScreen = () => {
+  const isFocused = useIsFocused();
   const [postBody, setPostBody] = useState('');
   const [error, setError] = useState(null);
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState({});
+  const [cameraActive, setCameraActive] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const navigation = useNavigation();
+
+  const dispatch = useDispatch();
+
+  const createPostData = async () => {
+    const postData = new FormData();
+    if (file.uri) {
+      const {
+        type, name, uri, orientation,
+      } = file;
+      postData.append('file', {
+        type, name, uri,
+      });
+      postData.append('mediaOrientation', orientation);
+    }
+
+    if (postBody) {
+      postData.append('postBody', postBody);
+    }
+
+    return postData;
+  };
 
   const createPost = async () => {
-    const postData = new FormData();
-    postData.append('file', file);
-    postData.append('postBody', postBody);
-
-    const { success, response } = apiCall('POST', '/post/new');
-    if (!success) {
+    const postData = await createPostData();
+    const { success } = await apiCall('POST', '/posts/new', postData);
+    if (success) {
+      setPostBody('');
+      setFile('');
+      dispatch({ type: 'SET_POST_CREATED', payload: true });
+      navigation.navigate('Home');
+    } else {
       setError({ title: "Well... that wasn't supposed to happen!", message: 'An error occured creating your post.' });
     }
   };
 
+  if (cameraActive && isFocused) {
+    return (
+      <CameraStandard
+        recording={recording}
+        setCameraActive={setCameraActive}
+        setFile={setFile}
+        setRecording={setRecording}
+      />
+    );
+  }
   return (
     <View style={styles.container}>
       <TextInput
-        style={{ borderWidth: 2 }}
-        multiline
-        maxLength={50}
-        numberOfLines={8}
-        onChangeText={(v) => setPostBody(v)}
+        style={{ flex: 1, textAlignVertical: 'top' }}
         value={postBody}
+        placeholder="What's on your mind?"
+        placeholderTextColor={themeStyle.colors.grayscale.lightGray}
+        multiline
+        maxLength={1000}
+        onChangeText={(v) => setPostBody(v)}
       />
-      {postBody.length >= 50 - 25 ? (
+      {postBody.length >= 1000 - 25 ? (
         <Text style={styles.postLimitMessage}>
-          {50 - postBody.length}
+          {1000 - postBody.length}
           {' '}
           Characters Remaining
         </Text>
       ) : null}
-      <Button title="Make Post" onPress={() => createPost()} />
+      {
+        file.type?.split('/')[0] === 'video'
+          ? (
+            <Video
+              style={{
+                alignSelf: 'center',
+                width: 320,
+                height: 200,
+                backgroundColor: themeStyle.colors.grayscale.black,
+              }}
+              source={{
+                uri: file.uri,
+              }}
+              useNativeControls
+              resizeMode="contain"
+              isLooping
+            />
+          )
+          : file.type?.split('/')[0] === 'image'
+            ? <Image style={{ width: 300, height: 300, margin: 20 }} source={{ uri: file.uri }} />
+            : null
+      }
+      <Button title="Camera" onPress={() => setCameraActive(true)} />
+      <Button
+        disabled={!postBody && !file}
+        title="Make Post"
+        onPress={() => createPost()}
+      />
       {error ? (
         <View>
           <Text style={styles.errorTitle}>{error.title}</Text>
           <Text style={styles.errorMessage}>{error.message}</Text>
         </View>
       ) : null}
+
     </View>
   );
 };
@@ -52,6 +125,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
+    paddingTop: statusBarHeight,
   },
   postLimitMessage: {
     alignSelf: 'flex-end',
@@ -64,8 +138,8 @@ const styles = StyleSheet.create({
   },
   errorMessage: {
     textAlign: 'center',
-    fontSize: 14,
     color: themeStyle.colors.error.default,
+    fontSize: 14,
   },
 });
 
