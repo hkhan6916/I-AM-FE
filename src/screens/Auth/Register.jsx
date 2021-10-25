@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, TextInput, StyleSheet, Button, Text, TouchableOpacity,
+  View, TextInput, StyleSheet, Text, TouchableOpacity,
   Dimensions, ScrollView, ActivityIndicator,
 } from 'react-native';
 
@@ -234,7 +234,7 @@ const RegisterationScreen = () => {
                 : null}
             </TouchableOpacity>
           ) : profileVideo ? (
-            <Text>
+            <Text style={styles.faceDetectionError}>
               No face detected. Make sure your
               face is shown at the start and end of
               your profile video.
@@ -242,7 +242,14 @@ const RegisterationScreen = () => {
           )
             : null}
           <TouchableOpacity style={styles.takeVideoButton} onPress={() => { setFaceDetected(false); setCameraActivated(true); }}>
-            <Text style={styles.takeVideoButtonText}>{profileVideo ? 'Retake profile video' : 'Take profile video'}</Text>
+            <Text style={styles.takeVideoButtonText}>
+              <Ionicons
+                name="videocam"
+                size={14}
+              />
+              {' '}
+              {profileVideo ? 'Retake profile video' : 'Take profile video'}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.registerationButton, {
@@ -291,6 +298,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'red',
     fontWeight: '500',
+  },
+  faceDetectionError: {
+    color: themeStyle.colors.error.default,
+    textAlign: 'center',
+    fontWeight: '700',
   },
   buttonContainer: {
     flex: 1,

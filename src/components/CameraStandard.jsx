@@ -5,6 +5,8 @@ import {
 import { Camera } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { DeviceMotion } from 'expo-sensors';
+import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 import themeStyle from '../theme.style';
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
@@ -15,37 +17,52 @@ const CameraStandard = ({
   const [cameraRef, setCameraRef] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [orientation, setOrientation] = useState('portrait');
+
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestPermissionsAsync();
       setHasPermission(status === 'granted');
+      dispatch({ type: 'SET_CAMERA_ACTIVATED', payload: true });
     })();
-
-    DeviceMotion.addListener(({ rotation }) => {
-      const alpha = Math.abs(rotation?.alpha);
-      const orientationVal = () => {
-        if (alpha > 0 && alpha < 0.5) {
-          return 'landscape-left';
-        }
-
-        if (alpha > 2 && alpha < 3) {
-          return 'landscape-right';
-        }
-
-        return 'potrait';
-      };
-      setOrientation(
-        // alpha > 3 || (alpha > 0 && alpha < 0.5) ? 'landscape' : 'portrait',
-        orientationVal(),
-      );
-    });
     return () => {
+      dispatch({ type: 'SET_CAMERA_ACTIVATED', payload: false });
       DeviceMotion.removeAllListeners();
       setHasPermission(false);
       setCameraActive(false);
       setCameraRef(null);
     };
-  }, []);
+  }, [navigation]);
+
+  useEffect(() => {
+    DeviceMotion.addListener(({ rotation }) => {
+      const gamma = rotation?.gamma;
+      const beta = Math.abs(rotation?.beta);
+
+      const absGamma = Math.abs(gamma);
+      const absBeta = Math.abs(beta);
+      let ort;
+      if (absGamma <= 0.04 && absBeta <= 0.24) {
+        ort = 'portrait';
+      } else if ((absGamma <= 1.0 || absGamma >= 2.3) && absBeta >= 0.5) {
+        ort = 'portrait';
+      } else if (gamma < 0) {
+        ort = type === Camera.Constants.Type.front ? 'landscape-right' : 'landscape-left';
+      } else {
+        ort = type === Camera.Constants.Type.front ? 'landscape-left' : 'landscape-right';
+      }
+
+      console.log(ort);
+      setOrientation(ort);
+    });
+
+    return () => {
+      DeviceMotion.removeAllListeners();
+      // setType(0);
+    };
+  }, [type]);
   if (hasPermission === null) {
     return <View />;
   }
@@ -73,11 +90,9 @@ const CameraStandard = ({
             flex: 1,
             backgroundColor: 'transparent',
             justifyContent: 'flex-end',
-            // alignItems: 'center',
           }}
         >
           <View style={{
-            // display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-evenly',
           }}
@@ -108,7 +123,6 @@ const CameraStandard = ({
                   setFile({
                     type: `image/${fileExtension}`, name: `${'media.'}${fileExtension}`, uri: photo.uri, orientation,
                   });
-                  console.log(orientation);
                   setCameraActive(false);
                 }
               }}

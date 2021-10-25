@@ -11,8 +11,10 @@ const PostCard = ({ post }) => (
       ? (
         <Video
           style={{
-            width: '100%',
-            height: 400,
+            // width: '100%',
+            // height: 400,
+            width: 100,
+            height: 100,
             // backgroundColor: themeStyle.colors.grayscale.black,
           }}
           source={{
@@ -24,7 +26,15 @@ const PostCard = ({ post }) => (
         />
       ) : post.mediaType === 'image'
         ? (
-          <View style={{ transform: [{ rotate: post.mediaOrientation === 'landscape-left' ? '-90deg' : post.mediaOrientation === 'landscape-right' ? '90deg' : '0deg' }] }}>
+          <View style={{
+            transform: [{
+              rotate: post.mediaOrientation === 'landscape-left' ? '-90deg'
+                : post.mediaOrientation === 'landscape-right' ? '90deg' : '0deg',
+            }],
+            width: 100,
+            height: 100,
+          }}
+          >
             <Image
             // style={{ width: 30 }}
               resizeMode="contain"

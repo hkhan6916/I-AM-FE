@@ -5,7 +5,7 @@ export default {
       light: '#8EE3F0',
     },
     secondary: {
-      default: '#00C7FF',
+      default: '#0085FF',
       light: '#88FFEB',
     },
     warning: {
@@ -18,9 +18,10 @@ export default {
       default: '#FF0000',
     },
     grayscale: {
-      white: '#ffffff',
+      white: '#FFFFFF',
       black: '#000000',
-      lightGray: '#b8b894',
+      lightGray: '#B8B894',
+      mediumGray: '#848484',
     },
   },
 };

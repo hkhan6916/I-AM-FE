@@ -2,18 +2,21 @@ import React, { useState } from 'react';
 import {
   View, Text, TextInput, StyleSheet, Image,
 } from 'react-native';
-import { Video } from 'expo-av';
 import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 import apiCall from '../../../helpers/apiCall';
+import themeStyle from '../../../theme.style';
 
 const SearchScreen = () => {
   const [searchInput, setSearchInput] = useState();
   const [results, setResults] = useState([]);
-
+  const [showAllResults, setShowAllResults] = useState(false);
   const navigation = useNavigation();
+
+  const userData = useSelector((state) => state.userData);
 
   const handleSearch = async (username) => {
     setSearchInput(username);
@@ -40,6 +43,13 @@ const SearchScreen = () => {
           autoCorrect={false}
           placeholder="Type a username..."
           onChangeText={(v) => handleSearch(v)}
+          returnKeyType="search"
+          onFocus={() => {
+            setShowAllResults(false);
+          }}
+          onSubmitEditing={() => {
+            setShowAllResults(true);
+          }}
         />
       </View>
       <View>
@@ -50,9 +60,18 @@ const SearchScreen = () => {
             style={styles.userResult}
             onPress={() => navigation.navigate('UserProfileScreen', { user })}
           >
-            <View>
+            <View style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+            }}
+            >
               <View style={{
-                width: 60, height: 60, borderRadius: 10, overflow: 'hidden', borderWidth: 2, borderColor: '#138294',
+                width: showAllResults ? 70 : 55,
+                height: showAllResults ? 70 : 55,
+                borderRadius: 10,
+                overflow: 'hidden',
+                borderWidth: 2,
+                borderColor: themeStyle.colors.primary.default,
               }}
               >
                 <Image
@@ -61,17 +80,44 @@ const SearchScreen = () => {
                   style={{
                     borderRadius: 10,
                     alignSelf: 'center',
-                    width: 60,
-                    height: 60,
+                    width: showAllResults ? 70 : 55,
+                    height: showAllResults ? 70 : 55,
                   }}
                 />
               </View>
-              <Text>
-                {user.firstName}
-                {' '}
-                {user.lastName}
-              </Text>
-              <Text>{user.username}</Text>
+              <View style={{
+                display: 'flex', justifyContent: 'center', marginLeft: 20,
+              }}
+              >
+                <Text numberOfLines={1} style={{ fontWeight: '700', maxWidth: 200 }}>{user.username}</Text>
+                <Text style={{ maxWidth: 200 }} numberOfLines={1}>
+                  {user.firstName}
+                  {' '}
+                  {user.lastName}
+                </Text>
+                {user.jobTitle
+                && (
+                <Text
+                  numberOfLines={1}
+                  style={{ color: themeStyle.colors.grayscale.mediumGray, maxWidth: 200 }}
+                >
+                  {user.jobTitle}
+                </Text>
+                )}
+                {showAllResults && userData.state?.friendRequestsSent.includes(user._id)
+                && (
+                <Text
+                  numberOfLines={1}
+                  style={{
+                    color: themeStyle.colors.grayscale.lightGray,
+                    maxWidth: 200,
+                    fontSize: 12,
+                  }}
+                >
+                  Request sent
+                </Text>
+                )}
+              </View>
             </View>
           </TouchableHighlight>
         ))}
@@ -79,6 +125,7 @@ const SearchScreen = () => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     paddingTop: Constants.statusBarHeight,

@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import Constants from 'expo-constants';
-import themeStyle from '../../theme.style';
+import themeStyle from '../../../theme.style';
 
 const { statusBarHeight } = Constants;
 
@@ -34,7 +34,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: statusBarHeight,
-    backgroundColor: themeStyle.colors.grayscale.white,
   },
   newPostPill: {
     backgroundColor: themeStyle.colors.primary.default,

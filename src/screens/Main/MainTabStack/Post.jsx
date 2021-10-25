@@ -6,9 +6,9 @@ import { useNavigation, useIsFocused } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import { useDispatch } from 'react-redux';
 import { Video } from 'expo-av';
-import themeStyle from '../../theme.style';
-import apiCall from '../../helpers/apiCall';
-import CameraStandard from '../../components/CameraStandard';
+import themeStyle from '../../../theme.style';
+import apiCall from '../../../helpers/apiCall';
+import CameraStandard from '../../../components/CameraStandard';
 
 const { statusBarHeight } = Constants;
 
@@ -83,9 +83,11 @@ const PostScreen = () => {
           Characters Remaining
         </Text>
       ) : null}
+      {console.log(file)}
       {
         file.type?.split('/')[0] === 'video'
           ? (
+
             <Video
               style={{
                 alignSelf: 'center',
@@ -102,9 +104,19 @@ const PostScreen = () => {
             />
           )
           : file.type?.split('/')[0] === 'image'
-            ? <Image style={{ width: 300, height: 300, margin: 20 }} source={{ uri: file.uri }} />
+            ? (
+              <View style={{
+                transform: [{
+                  rotate: file.orientation === 'landscape-left' ? '-90deg'
+                    : file.orientation === 'landscape-right' ? '90deg' : '0deg',
+                }],
+              }}
+              >
+                <Image style={{ width: 300, height: 300, margin: 20 }} source={{ uri: file.uri }} />
+              </View>
+            )
             : null
-      }
+        }
       <Button title="Camera" onPress={() => setCameraActive(true)} />
       <Button
         disabled={!postBody && !file}

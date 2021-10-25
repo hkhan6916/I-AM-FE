@@ -1,16 +1,24 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
-import { setItemAsync } from 'expo-secure-store';
 import apiCall from '../helpers/apiCall';
 import AuthScreens from './Auth';
 import MainScreens from './Main';
+import themeStyle from '../theme.style';
 
 const Screens = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const loginAttemptStatus = useSelector((state) => state.loggedIn);
+  const Theme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      background: themeStyle.colors.grayscale.white,
+    },
+  };
+
   const getUserFeed = async () => {
     const { success } = await apiCall('GET', '/user/feed');
     if (success) {
@@ -24,7 +32,6 @@ const Screens = () => {
   useEffect(() => {
     if (!loaded || loginAttemptStatus.state) {
       (async () => {
-        // await setItemAsync('authToken', '');
         await getUserFeed();
       })();
     } if (loaded && !loginAttemptStatus.state) {
@@ -40,7 +47,7 @@ const Screens = () => {
     );
   }
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={Theme}>
       {loaded && loggedIn
         ? <MainScreens /> : <AuthScreens />}
     </NavigationContainer>

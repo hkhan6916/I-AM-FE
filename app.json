@@ -17,7 +17,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hkhan6916.I-Am-FE"
     },
     "android": {
       "adaptiveIcon": {

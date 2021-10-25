@@ -5,8 +5,8 @@ import {
 import { setItemAsync } from 'expo-secure-store';
 import { useDispatch } from 'react-redux';
 import Constants from 'expo-constants';
-import apiCall from '../../helpers/apiCall';
-import PostCard from '../../components/PostCard';
+import apiCall from '../../../helpers/apiCall';
+import PostCard from '../../../components/PostCard';
 
 const { statusBarHeight } = Constants;
 
@@ -21,8 +21,7 @@ const ProfileScreen = () => {
   };
 
   const getUserPosts = async () => {
-    const { success, response, message } = await apiCall('GET', '/user/posts');
-    console.log(message);
+    const { success, response } = await apiCall('GET', '/user/posts');
 
     if (success) {
       setUserPosts(response);
@@ -43,7 +42,7 @@ const ProfileScreen = () => {
       <Button onPress={() => logout()} title="logout" />
       <ScrollView>
         {userPosts.map((post, i) => (
-          <PostCard key={i} post={post} />
+          <PostCard key={`postcard-${i}`} post={post} />
         ))}
       </ScrollView>
     </View>
