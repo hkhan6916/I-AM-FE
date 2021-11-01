@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSelector, useDispatch } from 'react-redux';
 import HomeScreen from './Home';
-import PostScreen from './Post';
+import AddScreen from './Add';
 import ProfileScreen from './Profile';
 import SearchStack from './Search';
 import FriendsScreen from './Friends';
@@ -22,7 +22,6 @@ const MainTabStack = () => {
 
     if (success) {
       dispatch({ type: 'SET_USER_DATA', payload: response });
-      console.log('res', response);
     }
   };
   useEffect(() => {
@@ -84,7 +83,7 @@ const MainTabStack = () => {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Search" component={SearchStack} />
-      <Tab.Screen name="Post" component={PostScreen} />
+      <Tab.Screen name="Post" component={AddScreen} />
       <Tab.Screen name="Friends" component={FriendsScreen} />
       <Tab.Screen name="Me" component={ProfileScreen} />
     </Tab.Navigator>

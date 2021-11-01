@@ -29,7 +29,7 @@ const ProfileVideoCamera = ({
       setRecordingLength(15);
       setRecording(true);
       setTimeout(async () => {
-        const video = await cameraRef.recordAsync();
+        const video = await cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'] });
         setProfileVideo(video.uri);
       }, 500);
     } else {

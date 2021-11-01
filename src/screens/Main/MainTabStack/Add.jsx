@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, StyleSheet, Button, Image,
+  View, Text, TextInput, StyleSheet, Button, Image, Keyboard,
 } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import Constants from 'expo-constants';
@@ -12,7 +12,7 @@ import CameraStandard from '../../../components/CameraStandard';
 
 const { statusBarHeight } = Constants;
 
-const PostScreen = () => {
+const AddScreen = () => {
   const isFocused = useIsFocused();
   const [postBody, setPostBody] = useState('');
   const [error, setError] = useState(null);
@@ -27,12 +27,13 @@ const PostScreen = () => {
     const postData = new FormData();
     if (file.uri) {
       const {
-        type, name, uri, orientation,
+        type, name, uri, orientation, isSelfie,
       } = file;
       postData.append('file', {
         type, name, uri,
       });
       postData.append('mediaOrientation', orientation);
+      postData.append('mediaIsSelfie', isSelfie);
     }
 
     if (postBody) {
@@ -67,15 +68,7 @@ const PostScreen = () => {
   }
   return (
     <View style={styles.container}>
-      <TextInput
-        style={{ flex: 1, textAlignVertical: 'top' }}
-        value={postBody}
-        placeholder="What's on your mind?"
-        placeholderTextColor={themeStyle.colors.grayscale.lightGray}
-        multiline
-        maxLength={1000}
-        onChangeText={(v) => setPostBody(v)}
-      />
+      <Button title="Done" onPress={() => Keyboard.dismiss()} />
       {postBody.length >= 1000 - 25 ? (
         <Text style={styles.postLimitMessage}>
           {1000 - postBody.length}
@@ -83,11 +76,9 @@ const PostScreen = () => {
           Characters Remaining
         </Text>
       ) : null}
-      {console.log(file)}
       {
         file.type?.split('/')[0] === 'video'
           ? (
-
             <Video
               style={{
                 alignSelf: 'center',
@@ -117,6 +108,15 @@ const PostScreen = () => {
             )
             : null
         }
+      <TextInput
+        style={{ minHeight: 100, textAlignVertical: 'top' }}
+        value={postBody}
+        placeholder="What's on your mind?"
+        placeholderTextColor={themeStyle.colors.grayscale.lightGray}
+        multiline
+        maxLength={1000}
+        onChangeText={(v) => setPostBody(v)}
+      />
       <Button title="Camera" onPress={() => setCameraActive(true)} />
       <Button
         disabled={!postBody && !file}
@@ -155,4 +155,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PostScreen;
+export default AddScreen;

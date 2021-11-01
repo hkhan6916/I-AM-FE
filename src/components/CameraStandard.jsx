@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { DeviceMotion } from 'expo-sensors';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import { manipulateAsync } from 'expo-image-manipulator';
 import themeStyle from '../theme.style';
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
@@ -17,7 +18,7 @@ const CameraStandard = ({
   const [cameraRef, setCameraRef] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [orientation, setOrientation] = useState('portrait');
-
+  const [imageTaken, setImageTaken] = useState(false);
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -54,7 +55,6 @@ const CameraStandard = ({
         ort = type === Camera.Constants.Type.front ? 'landscape-left' : 'landscape-right';
       }
 
-      console.log(ort);
       setOrientation(ort);
     });
 
@@ -99,7 +99,6 @@ const CameraStandard = ({
           >
             <TouchableOpacity
               style={{
-                // flex: 0.1,
                 width: 50,
                 alignSelf: 'flex-end',
               }}
@@ -117,11 +116,19 @@ const CameraStandard = ({
               style={{ alignSelf: 'center', width: 50 }}
               onPress={async () => {
                 if (cameraRef) {
-                  const photo = await cameraRef.takePictureAsync();
+                  const photo = await cameraRef.takePictureAsync({ quality: 0 });
                   const re = /(?:\.([^.]+))?$/;
                   const fileExtension = re.exec(photo.uri)[1];
+                  const resizedPhoto = await manipulateAsync(photo.uri,
+                    [{ resize: { width: 1000 } }],
+                    { format: `${fileExtension === 'jpg' ? 'jpeg' : 'png'}` });
+                  setImageTaken(true);
                   setFile({
-                    type: `image/${fileExtension}`, name: `${'media.'}${fileExtension}`, uri: photo.uri, orientation,
+                    type: `image/${fileExtension}`,
+                    name: `${'media.'}${fileExtension}`,
+                    uri: resizedPhoto.uri,
+                    orientation,
+                    isSelfie: type === Camera.Constants.Type.front,
                   });
                   setCameraActive(false);
                 }
@@ -154,9 +161,14 @@ const CameraStandard = ({
               onPress={async () => {
                 if (!recording) {
                   setRecording(true);
-                  const video = await cameraRef.recordAsync();
+                  const video = await cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'] });
+
                   setFile({
-                    type: 'video/mp4', name: 'media.mp4', uri: video.uri, orientation,
+                    type: 'video/mp4',
+                    name: 'media.mp4',
+                    uri: video.uri,
+                    orientation,
+                    isSelfie: type === Camera.Constants.Type.front,
                   });
                 } else {
                   setRecording(false);

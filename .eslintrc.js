@@ -21,5 +21,6 @@ module.exports = {
     'react/prop-types': 0,
     'no-use-before-define': ['error', { variables: false }],
     'no-nested-ternary': 0,
+    'no-underscore-dangle': 0,
   },
 };

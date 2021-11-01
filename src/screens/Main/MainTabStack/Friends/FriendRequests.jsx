@@ -1,15 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, Image, TouchableHighlight,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, RefreshControl,
 } from 'react-native';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 import themeStyle from '../../../../theme.style';
+import apiCall from '../../../../helpers/apiCall';
+import UserThumbnail from '../../../../components/UserThumbnail';
 
-const FriendRequestsScreen = ({ friendRequestsReceived, friendRequestsSent }) => {
+const FriendRequestsScreen = () => {
   const [currentTab, setCurrentTab] = useState('received');
-
+  const [friendRequestsReceived, setFriendRequestsReceived] = useState([]);
+  const [friendRequestsSent, setFriendRequestsSent] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
+  const userData = useSelector((state) => state.userData);
+
+  const getFriendRequests = async () => {
+    const { success, response } = await apiCall('GET', '/user/friend/requests');
+    if (success) {
+      setFriendRequestsReceived(response.received);
+      setFriendRequestsSent(response.sent);
+    }
+  };
+
+  const onRefresh = useCallback(async () => {
+    await getFriendRequests();
+    setRefreshing(false);
+  }, []);
+
+  useEffect(() => {
+    navigation.addListener('focus', async () => {
+      await getFriendRequests();
+    });
+    return () => {
+      setFriendRequestsReceived([]);
+      setFriendRequestsSent([]);
+    };
+  }, [navigation]);
+
+  useEffect(() => {
+    (async () => {
+      friendRequestsSent.forEach((request) => {
+        if (!userData.state?.friendRequestsSent?.includes(request._id)) {
+          const array = friendRequestsSent; // make a separate copy of the array
+          const index = array.indexOf(request);
+          if (index !== -1) {
+            array.splice(index, 1);
+            setFriendRequestsSent(array);
+          }
+        }
+      });
+      if (userData.state.friendRequestsSent.length > friendRequestsReceived.length) {
+        await getFriendRequests();
+      }
+      friendRequestsReceived.forEach((request) => {
+        if (!userData.state?.friendRequestsReceived?.includes(request._id)) {
+          const array = friendRequestsReceived; // make a separate copy of the array
+          const index = array.indexOf(request);
+          if (index !== -1) {
+            array.splice(index, 1);
+            setFriendRequestsReceived(array);
+          }
+        }
+      });
+      if (userData.state.friendRequestsReceived.length > friendRequestsReceived.length) {
+        await getFriendRequests();
+      }
+    })();
+    return () => {
+      setFriendRequestsReceived([]);
+      setFriendRequestsSent([]);
+    };
+  }, [userData]);
   return (
     <View style={styles.container}>
       <View style={styles.tabsContainer}>
@@ -28,116 +92,20 @@ const FriendRequestsScreen = ({ friendRequestsReceived, friendRequestsSent }) =>
           <Text style={styles.requestsTabText}>Sent</Text>
         </TouchableOpacity>
       </View>
-      {currentTab === 'received' ? friendRequestsReceived.map((received) => (
-        <TouchableHighlight
-          key={received._id}
-          underlayColor="gray"
-          style={styles.userResult}
-          onPress={() => navigation.navigate('UserProfileScreen', { user: received })}
-        >
-          <View style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-          }}
-          >
-            <View style={{
-              width: 70,
-              height: 70,
-              borderRadius: 10,
-              overflow: 'hidden',
-              borderWidth: 2,
-              borderColor: themeStyle.colors.primary.default,
-            }}
-            >
-              <Image
-                source={{ uri: received.profileGifUrl }}
-                resizeMode="cover"
-                style={{
-                  borderRadius: 10,
-                  alignSelf: 'center',
-                  width: 70,
-                  height: 70,
-                }}
-              />
-            </View>
-            <View style={{
-              display: 'flex', justifyContent: 'center', marginLeft: 20,
-            }}
-            >
-              <Text numberOfLines={1} style={{ fontWeight: '700', maxWidth: 200 }}>{received.username}</Text>
-              <Text style={{ maxWidth: 200 }} numberOfLines={1}>
-                {received.firstName}
-                {' '}
-                {received.lastName}
-              </Text>
-              {received.jobTitle
-                && (
-                <Text
-                  numberOfLines={1}
-                  style={{ color: themeStyle.colors.grayscale.mediumGray, maxWidth: 200 }}
-                >
-                  {received.jobTitle}
-                </Text>
-                )}
-            </View>
-          </View>
-        </TouchableHighlight>
-      ))
-        : friendRequestsSent.map((sent) => (
-          <TouchableHighlight
-            key={sent._id}
-            underlayColor="gray"
-            style={styles.userResult}
-            onPress={() => navigation.navigate('UserProfileScreen', { user: sent })}
-          >
-            <View style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-            }}
-            >
-              <View style={{
-                width: 70,
-                height: 70,
-                borderRadius: 10,
-                overflow: 'hidden',
-                borderWidth: 2,
-                borderColor: themeStyle.colors.primary.default,
-              }}
-              >
-                <Image
-                  source={{ uri: sent.profileGifUrl }}
-                  resizeMode="cover"
-                  style={{
-                    borderRadius: 10,
-                    alignSelf: 'center',
-                    width: 70,
-                    height: 70,
-                  }}
-                />
-              </View>
-              <View style={{
-                display: 'flex', justifyContent: 'center', marginLeft: 20,
-              }}
-              >
-                <Text numberOfLines={1} style={{ fontWeight: '700', maxWidth: 200 }}>{sent.username}</Text>
-                <Text style={{ maxWidth: 200 }} numberOfLines={1}>
-                  {sent.firstName}
-                  {' '}
-                  {sent.lastName}
-                </Text>
-                {sent.jobTitle
-                && (
-                <Text
-                  numberOfLines={1}
-                  style={{ color: themeStyle.colors.grayscale.mediumGray, maxWidth: 200 }}
-                >
-                  {sent.jobTitle}
-                </Text>
-                )}
-              </View>
-            </View>
-          </TouchableHighlight>
-        ))}
+      <ScrollView refreshControl={(
+        <RefreshControl
+          onRefresh={onRefresh}
+          refreshing={refreshing}
+        />
+        )}
+      >
+        {currentTab === 'received' ? friendRequestsReceived.map((received) => (
+          <UserThumbnail key={received._id} user={received} />
+        ))
+          : friendRequestsSent.map((sent) => (
+            <UserThumbnail key={sent._id} user={sent} />
+          ))}
+      </ScrollView>
     </View>
   );
 };

@@ -50,7 +50,7 @@ const apiCall = async (method, route, payload = null) => {
       success: false,
       message: "Couldn't connect to server",
       response: '',
-      error: 'SERVERDOWN',
+      error: 'CONNECTION_FAILED',
     };
   }
 };

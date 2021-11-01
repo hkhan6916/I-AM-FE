@@ -46,7 +46,8 @@ const RegisterationScreen = () => {
       && email
       && username
       && password
-       && profileVideo && faceDectected) {
+       && profileVideo
+       && faceDectected) {
       return true;
     }
     return false;

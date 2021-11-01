@@ -58,7 +58,7 @@ const SearchScreen = () => {
             key={user._id}
             underlayColor="gray"
             style={styles.userResult}
-            onPress={() => navigation.navigate('UserProfileScreen', { user })}
+            onPress={() => navigation.navigate('UserProfileScreen', { userId: user._id })}
           >
             <View style={{
               flexDirection: 'row',
@@ -68,7 +68,7 @@ const SearchScreen = () => {
               <View style={{
                 width: showAllResults ? 70 : 55,
                 height: showAllResults ? 70 : 55,
-                borderRadius: 10,
+                borderRadius: 70,
                 overflow: 'hidden',
                 borderWidth: 2,
                 borderColor: themeStyle.colors.primary.default,
@@ -78,7 +78,7 @@ const SearchScreen = () => {
                   source={{ uri: user.profileGifUrl }}
                   resizeMode="cover"
                   style={{
-                    borderRadius: 10,
+                    borderRadius: 70,
                     alignSelf: 'center',
                     width: showAllResults ? 70 : 55,
                     height: showAllResults ? 70 : 55,

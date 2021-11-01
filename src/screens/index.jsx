@@ -1,15 +1,17 @@
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, createContext } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import apiCall from '../helpers/apiCall';
 import AuthScreens from './Auth';
 import MainScreens from './Main';
 import themeStyle from '../theme.style';
+import FeedContext from '../Context';
 
 const Screens = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [feed, setFeed] = useState([]);
   const loginAttemptStatus = useSelector((state) => state.loggedIn);
   const Theme = {
     ...DefaultTheme,
@@ -20,8 +22,9 @@ const Screens = () => {
   };
 
   const getUserFeed = async () => {
-    const { success } = await apiCall('GET', '/user/feed');
+    const { success, response } = await apiCall('GET', '/user/feed/0');
     if (success) {
+      setFeed(response);
       setLoggedIn(true);
       setLoaded(true);
     } else {
@@ -49,7 +52,11 @@ const Screens = () => {
   return (
     <NavigationContainer theme={Theme}>
       {loaded && loggedIn
-        ? <MainScreens /> : <AuthScreens />}
+        ? (
+          <FeedContext.Provider value={feed}>
+            <MainScreens />
+          </FeedContext.Provider>
+        ) : <AuthScreens />}
     </NavigationContainer>
   );
 };

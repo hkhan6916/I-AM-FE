@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Text, View, StyleSheet, Dimensions,
+  Text, View, StyleSheet,
 } from 'react-native';
 
 const CardFullScreen = ({ isOpen }) => (

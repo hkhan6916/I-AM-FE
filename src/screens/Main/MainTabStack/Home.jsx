@@ -1,16 +1,54 @@
-import React, { useEffect } from 'react';
+import React, {
+  useEffect, useContext, useState, useCallback,
+} from 'react';
 import {
-  View, Text, StyleSheet,
+  View, Text, StyleSheet, ScrollView, RefreshControl,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import Constants from 'expo-constants';
 import themeStyle from '../../../theme.style';
+import FeedContext from '../../../Context';
+import PostCard from '../../../components/PostCard';
+import apiCall from '../../../helpers/apiCall';
 
 const { statusBarHeight } = Constants;
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
   const newPostCreated = useSelector((state) => state.postCreated);
+  const initialFeed = useContext(FeedContext);
+  const [feed, setFeed] = useState(initialFeed);
+  const [allPostsLoaded, setAllPostsLoaded] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const getUserFeed = async () => {
+    if (!allPostsLoaded && !refreshing) {
+      const { success, response } = await apiCall('GET', `/user/feed/${feed.length}`);
+      if (success) {
+        if (!response.length && feed.length) {
+          setAllPostsLoaded(true);
+        } else {
+          setFeed([...feed, ...response]);
+        }
+      } else if (feed.length) {
+        setAllPostsLoaded(true);
+      }
+    }
+  };
+  const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+    const paddingToBottom = 20;
+    return layoutMeasurement.height + contentOffset.y
+      >= contentSize.height - paddingToBottom;
+  };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    const { success, response } = await apiCall('GET', '/user/feed/0');
+    setRefreshing(false);
+    if (success) {
+      setFeed(response);
+    }
+  }, []);
 
   useEffect(() => {
     if (newPostCreated.state) {
@@ -18,14 +56,33 @@ const HomeScreen = () => {
         dispatch({ type: 'SET_POST_CREATED', payload: false });
       }, 3000);
     }
-  }, [newPostCreated]);
+  }, [newPostCreated, feed]);
   return (
     <View style={styles.container}>
       <Text>Home Screen</Text>
       {newPostCreated.state ? (
-
         <Text style={styles.newPostPill}>Post created</Text>
       ) : null}
+      <ScrollView
+        onScroll={({ nativeEvent }) => {
+          if (isCloseToBottom(nativeEvent)) {
+            getUserFeed();
+          }
+        }}
+        refreshControl={(
+          <RefreshControl
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+          />
+        )}
+      >
+        {allPostsLoaded
+          ? <Text>All posts loaded</Text>
+          : <View />}
+        {feed.map((post, i) => (
+          <PostCard key={`postcard-${i}`} post={post} />
+        ))}
+      </ScrollView>
     </View>
   );
 };
@@ -36,6 +93,8 @@ const styles = StyleSheet.create({
     paddingTop: statusBarHeight,
   },
   newPostPill: {
+    zIndex: 3, // works on ios
+    elevation: 3, // works on android
     backgroundColor: themeStyle.colors.primary.default,
     color: themeStyle.colors.grayscale.white,
     paddingVertical: 5,

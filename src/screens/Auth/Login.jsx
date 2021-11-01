@@ -19,13 +19,16 @@ const LoginScreen = () => {
   const navigation = useNavigation();
 
   const authenticateUser = async () => {
-    const { response, success } = await apiCall('POST', '/user/login', { identifier, password });
+    const { response, success, error } = await apiCall('POST', '/user/login', { identifier, password });
 
     if (success && response.token) {
       await setItemAsync('authToken', response.token);
       dispatch({ type: 'SET_USER_LOGGED_IN', payload: true });
-    } else {
-      setLoginError('Whoops, your credentials do not match. Please try again.');
+    }
+    if (!success) {
+      setLoginError(error === 'CONNECTION_FAILED'
+        ? 'Cannot connect to server. Please check your connection.'
+        : 'Whoops, your credentials do not match. Please try again.');
     }
   };
 
