@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MainTabStack from './MainTabStack';
 import UserProfileScreen from './SubScreens/UserProfileScreen';
 import PostScreen from './SubScreens/PostScreen';
+import RepostScreen from './SubScreens/RepostScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,6 +35,13 @@ const MainStack = () => (
       }}
       name="PostScreen"
       component={PostScreen}
+    />
+    <Stack.Screen
+      options={{
+        headerShown: true,
+      }}
+      name="RepostScreen"
+      component={RepostScreen}
     />
   </Stack.Navigator>
 );

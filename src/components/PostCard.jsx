@@ -1,39 +1,41 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Text, View, Image, StyleSheet, TouchableHighlight, Button,
+  Text, View, Image, StyleSheet, TouchableHighlight, TouchableOpacity,
 } from 'react-native';
 import { Video } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
+import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
+
 import themeStyle from '../theme.style';
 import apiCall from '../helpers/apiCall';
 
-const PostCard = ({ post: initialPost }) => {
+const PostCard = ({ post: initialPost, hideActions = false, isPreview = false }) => {
   const [post, setPost] = useState(initialPost);
   const navigation = useNavigation();
   const shouldFlip = post.mediaIsSelfie;
 
   const handleReaction = async () => {
-    console.log(post);
     if (post.liked) {
       const newPost = { ...post };
       newPost.liked = false;
+      newPost.likes -= 1;
       setPost(newPost);
-      const { success, message } = await apiCall('GET', `/posts/like/remove/${post._id}`);
-      console.log(message);
+      const { success } = await apiCall('GET', `/posts/like/remove/${post._id}`);
       if (!success) {
         setPost(initialPost);
       }
     } else {
       const newPost = { ...post, liked: true };
       newPost.liked = true;
+      newPost.likes += 1;
       setPost(newPost);
-      const { success, message } = await apiCall('GET', `/posts/like/add/${post._id}`);
-      console.log(message);
+      const { success } = await apiCall('GET', `/posts/like/add/${post._id}`);
       if (!success) {
         setPost(initialPost);
       }
     }
   };
+
   const PostAge = () => {
     const { age } = post;
     let ageObject = { unit: age.days > 1 ? 'days' : 'day', age: age.days };
@@ -53,14 +55,25 @@ const PostCard = ({ post: initialPost }) => {
       </Text>
     );
   };
-
+  useEffect(() => {
+    setPost(initialPost);
+  }, [initialPost]);
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isPreview && {
+      margin: 20,
+      borderLeftWidth: 1,
+      borderRightWidth: 1,
+      borderBottomWidth: 1,
+      borderTopWidth: 1,
+      borderRadius: 10,
+    }]}
+    >
       {post.postAuthor && (
       <View style={{
         flexDirection: 'row',
         flexWrap: 'wrap',
         padding: 5,
+        borderTopWidth: isPreview ? 0 : 0.5,
         borderBottomWidth: 0.5,
         borderColor: themeStyle.colors.grayscale.lightGray,
       }}
@@ -90,7 +103,6 @@ const PostCard = ({ post: initialPost }) => {
             />
           </TouchableHighlight>
         </View>
-
         <View style={{
           display: 'flex', justifyContent: 'center', marginLeft: 20,
         }}
@@ -112,68 +124,198 @@ const PostCard = ({ post: initialPost }) => {
         </View>
       </View>
       )}
-      <TouchableHighlight
-        style={[shouldFlip && {
-          transform: [
-            { scaleX: -1 },
-          ],
-        }]}
-        onPress={() => navigation.navigate('PostScreen', { post })}
-        underlayColor={themeStyle.colors.grayscale.mediumGray}
-      >
-        <View style={{
-          margin: 5,
-        }}
-        >
-          {post.mediaType === 'video'
-            ? (
-              <Video
-                style={{
-                  width: 100,
-                  height: 100,
-                }}
-                source={{
-                  uri: post.mediaUrl,
-                }}
-                useNativeControls
-                resizeMode="cover"
-                isLooping
-              />
-            ) : post.mediaType === 'image'
-              ? (
-                <View style={{
-                  flex: 1,
-                  flexDirection: 'column',
-                  transform: [{
-                    rotate: post.mediaOrientation === 'landscape-left' ? '-90deg'
-                      : post.mediaOrientation === 'landscape-right' ? '90deg' : '0deg',
-                  }],
-                }}
-                >
-                  <Image
-                    resizeMode="cover"
-                    source={{ uri: post.mediaUrl }}
+      {post.repostPostObj
+        ? (
+          <TouchableHighlight
+            style={{ borderWidth: 20, borderColor: 'blue' }}
+            onPress={() => navigation.navigate('PostScreen', { post: post.repostPostObj })}
+            underlayColor={themeStyle.colors.grayscale.mediumGray}
+          >
+            <View style={{
+              margin: 5,
+            }}
+            >
+              {post.repostPostObj.mediaType === 'video'
+                ? (
+                  <Video
                     style={{
-                      borderRadius: 10,
-                      aspectRatio: 1 / 1,
-                      width: '100%',
+                      width: 100,
+                      height: 100,
                     }}
+                    source={{
+                      uri: post.mediaUrl,
+                    }}
+                    useNativeControls
+                    resizeMode="cover"
+                    isLooping
                   />
-                </View>
-              )
-              : null}
-          {post.body
-            ? (
-              <View style={{ margin: 5 }}>
-                <Text style={{ textAlign: 'left' }}>
-                  {post.body}
-                </Text>
-              </View>
-            ) : null}
+                ) : post.repostPostObj.mediaType === 'image'
+                  ? (
+                    <View style={{
+                      flex: 1,
+                      flexDirection: 'column',
+                      transform: [{
+                        rotate: post.repostPostObj.mediaOrientation === 'landscape-left' ? '-90deg'
+                          : post.repostPostObj.mediaOrientation === 'landscape-right' ? '90deg' : '0deg',
+                      }],
+                    }}
+                    >
+                      <Image
+                        resizeMode="cover"
+                        source={{ uri: post.repostPostObj.mediaUrl }}
+                        style={{
+                          borderRadius: 10,
+                          aspectRatio: 1 / 1,
+                          width: '100%',
+                        }}
+                      />
+                    </View>
+                  )
+                  : null}
+              {post.body
+                ? (
+                  <View style={{ margin: 5 }}>
+                    <Text style={{ textAlign: 'left' }}>
+                      {post.body}
+                    </Text>
+                  </View>
+                ) : null}
+              {post.repostPostObj.body
+                ? (
+                  <View style={{ margin: 5 }}>
+                    <Text style={{ textAlign: 'left' }}>
+                      {post.repostPostObj.body}
+                    </Text>
+                  </View>
+                ) : null}
+            </View>
+          </TouchableHighlight>
+        )
+        : (
+          <TouchableHighlight
+            style={[shouldFlip && {
+              transform: [
+                { scaleX: -1 },
+              ],
+            }]}
+            onPress={() => navigation.navigate('PostScreen', { post })}
+            underlayColor={themeStyle.colors.grayscale.mediumGray}
+          >
+            <View style={{
+              margin: 5,
+            }}
+            >
+              {post.mediaType === 'video'
+                ? (
+                  <Video
+                    style={{
+                      width: 100,
+                      height: 100,
+                    }}
+                    source={{
+                      uri: post.mediaUrl,
+                    }}
+                    useNativeControls
+                    resizeMode="cover"
+                    isLooping
+                  />
+                ) : post.mediaType === 'image'
+                  ? (
+                    <View style={{
+                      flex: 1,
+                      flexDirection: 'column',
+                      transform: [{
+                        rotate: post.mediaOrientation === 'landscape-left' ? '-90deg'
+                          : post.mediaOrientation === 'landscape-right' ? '90deg' : '0deg',
+                      }],
+                    }}
+                    >
+                      <Image
+                        resizeMode="cover"
+                        source={{ uri: post.mediaUrl }}
+                        style={{
+                          borderRadius: 10,
+                          aspectRatio: 1 / 1,
+                          width: '100%',
+                        }}
+                      />
+                    </View>
+                  )
+                  : null}
+              {post.body
+                ? (
+                  <View style={{ margin: 5 }}>
+                    <Text style={{ textAlign: 'left' }}>
+                      {post.body}
+                    </Text>
+                  </View>
+                ) : null}
+            </View>
+          </TouchableHighlight>
+        )}
+      {!hideActions
+      && (
+        <View>
+          <View style={{
+            flexDirection: 'row',
+            flex: 1,
+            justifyContent: 'space-between',
+          }}
+          >
+            <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                onPress={() => handleReaction()}
+                style={{
+                  width: 40,
+                  height: 40,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginHorizontal: 5,
+                }}
+              >
+                <MaterialCommunityIcons
+                  name={post.liked ? 'thumb-up' : 'thumb-up-outline'}
+                  size={24}
+                  color={post.liked ? themeStyle.colors.secondary.default
+                    : themeStyle.colors.grayscale.mediumGray}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity style={{
+                width: 40,
+                height: 40,
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginHorizontal: 5,
+              }}
+              >
+                <FontAwesome name="comment-o" size={24} color="black" />
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('RepostScreen', {
+                prevScreen: 'Home',
+                post: post.repostPostObj || post,
+              })}
+              style={{
+                width: 40,
+                height: 40,
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginHorizontal: 5,
+                justifySelf: 'flex-end',
+              }}
+            >
+              <FontAwesome name="paper-plane-o" size={24} color="black" />
+            </TouchableOpacity>
+          </View>
+          <Text>
+            {post.likes}
+            {' '}
+            likes
+          </Text>
+          <PostAge />
         </View>
-      </TouchableHighlight>
-      <Button onPress={() => handleReaction()} title={post.liked ? 'dislike' : 'like'} />
-      <PostAge />
+      )}
     </View>
   );
 };

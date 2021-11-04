@@ -6,7 +6,7 @@ import {
 
 const PostScreen = (props) => {
   const { post } = props.route.params;
-  const shouldFlip = post.mediaIsSelfie;
+  const shouldFlip = post?.mediaIsSelfie;
 
   return (
     <View style={[styles.container, shouldFlip && {
@@ -15,7 +15,7 @@ const PostScreen = (props) => {
       ],
     }]}
     >
-      {post.mediaType === 'video'
+      {post?.mediaType === 'video'
         ? (
           <Video
             style={{
@@ -32,7 +32,7 @@ const PostScreen = (props) => {
             resizeMode="cover"
             isLooping
           />
-        ) : post.mediaType === 'image'
+        ) : post?.mediaType === 'image'
           ? (
             <View style={{
               transform: [{
@@ -52,7 +52,7 @@ const PostScreen = (props) => {
             </View>
           )
           : null}
-      {post.body
+      {post?.body
         ? (
           <View style={{ margin: 20 }}>
             <Text>

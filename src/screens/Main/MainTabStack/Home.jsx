@@ -46,6 +46,7 @@ const HomeScreen = () => {
     const { success, response } = await apiCall('GET', '/user/feed/0');
     setRefreshing(false);
     if (success) {
+      setFeed([]);
       setFeed(response);
     }
   }, []);
@@ -64,6 +65,8 @@ const HomeScreen = () => {
         <Text style={styles.newPostPill}>Post created</Text>
       ) : null}
       <ScrollView
+        scrollEventThrottle={0}
+        contentContainerStyle={{ flexGrow: 1 }}
         onScroll={({ nativeEvent }) => {
           if (isCloseToBottom(nativeEvent)) {
             getUserFeed();
