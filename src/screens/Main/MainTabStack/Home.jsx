@@ -60,7 +60,6 @@ const HomeScreen = () => {
   }, [newPostCreated, feed]);
   return (
     <View style={styles.container}>
-      <Text>Home Screen</Text>
       {newPostCreated.state ? (
         <Text style={styles.newPostPill}>Post created</Text>
       ) : null}

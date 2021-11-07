@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
-  Button, ScrollView, TextInput, View,
+  Button, ScrollView, TextInput,
 } from 'react-native';
 import apiCall from '../../../helpers/apiCall';
 import PostCard from '../../../components/PostCard';
@@ -9,9 +9,9 @@ import PostCard from '../../../components/PostCard';
 const RepostScreen = (props) => {
   const {
     prevScreen,
-    post: initialPost,
+    post,
   } = props.route.params;
-  const [post, setPost] = useState(initialPost);
+  // const [post, setPost] = useState(initialPost);
   const [repostBody, setRepostBody] = useState('');
   const navigation = useNavigation();
 
@@ -25,21 +25,20 @@ const RepostScreen = (props) => {
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      const { response, success, message } = await apiCall('GET', `/user/${post.userId}`);
-      if (success) {
-        setPost({});
-        setPost({ ...initialPost, postAuthor: { ...response.user } });
-        // console.log('a', { ...initialPost, postAuthor: { ...response.user } }, 'b');
-      }
-      console.log('p', post, 'p');
-    })();
-    return () => {
-      setRepostBody('');
-      setPost({});
-    };
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     const { response, success, message } = await apiCall('GET', `/user/${post.userId}`);
+  //     if (success) {
+  //       setPost({});
+  //       setPost({ ...initialPost, postAuthor: { ...response.user } });
+  //       // console.log('a', { ...initialPost, postAuthor: { ...response.user } }, 'b');
+  //     }
+  //   })();
+  //   return () => {
+  //     setRepostBody('');
+  //     setPost({});
+  //   };
+  // }, []);
 
   return (
     <ScrollView
