@@ -40,11 +40,11 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
 
   const PostAge = () => {
     const { age } = post;
-    let ageObject = { unit: age.days > 1 ? 'days' : 'day', age: age.days };
-    if (age.minutes) {
-      ageObject = { unit: age.minutes > 1 ? 'minutes' : 'minute', age: age.minutes };
-    } if (age.hours) {
-      ageObject = { unit: age.hours > 1 ? 'hours' : 'hour', age: age.hours };
+    let ageObject = { unit: age?.days > 1 ? 'days' : 'day', age: age?.days };
+    if (age?.minutes) {
+      ageObject = { unit: age?.minutes > 1 ? 'minutes' : 'minute', age: age?.minutes };
+    } if (age?.hours) {
+      ageObject = { unit: age?.hours > 1 ? 'hours' : 'hour', age: age?.hours };
     }
 
     return (
@@ -86,7 +86,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                 { userId: postContent.postAuthor._id })}
               underlayColor={themeStyle.colors.grayscale.mediumGray}
             >
-              <Image
+              {/* <Image
                 source={{ uri: postContent.postAuthor.profileGifUrl }}
                 resizeMode="cover"
                 style={{
@@ -95,7 +95,8 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                   width: 50,
                   height: 50,
                 }}
-              />
+              /> */}
+              <View />
             </TouchableHighlight>
           </View>
           <View style={{
@@ -137,7 +138,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                 }],
               }}
               >
-                <Image
+                {/* <Image
                   resizeMode="cover"
                   source={{ uri: postContent.mediaUrl }}
                   style={{
@@ -145,7 +146,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                     aspectRatio: 1 / 1,
                     width: '100%',
                   }}
-                />
+                /> */}
               </View>
             )
             : null}
@@ -161,7 +162,6 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
             </View>
           ) : null}
       </View>
-
     </TouchableHighlight>
   );
 
@@ -171,6 +171,21 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
 
   return (
     <View style={[styles.container, isPreview && styles.preview]}>
+      {post.likedBy && (
+        <TouchableOpacity
+          style={{ padding: 10 }}
+          onPress={() => navigation.navigate('UserProfileScreen',
+            { userId: post.likedBy._id })}
+        >
+          <Text style={{ fontWeight: '700' }}>
+            {post.likedBy.firstName}
+            {' '}
+            {post.likedBy.lastName}
+            {' '}
+            liked this
+          </Text>
+        </TouchableOpacity>
+      )}
       {post.postAuthor && (
       <View style={[styles.postAuthorContainer, !isPreview && { borderTopWidth: 0.5 }]}>
         <View style={styles.postAuthorProfilePic}>
@@ -179,11 +194,12 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
               { userId: post.postAuthor._id })}
             underlayColor={themeStyle.colors.grayscale.mediumGray}
           >
-            <Image
+            {/* <Image
               source={{ uri: post.postAuthor.profileGifUrl }}
               resizeMode="cover"
               style={styles.postAuthorProfilePicImage}
-            />
+            /> */}
+            <View />
           </TouchableHighlight>
         </View>
         <View style={{
@@ -265,7 +281,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                       }],
                     }}
                     >
-                      <Image
+                      {/* <Image
                         resizeMode="cover"
                         source={{ uri: post.mediaUrl }}
                         style={{
@@ -273,7 +289,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                           aspectRatio: 1 / 1,
                           width: '100%',
                         }}
-                      />
+                      /> */}
                     </View>
                   )
                   : null}
@@ -383,7 +399,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     padding: 5,
-    borderBottomWidth: 0.5,
     borderColor: themeStyle.colors.grayscale.lightGray,
   },
   postAuthorProfilePic: {

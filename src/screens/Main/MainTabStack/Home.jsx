@@ -21,9 +21,30 @@ const HomeScreen = () => {
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
+  const calculateOffsets = async () => {
+    if (!feed.length) {
+      return {};
+    }
+    let i = 0;
+    let friendsInterestsOffset = 0;
+    const len = feed.length;
+    while (i < len) {
+      if (feed[i].likedBy) {
+        friendsInterestsOffset += 1;
+      }
+      i += 1;
+    }
+
+    return {
+      friendsInterestsOffset,
+      feedTimelineOffset: feed.length - friendsInterestsOffset,
+    };
+  };
+
   const getUserFeed = async () => {
     if (!allPostsLoaded && !refreshing) {
-      const { success, response } = await apiCall('GET', `/user/feed/${feed.length}`);
+      const offsets = await calculateOffsets();
+      const { success, response } = await apiCall('POST', '/user/feed', offsets);
       if (success) {
         if (!response.length && feed.length) {
           setAllPostsLoaded(true);
