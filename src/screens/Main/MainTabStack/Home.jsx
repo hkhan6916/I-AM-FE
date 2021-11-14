@@ -27,8 +27,7 @@ const HomeScreen = () => {
     }
     let i = 0;
     let friendsInterestsOffset = 0;
-    const len = feed.length;
-    while (i < len) {
+    while (i < feed.length) {
       if (feed[i].likedBy) {
         friendsInterestsOffset += 1;
       }
@@ -56,6 +55,7 @@ const HomeScreen = () => {
       }
     }
   };
+
   const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
     const paddingToBottom = 20;
     return layoutMeasurement.height + contentOffset.y
@@ -99,9 +99,6 @@ const HomeScreen = () => {
           />
         )}
       >
-        {allPostsLoaded
-          ? <Text>All posts loaded</Text>
-          : <View />}
         {feed.map((post, i) => (
           <PostCard key={`postcard-${i}`} post={post} />
         ))}

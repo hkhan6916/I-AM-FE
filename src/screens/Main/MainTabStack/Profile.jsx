@@ -75,8 +75,6 @@ const ProfileScreen = () => {
           />
       )}
       >
-        {allPostsLoaded
-          ? <Text>All posts loaded</Text> : <View />}
         {userPosts.map((post, i) => (
           <PostCard key={`postcard-${i}`} post={post} />
         ))}

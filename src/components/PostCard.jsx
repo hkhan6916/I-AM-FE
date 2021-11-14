@@ -5,6 +5,7 @@ import {
 import { Video } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
+import VideoPlayer from './VideoPlayer';
 
 import themeStyle from '../theme.style';
 import apiCall from '../helpers/apiCall';
@@ -20,20 +21,18 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
       newPost.liked = false;
       newPost.likes -= 1;
       setPost(newPost);
-      const { success, message } = await apiCall('GET', `/posts/like/remove/${post._id}`);
+      const { success } = await apiCall('GET', `/posts/like/remove/${post._id}`);
       if (!success) {
         setPost(initialPost);
-        console.log(message);
       }
     } else {
       const newPost = { ...post, liked: true };
       newPost.liked = true;
       newPost.likes += 1;
       setPost(newPost);
-      const { success, message } = await apiCall('GET', `/posts/like/add/${post._id}`);
+      const { success } = await apiCall('GET', `/posts/like/add/${post._id}`);
       if (!success) {
         setPost(initialPost);
-        console.log(message);
       }
     }
   };
@@ -115,18 +114,30 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
         </View>
         {postContent.mediaType === 'video'
           ? (
-            <Video
-              style={{
-                width: 100,
-                height: 100,
-              }}
-              source={{
-                uri: postContent.mediaUrl,
-              }}
-              useNativeControls
-              resizeMode="cover"
-              isLooping
-            />
+            <View style={{
+              flex: 1,
+              flexDirection: 'column',
+              transform: [{
+                rotate: post.mediaOrientation === 'landscape-left' ? '-90deg'
+                  : post.mediaOrientation === 'landscape-right' ? '90deg' : '0deg',
+              }],
+            }}
+            >
+              {/* <Video
+                style={{
+                  borderRadius: 10,
+                  aspectRatio: 1 / 1,
+                  width: '100%',
+                }}
+                source={{
+                  uri: postContent.mediaUrl,
+                }}
+                useNativeControls
+                resizeMode="cover"
+              /> */}
+              <View />
+
+            </View>
           ) : postContent.mediaType === 'image'
             ? (
               <View style={{
@@ -147,6 +158,8 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                     width: '100%',
                   }}
                 /> */}
+                <View />
+
               </View>
             )
             : null}
@@ -200,6 +213,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
               style={styles.postAuthorProfilePicImage}
             /> */}
             <View />
+
           </TouchableHighlight>
         </View>
         <View style={{
@@ -258,18 +272,31 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
             >
               {post.mediaType === 'video'
                 ? (
-                  <Video
+                  <View
                     style={{
-                      width: 100,
-                      height: 100,
+                      flex: 1,
+                      flexDirection: 'column',
+                      transform: [{
+                        rotate: post.mediaOrientation === 'landscape-left' ? '-90deg'
+                          : post.mediaOrientation === 'landscape-right' ? '90deg' : '0deg',
+                      }],
                     }}
-                    source={{
-                      uri: post.mediaUrl,
-                    }}
-                    useNativeControls
-                    resizeMode="cover"
-                    isLooping
-                  />
+                  >
+                    {/* <Video
+                      style={{
+                        borderRadius: 10,
+                        aspectRatio: 1 / 1,
+                        width: '100%',
+                      }}
+                      source={{
+                        uri: post.mediaUrl,
+                      }}
+                      useNativeControls
+                      resizeMode="cover"
+                    /> */}
+                    <VideoPlayer url={post.mediaUrl} />
+
+                  </View>
                 ) : post.mediaType === 'image'
                   ? (
                     <View style={{
@@ -290,6 +317,8 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                           width: '100%',
                         }}
                       /> */}
+                      <View />
+
                     </View>
                   )
                   : null}
