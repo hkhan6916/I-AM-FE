@@ -5,7 +5,7 @@ import {
 import { Video } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
-import VideoPlayer from './VideoPlayer';
+import CustomVideoPlayer from './VideoPlayer';
 
 import themeStyle from '../theme.style';
 import apiCall from '../helpers/apiCall';
@@ -294,7 +294,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                       useNativeControls
                       resizeMode="cover"
                     /> */}
-                    <VideoPlayer url={post.mediaUrl} />
+                    <CustomVideoPlayer url={post.mediaUrl} />
 
                   </View>
                 ) : post.mediaType === 'image'

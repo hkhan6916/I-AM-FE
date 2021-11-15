@@ -1,37 +1,56 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
-  View, StyleSheet, TouchableWithoutFeedback, Text, Dimensions,
+  View, StyleSheet, TouchableWithoutFeedback, Text, Dimensions, Button, ScrollView,
 } from 'react-native';
 import { Video } from 'expo-av';
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import Slider from '@react-native-community/slider';
+import { useNavigation } from '@react-navigation/native';
 import themeStyle from '../theme.style';
+import useScreenOrientation from '../helpers/hooks/useScreenOrientation';
 
-const VideoPlayer = ({ url }) => {
+const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
+const VideoPlayer = ({ url, isFullScreen }) => {
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
   const [videoProgress, setVideoProgress] = useState(0);
   const [showControls, setShowControls] = useState(true);
-  const { width: screenWidth } = Dimensions.get('window');
-
+  const [videoDimensions, setVideoDimensions] = useState({});
+  const navigation = useNavigation();
   const progressBarWidth = screenWidth - 170;
 
-  const handleStatusChange = (status) => {
+  const ScreenOrientation = useScreenOrientation();
+
+  const handleStatusChange = async (status) => {
     setVideoStatus(status);
     if (videoStatus?.positionMillis && videoStatus?.durationMillis) {
       setVideoProgress((videoStatus?.positionMillis / videoStatus?.durationMillis));
     }
   };
 
-  const handleReplay = async () => {
-    await video.current.setPositionAsync(0);
-    await video.current.playAsync();
-  };
-
   const handleProgressPress = async (e) => {
     const position = e.nativeEvent.locationX;
     const progress = ((position / progressBarWidth)) * videoStatus.durationMillis;
     await video.current.setPositionAsync(progress);
+  };
+
+  const handleVideoState = async () => {
+    const videoEnded = videoStatus.positionMillis && videoStatus.durationMillis
+      && videoStatus.positionMillis === videoStatus.durationMillis;
+
+    if (videoStatus.isPlaying) {
+      await video.current.pauseAsync();
+      if (showControls) {
+        setTimeout(() => {
+          setShowControls(false);
+        }, 5000);
+      }
+    } else if (videoEnded) {
+      await video.current.setPositionAsync(0);
+      await video.current.playAsync();
+    } else {
+      await video.current.playAsync();
+    }
   };
 
   const handleVideoDuration = (duration) => {
@@ -45,99 +64,115 @@ const VideoPlayer = ({ url }) => {
 
     return `${hours > 0 ? `${hours}:` : ''}${minutes}:${seconds}`;
   };
-  if (videoStatus?.positionMillis && videoStatus?.durationMillis) {
-    return (
-      <TouchableWithoutFeedback onPress={() => setShowControls(!showControls)}>
-        <View style={styles.container}>
-          <View>
-            <Video
-              ref={video}
-              style={styles.video}
-              source={{
-                uri: url,
-              }}
-              useNativeControls={false}
-              resizeMode="cover"
-              onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
-            />
-            {showControls
-              ? (
-                <View style={styles.controls}>
-                  {/* <MaterialCommunityIcons name="arrow-expand-all" size={24} color="black" /> */}
-                  <Text style={styles.durationStyles}>
-                    {handleVideoDuration(videoStatus?.positionMillis)}
-                  </Text>
-                  <TouchableWithoutFeedback
-                    style={{ position: 'absolute' }}
-                    onPress={() => (videoStatus.isPlaying
-                      ? video.current.pauseAsync()
-                      : videoStatus?.positionMillis === videoStatus?.durationMillis
-                        ? handleReplay() : video.current.playAsync())}
-                  >
-                    <MaterialCommunityIcons name={videoStatus.isPlaying ? 'pause' : videoStatus?.positionMillis === videoStatus?.durationMillis ? 'restart' : 'play'} size={24} color={themeStyle.colors.grayscale.white} />
-                  </TouchableWithoutFeedback>
-                  <TouchableWithoutFeedback onPress={(e) => handleProgressPress(e)}>
-                    <View style={{
-                      width: progressBarWidth,
-                      height: 20,
-                      backgroundColor: themeStyle.colors.grayscale.white,
-                    }}
-                    >
-                      <View style={{ width: `${videoProgress * 100}%`, height: 20, backgroundColor: themeStyle.colors.secondary.default }} />
-                    </View>
-                  </TouchableWithoutFeedback>
-                  <Text style={styles.durationStyles}>
-                    {handleVideoDuration(videoStatus?.durationMillis)}
-                  </Text>
-                </View>
-              )
-              : null}
-          </View>
-        </View>
-      </TouchableWithoutFeedback>
-    );
-  }
+
+  const handleShowControls = () => {
+    setShowControls(!showControls);
+  };
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('blur', async () => {
+      if (video) {
+        await video.current?.pauseAsync();
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  const handleVideoAspectRatio = () => {
+    if (ScreenOrientation === 'LANDSCAPE') {
+      return videoDimensions.height / videoDimensions.width;
+    } return videoDimensions.width / videoDimensions.height;
+  };
+
   return (
-    <TouchableWithoutFeedback onPress={() => setShowControls(!showControls)}>
-      <View style={styles.container}>
-        <View>
+    <ScrollView contentContainerStyle={styles.container}>
+      <View>
+        <TouchableWithoutFeedback onPress={() => handleShowControls()}>
           <Video
+            onReadyForDisplay={(params) => {
+              setVideoDimensions(params.naturalSize);
+            }}
             ref={video}
-            style={styles.video}
+            style={[styles.video, {
+            //   backgroundColor: 'red',
+              aspectRatio: handleVideoAspectRatio() || 1,
+
+              width: ScreenOrientation === 'PORTRAIT' ? screenWidth : screenHeight,
+            //   height: '100%',
+            //   width: '100%',
+            }]}
             source={{
-              uri: url,
+            //   uri: url,
+              uri: 'http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4', // url,
             }}
             useNativeControls={false}
-            resizeMode="cover"
+            // resizeMode="stretch"
+            resizeMode={isFullScreen ? 'contain' : 'cover'}
             onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
           />
-          {showControls
-            ? (
-              <View style={styles.controls}>
-                <TouchableWithoutFeedback
-                  onPress={() => (videoStatus.isPlaying
-                    ? video.current.pauseAsync() : video.current.playAsync())}
-                >
-                  <MaterialCommunityIcons name={videoStatus.isPlaying ? 'pause' : videoStatus?.positionMillis === videoStatus?.durationMillis ? 'restart' : 'play'} size={24} color={themeStyle.colors.grayscale.white} />
-                </TouchableWithoutFeedback>
-              </View>
-            )
-            : null}
-        </View>
+        </TouchableWithoutFeedback>
+
       </View>
-    </TouchableWithoutFeedback>
+      {showControls
+        ? (
+          <TouchableWithoutFeedback
+            onPress={() => handleVideoState()}
+          >
+            <View style={{ position: 'absolute', backgroundColor: themeStyle.colors.grayscale.black, borderRadius: 100 }}>
+              <MaterialCommunityIcons
+                name={videoStatus.isPlaying ? 'pause' : 'play'}
+                size={60}
+                color={themeStyle.colors.grayscale.white}
+              />
+            </View>
+          </TouchableWithoutFeedback>
+        )
+        : null}
+      {showControls && videoStatus?.positionMillis && videoStatus?.durationMillis
+        ? (
+          <View style={styles.controls}>
+            <Text style={styles.durationStyles}>
+              {handleVideoDuration(videoStatus?.positionMillis)}
+            </Text>
+            <Slider
+              style={{ width: progressBarWidth, height: 40 }}
+              minimumValue={0}
+              value={videoStatus?.positionMillis}
+              maximumValue={videoStatus?.durationMillis}
+              minimumTrackTintColor="#FFFFFF"
+              maximumTrackTintColor="#000000"
+              tapToSeek
+              onSlidingComplete={async (value) => {
+                await video.current.setPositionAsync(value);
+              }}
+            />
+            <Text style={styles.durationStyles}>
+              {handleVideoDuration(videoStatus?.durationMillis)}
+            </Text>
+            {!isFullScreen
+              ? <Button title="fullscreen" onPress={() => navigation.navigate('VideoScreen', { url })} />
+              : null}
+          </View>
+        ) : null}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   video: {
-    alignSelf: 'center',
-    width: '100%',
     borderRadius: 10,
-    aspectRatio: 1 / 1,
+    // margin: 0,
+    // alignSelf: 'center',
+    // height: screenWidth,
+    // aspectRatio: 1,
+    // width: screenWidth,
+    // height: screenHeight,
   },
   buttons: {
     marginTop: 200,
@@ -147,11 +182,9 @@ const styles = StyleSheet.create({
   },
   controls: {
     height: 48,
-    left: 0,
-    bottom: 0,
-    right: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     position: 'absolute',
+    bottom: 0,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',

@@ -4,6 +4,7 @@ import MainTabStack from './MainTabStack';
 import UserProfileScreen from './SubScreens/UserProfileScreen';
 import PostScreen from './SubScreens/PostScreen';
 import RepostScreen from './SubScreens/RepostScreen';
+import VideoScreen from './SubScreens/VideoScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -42,6 +43,14 @@ const MainStack = () => (
       }}
       name="RepostScreen"
       component={RepostScreen}
+    />
+    <Stack.Screen
+      options={{
+        title: 'FullScreen',
+        headerShown: false,
+      }}
+      name="VideoScreen"
+      component={VideoScreen}
     />
   </Stack.Navigator>
 );
