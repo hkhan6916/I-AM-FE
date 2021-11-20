@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import CustomVideoPlayer from './VideoPlayer';
 
+import Avatar from './Avatar';
 import themeStyle from '../theme.style';
 import apiCall from '../helpers/apiCall';
 
@@ -72,32 +73,13 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
           borderColor: themeStyle.colors.grayscale.lightGray,
         }}
         >
-          <View style={{
-            alignSelf: 'flex-start',
-            width: 50,
-            height: 50,
-            borderRadius: 50,
-            overflow: 'hidden',
-          }}
-          >
-            <TouchableHighlight
-              onPress={() => navigation.navigate('UserProfileScreen',
-                { userId: postContent.postAuthor._id })}
-              underlayColor={themeStyle.colors.grayscale.mediumGray}
-            >
-              {/* <Image
-                source={{ uri: postContent.postAuthor.profileGifUrl }}
-                resizeMode="cover"
-                style={{
-                  borderRadius: 10,
-                  alignSelf: 'center',
-                  width: 50,
-                  height: 50,
-                }}
-              /> */}
-              <View />
-            </TouchableHighlight>
-          </View>
+          {/* <Avatar
+            isClickable
+            navigation={navigation}
+            userId={postContent.postAuthor._id}
+            size={50}
+            avatarUrl={postContent.postAuthor.profileGifUrl}
+          /> */}
           <View style={{
             display: 'flex',
             justifyContent: 'center',
@@ -123,7 +105,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
               }],
             }}
             >
-              {/* <Video
+              <Video
                 style={{
                   borderRadius: 10,
                   aspectRatio: 1 / 1,
@@ -134,8 +116,8 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                 }}
                 useNativeControls
                 resizeMode="cover"
-              /> */}
-              <View />
+              />
+              {/* <View /> */}
 
             </View>
           ) : postContent.mediaType === 'image'
@@ -149,7 +131,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                 }],
               }}
               >
-                {/* <Image
+                <Image
                   resizeMode="cover"
                   source={{ uri: postContent.mediaUrl }}
                   style={{
@@ -157,9 +139,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                     aspectRatio: 1 / 1,
                     width: '100%',
                   }}
-                /> */}
-                <View />
-
+                />
               </View>
             )
             : null}
@@ -201,21 +181,13 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
       )}
       {post.postAuthor && (
       <View style={[styles.postAuthorContainer, !isPreview && { borderTopWidth: 0.5 }]}>
-        <View style={styles.postAuthorProfilePic}>
-          <TouchableHighlight
-            onPress={() => navigation.navigate('UserProfileScreen',
-              { userId: post.postAuthor._id })}
-            underlayColor={themeStyle.colors.grayscale.mediumGray}
-          >
-            {/* <Image
-              source={{ uri: post.postAuthor.profileGifUrl }}
-              resizeMode="cover"
-              style={styles.postAuthorProfilePicImage}
-            /> */}
-            <View />
-
-          </TouchableHighlight>
-        </View>
+        {/* <Avatar
+          isClickable
+          navigation={navigation}
+          userId={post.postAuthor._id}
+          size={50}
+          avatarUrl={post.postAuthor.profileGifUrl}
+        /> */}
         <View style={{
           display: 'flex',
           justifyContent: 'center',
@@ -282,18 +254,6 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                       }],
                     }}
                   >
-                    {/* <Video
-                      style={{
-                        borderRadius: 10,
-                        aspectRatio: 1 / 1,
-                        width: '100%',
-                      }}
-                      source={{
-                        uri: post.mediaUrl,
-                      }}
-                      useNativeControls
-                      resizeMode="cover"
-                    /> */}
                     <CustomVideoPlayer url={post.mediaUrl} />
 
                   </View>
@@ -308,7 +268,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                       }],
                     }}
                     >
-                      {/* <Image
+                      <Image
                         resizeMode="cover"
                         source={{ uri: post.mediaUrl }}
                         style={{
@@ -316,9 +276,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                           aspectRatio: 1 / 1,
                           width: '100%',
                         }}
-                      /> */}
-                      <View />
-
+                      />
                     </View>
                   )
                   : null}
@@ -363,13 +321,17 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                     : themeStyle.colors.grayscale.black}
                 />
               </TouchableOpacity>
-              <TouchableOpacity style={{
-                width: 40,
-                height: 40,
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginHorizontal: 5,
-              }}
+              <TouchableOpacity
+                onPress={() => navigation.navigate('CommentsScreen', {
+                  postId: post._id,
+                })}
+                style={{
+                  width: 40,
+                  height: 40,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginHorizontal: 5,
+                }}
               >
                 <FontAwesome name="comment-o" size={24} color="black" />
               </TouchableOpacity>

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableHighlight, Button, Image, RefreshControl, ScrollView,
+  View, StyleSheet, Button, RefreshControl, ScrollView,
 } from 'react-native';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
-import themeStyle from '../../../../theme.style';
 import apiCall from '../../../../helpers/apiCall';
 import UserThumbnail from '../../../../components/UserThumbnail';
 
@@ -43,7 +42,7 @@ const FriendsScreen = () => {
         )}
       >
         {friends.length ? friends.map((friend) => (
-          <UserThumbnail key={friend._id} user={friend} />
+          <UserThumbnail key={friend._id} user={friend} avatarSize={50} />
         )) : <View />}
       </ScrollView>
     </View>

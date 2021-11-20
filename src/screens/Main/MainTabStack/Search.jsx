@@ -9,6 +9,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 import apiCall from '../../../helpers/apiCall';
 import themeStyle from '../../../theme.style';
+import Avatar from '../../../components/Avatar';
+import UserThumbnail from '../../../components/UserThumbnail';
 
 const SearchScreen = () => {
   const [searchInput, setSearchInput] = useState();
@@ -54,72 +56,7 @@ const SearchScreen = () => {
       </View>
       <View>
         {results.map((user) => (
-          <TouchableHighlight
-            key={user._id}
-            underlayColor="gray"
-            style={styles.userResult}
-            onPress={() => navigation.navigate('UserProfileScreen', { userId: user._id })}
-          >
-            <View style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-            }}
-            >
-              <View style={{
-                width: showAllResults ? 70 : 55,
-                height: showAllResults ? 70 : 55,
-                borderRadius: 70,
-                overflow: 'hidden',
-                borderWidth: 2,
-                borderColor: themeStyle.colors.primary.default,
-              }}
-              >
-                <Image
-                  source={{ uri: user.profileGifUrl }}
-                  resizeMode="cover"
-                  style={{
-                    borderRadius: 70,
-                    alignSelf: 'center',
-                    width: showAllResults ? 70 : 55,
-                    height: showAllResults ? 70 : 55,
-                  }}
-                />
-              </View>
-              <View style={{
-                display: 'flex', justifyContent: 'center', marginLeft: 20,
-              }}
-              >
-                <Text numberOfLines={1} style={{ fontWeight: '700', maxWidth: 200 }}>{user.username}</Text>
-                <Text style={{ maxWidth: 200 }} numberOfLines={1}>
-                  {user.firstName}
-                  {' '}
-                  {user.lastName}
-                </Text>
-                {user.jobTitle
-                && (
-                <Text
-                  numberOfLines={1}
-                  style={{ color: themeStyle.colors.grayscale.mediumGray, maxWidth: 200 }}
-                >
-                  {user.jobTitle}
-                </Text>
-                )}
-                {showAllResults && userData.state?.friendRequestsSent.includes(user._id)
-                && (
-                <Text
-                  numberOfLines={1}
-                  style={{
-                    color: themeStyle.colors.grayscale.lightGray,
-                    maxWidth: 200,
-                    fontSize: 12,
-                  }}
-                >
-                  Request sent
-                </Text>
-                )}
-              </View>
-            </View>
-          </TouchableHighlight>
+          <UserThumbnail key={user._id} user={user} avatarSize={showAllResults ? 70 : 55} />
         ))}
       </View>
     </View>
@@ -143,7 +80,6 @@ const styles = StyleSheet.create({
   userResult: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    // backgroundColor: '#b8b894',
   },
 });
 export default SearchScreen;

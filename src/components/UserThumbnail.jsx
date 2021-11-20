@@ -3,14 +3,15 @@ import {
   View, Text, TouchableHighlight, StyleSheet, Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Avatar from './Avatar';
 import themeStyle from '../theme.style';
 
-const UserThumbnail = ({ user }) => {
+const UserThumbnail = ({ user, avatarSize }) => {
   const navigation = useNavigation();
   return (
     <TouchableHighlight
       key={user._id}
-      underlayColor={themeStyle.colors.grayscale.mediumGray}
+      underlayColor="gray"
       style={styles.userResult}
       onPress={() => navigation.navigate('UserProfileScreen', { userId: user._id })}
     >
@@ -19,26 +20,12 @@ const UserThumbnail = ({ user }) => {
         flexWrap: 'wrap',
       }}
       >
-        <View style={{
-          width: 70,
-          height: 70,
-          borderRadius: 70,
-          overflow: 'hidden',
-          borderWidth: 2,
-          borderColor: themeStyle.colors.primary.default,
-        }}
-        >
-          <Image
-            source={{ uri: user.profileGifUrl }}
-            resizeMode="cover"
-            style={{
-              borderRadius: 70,
-              alignSelf: 'center',
-              width: 70,
-              height: 70,
-            }}
-          />
-        </View>
+        <Avatar
+          navigation={navigation}
+          size={avatarSize}
+          avatarUrl={user.profileGifUrl}
+          hasBorder
+        />
         <View style={{
           display: 'flex', justifyContent: 'center', marginLeft: 20,
         }}
@@ -49,14 +36,15 @@ const UserThumbnail = ({ user }) => {
             {' '}
             {user.lastName}
           </Text>
-          {user.jobTitle && (
-            <Text
-              numberOfLines={1}
-              style={{ color: themeStyle.colors.grayscale.mediumGray, maxWidth: 200 }}
-            >
-              {user.jobTitle}
-            </Text>
-          )}
+          {user.jobTitle
+                && (
+                <Text
+                  numberOfLines={1}
+                  style={{ color: themeStyle.colors.grayscale.mediumGray, maxWidth: 200 }}
+                >
+                  {user.jobTitle}
+                </Text>
+                )}
         </View>
       </View>
     </TouchableHighlight>

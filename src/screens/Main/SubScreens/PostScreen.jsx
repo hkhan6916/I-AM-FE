@@ -66,11 +66,6 @@ const PostScreen = (props) => {
 
 const styles = StyleSheet.create({
   container: {
-    borderRightWidth: 0,
-    borderLeftWidth: 0,
-    borderTopWidth: 1,
-    width: '100%',
-    backgroundColor: 'blue',
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',

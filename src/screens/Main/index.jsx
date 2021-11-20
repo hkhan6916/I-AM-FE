@@ -5,6 +5,7 @@ import UserProfileScreen from './SubScreens/UserProfileScreen';
 import PostScreen from './SubScreens/PostScreen';
 import RepostScreen from './SubScreens/RepostScreen';
 import VideoScreen from './SubScreens/VideoScreen';
+import CommentsScreen from './SubScreens/CommentsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -51,6 +52,14 @@ const MainStack = () => (
       }}
       name="VideoScreen"
       component={VideoScreen}
+    />
+    <Stack.Screen
+      options={{
+        title: 'Comments',
+        headerShown: false,
+      }}
+      name="CommentsScreen"
+      component={CommentsScreen}
     />
   </Stack.Navigator>
 );
