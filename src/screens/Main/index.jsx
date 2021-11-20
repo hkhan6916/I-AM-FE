@@ -6,6 +6,7 @@ import PostScreen from './SubScreens/PostScreen';
 import RepostScreen from './SubScreens/RepostScreen';
 import VideoScreen from './SubScreens/VideoScreen';
 import CommentsScreen from './SubScreens/CommentsScreen';
+import themeStyle from '../../theme.style';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,6 +28,10 @@ const MainStack = () => (
     <Stack.Screen
       options={{
         headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
       }}
       name="UserProfileScreen"
       component={UserProfileScreen}
@@ -34,6 +39,10 @@ const MainStack = () => (
     <Stack.Screen
       options={{
         headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
       }}
       name="PostScreen"
       component={PostScreen}
@@ -41,6 +50,10 @@ const MainStack = () => (
     <Stack.Screen
       options={{
         headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
       }}
       name="RepostScreen"
       component={RepostScreen}
@@ -56,7 +69,11 @@ const MainStack = () => (
     <Stack.Screen
       options={{
         title: 'Comments',
-        headerShown: false,
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
       }}
       name="CommentsScreen"
       component={CommentsScreen}

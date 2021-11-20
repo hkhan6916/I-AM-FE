@@ -27,7 +27,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
         setPost(initialPost);
       }
     } else {
-      const newPost = { ...post, liked: true };
+      const newPost = { ...post };
       newPost.liked = true;
       newPost.likes += 1;
       setPost(newPost);

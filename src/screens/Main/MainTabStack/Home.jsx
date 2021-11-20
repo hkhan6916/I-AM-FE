@@ -45,7 +45,8 @@ const HomeScreen = () => {
       const offsets = await calculateOffsets();
       const { success, response } = await apiCall('POST', '/user/feed', offsets);
       if (success) {
-        if (!response.length && feed.length) {
+        // if (!response.length && feed.length) {
+        if (!response.length) {
           setAllPostsLoaded(true);
         } else {
           setFeed([...feed, ...response]);
@@ -64,7 +65,7 @@ const HomeScreen = () => {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    const { success, response } = await apiCall('GET', '/user/feed/0');
+    const { success, response } = await apiCall('POST', '/user/feed', {});
     setRefreshing(false);
     if (success) {
       setFeed([]);
