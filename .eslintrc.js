@@ -22,5 +22,6 @@ module.exports = {
     'no-use-before-define': ['error', { variables: false }],
     'no-nested-ternary': 0,
     'no-underscore-dangle': 0,
+    'react/destructuring-assignment': 0,
   },
 };

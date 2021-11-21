@@ -22,6 +22,7 @@ export default {
       black: '#000000',
       lightGray: '#B8B894',
       mediumGray: '#848484',
+      darkGray: '#6C6C6C',
     },
   },
 };
