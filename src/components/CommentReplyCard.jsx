@@ -11,7 +11,7 @@ const CommentReplyCard = ({ reply }) => {
   const navigation = useNavigation();
   return (
     <View style={styles.replyContainer}>
-      <View style={styles.profileImageContainer}>
+      <View style={styles.profileInfoContainer}>
         {/* <Avatar
           hasBorder
           isClickable
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   replyContainer: {
     marginLeft: 70,
   },
-  profileImageContainer: {
+  profileInfoContainer: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
