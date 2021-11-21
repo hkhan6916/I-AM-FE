@@ -23,14 +23,14 @@ const CommentReplyCard = ({ reply }) => {
         <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen',
           { userId: reply.userId })}
         >
-          <Text style={styles.commentAuthorName} numberOfLines={1}>
+          <Text style={styles.replyAuthorName} numberOfLines={1}>
             {reply.replyAuthor?.firstName}
             {' '}
             {reply.replyAuthor?.lastName}
           </Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.commentBodyContainer}>
+      <View style={styles.replyBodyContainer}>
         {reply.replyingToObj && reply.replyingToId
           ? (
             <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen',
@@ -38,7 +38,7 @@ const CommentReplyCard = ({ reply }) => {
             >
               <Text style={{
                 color: themeStyle.colors.secondary.default,
-                // fontWeight: '700',
+                fontWeight: '700',
                 justifyContent: 'center',
               }}
               >
@@ -106,12 +106,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 5,
   },
-  commentBodyContainer: {
+  replyBodyContainer: {
     padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
-  commentAuthorName: {
+  replyAuthorName: {
     maxWidth: 170,
     marginLeft: 10,
     color: themeStyle.colors.primary.default,

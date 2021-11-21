@@ -8,12 +8,14 @@ import themeStyle from '../theme.style';
 import Avatar from './Avatar';
 import apiCall from '../helpers/apiCall';
 import CommentReplyCard from './CommentReplyCard';
+import formatAge from '../helpers/formatAge';
 
 const PostCommentCard = ({ comment: initialComment }) => {
   const navigation = useNavigation();
   const [comment, setComment] = useState(initialComment);
   const [replies, setReplies] = useState([]);
   const [showReplies, setShowReplies] = useState(false);
+
   const handleReactionToComment = async () => {
     if (comment.liked) {
       const newPost = { ...comment, liked: false };
@@ -32,6 +34,21 @@ const PostCommentCard = ({ comment: initialComment }) => {
         setComment(initialComment);
       }
     }
+  };
+
+  const CommentAge = () => {
+    const { age } = comment;
+    const ageObject = formatAge(age);
+
+    return (
+      <Text style={styles.commentAge}>
+        {ageObject.age}
+        {' '}
+        {ageObject.unit}
+        {' '}
+        ago
+      </Text>
+    );
   };
 
   const getCommentReplies = async () => {
@@ -117,7 +134,7 @@ const PostCommentCard = ({ comment: initialComment }) => {
           </View>
         )
         : null}
-      {replies.length && comment.replyCount <= replies.length
+      {replies.length
         ? (
           <View style={{ flex: 1, alignItems: 'center', padding: 10 }}>
             <TouchableOpacity onPress={() => setShowReplies(!showReplies)}>
@@ -132,7 +149,7 @@ const PostCommentCard = ({ comment: initialComment }) => {
         <CommentReplyCard key={reply._id} reply={reply} />
       )) : null}
 
-      {replies.length && comment.replyCount >= replies.length
+      {replies.length && comment.replyCount > replies.length && showReplies
         ? (
           <View style={{ flex: 1, alignItems: 'center', padding: 10 }}>
             <TouchableOpacity onPress={() => getCommentReplies()}>
@@ -143,6 +160,7 @@ const PostCommentCard = ({ comment: initialComment }) => {
           </View>
         )
         : null}
+      <CommentAge />
     </View>
   );
 };
@@ -191,6 +209,12 @@ const styles = StyleSheet.create({
   },
   likeTrigger: {
     marginRight: 10,
+  },
+  commentAge: {
+    color: themeStyle.colors.grayscale.mediumGray,
+    marginHorizontal: 10,
+    marginVertical: 5,
+    fontSize: 12,
   },
 });
 export default PostCommentCard;

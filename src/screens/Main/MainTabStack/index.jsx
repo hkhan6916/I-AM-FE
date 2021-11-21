@@ -40,7 +40,7 @@ const MainTabStack = () => {
       initialRouteName="Home"
       screenOptions={({ route }) => ({
         contentStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: themeStyle.colors.grayscale.white,
         },
         tabBarActiveTintColor: themeStyle.colors.primary.default,
         tabBarInactiveTintColor: themeStyle.colors.grayscale.black,

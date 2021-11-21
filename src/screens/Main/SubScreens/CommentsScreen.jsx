@@ -20,7 +20,6 @@ const CommentsScreen = (props) => {
   const getComments = async () => {
     if (!allCommentsLoaded) {
       const { response, success } = await apiCall('GET', `/posts/comments/${postId}/${comments.length}`);
-      console.log(comments.length);
       if (success) {
         if (!response.length) {
           setAllCommentsLoaded(true);
@@ -37,7 +36,8 @@ const CommentsScreen = (props) => {
       body: commentBody,
     });
     if (success) {
-      setComments([response, ...comments]);
+      response.age = { minutes: 1 };
+      setComments([...comments, response]);
       setCommentBody('');
     }
   };

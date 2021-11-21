@@ -11,7 +11,7 @@ const RepostScreen = (props) => {
     prevScreen,
     post,
   } = props.route.params;
-  // const [post, setPost] = useState(initialPost);
+
   const [repostBody, setRepostBody] = useState('');
   const navigation = useNavigation();
 
@@ -24,22 +24,6 @@ const RepostScreen = (props) => {
       console.log(message);
     }
   };
-
-  // useEffect(() => {
-  //   (async () => {
-  //     const { response, success, message } = await apiCall('GET', `/user/${post.userId}`);
-  //     if (success) {
-  //       setPost({});
-  //       setPost({ ...initialPost, postAuthor: { ...response.user } });
-  //       // console.log('a', { ...initialPost, postAuthor: { ...response.user } }, 'b');
-  //     }
-  //   })();
-  //   return () => {
-  //     setRepostBody('');
-  //     setPost({});
-  //   };
-  // }, []);
-
   return (
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}

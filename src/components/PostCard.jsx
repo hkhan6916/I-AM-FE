@@ -6,7 +6,7 @@ import { Video } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import CustomVideoPlayer from './VideoPlayer';
-
+import formatAge from '../helpers/formatAge';
 import Avatar from './Avatar';
 import themeStyle from '../theme.style';
 import apiCall from '../helpers/apiCall';
@@ -38,12 +38,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
 
   const PostAge = () => {
     const { age } = post;
-    let ageObject = { unit: age?.days > 1 ? 'days' : 'day', age: age?.days };
-    if (age?.minutes) {
-      ageObject = { unit: age?.minutes > 1 ? 'minutes' : 'minute', age: age?.minutes };
-    } if (age?.hours) {
-      ageObject = { unit: age?.hours > 1 ? 'hours' : 'hour', age: age?.hours };
-    }
+    const ageObject = formatAge(age);
 
     return (
       <Text style={styles.postAge}>

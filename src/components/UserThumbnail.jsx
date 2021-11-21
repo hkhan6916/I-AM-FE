@@ -12,7 +12,7 @@ const UserThumbnail = ({ user, avatarSize }) => {
     <TouchableHighlight
       key={user._id}
       underlayColor="gray"
-      style={styles.userResult}
+      style={{ margin: 10 }}
       onPress={() => navigation.navigate('UserProfileScreen', { userId: user._id })}
     >
       <View style={{
