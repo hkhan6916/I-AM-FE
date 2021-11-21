@@ -105,6 +105,7 @@ const UserProfileScreen = (props) => {
       setUser({});
     };
   }, []);
+
   if (user) {
     return (
       <View>

@@ -20,6 +20,7 @@ const CommentReplyCard = ({ reply }) => {
           avatarUrl={reply.replyAuthor.profileGifUrl}
           size={35}
         /> */}
+        {console.log('rendering')}
         <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen',
           { userId: reply.userId })}
         >
@@ -59,32 +60,32 @@ const CommentReplyCard = ({ reply }) => {
           <TouchableOpacity style={styles.replyTrigger}>
             <Text style={{ color: themeStyle.colors.grayscale.mediumGray, fontWeight: '700' }}>Reply</Text>
           </TouchableOpacity>
-          {/* {!reply.belongsToUser ? ( */}
-          <TouchableOpacity
+          {!reply.belongsToUser ? (
+            <TouchableOpacity
               // onPress={() => handleReaction()}
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginHorizontal: 5,
-            }}
-          >
-            <MaterialCommunityIcons
-              name={reply.liked ? 'thumb-up' : 'thumb-up-outline'}
-              size={20}
-              color={reply.liked ? themeStyle.colors.secondary.default
-                : themeStyle.colors.grayscale.mediumGray}
-            />
-          </TouchableOpacity>
-          {/* ) : null} */}
-          {/* {reply.likes > 0
-            ? ( */}
-          <Text style={{ color: themeStyle.colors.grayscale.black, marginLeft: 10 }}>
-            {reply.likes}
-            {' '}
-            {reply.likes > 1 ? 'likes' : 'like'}
-          </Text>
-          {/* )
-            : null} */}
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginHorizontal: 5,
+              }}
+            >
+              <MaterialCommunityIcons
+                name={reply.liked ? 'thumb-up' : 'thumb-up-outline'}
+                size={20}
+                color={reply.liked ? themeStyle.colors.secondary.default
+                  : themeStyle.colors.grayscale.mediumGray}
+              />
+            </TouchableOpacity>
+          ) : null}
+          {reply.likes > 0
+            ? (
+              <Text style={{ color: themeStyle.colors.grayscale.black, marginLeft: 10 }}>
+                {reply.likes}
+                {' '}
+                {reply.likes > 1 ? 'likes' : 'like'}
+              </Text>
+            )
+            : null}
         </View>
       </View>
     </View>

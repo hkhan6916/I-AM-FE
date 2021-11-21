@@ -16,12 +16,10 @@ const RepostScreen = (props) => {
   const navigation = useNavigation();
 
   const handleRepost = async () => {
-    const { success, message } = await apiCall('POST', `/posts/repost/${post._id}`, { body: repostBody });
+    const { success } = await apiCall('POST', `/posts/repost/${post._id}`, { body: repostBody });
 
     if (success) {
       navigation.navigate(prevScreen);
-    } else {
-      console.log(message);
     }
   };
   return (

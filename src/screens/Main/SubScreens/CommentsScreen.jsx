@@ -37,7 +37,9 @@ const CommentsScreen = (props) => {
     });
     if (success) {
       response.age = { minutes: 1 };
-      setComments([...comments, response]);
+      const updatedComments = [response, ...comments];
+
+      setComments(updatedComments);
       setCommentBody('');
     }
   };

@@ -91,33 +91,33 @@ const PostCommentCard = ({ comment: initialComment }) => {
           <TouchableOpacity style={styles.replyTrigger}>
             <Text style={{ color: themeStyle.colors.grayscale.mediumGray, fontWeight: '700' }}>Reply</Text>
           </TouchableOpacity>
-          {/* {!comment.belongsToUser ? ( */}
-          <TouchableOpacity
-            onPress={() => handleReactionToComment()}
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginHorizontal: 5,
-            }}
-          >
-            <MaterialCommunityIcons
-              name={comment.liked ? 'thumb-up' : 'thumb-up-outline'}
-              size={20}
-              color={comment.liked ? themeStyle.colors.secondary.default
-                : themeStyle.colors.grayscale.mediumGray}
-            />
-          </TouchableOpacity>
-          {/* ) : null} */}
+          {!comment.belongsToUser ? (
+            <TouchableOpacity
+              onPress={() => handleReactionToComment()}
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginHorizontal: 5,
+              }}
+            >
+              <MaterialCommunityIcons
+                name={comment.liked ? 'thumb-up' : 'thumb-up-outline'}
+                size={20}
+                color={comment.liked ? themeStyle.colors.secondary.default
+                  : themeStyle.colors.grayscale.mediumGray}
+              />
+            </TouchableOpacity>
+          ) : null}
         </View>
-        {/* {comment.likes > 0
-          ? ( */}
-        <Text style={{ color: themeStyle.colors.grayscale.black }}>
-          {comment.likes}
-          {' '}
-          {comment.likes > 1 ? 'likes' : 'like'}
-        </Text>
-        {/* )
-           : null} */}
+        {comment.likes > 0
+          ? (
+            <Text style={{ color: themeStyle.colors.grayscale.black }}>
+              {comment.likes}
+              {' '}
+              {comment.likes > 1 ? 'likes' : 'like'}
+            </Text>
+          )
+          : null}
       </View>
       {comment.replyCount && !replies.length
         ? (
