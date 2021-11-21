@@ -18,8 +18,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
 
   const handleReaction = async () => {
     if (post.liked) {
-      const newPost = { ...post };
-      newPost.liked = false;
+      const newPost = { ...post, liked: false };
       newPost.likes -= 1;
       setPost(newPost);
       const { success } = await apiCall('GET', `/posts/like/remove/${post._id}`);
@@ -27,8 +26,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
         setPost(initialPost);
       }
     } else {
-      const newPost = { ...post };
-      newPost.liked = true;
+      const newPost = { ...post, liked: true };
       newPost.likes += 1;
       setPost(newPost);
       const { success } = await apiCall('GET', `/posts/like/add/${post._id}`);

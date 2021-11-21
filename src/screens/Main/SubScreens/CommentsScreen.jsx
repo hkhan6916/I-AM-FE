@@ -32,7 +32,7 @@ const CommentsScreen = (props) => {
   };
 
   const postComment = async () => {
-    const { response, success, message } = await apiCall('POST', '/posts/comments/add', {
+    const { response, success } = await apiCall('POST', '/posts/comments/add', {
       postId,
       body: commentBody,
     });

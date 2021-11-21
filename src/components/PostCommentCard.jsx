@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Text, View, StyleSheet, TouchableOpacity,
 } from 'react-native';
@@ -13,25 +13,26 @@ const PostCommentCard = ({ comment: initialComment }) => {
   const [comment, setComment] = useState(initialComment);
   const handleReaction = async () => {
     if (comment.liked) {
-      const newPost = comment;
-      newPost.liked = false;
+      const newPost = { ...comment, liked: false };
       newPost.likes -= 1;
       setComment(newPost);
-      const { success } = await apiCall('GET', `/posts/comment/like/remove/${comment._id}`);
+      const { success, message } = await apiCall('GET', `/posts/comment/like/remove/${comment._id}`);
+      console.log(message, initialComment);
       if (!success) {
         setComment(initialComment);
       }
     } else {
-      const newPost = comment;
-      newPost.liked = true;
+      const newPost = { ...comment, liked: true };
       newPost.likes += 1;
       setComment(newPost);
-      const { success } = await apiCall('GET', `/posts/comment/like/add/${comment._id}`);
+      const { success, message } = await apiCall('GET', `/posts/comment/like/add/${comment._id}`);
+      console.log(message, initialComment);
       if (!success) {
         setComment(initialComment);
       }
     }
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.profileImageContainer}>
@@ -59,30 +60,43 @@ const PostCommentCard = ({ comment: initialComment }) => {
         </Text>
       </View>
       <View style={styles.actionsContainer}>
-        <TouchableOpacity style={styles.replyTrigger}>
-          <Text style={{ color: themeStyle.colors.grayscale.mediumGray }}>Reply</Text>
+        <View style={styles.actions}>
+          <TouchableOpacity style={styles.replyTrigger}>
+            <Text style={{ color: themeStyle.colors.grayscale.mediumGray, fontWeight: '700' }}>Reply</Text>
+          </TouchableOpacity>
+          <View style={{ alignItems: 'center', flexDirection: 'row' }}>
+            <TouchableOpacity
+              onPress={() => handleReaction()}
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginHorizontal: 5,
+              }}
+            >
+              <MaterialCommunityIcons
+                name={comment.liked ? 'thumb-up' : 'thumb-up-outline'}
+                size={20}
+                color={comment.liked ? themeStyle.colors.secondary.default
+                  : themeStyle.colors.grayscale.mediumGray}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <TouchableOpacity>
+          {comment.replyCount
+            ? (
+              <Text>
+                {comment.replyCount}
+                {' '}
+                {comment.replyCount > 1 ? 'replies' : 'reply'}
+              </Text>
+            )
+            : null}
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handleReaction()}
-          style={{
-            width: 40,
-            height: 40,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginHorizontal: 5,
-          }}
-        >
-          <MaterialCommunityIcons
-            name={comment.liked ? 'thumb-up' : 'thumb-up-outline'}
-            size={24}
-            color={comment.liked ? themeStyle.colors.secondary.default
-              : themeStyle.colors.grayscale.black}
-          />
-        </TouchableOpacity>
-        <Text>
-          Likes
-          {' '}
+        <Text style={{ color: themeStyle.colors.grayscale.black }}>
           {comment.likes}
+          {' '}
+          {comment.likes > 1 ? 'likes' : 'like'}
         </Text>
       </View>
     </View>
@@ -113,6 +127,13 @@ const styles = StyleSheet.create({
     padding: 10,
     display: 'flex',
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  actions: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   replyTrigger: {
     marginRight: 10,
