@@ -10,9 +10,12 @@ const CommentTextInput = forwardRef((props, ref) => {
     setCommentBody('');
     props.setReplyingTo(null);
   };
+  const replyingToFieldsExists = props.replyingTo
+  && props.replyingTo.firstName
+  && props.replyingTo.lastName;
   return (
     <View>
-      {props.replyingTo ? (
+      {replyingToFieldsExists ? (
         <View style={styles.replyingToBanner}>
           <Text style={styles.replyingToBannerText}>
             Replying to
@@ -30,12 +33,12 @@ const CommentTextInput = forwardRef((props, ref) => {
         <TextInput
           ref={ref}
           style={styles.inputBox}
-          placeholder={props.replyingTo ? 'Type a reply here...' : 'Type a comment here...'}
+          placeholder={props.replyingToFieldsExists ? 'Type a reply here...' : 'Type a comment here...'}
           value={commentBody}
           onChangeText={(v) => setCommentBody(v)}
           returnKeyType="go"
         />
-        <TouchableOpacity onPress={() => props.submitAction()}>
+        <TouchableOpacity onPress={() => props.submitAction(commentBody)}>
           <Text style={styles.postTrigger}>Post</Text>
         </TouchableOpacity>
       </View>

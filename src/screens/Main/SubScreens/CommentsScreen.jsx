@@ -12,12 +12,11 @@ import CommentTextInput from '../../../components/CommentTextInput';
 const CommentsScreen = (props) => {
   const { postId } = props.route.params;
 
-  const [commentBody, setCommentBody] = useState('');
+  //   const [commentBody, setCommentBody] = useState('');
   const [comments, setComments] = useState([]);
   const [replyingTo, setReplyingTo] = useState(null);
-  const [isReply, setIsReply] = useState(false);
   const [allCommentsLoaded, setAllCommentsLoaded] = useState(false);
-
+  const [newReply, setNewReply] = useState(null);
   const navigation = useNavigation();
   const textInputRef = useRef();
 
@@ -34,44 +33,47 @@ const CommentsScreen = (props) => {
     }
   };
 
-  const postComment = async () => {
-    // const { response, success } = await apiCall('POST', '/posts/comments/add', {
-    //   postId,
-    //   body: commentBody,
-    // });
-    // if (success) {
-    //   response.age = { minutes: 1 };
-    //   const updatedComments = [response, ...comments];
+  const postComment = async (commentBody) => {
+    if (replyingTo && replyingTo.commentId) {
+      const { response, success, message } = await apiCall('POST', '/posts/comments/replies/add', {
+        commentId: replyingTo.commentId,
+        body: commentBody,
+      });
+      console.log(message);
+      if (success) {
+        response.age = { minutes: 1 };
 
-    //   setComments(updatedComments);
-    //   setCommentBody('');
-    // }
-    if (replyingTo) {
-      console.log('this will be a reply request');
+        setNewReply({ replyingToObj: replyingTo, ...response });
+        // setCommentBody('');
+      }
     } else {
-      console.log('this will be a reply request');
+      const { response, success } = await apiCall('POST', '/posts/comments/add', {
+        postId,
+        body: commentBody,
+      });
+      if (success) {
+        response.age = { minutes: 1 };
+        const updatedComments = [response, ...comments];
+
+        setComments(updatedComments);
+        // setCommentBody('');
+      }
     }
   };
 
   const replyToUser = async ({
-    commentId, firstName, lastName, replyingTo,
+    commentId, firstName, lastName, replyingToType,
   }) => {
-    if (firstName && lastName) {
-      if (replyingTo === 'reply') {
-        setIsReply(true);
+    if (firstName && lastName && commentId && replyingToType) {
+      if (replyingToType === 'reply') {
         textInputRef.current.focus();
-        setReplyingTo({ lastName, firstName });
-        //   const { response, success } = await apiCall('POST', '/posts/comments/replies/add', {
-        //     commentId,
-        //     body: commentBody,
-        //   });
-
-        setIsReply(false);
+        setReplyingTo({
+          lastName, firstName, commentId, replyingToType,
+        });
       }
 
-      if (replyingTo === 'comment') {
+      if (replyingToType === 'comment') {
         console.log();
-        setIsReply(false);
       }
     }
   };
@@ -89,6 +91,7 @@ const CommentsScreen = (props) => {
 
     return unsubscribe;
   }, [navigation]);
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -101,7 +104,7 @@ const CommentsScreen = (props) => {
         }}
       >
         {comments.length ? comments.map((comment, i) => (
-          <PostCommentCard replyToUser={replyToUser} key={comment._id || `comment-${i}`} comment={comment} />
+          <PostCommentCard newReply={newReply} replyToUser={replyToUser} key={comment._id || `comment-${i}`} comment={comment} />
         )) : null}
       </ScrollView>
       <View style={styles.inputBoxContainer}>

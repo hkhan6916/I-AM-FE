@@ -12,6 +12,7 @@ const CommentReplyCard = ({ reply, handleReplyToReply }) => {
   return (
     <View style={styles.replyContainer}>
       <View style={styles.profileInfoContainer}>
+        {console.log('reply card rendered')}
         {/* <Avatar
           hasBorder
           isClickable

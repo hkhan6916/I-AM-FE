@@ -10,7 +10,7 @@ import apiCall from '../helpers/apiCall';
 import CommentReplyCard from './CommentReplyCard';
 import formatAge from '../helpers/formatAge';
 
-const PostCommentCard = ({ comment: initialComment, replyToUser }) => {
+const PostCommentCard = ({ comment: initialComment, replyToUser, newReply }) => {
   const navigation = useNavigation();
   const [comment, setComment] = useState(initialComment);
   const [replies, setReplies] = useState([]);
@@ -73,7 +73,7 @@ const PostCommentCard = ({ comment: initialComment, replyToUser }) => {
     commentId, firstName, lastName,
   }) => {
     await replyToUser({
-      commentId, firstName, lastName, replyingTo: 'reply',
+      commentId, firstName, lastName, replyingToType: 'reply',
     });
   };
 
@@ -82,9 +82,15 @@ const PostCommentCard = ({ comment: initialComment, replyToUser }) => {
       commentId: comment._id,
       firstName: comment.commentAuthor?.firstName,
       lastName: comment.commentAuthor?.lastName,
-      replyingTo: 'comment',
+      replyingToType: 'comment',
     });
   };
+
+  useEffect(() => {
+    if (newReply) {
+      setReplies([newReply, ...replies]);
+    }
+  }, [newReply]);
 
   if (!deleted) {
     return (
