@@ -10,11 +10,12 @@ import apiCall from '../helpers/apiCall';
 import CommentReplyCard from './CommentReplyCard';
 import formatAge from '../helpers/formatAge';
 
-const PostCommentCard = ({ comment: initialComment }) => {
+const PostCommentCard = ({ comment: initialComment, replyToUser }) => {
   const navigation = useNavigation();
   const [comment, setComment] = useState(initialComment);
   const [replies, setReplies] = useState([]);
   const [showReplies, setShowReplies] = useState(false);
+  const [replyBody, setReplyBody] = useState('');
   const [deleted, setDeleted] = useState(false);
 
   const handleReactionToComment = async () => {
@@ -67,10 +68,29 @@ const PostCommentCard = ({ comment: initialComment }) => {
       </Text>
     );
   };
+
+  const handleReplyToReply = async ({
+    commentId, firstName, lastName,
+  }) => {
+    await replyToUser({
+      commentId, firstName, lastName, replyingTo: 'reply',
+    });
+  };
+
+  const handleReplyToComment = async () => {
+    await replyToUser({
+      commentId: comment._id,
+      firstName: comment.commentAuthor?.firstName,
+      lastName: comment.commentAuthor?.lastName,
+      replyingTo: 'comment',
+    });
+  };
+
   if (!deleted) {
     return (
       <View style={styles.container}>
         <View style={styles.profileInfoConatiner}>
+          {console.log(`comment card rendered${comment._id}`)}
           {/* <Avatar
           hasBorder
           isClickable
@@ -96,7 +116,10 @@ const PostCommentCard = ({ comment: initialComment }) => {
         </View>
         <View style={styles.actionsContainer}>
           <View style={styles.actions}>
-            <TouchableOpacity style={styles.replyTrigger}>
+            <TouchableOpacity
+              onPress={() => handleReplyToComment()}
+              style={styles.replyTrigger}
+            >
               <Text style={{ color: themeStyle.colors.grayscale.mediumGray, fontWeight: '700' }}>Reply</Text>
             </TouchableOpacity>
             {!comment.belongsToUser ? (
@@ -156,7 +179,11 @@ const PostCommentCard = ({ comment: initialComment }) => {
           )
           : null}
         {showReplies && replies.length ? replies.map((reply, i) => (
-          <CommentReplyCard key={reply._id} reply={reply} />
+          <CommentReplyCard
+            handleReplyToReply={handleReplyToReply}
+            key={reply._id}
+            reply={reply}
+          />
         )) : null}
 
         {replies.length && comment.replyCount > replies.length && showReplies
@@ -175,7 +202,13 @@ const PostCommentCard = ({ comment: initialComment }) => {
           {comment.belongsToUser
             ? (
               <TouchableOpacity onPress={() => deleteComment()}>
-                <Text style={{ color: themeStyle.colors.error.default, marginHorizontal: 10 }}>delete</Text>
+                <Text style={{
+                  color: themeStyle.colors.error.default,
+                  marginHorizontal: 10,
+                }}
+                >
+                  delete
+                </Text>
               </TouchableOpacity>
             )
             : null}
@@ -238,4 +271,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
-export default PostCommentCard;
+export default React.memo(PostCommentCard);

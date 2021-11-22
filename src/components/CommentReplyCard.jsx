@@ -7,7 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import themeStyle from '../theme.style';
 import Avatar from './Avatar';
 
-const CommentReplyCard = ({ reply }) => {
+const CommentReplyCard = ({ reply, handleReplyToReply }) => {
   const navigation = useNavigation();
   return (
     <View style={styles.replyContainer}>
@@ -20,7 +20,6 @@ const CommentReplyCard = ({ reply }) => {
           avatarUrl={reply.replyAuthor.profileGifUrl}
           size={35}
         /> */}
-        {console.log('rendering')}
         <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen',
           { userId: reply.userId })}
         >
@@ -57,7 +56,14 @@ const CommentReplyCard = ({ reply }) => {
       </View>
       <View style={styles.actionsContainer}>
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.replyTrigger}>
+          <TouchableOpacity
+            onPress={() => handleReplyToReply({
+              firstName: reply.replyAuthor.firstName,
+              lastName: reply.replyAuthor.lastName,
+              commentId: reply._id,
+            })}
+            style={styles.replyTrigger}
+          >
             <Text style={{ color: themeStyle.colors.grayscale.mediumGray, fontWeight: '700' }}>Reply</Text>
           </TouchableOpacity>
           {!reply.belongsToUser ? (

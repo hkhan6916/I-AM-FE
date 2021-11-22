@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView,
 } from 'react-native';
@@ -7,15 +7,19 @@ import Constants from 'expo-constants';
 import PostCommentCard from '../../../components/PostCommentCard';
 import apiCall from '../../../helpers/apiCall';
 import themeStyle from '../../../theme.style';
+import CommentTextInput from '../../../components/CommentTextInput';
 
 const CommentsScreen = (props) => {
   const { postId } = props.route.params;
 
   const [commentBody, setCommentBody] = useState('');
   const [comments, setComments] = useState([]);
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [isReply, setIsReply] = useState(false);
   const [allCommentsLoaded, setAllCommentsLoaded] = useState(false);
 
   const navigation = useNavigation();
+  const textInputRef = useRef();
 
   const getComments = async () => {
     if (!allCommentsLoaded) {
@@ -31,16 +35,44 @@ const CommentsScreen = (props) => {
   };
 
   const postComment = async () => {
-    const { response, success } = await apiCall('POST', '/posts/comments/add', {
-      postId,
-      body: commentBody,
-    });
-    if (success) {
-      response.age = { minutes: 1 };
-      const updatedComments = [response, ...comments];
+    // const { response, success } = await apiCall('POST', '/posts/comments/add', {
+    //   postId,
+    //   body: commentBody,
+    // });
+    // if (success) {
+    //   response.age = { minutes: 1 };
+    //   const updatedComments = [response, ...comments];
 
-      setComments(updatedComments);
-      setCommentBody('');
+    //   setComments(updatedComments);
+    //   setCommentBody('');
+    // }
+    if (replyingTo) {
+      console.log('this will be a reply request');
+    } else {
+      console.log('this will be a reply request');
+    }
+  };
+
+  const replyToUser = async ({
+    commentId, firstName, lastName, replyingTo,
+  }) => {
+    if (firstName && lastName) {
+      if (replyingTo === 'reply') {
+        setIsReply(true);
+        textInputRef.current.focus();
+        setReplyingTo({ lastName, firstName });
+        //   const { response, success } = await apiCall('POST', '/posts/comments/replies/add', {
+        //     commentId,
+        //     body: commentBody,
+        //   });
+
+        setIsReply(false);
+      }
+
+      if (replyingTo === 'comment') {
+        console.log();
+        setIsReply(false);
+      }
     }
   };
 
@@ -69,23 +101,16 @@ const CommentsScreen = (props) => {
         }}
       >
         {comments.length ? comments.map((comment, i) => (
-          <PostCommentCard key={comment._id || `comment-${i}`} comment={comment} />
+          <PostCommentCard replyToUser={replyToUser} key={comment._id || `comment-${i}`} comment={comment} />
         )) : null}
       </ScrollView>
       <View style={styles.inputBoxContainer}>
-        <TextInput
-          style={styles.inputBox}
-          placeholder="Type a comment here..."
-          value={commentBody}
-          onChangeText={(v) => setCommentBody(v)}
-          returnKeyType="go"
-          onSubmitEditing={() => {
-            postComment();
-          }}
+        <CommentTextInput
+          ref={textInputRef}
+          submitAction={postComment}
+          replyingTo={replyingTo}
+          setReplyingTo={setReplyingTo}
         />
-        <TouchableOpacity onPress={() => postComment()}>
-          <Text style={styles.postTrigger}>Post</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -97,23 +122,6 @@ const styles = StyleSheet.create({
   },
   commentsContainer: {
     flexGrow: 1,
-  },
-  inputBox: {
-    height: 48, flex: 1,
-  },
-  inputBoxContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: 10,
-    borderWidth: 0.5,
-    borderColor: themeStyle.colors.grayscale.lightGray,
-  },
-  postTrigger: {
-    color: themeStyle.colors.secondary.default,
-    fontWeight: '700',
   },
 });
 
