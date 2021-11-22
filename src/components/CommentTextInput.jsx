@@ -7,8 +7,15 @@ import themeStyle from '../theme.style';
 const CommentTextInput = forwardRef((props, ref) => {
   const [commentBody, setCommentBody] = useState('');
   const undoReply = () => {
-    setCommentBody('');
     props.setReplyingTo(null);
+    setCommentBody('');
+  };
+  const handleSubmit = async () => {
+    const success = await props.submitAction(commentBody);
+
+    if (success) {
+      setCommentBody('');
+    }
   };
   const replyingToFieldsExists = props.replyingTo
   && props.replyingTo.firstName
@@ -33,12 +40,12 @@ const CommentTextInput = forwardRef((props, ref) => {
         <TextInput
           ref={ref}
           style={styles.inputBox}
-          placeholder={props.replyingToFieldsExists ? 'Type a reply here...' : 'Type a comment here...'}
+          placeholder={replyingToFieldsExists ? 'Type a reply here...' : 'Type a comment here...'}
           value={commentBody}
           onChangeText={(v) => setCommentBody(v)}
           returnKeyType="go"
         />
-        <TouchableOpacity onPress={() => props.submitAction(commentBody)}>
+        <TouchableOpacity onPress={() => handleSubmit()}>
           <Text style={styles.postTrigger}>Post</Text>
         </TouchableOpacity>
       </View>

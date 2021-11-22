@@ -39,26 +39,29 @@ const CommentsScreen = (props) => {
         commentId: replyingTo.commentId,
         body: commentBody,
       });
-      console.log(message);
       if (success) {
+        console.log(message);
         response.age = { minutes: 1 };
-
-        setNewReply({ replyingToObj: replyingTo, ...response });
-        // setCommentBody('');
+        setNewReply({
+          replyingToObj: replyingTo.replyingToType === 'reply' ? replyingTo : null,
+          replyingToId: replyingTo.commentId,
+          belongsToUser: true,
+          ...response,
+        });
       }
-    } else {
-      const { response, success } = await apiCall('POST', '/posts/comments/add', {
-        postId,
-        body: commentBody,
-      });
-      if (success) {
-        response.age = { minutes: 1 };
-        const updatedComments = [response, ...comments];
-
-        setComments(updatedComments);
-        // setCommentBody('');
-      }
+      return success;
     }
+    const { response, success } = await apiCall('POST', '/posts/comments/add', {
+      postId,
+      body: commentBody,
+    });
+    if (success) {
+      response.age = { minutes: 1 };
+      const updatedComments = [response, ...comments];
+
+      setComments(updatedComments);
+    }
+    return success;
   };
 
   const replyToUser = async ({
@@ -73,7 +76,10 @@ const CommentsScreen = (props) => {
       }
 
       if (replyingToType === 'comment') {
-        console.log();
+        textInputRef.current.focus();
+        setReplyingTo({
+          lastName, firstName, commentId, replyingToType,
+        });
       }
     }
   };

@@ -57,16 +57,20 @@ const CommentReplyCard = ({ reply, handleReplyToReply }) => {
       </View>
       <View style={styles.actionsContainer}>
         <View style={styles.actions}>
-          <TouchableOpacity
-            onPress={() => handleReplyToReply({
-              firstName: reply.replyAuthor.firstName,
-              lastName: reply.replyAuthor.lastName,
-              commentId: reply._id,
-            })}
-            style={styles.replyTrigger}
-          >
-            <Text style={{ color: themeStyle.colors.grayscale.mediumGray, fontWeight: '700' }}>Reply</Text>
-          </TouchableOpacity>
+          {!reply.belongsToUser
+            ? (
+              <TouchableOpacity
+                onPress={() => handleReplyToReply({
+                  firstName: reply.replyAuthor.firstName,
+                  lastName: reply.replyAuthor.lastName,
+                  commentId: reply._id,
+                })}
+                style={styles.replyTrigger}
+              >
+                <Text style={{ color: themeStyle.colors.grayscale.mediumGray, fontWeight: '700' }}>Reply</Text>
+              </TouchableOpacity>
+            )
+            : null}
           {!reply.belongsToUser ? (
             <TouchableOpacity
               // onPress={() => handleReaction()}
