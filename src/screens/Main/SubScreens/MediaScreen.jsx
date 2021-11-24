@@ -26,26 +26,7 @@ const MediaScreen = (props) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        onPress={() => navigation.navigate('Home')}
-        style={{
-          position: 'absolute',
-          left: 20,
-          top: 0,
-          backgroundColor: 'red',
-        }}
-      >
-        <View style={{
-          display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', opacity: showActions ? 1 : 0.5,
-        }}
-        >
-          <Ionicons name="arrow-back" size={24} color={themeStyle.colors.grayscale.white} />
-          <Text style={{ color: themeStyle.colors.grayscale.white }}>
-            Home
-          </Text>
-        </View>
-      </TouchableOpacity>
-      <View style={{ marginTop: 20 }}>
+      <View>
         {post?.mediaType === 'video'
           ? (
             <VideoPlayer
@@ -73,6 +54,29 @@ const MediaScreen = (props) => {
               </View>
             )
             : null}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Home')}
+          style={{
+            position: 'absolute',
+            left: 10,
+            top: 10,
+          }}
+        >
+          <View style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: showActions ? 1 : 0.5,
+          }}
+          >
+            <Ionicons name="arrow-back" size={26} color={themeStyle.colors.grayscale.white} />
+            <Text style={{ color: themeStyle.colors.grayscale.white, fontSize: 16 }}>
+              Home
+            </Text>
+          </View>
+        </TouchableOpacity>
+
         <TouchableWithoutFeedback>
           <View style={{
             position: 'absolute',
