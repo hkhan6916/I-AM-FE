@@ -14,6 +14,7 @@ const CommentTextInput = forwardRef((props, ref) => {
     const success = await props.submitAction(commentBody);
 
     if (success) {
+      props.setReplyingTo(null);
       setCommentBody('');
     }
   };

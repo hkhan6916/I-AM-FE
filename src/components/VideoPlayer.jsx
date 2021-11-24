@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import {
-  View, StyleSheet, TouchableWithoutFeedback, Text, Dimensions, Button, ScrollView,
+  View, StyleSheet, TouchableWithoutFeedback, Text, Dimensions, ScrollView,
 } from 'react-native';
 import { Video } from 'expo-av';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -10,10 +10,9 @@ import themeStyle from '../theme.style';
 import useScreenOrientation from '../helpers/hooks/useScreenOrientation';
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
-const VideoPlayer = ({ url, isFullScreen }) => {
+const VideoPlayer = ({ url, isFullScreen, setShowActions }) => {
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
-  const [videoProgress, setVideoProgress] = useState(0);
   const [showControls, setShowControls] = useState(true);
   const [videoDimensions, setVideoDimensions] = useState({});
   const navigation = useNavigation();
@@ -23,15 +22,6 @@ const VideoPlayer = ({ url, isFullScreen }) => {
 
   const handleStatusChange = async (status) => {
     setVideoStatus(status);
-    if (videoStatus?.positionMillis && videoStatus?.durationMillis) {
-      setVideoProgress((videoStatus?.positionMillis / videoStatus?.durationMillis));
-    }
-  };
-
-  const handleProgressPress = async (e) => {
-    const position = e.nativeEvent.locationX;
-    const progress = ((position / progressBarWidth)) * videoStatus.durationMillis;
-    await video.current.setPositionAsync(progress);
   };
 
   const handleVideoState = async () => {
@@ -67,19 +57,42 @@ const VideoPlayer = ({ url, isFullScreen }) => {
 
   const handleShowControls = () => {
     setShowControls(!showControls);
+    if (setShowActions) {
+      setShowActions(!showControls);
+    }
   };
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('blur', async () => {
-      if (video) {
-        await video.current?.pauseAsync();
-      }
-    });
+    let isMounted = true;
+    if (isMounted) {
+      const unsubscribe = navigation.addListener('blur', async () => {
+        if (video) {
+          await video.current?.pauseAsync();
+        }
+      });
+      isMounted = false;
+      return unsubscribe;
+    }
+  }, [navigation]);
 
-    return unsubscribe;
+  useEffect(() => {
+    let isMounted = true;
+    if (isMounted) {
+      const unsubscribe = navigation.addListener('focus', async () => {
+        if (video) {
+          await video.current?.playAsync();
+        }
+      });
+
+      isMounted = false;
+      return unsubscribe;
+    }
   }, [navigation]);
 
   const handleVideoAspectRatio = () => {
+    if (!isFullScreen) {
+      return 1;
+    }
     if (ScreenOrientation === 'LANDSCAPE') {
       return videoDimensions.height / videoDimensions.width;
     } return videoDimensions.width / videoDimensions.height;
@@ -88,33 +101,53 @@ const VideoPlayer = ({ url, isFullScreen }) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View>
-        <TouchableWithoutFeedback onPress={() => handleShowControls()}>
-          <Video
-            onReadyForDisplay={(params) => {
-              setVideoDimensions(params.naturalSize);
-            }}
-            ref={video}
-            style={[styles.video, {
-            //   backgroundColor: 'red',
-              aspectRatio: handleVideoAspectRatio() || 1,
+        {isFullScreen
+          ? (
+            <TouchableWithoutFeedback onPress={() => handleShowControls()}>
+              <Video
+                onReadyForDisplay={(params) => {
+                  setVideoDimensions(params.naturalSize);
+                }}
+                volume={!isFullScreen ? 0 : 1}
+                ref={video}
+                isLooping={!isFullScreen}
+                style={[styles.video, {
+                  aspectRatio: handleVideoAspectRatio() || 1,
 
-              width: ScreenOrientation === 'PORTRAIT' ? screenWidth : screenHeight,
-            //   height: '100%',
-            //   width: '100%',
-            }]}
-            source={{
-            //   uri: url,
-              uri: 'http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4', // url,
-            }}
-            useNativeControls={false}
-            // resizeMode="stretch"
-            resizeMode={isFullScreen ? 'contain' : 'cover'}
-            onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
-          />
-        </TouchableWithoutFeedback>
+                  width: ScreenOrientation === 'PORTRAIT' ? screenWidth : screenHeight,
+                }]}
+                source={{
+                  uri: url,
+                }}
+                useNativeControls={false}
+                resizeMode={isFullScreen ? 'contain' : 'cover'}
+                onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
+              />
+            </TouchableWithoutFeedback>
+          )
+          : (
+            <Video
+              onReadyForDisplay={(params) => {
+                setVideoDimensions(params.naturalSize);
+              }}
+              volume={!isFullScreen ? 0 : 1}
+              ref={video}
+              isLooping={!isFullScreen}
+              style={[styles.video, {
+                aspectRatio: handleVideoAspectRatio() || 1,
 
+                width: ScreenOrientation === 'PORTRAIT' ? screenWidth : screenHeight,
+              }]}
+              source={{
+                uri: url,
+              }}
+              useNativeControls={false}
+              resizeMode={isFullScreen ? 'contain' : 'cover'}
+              onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
+            />
+          )}
       </View>
-      {showControls
+      {showControls && isFullScreen
         ? (
           <TouchableWithoutFeedback
             onPress={() => handleVideoState()}
@@ -129,7 +162,7 @@ const VideoPlayer = ({ url, isFullScreen }) => {
           </TouchableWithoutFeedback>
         )
         : null}
-      {showControls && videoStatus?.positionMillis && videoStatus?.durationMillis
+      {showControls && isFullScreen && videoStatus?.positionMillis && videoStatus?.durationMillis
         ? (
           <View style={styles.controls}>
             <Text style={styles.durationStyles}>
@@ -150,9 +183,7 @@ const VideoPlayer = ({ url, isFullScreen }) => {
             <Text style={styles.durationStyles}>
               {handleVideoDuration(videoStatus?.durationMillis)}
             </Text>
-            {!isFullScreen
-              ? <Button title="fullscreen" onPress={() => navigation.navigate('VideoScreen', { url })} />
-              : null}
+
           </View>
         ) : null}
     </ScrollView>
@@ -167,12 +198,6 @@ const styles = StyleSheet.create({
   },
   video: {
     borderRadius: 10,
-    // margin: 0,
-    // alignSelf: 'center',
-    // height: screenWidth,
-    // aspectRatio: 1,
-    // width: screenWidth,
-    // height: screenHeight,
   },
   buttons: {
     marginTop: 200,

@@ -1,12 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
-  View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView,
+  View, StyleSheet, ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Constants from 'expo-constants';
 import PostCommentCard from '../../../components/PostCommentCard';
 import apiCall from '../../../helpers/apiCall';
-import themeStyle from '../../../theme.style';
 import CommentTextInput from '../../../components/CommentTextInput';
 
 const CommentsScreen = (props) => {
@@ -110,7 +108,12 @@ const CommentsScreen = (props) => {
         }}
       >
         {comments.length ? comments.map((comment, i) => (
-          <PostCommentCard newReply={newReply} replyToUser={replyToUser} key={comment._id || `comment-${i}`} comment={comment} />
+          <PostCommentCard
+            newReply={newReply}
+            replyToUser={replyToUser}
+            key={comment._id || `comment-${i}`}
+            comment={comment}
+          />
         )) : null}
       </ScrollView>
       <View style={styles.inputBoxContainer}>

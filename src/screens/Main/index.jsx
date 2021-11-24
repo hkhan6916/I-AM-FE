@@ -2,7 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MainTabStack from './MainTabStack';
 import UserProfileScreen from './SubScreens/UserProfileScreen';
-import PostScreen from './SubScreens/PostScreen';
+import MediaScreen from './SubScreens/MediaScreen';
 import RepostScreen from './SubScreens/RepostScreen';
 import VideoScreen from './SubScreens/VideoScreen';
 import CommentsScreen from './SubScreens/CommentsScreen';
@@ -38,14 +38,10 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
-        headerShown: true,
-        headerTintColor: themeStyle.colors.primary.default,
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
+        headerShown: false,
       }}
-      name="PostScreen"
-      component={PostScreen}
+      name="MediaScreen"
+      component={MediaScreen}
     />
     <Stack.Screen
       options={{

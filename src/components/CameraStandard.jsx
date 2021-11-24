@@ -3,7 +3,10 @@ import {
   Text, View, TouchableOpacity, Dimensions, Linking, Platform,
 } from 'react-native';
 import { Camera } from 'expo-camera';
-import { Ionicons } from '@expo/vector-icons';
+import {
+  Ionicons, EvilIcons,
+} from '@expo/vector-icons';
+
 import { DeviceMotion } from 'expo-sensors';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
@@ -89,22 +92,58 @@ const CameraStandard = ({
   }
   if (hasCameraPermission === false || hasMicrophonePermission === false) {
     return (
-      <View style={{ flex: 1 }}>
-        <Text>
+      <View style={{
+        flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: themeStyle.colors.primary.default,
+      }}
+      >
+        <View style={{
+          borderColor: themeStyle.colors.grayscale.white,
+          borderWidth: 3,
+          padding: 20,
+          width: 150,
+          height: 150,
+          borderRadius: 200,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        >
+          <EvilIcons name="camera" size={104} color={themeStyle.colors.grayscale.white} />
+        </View>
+        <Text style={{ margin: 20, textAlign: 'center', color: themeStyle.colors.grayscale.white }}>
+          Well...? No worries, this should be easy.
+          {' '}
           Please enable
           {' '}
           {!hasCameraPermission && !hasMicrophonePermission ? 'camera and microphone permissions'
             : !hasMicrophonePermission ? 'microphone permission'
               : !hasCameraPermission ? 'camera permission' : null}
           {' '}
-          settings to use the camera.
+          in device settings. That way you can post cool photos and videos!
         </Text>
-        <TouchableOpacity onPress={() => openAppSettings()}>
-          <Text>Go to setting</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text>Go to home</Text>
-        </TouchableOpacity>
+        <View style={{ display: 'flex', flexDirection: 'row' }}>
+          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+            <View style={{
+              display: 'flex', flexDirection: 'row', alignItems: 'center', margin: 10, padding: 5, borderRadius: 5, borderWidth: 2, borderColor: themeStyle.colors.grayscale.white,
+            }}
+            >
+              <Text style={{ textAlign: 'center', color: themeStyle.colors.grayscale.white, fontWeight: '700' }}>
+                Go to Home
+                {' '}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => openAppSettings()}>
+            <View style={{
+              display: 'flex', flexDirection: 'row', alignItems: 'center', margin: 10, padding: 5, borderRadius: 5, borderWidth: 2, borderColor: themeStyle.colors.grayscale.white,
+            }}
+            >
+              <Text style={{ textAlign: 'center', color: themeStyle.colors.grayscale.white, fontWeight: '700' }}>
+                Go to Settings
+                {' '}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }

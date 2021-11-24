@@ -6,7 +6,7 @@ import { Video } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import FastImage from 'react-native-fast-image';
-import CustomVideoPlayer from './VideoPlayer';
+import VideoPlayer from './VideoPlayer';
 import formatAge from '../helpers/formatAge';
 import Avatar from './Avatar';
 import themeStyle from '../theme.style';
@@ -55,7 +55,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
   const RepostedPost = ({ postContent }) => (
     <TouchableHighlight
       style={styles.repostedPostContent}
-      onPress={() => navigation.navigate('PostScreen', { post: postContent })}
+      onPress={() => navigation.navigate('MediaScreen', { post: postContent })}
       underlayColor={themeStyle.colors.grayscale.mediumGray}
     >
       <View>
@@ -230,7 +230,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                 { scaleX: -1 },
               ],
             }]}
-            onPress={() => navigation.navigate('PostScreen', { post })}
+            onPress={() => navigation.navigate('MediaScreen', { post })}
             underlayColor={themeStyle.colors.grayscale.mediumGray}
           >
             <View style={{
@@ -249,8 +249,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                       }],
                     }}
                   >
-                    <CustomVideoPlayer url={post.mediaUrl} />
-
+                    <VideoPlayer url={post.mediaUrl} />
                   </View>
                 ) : post.mediaType === 'image'
                   ? (
