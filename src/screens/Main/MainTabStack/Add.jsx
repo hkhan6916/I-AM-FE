@@ -6,6 +6,7 @@ import { useNavigation, useIsFocused } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import { useDispatch } from 'react-redux';
 import { Video } from 'expo-av';
+import FastImage from 'react-native-fast-image';
 import themeStyle from '../../../theme.style';
 import apiCall from '../../../helpers/apiCall';
 import CameraStandard from '../../../components/CameraStandard';
@@ -103,7 +104,10 @@ const AddScreen = () => {
                 }],
               }}
               >
-                <Image style={{ width: 300, height: 300, margin: 20 }} source={{ uri: file.uri }} />
+                <FastImage
+                  style={{ width: 300, height: 300, margin: 20 }}
+                  source={{ uri: file.uri }}
+                />
               </View>
             )
             : null

@@ -93,7 +93,7 @@ const RegisterationScreen = () => {
 
   useEffect(() => {
     (async () => {
-      const cameraStatus = await Camera.requestPermissionsAsync();
+      const cameraStatus = await Camera.requestCameraPermissionsAsync();
       setHasCameraPermission(cameraStatus.status === 'granted');
       const audioStatus = await Camera.requestMicrophonePermissionsAsync();
       setHasAudioPermission(audioStatus.status === 'granted');

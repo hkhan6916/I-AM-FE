@@ -97,14 +97,14 @@ const PostCommentCard = ({ comment: initialComment, replyToUser, newReply }) => 
       <View style={styles.container}>
         <View style={styles.profileInfoConatiner}>
           {console.log(`comment card rendered${comment._id}`)}
-          {/* <Avatar
-          hasBorder
-          isClickable
-          userId={comment.userId}
-          navigation={navigation}
-          avatarUrl={comment.commentAuthor.profileGifUrl}
-          size={40}
-        /> */}
+          <Avatar
+            hasBorder
+            isClickable
+            userId={comment.userId}
+            navigation={navigation}
+            avatarUrl={comment.commentAuthor.profileGifUrl}
+            size={40}
+          />
           <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen',
             { userId: comment.userId })}
           >

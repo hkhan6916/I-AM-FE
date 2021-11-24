@@ -5,6 +5,7 @@ import {
 import { Video } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
+import FastImage from 'react-native-fast-image';
 import CustomVideoPlayer from './VideoPlayer';
 import formatAge from '../helpers/formatAge';
 import Avatar from './Avatar';
@@ -66,13 +67,13 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
           borderColor: themeStyle.colors.grayscale.lightGray,
         }}
         >
-          {/* <Avatar
+          <Avatar
             isClickable
             navigation={navigation}
             userId={postContent.postAuthor._id}
             size={50}
             avatarUrl={postContent.postAuthor.profileGifUrl}
-          /> */}
+          />
           <View style={{
             display: 'flex',
             justifyContent: 'center',
@@ -124,8 +125,8 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                 }],
               }}
               >
-                <Image
-                  resizeMode="cover"
+                <FastImage
+                  resizeMode={FastImage.resizeMode.cover}
                   source={{ uri: postContent.mediaUrl }}
                   style={{
                     borderRadius: 10,
@@ -172,15 +173,16 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
           </Text>
         </TouchableOpacity>
       )}
+
       {post.postAuthor && (
       <View style={[styles.postAuthorContainer, !isPreview && { borderTopWidth: 0.5 }]}>
-        {/* <Avatar
+        <Avatar
           isClickable
           navigation={navigation}
           userId={post.postAuthor._id}
           size={50}
           avatarUrl={post.postAuthor.profileGifUrl}
-        /> */}
+        />
         <View style={{
           display: 'flex',
           justifyContent: 'center',
@@ -261,8 +263,8 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                       }],
                     }}
                     >
-                      <Image
-                        resizeMode="cover"
+                      <FastImage
+                        resizeMode={FastImage.resizeMode.cover}
                         source={{ uri: post.mediaUrl }}
                         style={{
                           borderRadius: 10,
@@ -363,7 +365,7 @@ const styles = StyleSheet.create({
     borderRightWidth: 0,
     borderLeftWidth: 0,
     borderColor: themeStyle.colors.grayscale.lightGray,
-    marginTop: 20,
+    marginBottom: 20,
   },
   postAge: {
     color: themeStyle.colors.grayscale.mediumGray,

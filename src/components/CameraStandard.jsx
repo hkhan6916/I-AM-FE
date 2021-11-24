@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Text, View, TouchableOpacity, Dimensions,
+  Text, View, TouchableOpacity, Dimensions, Linking, Platform,
 } from 'react-native';
 import { Camera } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,13 +8,16 @@ import { DeviceMotion } from 'expo-sensors';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { manipulateAsync } from 'expo-image-manipulator';
+import { startActivityAsync, ActivityAction } from 'expo-intent-launcher';
+import Constants from 'expo-constants';
 import themeStyle from '../theme.style';
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
 const CameraStandard = ({
   setCameraActive, recording, setFile, setRecording,
 }) => {
-  const [hasPermission, setHasPermission] = useState(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState(null);
+  const [hasMicrophonePermission, setHasMicrophonePermission] = useState(null);
   const [cameraRef, setCameraRef] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [orientation, setOrientation] = useState('portrait');
@@ -22,16 +25,34 @@ const CameraStandard = ({
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
+  const packageName = Constants.manifest.releaseChannel
+    ? Constants.manifest.android.package
+    : 'host.exp.exponent';
+
+  const openAppSettings = () => {
+    if (Platform.OS === 'ios') {
+      Linking.openURL('app-settings:');
+    } else {
+      startActivityAsync(
+        ActivityAction.APPLICATION_DETAILS_SETTINGS,
+        { data: `package:${packageName}` },
+      );
+    }
+  };
+
   useEffect(() => {
     (async () => {
-      const { status } = await Camera.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
+      const { status: cameraStatus } = await Camera.requestCameraPermissionsAsync();
+      const { status: microphoneStatus } = await Camera.requestMicrophonePermissionsAsync();
+
+      setHasCameraPermission(cameraStatus === 'granted');
+      setHasMicrophonePermission(microphoneStatus === 'granted');
       dispatch({ type: 'SET_CAMERA_ACTIVATED', payload: true });
     })();
     return () => {
       dispatch({ type: 'SET_CAMERA_ACTIVATED', payload: false });
       DeviceMotion.removeAllListeners();
-      setHasPermission(false);
+      setHasCameraPermission(false);
       setCameraActive(false);
       setCameraRef(null);
     };
@@ -63,11 +84,29 @@ const CameraStandard = ({
       // setType(0);
     };
   }, [type]);
-  if (hasPermission === null) {
+  if (hasCameraPermission === null || hasMicrophonePermission === null) {
     return <View />;
   }
-  if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
+  if (hasCameraPermission === false || hasMicrophonePermission === false) {
+    return (
+      <View style={{ flex: 1 }}>
+        <Text>
+          Please enable
+          {' '}
+          {!hasCameraPermission && !hasMicrophonePermission ? 'camera and microphone permissions'
+            : !hasMicrophonePermission ? 'microphone permission'
+              : !hasCameraPermission ? 'camera permission' : null}
+          {' '}
+          settings to use the camera.
+        </Text>
+        <TouchableOpacity onPress={() => openAppSettings()}>
+          <Text>Go to setting</Text>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Text>Go to home</Text>
+        </TouchableOpacity>
+      </View>
+    );
   }
   return (
     <View style={{ flex: 1, backgroundColor: themeStyle.colors.grayscale.black }}>

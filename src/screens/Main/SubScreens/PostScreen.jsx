@@ -1,8 +1,10 @@
 import React from 'react';
 import { Video } from 'expo-av';
 import {
-  Text, View, Image, StyleSheet,
+  Text, View, StyleSheet,
 } from 'react-native';
+import FastImage from 'react-native-fast-image';
+import VideoPlayer from '../../../components/VideoPlayer';
 
 const PostScreen = (props) => {
   const { post } = props.route.params;
@@ -17,20 +19,22 @@ const PostScreen = (props) => {
     >
       {post?.mediaType === 'video'
         ? (
-          <Video
-            style={{
-            // width: '100%',
-            // height: 400,
-              width: 100,
-              height: 100,
-            // backgroundColor: themeStyle.colors.grayscale.black,
-            }}
-            source={{
-              uri: post.mediaUrl,
-            }}
-            useNativeControls
-            resizeMode="cover"
-            isLooping
+          // <Video
+          //   style={{
+          //   // width: '100%',
+          //   // height: 400,
+          //     width: 100,
+          //     height: 100,
+          //   // backgroundColor: themeStyle.colors.grayscale.black,
+          //   }}
+          //   source={{
+          //     uri: post.mediaUrl,
+          //   }}
+          //   useNativeControls
+          //   resizeMode="cover"
+          // />
+          <VideoPlayer
+            url={post.mediaUrl}
           />
         ) : post?.mediaType === 'image'
           ? (
@@ -42,8 +46,8 @@ const PostScreen = (props) => {
               backgroundColor: 'red',
             }}
             >
-              <Image
-                resizeMode="cover"
+              <FastImage
+                resizeMode={FastImage.resizeMode.contain}
                 source={{ uri: post.mediaUrl }}
                 style={{
                   maxWidth: '100%', minWidth: '40%', maxHeight: '60%', minHeight: '40%',

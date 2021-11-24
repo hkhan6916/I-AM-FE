@@ -1,5 +1,5 @@
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
-import React, { useEffect, useState, createContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import apiCall from '../helpers/apiCall';
@@ -64,7 +64,7 @@ const Screens = () => {
 const styles = StyleSheet.create({
   splashScreenContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: themeStyle.colors.grayscale.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
