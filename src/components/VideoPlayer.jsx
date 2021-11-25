@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import {
-  View, StyleSheet, TouchableWithoutFeedback, Text, Dimensions, ScrollView,
+  View, StyleSheet, TouchableWithoutFeedback, Text, Dimensions, ScrollView, StatusBar,
 } from 'react-native';
 import { Video } from 'expo-av';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -10,7 +10,9 @@ import themeStyle from '../theme.style';
 import useScreenOrientation from '../helpers/hooks/useScreenOrientation';
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
-const VideoPlayer = ({ url, isFullScreen, setShowActions }) => {
+const VideoPlayer = ({
+  url, isFullScreen, setShowActions, mediaOrientation, mediaIsSelfie,
+}) => {
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
   const [showControls, setShowControls] = useState(true);
@@ -75,79 +77,101 @@ const VideoPlayer = ({ url, isFullScreen, setShowActions }) => {
     }
   }, [navigation]);
 
-  useEffect(() => {
-    let isMounted = true;
-    if (isMounted) {
-      const unsubscribe = navigation.addListener('focus', async () => {
-        if (video) {
-          await video.current?.playAsync();
-        }
-      });
-
-      isMounted = false;
-      return unsubscribe;
-    }
-  }, [navigation]);
-
   const handleVideoAspectRatio = () => {
     if (!isFullScreen) {
       return 1;
     }
     if (ScreenOrientation === 'LANDSCAPE') {
-      return videoDimensions.height / videoDimensions.width;
+      let aspectRatio = videoDimensions.height / videoDimensions.width;
+      if (mediaOrientation === 'landscape-left' || mediaOrientation === 'landscape-right') {
+        aspectRatio = videoDimensions.width / videoDimensions.width;
+      }
+      return aspectRatio;
     } return videoDimensions.width / videoDimensions.height;
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View>
+        <StatusBar
+          animated
+          hidden={isFullScreen}
+        />
         {isFullScreen
           ? (
             <TouchableWithoutFeedback onPress={() => handleShowControls()}>
-              <Video
-                onReadyForDisplay={(params) => {
-                  setVideoDimensions(params.naturalSize);
+              <View style={{
+                transform: [
+                  { scaleX: mediaIsSelfie ? -1 : 1 },
+                ],
+              }}
+              >
+                <View style={{
+                  transform: [{
+                    rotate: mediaOrientation === 'landscape-left' ? '-90deg'
+                      : mediaOrientation === 'landscape-right' ? '90deg' : '0deg',
+                  }],
                 }}
-                volume={!isFullScreen ? 0 : 1}
-                ref={video}
-                isLooping={!isFullScreen}
-                style={[styles.video, {
-                  aspectRatio: handleVideoAspectRatio() || 1,
-
-                  width: ScreenOrientation === 'PORTRAIT' ? screenWidth : screenHeight,
-                }]}
-                source={{
-                  uri: url,
-                }}
-                useNativeControls={false}
-                resizeMode={isFullScreen ? 'contain' : 'cover'}
-                onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
-              />
+                >
+                  <Video
+                    onReadyForDisplay={(params) => {
+                      setVideoDimensions(params.naturalSize);
+                    }}
+                    volume={!isFullScreen ? 0 : 1}
+                    ref={video}
+                    isLooping={!isFullScreen}
+                    style={[styles.video, {
+                      aspectRatio: handleVideoAspectRatio() || 1,
+                      width: ScreenOrientation === 'PORTRAIT' ? screenWidth : screenHeight,
+                    }]}
+                    source={{
+                      uri: url,
+                    }}
+                    useNativeControls={false}
+                    resizeMode={isFullScreen ? 'contain' : 'cover'}
+                    onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
+                  />
+                </View>
+              </View>
             </TouchableWithoutFeedback>
           )
           : (
-            <Video
-              onReadyForDisplay={(params) => {
-                setVideoDimensions(params.naturalSize);
+            <View style={{
+              transform: [
+                { scaleX: mediaIsSelfie ? -1 : 1 },
+              ],
+            }}
+            >
+              <View style={{
+                transform: [{
+                  rotate: mediaOrientation === 'landscape-left' ? '-90deg'
+                    : mediaOrientation === 'landscape-right' ? '90deg' : '0deg',
+                }],
               }}
-              volume={!isFullScreen ? 0 : 1}
-              ref={video}
-              isLooping={!isFullScreen}
-              style={[styles.video, {
-                aspectRatio: handleVideoAspectRatio() || 1,
-
-                width: ScreenOrientation === 'PORTRAIT' ? screenWidth : screenHeight,
-              }]}
-              source={{
-                uri: url,
-              }}
-              useNativeControls={false}
-              resizeMode={isFullScreen ? 'contain' : 'cover'}
-              onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
-            />
+              >
+                <Video
+                  onReadyForDisplay={(params) => {
+                    setVideoDimensions(params.naturalSize);
+                  }}
+                  volume={!isFullScreen ? 0 : 1}
+                  ref={video}
+                  isLooping={!isFullScreen}
+                  style={[styles.video, {
+                    aspectRatio: handleVideoAspectRatio() || 1,
+                    width: ScreenOrientation === 'PORTRAIT' ? screenWidth : screenHeight,
+                  }]}
+                  source={{
+                    uri: url,
+                  }}
+                  useNativeControls={false}
+                  resizeMode={isFullScreen ? 'contain' : 'cover'}
+                  onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
+                />
+              </View>
+            </View>
           )}
       </View>
-      {showControls && isFullScreen
+      {showControls || !isFullScreen
         ? (
           <TouchableWithoutFeedback
             onPress={() => handleVideoState()}
@@ -183,7 +207,6 @@ const VideoPlayer = ({ url, isFullScreen, setShowActions }) => {
             <Text style={styles.durationStyles}>
               {handleVideoDuration(videoStatus?.durationMillis)}
             </Text>
-
           </View>
         ) : null}
     </ScrollView>
@@ -214,6 +237,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-around',
     paddingHorizontal: 10,
+    width: '100%',
   },
   durationStyles: {
     fontWeight: '500',

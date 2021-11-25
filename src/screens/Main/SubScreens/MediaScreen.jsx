@@ -3,18 +3,41 @@ import React, { useEffect, useState } from 'react';
 import {
   Text, View, StyleSheet, TouchableOpacity, TouchableWithoutFeedback,
 } from 'react-native';
-import FastImage from 'react-native-fast-image';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { FontAwesome, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import VideoPlayer from '../../../components/VideoPlayer';
 import themeStyle from '../../../theme.style';
+import apiCall from '../../../helpers/apiCall';
+import ImageWithCache from '../../../components/ImageWithCache';
 
 const MediaScreen = (props) => {
   const [showActions, setShowActions] = useState(false);
   const { post } = props.route.params;
-  const shouldFlip = post?.mediaIsSelfie;
+  const [liked, setLked] = useState(post.liked);
+  const [likes, setLikes] = useState(post.likes);
   const navigation = useNavigation();
+
+  const handleReaction = async () => {
+    if (liked) {
+      setLikes(likes - 1);
+      setLked(false);
+
+      const { success } = await apiCall('GET', `/posts/like/remove/${post._id}`);
+      if (!success) {
+        setLikes(likes + 1);
+        setLked(true);
+      }
+    } else {
+      setLikes(likes + 1);
+      setLked(true);
+      const { success } = await apiCall('GET', `/posts/like/add/${post._id}`);
+      if (!success) {
+        setLikes(likes - 1);
+        setLked(false);
+      }
+    }
+  };
   useEffect(() => {
     (async () => {
       await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
@@ -31,25 +54,20 @@ const MediaScreen = (props) => {
           ? (
             <VideoPlayer
               url={post.mediaUrl}
+              mediaOrientation={post.mediaOrientation}
+              mediaIsSelfie={post.mediaIsSelfie}
               isFullScreen
               setShowActions={setShowActions}
             />
           ) : post?.mediaType === 'image'
             ? (
-              <View style={{
-                transform: [{
-                  scaleX: shouldFlip ? -1 : 0,
-                  rotate: post.mediaOrientation === 'landscape-left' ? '-90deg'
-                    : post.mediaOrientation === 'landscape-right' ? '90deg' : '0deg',
-                }],
-              }}
-              >
-                <FastImage
-                  resizeMode={FastImage.resizeMode.contain}
-                  source={{ uri: post.mediaUrl }}
-                  style={{
-                    maxWidth: '100%', minWidth: '100%', maxHeight: '100%', minHeight: '100%',
-                  }}
+              <View>
+                <ImageWithCache
+                  mediaOrientation={post.mediaOrientation}
+                  mediaIsSelfie={post.mediaIsSelfie}
+                  resizeMode="cover"
+                  mediaUrl={post.mediaUrl}
+                  aspectRatio={1 / 1}
                 />
               </View>
             )
@@ -80,26 +98,43 @@ const MediaScreen = (props) => {
         <TouchableWithoutFeedback>
           <View style={{
             position: 'absolute',
-            bottom: 40,
+            bottom: 70,
             right: 0,
-            // backgroundColor: themeStyle.colors.grayscale.mediumGray,
             opacity: showActions ? 1 : 0.2,
             borderRadius: 20,
             display: 'flex',
             flexDirection: 'column',
           }}
           >
-            <Text style={{ color: themeStyle.colors.grayscale.white, margin: 20 }}>
-              <FontAwesome name="comment-o" size={24} color="white" />
-            </Text>
-            <Text style={{ color: themeStyle.colors.grayscale.white, margin: 20 }}>
-              <MaterialCommunityIcons
-                name={post.liked ? 'thumb-up' : 'thumb-up-outline'}
-                size={24}
-                color={post.liked ? themeStyle.colors.secondary.default
-                  : themeStyle.colors.grayscale.white}
-              />
-            </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('CommentsScreen', {
+              postId: post._id,
+            })}
+            >
+              <Text style={{ color: themeStyle.colors.grayscale.white, margin: 20 }}>
+                <FontAwesome name="comment-o" size={24} color="white" />
+              </Text>
+            </TouchableOpacity>
+            {!post.belongsToUser
+              ? (
+                <TouchableOpacity onPress={() => handleReaction()}>
+                  <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <Text style={{ color: themeStyle.colors.grayscale.white, marginHorizontal: 20 }}>
+                      <MaterialCommunityIcons
+                        name={liked ? 'thumb-up' : 'thumb-up-outline'}
+                        size={24}
+                        color={liked ? themeStyle.colors.secondary.default
+                          : themeStyle.colors.grayscale.white}
+                      />
+                    </Text>
+                    <Text
+                      style={{ color: themeStyle.colors.grayscale.white, marginHorizontal: 20 }}
+                    >
+                      {likes}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )
+              : null}
           </View>
         </TouchableWithoutFeedback>
       </View>

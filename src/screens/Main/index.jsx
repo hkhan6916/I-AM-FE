@@ -7,6 +7,7 @@ import RepostScreen from './SubScreens/RepostScreen';
 import VideoScreen from './SubScreens/VideoScreen';
 import CommentsScreen from './SubScreens/CommentsScreen';
 import themeStyle from '../../theme.style';
+import PostScreen from './SubScreens/PostScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -73,6 +74,18 @@ const MainStack = () => (
       }}
       name="CommentsScreen"
       component={CommentsScreen}
+    />
+    <Stack.Screen
+      options={{
+        title: 'PostsScreen',
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+      name="PostsScreen"
+      component={PostScreen}
     />
   </Stack.Navigator>
 );

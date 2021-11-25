@@ -11,6 +11,7 @@ import formatAge from '../helpers/formatAge';
 import Avatar from './Avatar';
 import themeStyle from '../theme.style';
 import apiCall from '../helpers/apiCall';
+import ImageWithCache from './ImageWithCache';
 
 const PostCard = ({ post: initialPost, hideActions = false, isPreview = false }) => {
   const [post, setPost] = useState(initialPost);
@@ -55,7 +56,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
   const RepostedPost = ({ postContent }) => (
     <TouchableHighlight
       style={styles.repostedPostContent}
-      onPress={() => navigation.navigate('MediaScreen', { post: postContent })}
+      onPress={() => navigation.navigate('PostsScreen', { post: postContent })}
       underlayColor={themeStyle.colors.grayscale.mediumGray}
     >
       <View>
@@ -119,10 +120,6 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
               <View style={{
                 flex: 1,
                 flexDirection: 'column',
-                transform: [{
-                  rotate: postContent.mediaOrientation === 'landscape-left' ? '-90deg'
-                    : postContent.mediaOrientation === 'landscape-right' ? '90deg' : '0deg',
-                }],
               }}
               >
                 <FastImage
@@ -225,11 +222,6 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
         )
         : (
           <TouchableHighlight
-            style={[shouldFlip && {
-              transform: [
-                { scaleX: -1 },
-              ],
-            }]}
             onPress={() => navigation.navigate('MediaScreen', { post })}
             underlayColor={themeStyle.colors.grayscale.mediumGray}
           >
@@ -243,33 +235,27 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                     style={{
                       flex: 1,
                       flexDirection: 'column',
-                      transform: [{
-                        rotate: post.mediaOrientation === 'landscape-left' ? '-90deg'
-                          : post.mediaOrientation === 'landscape-right' ? '90deg' : '0deg',
-                      }],
                     }}
                   >
-                    <VideoPlayer url={post.mediaUrl} />
+                    <VideoPlayer
+                      mediaOrientation={post.mediaOrientation}
+                      mediaIsSelfie={post.mediaIsSelfie}
+                      url={post.mediaUrl}
+                    />
                   </View>
                 ) : post.mediaType === 'image'
                   ? (
                     <View style={{
                       flex: 1,
                       flexDirection: 'column',
-                      transform: [{
-                        rotate: post.mediaOrientation === 'landscape-left' ? '-90deg'
-                          : post.mediaOrientation === 'landscape-right' ? '90deg' : '0deg',
-                      }],
                     }}
                     >
-                      <FastImage
-                        resizeMode={FastImage.resizeMode.cover}
-                        source={{ uri: post.mediaUrl }}
-                        style={{
-                          borderRadius: 10,
-                          aspectRatio: 1 / 1,
-                          width: '100%',
-                        }}
+                      <ImageWithCache
+                        mediaOrientation={post.mediaOrientation}
+                        mediaIsSelfie={post.mediaIsSelfie}
+                        resizeMode="cover"
+                        mediaUrl={post.mediaUrl}
+                        aspectRatio={1 / 1}
                       />
                     </View>
                   )
