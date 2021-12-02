@@ -113,7 +113,6 @@ const FriendRequestsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: Constants.statusBarHeight,
   },
   activeTab: {
     borderBottomWidth: 3,

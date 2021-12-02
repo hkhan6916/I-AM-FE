@@ -61,7 +61,7 @@ const MediaScreen = (props) => {
             />
           ) : post?.mediaType === 'image'
             ? (
-              <View>
+              <View style={{ height: '100%', alignItems: 'center', justifyContent: 'center' }}>
                 <ImageWithCache
                   mediaOrientation={post.mediaOrientation}
                   mediaIsSelfie={post.mediaIsSelfie}

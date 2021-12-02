@@ -3,6 +3,7 @@ import { getItemAsync } from 'expo-secure-store';
 
 const apiCall = async (method, route, payload = null) => {
   const token = await getItemAsync('authToken');
+
   const apiUrl = 'http://192.168.5.101:5000';
   // const apiUrl = 'https://i-am-be.herokuapp.com';
   const callConfig = {

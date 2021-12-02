@@ -81,7 +81,7 @@ const MainTabStack = () => {
         },
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen headerShown name="Home" component={HomeScreen} />
       <Tab.Screen name="Search" component={SearchStack} />
       <Tab.Screen name="Post" component={AddScreen} />
       <Tab.Screen name="Friends" component={FriendsScreen} />

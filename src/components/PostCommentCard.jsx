@@ -96,7 +96,6 @@ const PostCommentCard = ({ comment: initialComment, replyToUser, newReply }) => 
     return (
       <View style={styles.container}>
         <View style={styles.profileInfoConatiner}>
-          {console.log(`comment card rendered${comment._id}`)}
           <Avatar
             hasBorder
             isClickable

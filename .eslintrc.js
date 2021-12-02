@@ -23,5 +23,6 @@ module.exports = {
     'no-nested-ternary': 0,
     'no-underscore-dangle': 0,
     'react/destructuring-assignment': 0,
+    'no-return-await': 0,
   },
 };

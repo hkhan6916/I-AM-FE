@@ -23,6 +23,7 @@
     "expo-dev-client": "~0.6.3",
     "expo-face-detector": "~11.0.3",
     "expo-image-manipulator": "~10.1.2",
+    "expo-intent-launcher": "~10.0.3",
     "expo-screen-orientation": "~4.0.3",
     "expo-secure-store": "~11.0.3",
     "expo-sensors": "~11.0.3",
@@ -34,12 +35,12 @@
     "react-native-fast-image": "^8.5.11",
     "react-native-gesture-handler": "~1.10.2",
     "react-native-paper": "^4.9.2",
+    "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "~3.8.0",
     "react-native-web": "0.17.1",
     "react-redux": "^7.2.5",
     "redux": "^4.1.1",
-    "react-native-safe-area-context": "3.3.2",
-    "expo-intent-launcher": "~10.0.3"
+    "socket.io-client": "^4.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

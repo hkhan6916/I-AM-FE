@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Text, View, Image, StyleSheet, TouchableHighlight, TouchableOpacity,
+  Text, View, StyleSheet, TouchableHighlight, TouchableOpacity,
 } from 'react-native';
 import { Video } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
@@ -16,7 +16,6 @@ import ImageWithCache from './ImageWithCache';
 const PostCard = ({ post: initialPost, hideActions = false, isPreview = false }) => {
   const [post, setPost] = useState(initialPost);
   const navigation = useNavigation();
-  const shouldFlip = post.mediaIsSelfie;
 
   const handleReaction = async () => {
     if (post.liked) {

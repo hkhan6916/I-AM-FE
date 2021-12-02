@@ -8,6 +8,7 @@ import VideoScreen from './SubScreens/VideoScreen';
 import CommentsScreen from './SubScreens/CommentsScreen';
 import themeStyle from '../../theme.style';
 import PostScreen from './SubScreens/PostScreen';
+import ChatScreen from './SubScreens/ChatScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -86,6 +87,18 @@ const MainStack = () => (
       }}
       name="PostsScreen"
       component={PostScreen}
+    />
+    <Stack.Screen
+      options={{
+        title: 'ChatScreen',
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+      name="ChatScreen"
+      component={ChatScreen}
     />
   </Stack.Navigator>
 );

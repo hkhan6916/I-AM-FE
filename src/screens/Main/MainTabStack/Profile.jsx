@@ -87,7 +87,6 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: statusBarHeight,
   },
 });
 export default ProfileScreen;

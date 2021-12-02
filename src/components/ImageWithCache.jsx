@@ -1,6 +1,6 @@
 import React from 'react';
-import { View } from 'react-native';
-import FastImage from 'react-native-fast-image';
+import { View, Image } from 'react-native';
+// import FastImage from 'react-native-fast-image';
 
 const ImageWithCache = ({
   resizeMode, aspectRatio, mediaUrl, mediaIsSelfie, mediaOrientation,
@@ -18,7 +18,7 @@ const ImageWithCache = ({
       }],
     }}
     >
-      <FastImage
+      {/* <FastImage
         resizeMode={resizeMode === 'cover' ? FastImage.resizeMode.cover : FastImage.resizeMode.contain}
         source={{ uri: mediaUrl }}
         style={{
@@ -26,7 +26,9 @@ const ImageWithCache = ({
           aspectRatio,
           width: '100%',
         }}
-      />
+      /> */}
+      <View />
+
     </View>
   </View>
 );

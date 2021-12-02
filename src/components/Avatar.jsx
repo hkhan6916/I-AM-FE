@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, TouchableHighlight, Image } from 'react-native';
-import FastImage from 'react-native-fast-image';
+// import FastImage from 'react-native-fast-image';
 import themeStyle from '../theme.style';
 
 const Avatar = ({
@@ -23,7 +23,7 @@ const Avatar = ({
             { userId })}
           underlayColor={themeStyle.colors.grayscale.mediumGray}
         >
-          <FastImage
+          {/* <FastImage
             source={{ uri: avatarUrl }}
             style={{
               borderRadius: 10,
@@ -32,12 +32,13 @@ const Avatar = ({
               height: size,
             }}
             resizeMode={FastImage.resizeMode.cover}
-          />
+          /> */}
+          <View />
         </TouchableHighlight>
       )
       : (
         <View>
-          <FastImage
+          {/* <FastImage
             source={{ uri: avatarUrl }}
             resizeMode={FastImage.resizeMode.cover}
             style={{
@@ -46,7 +47,7 @@ const Avatar = ({
               width: size,
               height: size,
             }}
-          />
+          /> */}
         </View>
       )}
   </View>

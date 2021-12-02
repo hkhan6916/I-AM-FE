@@ -22,7 +22,9 @@ const LoginScreen = () => {
     const { response, success, error } = await apiCall('POST', '/user/login', { identifier, password });
 
     if (success && response.token) {
+      await setItemAsync('userId', response.userId);
       await setItemAsync('authToken', response.token);
+
       dispatch({ type: 'SET_USER_LOGGED_IN', payload: true });
     }
     if (!success) {

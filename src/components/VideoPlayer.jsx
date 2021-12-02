@@ -113,7 +113,7 @@ const VideoPlayer = ({
                   }],
                 }}
                 >
-                  <Video
+                  {/* <Video
                     onReadyForDisplay={(params) => {
                       setVideoDimensions(params.naturalSize);
                     }}
@@ -130,7 +130,7 @@ const VideoPlayer = ({
                     useNativeControls={false}
                     resizeMode={isFullScreen ? 'contain' : 'cover'}
                     onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
-                  />
+                  /> */}
                 </View>
               </View>
             </TouchableWithoutFeedback>
@@ -149,7 +149,7 @@ const VideoPlayer = ({
                 }],
               }}
               >
-                <Video
+                {/* <Video
                   onReadyForDisplay={(params) => {
                     setVideoDimensions(params.naturalSize);
                   }}
@@ -166,7 +166,7 @@ const VideoPlayer = ({
                   useNativeControls={false}
                   resizeMode={isFullScreen ? 'contain' : 'cover'}
                   onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
-                />
+                /> */}
               </View>
             </View>
           )}

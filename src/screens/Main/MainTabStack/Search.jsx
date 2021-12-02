@@ -65,7 +65,7 @@ const SearchScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: Constants.statusBarHeight,
+    flex: 1,
   },
   searchBar: {
     flex: 1,

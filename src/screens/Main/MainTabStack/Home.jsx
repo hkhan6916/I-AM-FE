@@ -2,9 +2,10 @@ import React, {
   useEffect, useContext, useState, useCallback,
 } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, RefreshControl,
+  View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import themeStyle from '../../../theme.style';
 import FeedContext from '../../../Context';
@@ -20,6 +21,8 @@ const HomeScreen = () => {
   const [feed, setFeed] = useState(initialFeed);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  const navigation = useNavigation();
 
   const calculateOffsets = async () => {
     if (!feed.length) {
@@ -85,6 +88,12 @@ const HomeScreen = () => {
       {newPostCreated.state ? (
         <Text style={styles.newPostPill}>Post created</Text>
       ) : null}
+      <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Text>Add Logo Here</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('ChatScreen')}>
+          <Text>Link to messages</Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView
         scrollEventThrottle={0}
         contentContainerStyle={{ flexGrow: 1 }}
@@ -111,7 +120,6 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: statusBarHeight,
   },
   newPostPill: {
     zIndex: 3, // works on ios
