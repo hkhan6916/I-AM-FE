@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, StyleSheet, Button, Image, Keyboard,
+  View, Text, TextInput, StyleSheet, Button, Image, Keyboard, SafeAreaView,
 } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
-import Constants from 'expo-constants';
 import { useDispatch } from 'react-redux';
 import { Video } from 'expo-av';
-import FastImage from 'react-native-fast-image';
 import themeStyle from '../../../theme.style';
 import apiCall from '../../../helpers/apiCall';
 import CameraStandard from '../../../components/CameraStandard';
-
-const { statusBarHeight } = Constants;
+import ImageWithCache from '../../../components/ImageWithCache';
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -68,7 +65,7 @@ const AddScreen = () => {
     );
   }
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Button title="Done" onPress={() => Keyboard.dismiss()} />
       {postBody.length >= 1000 - 25 ? (
         <Text style={styles.postLimitMessage}>
@@ -97,18 +94,13 @@ const AddScreen = () => {
           )
           : file.type?.split('/')[0] === 'image'
             ? (
-              <View style={{
-                transform: [{
-                  rotate: file.orientation === 'landscape-left' ? '-90deg'
-                    : file.orientation === 'landscape-right' ? '90deg' : '0deg',
-                }],
-              }}
-              >
-                <FastImage
-                  style={{ width: 300, height: 300, margin: 20 }}
-                  source={{ uri: file.uri }}
-                />
-              </View>
+              <ImageWithCache
+                mediaOrientation={file.mediaOrientation}
+                mediaIsSelfie={file.mediaIsSelfie}
+                resizeMode="cover"
+                mediaUrl={file.mediaUrl}
+                aspectRatio={1 / 1}
+              />
             )
             : null
         }
@@ -134,7 +126,7 @@ const AddScreen = () => {
         </View>
       ) : null}
 
-    </View>
+    </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({

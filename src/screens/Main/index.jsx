@@ -4,7 +4,6 @@ import MainTabStack from './MainTabStack';
 import UserProfileScreen from './SubScreens/UserProfileScreen';
 import MediaScreen from './SubScreens/MediaScreen';
 import RepostScreen from './SubScreens/RepostScreen';
-import VideoScreen from './SubScreens/VideoScreen';
 import CommentsScreen from './SubScreens/CommentsScreen';
 import themeStyle from '../../theme.style';
 import PostScreen from './SubScreens/PostScreen';
@@ -55,14 +54,6 @@ const MainStack = () => (
       }}
       name="RepostScreen"
       component={RepostScreen}
-    />
-    <Stack.Screen
-      options={{
-        title: 'FullScreen',
-        headerShown: false,
-      }}
-      name="VideoScreen"
-      component={VideoScreen}
     />
     <Stack.Screen
       options={{

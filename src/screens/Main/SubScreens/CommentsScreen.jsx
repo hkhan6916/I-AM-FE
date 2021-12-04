@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
-  View, StyleSheet, ScrollView,
+  View, StyleSheet, ScrollView, SafeAreaView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import PostCommentCard from '../../../components/PostCommentCard';
@@ -97,7 +97,7 @@ const CommentsScreen = (props) => {
   }, [navigation]);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScrollView
         scrollEventThrottle={0}
         contentContainerStyle={styles.commentsContainer}
@@ -124,7 +124,7 @@ const CommentsScreen = (props) => {
           setReplyingTo={setReplyingTo}
         />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

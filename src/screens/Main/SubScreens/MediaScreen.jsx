@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import {
-  Text, View, StyleSheet, TouchableOpacity, TouchableWithoutFeedback,
+  Text, View, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, SafeAreaView,
 } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { FontAwesome, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
@@ -48,7 +48,7 @@ const MediaScreen = (props) => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View>
         {post?.mediaType === 'video'
           ? (
@@ -118,7 +118,9 @@ const MediaScreen = (props) => {
               ? (
                 <TouchableOpacity onPress={() => handleReaction()}>
                   <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <Text style={{ color: themeStyle.colors.grayscale.white, marginHorizontal: 20 }}>
+                    <Text
+                      style={{ color: themeStyle.colors.grayscale.white, marginHorizontal: 20 }}
+                    >
                       <MaterialCommunityIcons
                         name={liked ? 'thumb-up' : 'thumb-up-outline'}
                         size={24}
@@ -138,7 +140,7 @@ const MediaScreen = (props) => {
           </View>
         </TouchableWithoutFeedback>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

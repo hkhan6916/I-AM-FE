@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-  View, Text, Button, StyleSheet, ScrollView, RefreshControl,
+  View, Text, Button, StyleSheet, ScrollView, RefreshControl, SafeAreaView,
 } from 'react-native';
 import { setItemAsync } from 'expo-secure-store';
 import { useDispatch } from 'react-redux';
@@ -60,7 +60,7 @@ const ProfileScreen = () => {
     };
   }, []);
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Button onPress={() => logout()} title="logout" />
       <ScrollView
         onScroll={({ nativeEvent }) => {
@@ -80,7 +80,7 @@ const ProfileScreen = () => {
         ))}
       </ScrollView>
       <Text>Profile Screen</Text>
-    </View>
+    </SafeAreaView>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, RefreshControl,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, RefreshControl, SafeAreaView,
 } from 'react-native';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
@@ -75,7 +75,7 @@ const FriendRequestsScreen = () => {
     };
   }, [userData]);
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.tabsContainer}>
         <TouchableOpacity
           style={[styles.requestsTab,
@@ -106,7 +106,7 @@ const FriendRequestsScreen = () => {
             <UserThumbnail key={sent._id} user={sent} />
           ))}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

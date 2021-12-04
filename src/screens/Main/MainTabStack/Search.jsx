@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, StyleSheet, Image,
+  View, Text, TextInput, StyleSheet, Image, SafeAreaView,
 } from 'react-native';
 import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,7 +31,7 @@ const SearchScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.searchSection}>
         <Ionicons
           style={styles.searchIcon}
@@ -59,7 +59,7 @@ const SearchScreen = () => {
           <UserThumbnail key={user._id} user={user} avatarSize={showAllResults ? 70 : 55} />
         ))}
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

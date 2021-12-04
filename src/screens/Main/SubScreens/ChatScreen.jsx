@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, Button, TextInput, ScrollView,
+  View, Text, Button, TextInput, ScrollView, SafeAreaView,
 } from 'react-native';
 import { getItemAsync } from 'expo-secure-store';
 import { io } from 'socket.io-client';
 import sendMessage from '../../../helpers/sendMessage';
 
-const ChatScreen = () => {
+const ChatScreen = ({
+  // chatId
+}) => {
   const [authInfo, setAuthInfo] = useState(null);
   const [socket, setSocket] = useState(null);
 
@@ -40,24 +42,38 @@ const ChatScreen = () => {
   };
 
   useEffect(() => {
-    (async () => {
-      await initSocket();
-    })();
+    let isMounted = true;
+    if (isMounted) {
+      (async () => {
+        await initSocket();
+      })();
+    }
+    return () => { isMounted = false; };
   }, []);
 
   useEffect(() => {
-    if (socket) {
-      if (!socket.connected) {
-        setShowError(true);
-      }
-      socket.on('receiveMessage', (message) => {
-        console.log(message);
+    let isMounted = true;
+
+    if (socket && isMounted) {
+      socket.emit('joinRoom', { chatId: '61a674407512ac67ec03d931' });
+      socket.on('receiveMessage', ({ body, chatId, senderId }) => {
+        if (!socket.connected) {
+          setShowError(true);
+        } else {
+          setMessages((prevMessages) => [...prevMessages, { body, chatId, senderId }]);
+        }
       });
     }
+    return () => {
+      isMounted = false;
+      if (socket) {
+        socket.off('receiveMessage');
+      }
+    };
   }, [socket]);
 
   return (
-    <View>
+    <SafeAreaView>
       <Text>Chat Screen</Text>
       <TextInput value={messageBody} placeholder="Type a message..." onChangeText={(v) => setMessageBody(v)} />
       <Button
@@ -73,13 +89,11 @@ const ChatScreen = () => {
         )
         : null}
       <ScrollView>
-        {
-            messages.length ? messages.map((message, i) => (
-              <Text key={`message${i}`}>{message.body}</Text>
-            )) : null
-        }
+        {messages.length ? messages.map((message, i) => (
+          <Text key={`message${i}`}>{message.body}</Text>
+        )) : null}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

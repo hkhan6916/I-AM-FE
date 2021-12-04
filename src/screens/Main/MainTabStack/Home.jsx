@@ -2,7 +2,7 @@ import React, {
   useEffect, useContext, useState, useCallback,
 } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity,
+  View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, SafeAreaView,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
@@ -84,7 +84,7 @@ const HomeScreen = () => {
     }
   }, [newPostCreated, feed]);
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {newPostCreated.state ? (
         <Text style={styles.newPostPill}>Post created</Text>
       ) : null}
@@ -113,7 +113,7 @@ const HomeScreen = () => {
           <PostCard key={`postcard-${i}`} post={post} />
         ))}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignSelf: 'center',
     position: 'absolute',
-    marginTop: statusBarHeight + 10,
+    marginTop: statusBarHeight,
   },
 });
 

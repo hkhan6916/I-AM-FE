@@ -5,7 +5,7 @@ import {
 import { Video } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
-import FastImage from 'react-native-fast-image';
+// import FastImage from 'react-native-fast-image';
 import VideoPlayer from './VideoPlayer';
 import formatAge from '../helpers/formatAge';
 import Avatar from './Avatar';
@@ -121,14 +121,12 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                 flexDirection: 'column',
               }}
               >
-                <FastImage
-                  resizeMode={FastImage.resizeMode.cover}
-                  source={{ uri: postContent.mediaUrl }}
-                  style={{
-                    borderRadius: 10,
-                    aspectRatio: 1 / 1,
-                    width: '100%',
-                  }}
+                <ImageWithCache
+                  mediaOrientation={post.mediaOrientation}
+                  mediaIsSelfie={post.mediaIsSelfie}
+                  resizeMode="cover"
+                  mediaUrl={post.mediaUrl}
+                  aspectRatio={1 / 1}
                 />
               </View>
             )
