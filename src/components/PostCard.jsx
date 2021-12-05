@@ -93,26 +93,13 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
             <View style={{
               flex: 1,
               flexDirection: 'column',
-              transform: [{
-                rotate: post.mediaOrientation === 'landscape-left' ? '-90deg'
-                  : post.mediaOrientation === 'landscape-right' ? '90deg' : '0deg',
-              }],
             }}
             >
-              <Video
-                style={{
-                  borderRadius: 10,
-                  aspectRatio: 1 / 1,
-                  width: '100%',
-                }}
-                source={{
-                  uri: postContent.mediaUrl,
-                }}
-                useNativeControls
-                resizeMode="cover"
+              <VideoPlayer
+                mediaOrientation={post.mediaOrientation}
+                mediaIsSelfie={post.mediaIsSelfie}
+                url={post.mediaUrl}
               />
-              {/* <View /> */}
-
             </View>
           ) : postContent.mediaType === 'image'
             ? (
