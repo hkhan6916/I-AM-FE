@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, TouchableHighlight, Image } from 'react-native';
-// import FastImage from 'react-native-fast-image';
+import FastImage from 'react-native-fast-image';
 import themeStyle from '../theme.style';
 
 const Avatar = ({
-  navigation, userId, size, avatarUrl, isClickable, hasBorder,
+  navigation, userId, size, avatarUrl, isClickable, hasBorder, fileHeaders,
 }) => (
   <View style={{
     alignSelf: 'flex-start',
@@ -23,8 +23,8 @@ const Avatar = ({
             { userId })}
           underlayColor={themeStyle.colors.grayscale.mediumGray}
         >
-          {/* <FastImage
-            source={{ uri: avatarUrl }}
+          <FastImage
+            source={{ uri: avatarUrl, headers: fileHeaders || {} }}
             style={{
               borderRadius: 10,
               alignSelf: 'center',
@@ -32,14 +32,13 @@ const Avatar = ({
               height: size,
             }}
             resizeMode={FastImage.resizeMode.cover}
-          /> */}
-          <View />
+          />
         </TouchableHighlight>
       )
       : (
         <View>
-          {/* <FastImage
-            source={{ uri: avatarUrl }}
+          <FastImage
+            source={{ uri: avatarUrl, headers: fileHeaders || {} }}
             resizeMode={FastImage.resizeMode.cover}
             style={{
               borderRadius: 10,
@@ -47,7 +46,7 @@ const Avatar = ({
               width: size,
               height: size,
             }}
-          /> */}
+          />
         </View>
       )}
   </View>

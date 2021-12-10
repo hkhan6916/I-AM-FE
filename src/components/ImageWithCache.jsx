@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Image } from 'react-native';
-// import FastImage from 'react-native-fast-image';
+import { View } from 'react-native';
+import FastImage from 'react-native-fast-image';
 
 const ImageWithCache = ({
-  resizeMode, aspectRatio, mediaUrl, mediaIsSelfie, mediaOrientation,
+  resizeMode, aspectRatio, mediaUrl, mediaIsSelfie, mediaOrientation, fileHeaders,
 }) => (
   <View style={{
     transform: [
@@ -18,17 +18,15 @@ const ImageWithCache = ({
       }],
     }}
     >
-      {/* <FastImage
+      <FastImage
         resizeMode={resizeMode === 'cover' ? FastImage.resizeMode.cover : FastImage.resizeMode.contain}
-        source={{ uri: mediaUrl }}
+        source={{ uri: mediaUrl, headers: fileHeaders || {} }}
         style={{
           borderRadius: 10,
           aspectRatio,
           width: '100%',
         }}
-      /> */}
-      <View />
-
+      />
     </View>
   </View>
 );

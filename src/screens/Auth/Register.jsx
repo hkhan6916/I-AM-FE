@@ -80,6 +80,7 @@ const RegisterationScreen = () => {
     });
     setLoading(true);
     const { success, message } = await apiCall('POST', '/user/register', formData);
+    console.log(message);
     if (success) {
       navigation.navigate('Login');
     } else if (message === 'exists') {

@@ -2,10 +2,8 @@ import React, { useEffect, useState } from 'react';
 import {
   Text, View, StyleSheet, TouchableHighlight, TouchableOpacity,
 } from 'react-native';
-import { Video } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
-// import FastImage from 'react-native-fast-image';
 import VideoPlayer from './VideoPlayer';
 import formatAge from '../helpers/formatAge';
 import Avatar from './Avatar';
@@ -108,7 +106,9 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                 flexDirection: 'column',
               }}
               >
+                {console.log(post.fileHeaders)}
                 <ImageWithCache
+                  fileHeaders={post.fileHeaders}
                   mediaOrientation={post.mediaOrientation}
                   mediaIsSelfie={post.mediaIsSelfie}
                   resizeMode="cover"
@@ -235,6 +235,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                     }}
                     >
                       <ImageWithCache
+                        fileHeaders={post.fileHeaders}
                         mediaOrientation={post.mediaOrientation}
                         mediaIsSelfie={post.mediaIsSelfie}
                         resizeMode="cover"

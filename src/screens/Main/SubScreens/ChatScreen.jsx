@@ -6,6 +6,7 @@ import { getItemAsync } from 'expo-secure-store';
 import { io } from 'socket.io-client';
 import * as ImagePicker from 'expo-image-picker';
 import { Video } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
 import sendMessage from '../../../helpers/sendMessage';
 import MessageBox from '../../../components/MessageBox';
 import VideoPlayer from '../../../components/VideoPlayer';
@@ -17,6 +18,8 @@ const ChatScreen = () => {
 
   const [media, setMedia] = useState({});
   const [mediaSendFail, setMediaSendFail] = useState(false);
+  const [showMediaSizeError, setShowMediaSizeError] = useState(false);
+  const [mediaSending, setMediaSending] = useState(false);
   const [messageBody, setMessageBody] = useState('');
   const [messages, setMessages] = useState([]);
   const [showError, setShowError] = useState(false);
@@ -41,15 +44,14 @@ const ChatScreen = () => {
       socket, body: messageBody, chatId: '61a674407512ac67ec03d931', senderId: authInfo.senderId,
     });
     if (media?.uri && socket.connected) {
+      setMediaSending(true);
+
       const formData = new FormData();
       const mediaExtension = media.uri.split('.').pop();
       formData.append('file', {
         uri: media.uri, name: media.uri, type: `${media.type}/${mediaExtension}`,
       });
-      const { response, success, message } = await apiCall('POST', '/files/upload', formData);
-
-      console.log(response, success, message);
-
+      const { response, success } = await apiCall('POST', '/files/upload', formData);
       if (success) {
         setMessages([...messages, {
           body: messageBody, chatId: '61a674407512ac67ec03d931', senderId: authInfo.senderId, user: 'sender', mediaUrl: response.fileUrl,
@@ -58,6 +60,7 @@ const ChatScreen = () => {
         setMedia({});
       }
       setMediaSendFail(true);
+      setMediaSending(false);
       return true;
     }
     if (socket.connected) {
@@ -65,6 +68,8 @@ const ChatScreen = () => {
         body: messageBody, chatId: '61a674407512ac67ec03d931', senderId: authInfo.senderId, user: 'sender',
       }]);
       setMessageBody('');
+      setMediaSending(false);
+
       return true;
     }
   };
@@ -78,11 +83,19 @@ const ChatScreen = () => {
     if (status === 'granted') {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
-        quality: 1,
+        quality: 0.3,
       });
-
       if (!result.cancelled) {
-        setMedia(result);
+        const mediaInfo = await FileSystem.getInfoAsync(result.uri);
+        const mediaSizeInMb = mediaInfo.size / 1000000;
+        if (mediaSizeInMb > 50) {
+          setShowMediaSizeError(true);
+        } else {
+          if (showMediaSizeError) {
+            setShowMediaSizeError(false);
+          }
+          setMedia(result);
+        }
       }
     }
   };
@@ -138,25 +151,36 @@ const ChatScreen = () => {
           <MessageBox key={`message${i}`} body={message.body} user={message.user} mediaUrl={message.mediaUrl} />
         )) : null}
       </ScrollView>
-      {
-          media?.type === 'image' ? (
-            <Image
-              style={{
-                borderRadius: 10,
-                aspectRatio: 1 / 1,
-                width: '100%',
-              }}
-              source={{ uri: media.uri }}
-            />
-          ) : media?.type === 'video' ? (
-            <View style={{ width: '100%', height: 200 }}>
-              {/* <VideoPlayer
+      <View style={[{ alignItems: 'center' }, mediaSending && { backgroundColor: 'grey' }]}>
+        {
+        media?.type === 'image' ? (
+          <Image
+            style={{
+              borderRadius: 10,
+              aspectRatio: 1 / 1,
+              width: '100%',
+            }}
+            resizeMode="contain"
+            source={{ uri: media.uri }}
+          />
+        ) : media?.type === 'video' ? (
+          <View style={{ width: 200, height: 200 }}>
+            {/* <VideoPlayer
                 url={media.uri}
               /> */}
-              <Video useNativeControls source={{ uri: media.uri }} resizeMode="cover" style={{ width: '100%', height: '100%', alignSelf: 'center' }} />
-            </View>
-          ) : null
-      }
+            <Video
+              useNativeControls
+              source={{ uri: media.uri }}
+              resizeMode="cover"
+              style={{ width: '100%', height: '100%', alignSelf: 'center' }}
+            />
+          </View>
+        ) : null
+        }
+        {showMediaSizeError
+          ? <Text>We can&apos;t send the chosen media file as it exceeds our 50MB limit.</Text>
+          : null}
+      </View>
       <View
         style={{ margin: 20 }}
       >

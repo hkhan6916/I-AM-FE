@@ -7,6 +7,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import Constants from 'expo-constants';
+import FastImage from 'react-native-fast-image';
 import themeStyle from '../../../theme.style';
 import FeedContext from '../../../Context';
 import PostCard from '../../../components/PostCard';
