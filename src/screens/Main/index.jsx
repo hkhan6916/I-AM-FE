@@ -8,6 +8,8 @@ import CommentsScreen from './SubScreens/CommentsScreen';
 import themeStyle from '../../theme.style';
 import PostScreen from './SubScreens/PostScreen';
 import ChatScreen from './SubScreens/ChatScreen';
+import ChatListScreen from './SubScreens/ChatListScreen';
+import CreateChatScreen from './SubScreens/CreateChatScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -91,6 +93,31 @@ const MainStack = () => (
       name="ChatScreen"
       component={ChatScreen}
     />
+    <Stack.Screen
+      options={{
+        title: 'ChatListScreen',
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+      name="ChatListScreen"
+      component={ChatListScreen}
+    />
+    <Stack.Screen
+      options={{
+        title: 'CreateChatScreen',
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+      name="CreateChatScreen"
+      component={CreateChatScreen}
+    />
+
   </Stack.Navigator>
 );
 export default MainStack;

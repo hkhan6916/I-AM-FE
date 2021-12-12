@@ -14,7 +14,7 @@ const FriendsScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const getFriends = async () => {
-    const { success, response } = await apiCall('GET', '/user/friend/fetch/all');
+    const { success, response } = await apiCall('GET', `/user/friend/fetch/all/${friends.length}`);
     if (success) {
       setFriends(response);
     }

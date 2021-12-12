@@ -91,7 +91,7 @@ const HomeScreen = () => {
       ) : null}
       <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text>Add Logo Here</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('ChatScreen')}>
+        <TouchableOpacity onPress={() => navigation.navigate('ChatListScreen')}>
           <Text>Link to messages</Text>
         </TouchableOpacity>
       </View>
