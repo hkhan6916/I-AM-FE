@@ -102,6 +102,7 @@ const PostCommentCard = ({ comment: initialComment, replyToUser, newReply }) => 
             userId={comment.userId}
             navigation={navigation}
             avatarUrl={comment.commentAuthor.profileGifUrl}
+            profileGifHeaders={comment.commentAuthor.profileGifHeaders}
             size={40}
           />
           <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen',

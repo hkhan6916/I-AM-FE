@@ -5,27 +5,20 @@ import {
 import ImageWithCache from './ImageWithCache';
 import themeStyle from '../theme.style';
 
-const MessageBox = ({ user, body, mediaUrl }) => (
+const MessageBox = ({
+  user, body, mediaUrl, mediaHeaders,
+}) => (
   <View>
     <Text style={styles.senderName}>
       {user === 'sender' ? 'Me' : `${user.firstName} ${user.lastName}`}
     </Text>
     {mediaUrl ? (
-    //   <ImageWithCache
-    //     resizeMode="cover"
-    //     mediaUrl={mediaUrl}
-    //     aspectRatio={1 / 1}
-    //   />
-      <View style={{ width: 200, height: 200 }}>
-        <Image
-          source={{ uri: mediaUrl }}
-          style={{
-            borderRadius: 10,
-            aspectRatio: 1 / 1,
-            width: '100%',
-          }}
-        />
-      </View>
+      <ImageWithCache
+        resizeMode="cover"
+        mediaUrl={mediaUrl}
+        mediaHeaders={mediaHeaders}
+        aspectRatio={1 / 1}
+      />
     ) : null}
     {body ? (
       <Text>{body}</Text>

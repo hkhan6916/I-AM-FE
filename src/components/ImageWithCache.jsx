@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
 const ImageWithCache = ({
-  resizeMode, aspectRatio, mediaUrl, mediaIsSelfie, mediaOrientation, fileHeaders,
+  resizeMode, aspectRatio, mediaUrl, mediaIsSelfie, mediaOrientation, mediaHeaders,
 }) => (
   <View style={{
     transform: [
@@ -20,7 +20,7 @@ const ImageWithCache = ({
     >
       <FastImage
         resizeMode={resizeMode === 'cover' ? FastImage.resizeMode.cover : FastImage.resizeMode.contain}
-        source={{ uri: mediaUrl, headers: fileHeaders || {} }}
+        source={{ uri: mediaUrl, headers: mediaHeaders || {} }}
         style={{
           borderRadius: 10,
           aspectRatio,

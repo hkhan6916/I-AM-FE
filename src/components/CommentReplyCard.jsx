@@ -12,14 +12,14 @@ const CommentReplyCard = ({ reply, handleReplyToReply }) => {
   return (
     <View style={styles.replyContainer}>
       <View style={styles.profileInfoContainer}>
-        {console.log('reply card rendered')}
         <Avatar
           hasBorder
           isClickable
           userId={reply.userId}
           navigation={navigation}
-          avatarUrl={reply.replyAuthor.profileGifUrl}
           size={35}
+          avatarUrl={reply.replyAuthor.profileGifUrl}
+          profileGifHeaders={reply.replyAuthor.profileGifHeaders}
         />
         <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen',
           { userId: reply.userId })}

@@ -24,6 +24,7 @@ const UserThumbnail = ({ user, avatarSize }) => {
           navigation={navigation}
           size={avatarSize}
           avatarUrl={user.profileGifUrl}
+          profileGifHeaders={user.profileGifHeaders}
           hasBorder
         />
         <View style={{

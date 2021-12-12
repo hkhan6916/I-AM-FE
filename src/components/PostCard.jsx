@@ -71,6 +71,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
             userId={postContent.postAuthor._id}
             size={50}
             avatarUrl={postContent.postAuthor.profileGifUrl}
+            profileGifHeaders={postContent.postAuthor.profileGifHeaders}
           />
           <View style={{
             display: 'flex',
@@ -106,9 +107,8 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                 flexDirection: 'column',
               }}
               >
-                {console.log(post.fileHeaders)}
                 <ImageWithCache
-                  fileHeaders={post.fileHeaders}
+                  mediaHeaders={post.mediaHeaders}
                   mediaOrientation={post.mediaOrientation}
                   mediaIsSelfie={post.mediaIsSelfie}
                   resizeMode="cover"
@@ -163,6 +163,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
           userId={post.postAuthor._id}
           size={50}
           avatarUrl={post.postAuthor.profileGifUrl}
+          profileGifHeaders={post.postAuthor.profileGifHeaders}
         />
         <View style={{
           display: 'flex',
@@ -235,7 +236,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                     }}
                     >
                       <ImageWithCache
-                        fileHeaders={post.fileHeaders}
+                        mediaHeaders={post.mediaHeaders}
                         mediaOrientation={post.mediaOrientation}
                         mediaIsSelfie={post.mediaIsSelfie}
                         resizeMode="cover"

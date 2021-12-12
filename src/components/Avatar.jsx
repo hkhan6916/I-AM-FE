@@ -4,7 +4,7 @@ import FastImage from 'react-native-fast-image';
 import themeStyle from '../theme.style';
 
 const Avatar = ({
-  navigation, userId, size, avatarUrl, isClickable, hasBorder, fileHeaders,
+  navigation, userId, size, avatarUrl, isClickable, hasBorder, profileGifHeaders,
 }) => (
   <View style={{
     alignSelf: 'flex-start',
@@ -24,7 +24,7 @@ const Avatar = ({
           underlayColor={themeStyle.colors.grayscale.mediumGray}
         >
           <FastImage
-            source={{ uri: avatarUrl, headers: fileHeaders || {} }}
+            source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}
             style={{
               borderRadius: 10,
               alignSelf: 'center',
@@ -38,7 +38,7 @@ const Avatar = ({
       : (
         <View>
           <FastImage
-            source={{ uri: avatarUrl, headers: fileHeaders || {} }}
+            source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}
             resizeMode={FastImage.resizeMode.cover}
             style={{
               borderRadius: 10,

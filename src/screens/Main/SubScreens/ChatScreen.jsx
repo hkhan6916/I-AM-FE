@@ -41,7 +41,7 @@ const ChatScreen = () => {
 
   const handleMessageSend = async () => {
     await sendMessage({
-      socket, body: messageBody, chatId: '61a674407512ac67ec03d931', senderId: authInfo.senderId,
+      socket, body: messageBody, chatId: '61b54aebd030ffd067da91d1', senderId: authInfo.senderId,
     });
     if (media?.uri && socket.connected) {
       setMediaSending(true);
@@ -54,7 +54,7 @@ const ChatScreen = () => {
       const { response, success } = await apiCall('POST', '/files/upload', formData);
       if (success) {
         setMessages([...messages, {
-          body: messageBody, chatId: '61a674407512ac67ec03d931', senderId: authInfo.senderId, user: 'sender', mediaUrl: response.fileUrl,
+          body: messageBody, chatId: '61b54aebd030ffd067da91d1', senderId: authInfo.senderId, user: 'sender', mediaUrl: response.fileUrl, mediaHeaders: response.fileHeaders,
         }]);
         setMessageBody('');
         setMedia({});
@@ -65,7 +65,7 @@ const ChatScreen = () => {
     }
     if (socket.connected) {
       setMessages([...messages, {
-        body: messageBody, chatId: '61a674407512ac67ec03d931', senderId: authInfo.senderId, user: 'sender',
+        body: messageBody, chatId: '61b54aebd030ffd067da91d1', senderId: authInfo.senderId, user: 'sender',
       }]);
       setMessageBody('');
       setMediaSending(false);
@@ -114,7 +114,7 @@ const ChatScreen = () => {
     let isMounted = true;
 
     if (socket && isMounted && authInfo) {
-      socket.emit('joinRoom', { chatId: '61a674407512ac67ec03d931', userId: authInfo.senderId });
+      socket.emit('joinRoom', { chatId: '61b54aebd030ffd067da91d1', userId: authInfo.senderId });
       socket.on('receiveMessage', ({
         body, chatId, senderId, user,
       }) => {
@@ -148,7 +148,7 @@ const ChatScreen = () => {
         : null}
       <ScrollView>
         {messages.length ? messages.map((message, i) => (
-          <MessageBox key={`message${i}`} body={message.body} user={message.user} mediaUrl={message.mediaUrl} />
+          <MessageBox key={`message${i}`} body={message.body} user={message.user} mediaUrl={message.mediaUrl} mediaHeaders={message.mediaHeaders} />
         )) : null}
       </ScrollView>
       <View style={[{ alignItems: 'center' }, mediaSending && { backgroundColor: 'grey' }]}>
