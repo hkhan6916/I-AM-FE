@@ -40,9 +40,6 @@ const ChatScreen = () => {
   };
 
   const handleMessageSend = async () => {
-    await sendMessage({
-      socket, body: messageBody, chatId: '61b54aebd030ffd067da91d1', senderId: authInfo.senderId,
-    });
     if (media?.uri && socket.connected) {
       setMediaSending(true);
 
@@ -53,6 +50,9 @@ const ChatScreen = () => {
       });
       const { response, success } = await apiCall('POST', '/files/upload', formData);
       if (success) {
+        await sendMessage({
+          socket, body: messageBody, chatId: '61b54aebd030ffd067da91d1', senderId: authInfo.senderId, mediaUrl: response.fileUrl,
+        });
         setMessages([...messages, {
           body: messageBody, chatId: '61b54aebd030ffd067da91d1', senderId: authInfo.senderId, user: 'sender', mediaUrl: response.fileUrl, mediaHeaders: response.fileHeaders,
         }]);
@@ -64,6 +64,9 @@ const ChatScreen = () => {
       return true;
     }
     if (socket.connected) {
+      await sendMessage({
+        socket, body: messageBody, chatId: '61b54aebd030ffd067da91d1', senderId: authInfo.senderId,
+      });
       setMessages([...messages, {
         body: messageBody, chatId: '61b54aebd030ffd067da91d1', senderId: authInfo.senderId, user: 'sender',
       }]);
