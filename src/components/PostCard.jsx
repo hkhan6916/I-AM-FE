@@ -66,7 +66,6 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
         }}
         >
           <Avatar
-            isClickable
             navigation={navigation}
             userId={postContent.postAuthor._id}
             size={50}
@@ -158,7 +157,6 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
       {post.postAuthor && (
       <View style={[styles.postAuthorContainer, !isPreview && { borderTopWidth: 0.5 }]}>
         <Avatar
-          isClickable
           navigation={navigation}
           userId={post.postAuthor._id}
           size={50}

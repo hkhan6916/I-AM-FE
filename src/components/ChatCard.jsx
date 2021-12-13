@@ -8,6 +8,7 @@ const ChatCard = ({ chat }) => {
   return (
     <View style={styles.container}>
       <Avatar
+        preventClicks
         size={50}
         avatarUrl={user.profileGifUrl}
         profileGifHeaders={user.profileGifHeaders}

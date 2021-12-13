@@ -14,7 +14,6 @@ const CommentReplyCard = ({ reply, handleReplyToReply }) => {
       <View style={styles.profileInfoContainer}>
         <Avatar
           hasBorder
-          isClickable
           userId={reply.userId}
           navigation={navigation}
           size={35}

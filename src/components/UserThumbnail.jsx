@@ -6,49 +6,57 @@ import { useNavigation } from '@react-navigation/native';
 import Avatar from './Avatar';
 import themeStyle from '../theme.style';
 
-const UserThumbnail = ({ user, avatarSize }) => {
+const UserThumbnail = ({ user, avatarSize, preventClicks }) => {
   const navigation = useNavigation();
-  return (
-    <TouchableHighlight
-      key={user._id}
-      underlayColor="gray"
-      style={{ margin: 10 }}
-      onPress={() => navigation.navigate('UserProfileScreen', { userId: user._id })}
+  const Thumbnail = () => (
+    <View style={{
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+    }}
     >
+      <Avatar
+        navigation={navigation}
+        size={avatarSize}
+        avatarUrl={user.profileGifUrl}
+        profileGifHeaders={user.profileGifHeaders}
+        hasBorder
+      />
       <View style={{
-        flexDirection: 'row',
-        flexWrap: 'wrap',
+        display: 'flex', justifyContent: 'center', marginLeft: 20,
       }}
       >
-        <Avatar
-          navigation={navigation}
-          size={avatarSize}
-          avatarUrl={user.profileGifUrl}
-          profileGifHeaders={user.profileGifHeaders}
-          hasBorder
-        />
-        <View style={{
-          display: 'flex', justifyContent: 'center', marginLeft: 20,
-        }}
-        >
-          <Text numberOfLines={1} style={{ fontWeight: '700', maxWidth: 200 }}>{user.username}</Text>
-          <Text style={{ maxWidth: 200 }} numberOfLines={1}>
-            {user.firstName}
-            {' '}
-            {user.lastName}
-          </Text>
-          {user.jobTitle
-                && (
-                <Text
-                  numberOfLines={1}
-                  style={{ color: themeStyle.colors.grayscale.mediumGray, maxWidth: 200 }}
-                >
-                  {user.jobTitle}
-                </Text>
-                )}
-        </View>
+        <Text numberOfLines={1} style={{ fontWeight: '700', maxWidth: 200 }}>{user.username}</Text>
+        <Text style={{ maxWidth: 200 }} numberOfLines={1}>
+          {user.firstName}
+          {' '}
+          {user.lastName}
+        </Text>
+        {user.jobTitle
+            && (
+            <Text
+              numberOfLines={1}
+              style={{ color: themeStyle.colors.grayscale.mediumGray, maxWidth: 200 }}
+            >
+              {user.jobTitle}
+            </Text>
+            )}
       </View>
-    </TouchableHighlight>
+    </View>
+  );
+  return (
+    <View>
+      {!preventClicks
+        ? (
+          <TouchableHighlight
+            key={user._id}
+            underlayColor="gray"
+            style={{ margin: 10 }}
+            onPress={() => navigation.navigate('UserProfileScreen', { userId: user._id })}
+          >
+            <Thumbnail />
+          </TouchableHighlight>
+        ) : <Thumbnail />}
+    </View>
   );
 };
 

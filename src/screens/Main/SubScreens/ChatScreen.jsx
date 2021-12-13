@@ -6,13 +6,14 @@ import { getItemAsync } from 'expo-secure-store';
 import { io } from 'socket.io-client';
 import * as ImagePicker from 'expo-image-picker';
 import { Video } from 'expo-av';
-import * as FileSystem from 'expo-file-system';
+import { getInfoAsync } from 'expo-file-system';
+import { useNavigation } from '@react-navigation/native';
 import sendMessage from '../../../helpers/sendMessage';
 import MessageBox from '../../../components/MessageBox';
 import VideoPlayer from '../../../components/VideoPlayer';
 import apiCall from '../../../helpers/apiCall';
 
-const ChatScreen = () => {
+const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
   const [socket, setSocket] = useState(null);
 
@@ -23,6 +24,20 @@ const ChatScreen = () => {
   const [messageBody, setMessageBody] = useState('');
   const [messages, setMessages] = useState([]);
   const [showError, setShowError] = useState(false);
+
+  const { chatUserId } = props.route.params;
+  const navigation = useNavigation();
+
+  const createChat = async () => {
+    setShowError(false);
+    const { response, success, message } = await apiCall('POST', '/chat/new', { participants: [chatUserId] });
+    if (success) {
+      navigation.navigate('ChatScreen', { chatId: response._id });
+    } else {
+      console.log(message);
+      setShowError(true);
+    }
+  };
 
   const initSocket = async () => {
     const token = await getItemAsync('authToken');
@@ -38,8 +53,11 @@ const ChatScreen = () => {
 
     setSocket(connection);
   };
-  // if messages.length is 0, send request to actually create the chat. Then send the message.
   const handleMessageSend = async () => {
+    if (socket.connected && !messages.length && chatUserId) {
+      await createChat();
+    }
+
     if (media?.uri && socket.connected) {
       setMediaSending(true);
 
@@ -89,7 +107,7 @@ const ChatScreen = () => {
         quality: 0.3,
       });
       if (!result.cancelled) {
-        const mediaInfo = await FileSystem.getInfoAsync(result.uri);
+        const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
         if (mediaSizeInMb > 50) {
           setShowMediaSizeError(true);
@@ -151,8 +169,12 @@ const ChatScreen = () => {
         : null}
       <ScrollView>
         {messages.length ? messages.map((message, i) => (
-          <MessageBox key={`message${i}`} body={message.body} user={message.user} mediaUrl={message.mediaUrl} mediaHeaders={message.mediaHeaders} />
-        )) : null}
+          <MessageBox key={`message-${i}`} body={message.body} user={message.user} mediaUrl={message.mediaUrl} mediaHeaders={message.mediaHeaders} />
+        )) : (
+          <View>
+            <Text>Send a message to start a conversation.</Text>
+          </View>
+        )}
       </ScrollView>
       <View style={[{ alignItems: 'center' }, mediaSending && { backgroundColor: 'grey' }]}>
         {

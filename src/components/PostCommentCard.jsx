@@ -98,7 +98,6 @@ const PostCommentCard = ({ comment: initialComment, replyToUser, newReply }) => 
         <View style={styles.profileInfoConatiner}>
           <Avatar
             hasBorder
-            isClickable
             userId={comment.userId}
             navigation={navigation}
             avatarUrl={comment.commentAuthor.profileGifUrl}

@@ -4,7 +4,7 @@ import FastImage from 'react-native-fast-image';
 import themeStyle from '../theme.style';
 
 const Avatar = ({
-  navigation, userId, size, avatarUrl, isClickable, hasBorder, profileGifHeaders,
+  navigation, userId, size, avatarUrl, preventClicks, hasBorder, profileGifHeaders,
 }) => (
   <View style={{
     alignSelf: 'flex-start',
@@ -16,7 +16,7 @@ const Avatar = ({
     borderColor: themeStyle.colors.primary.default,
   }}
   >
-    {isClickable
+    {!preventClicks
       ? (
         <TouchableHighlight
           onPress={() => navigation.navigate('UserProfileScreen',
