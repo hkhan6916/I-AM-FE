@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import apiCall from '../../../helpers/apiCall';
+import ChatCard from '../../../components/ChatCard';
 
 const ChatListScreen = () => {
   const [chats, setChats] = useState([]);
@@ -31,15 +32,17 @@ const ChatListScreen = () => {
       {!error
         ? (
           <ScrollView>
-            {chats.map((chat) => (
+            {chats.length ? chats.map((chat) => (
               <View key={chat._id}>
-                <Text>
-                  {chat.secondUser.firstName}
-                  {' '}
-                  {chat.secondUser.lastName}
-                </Text>
+                {chat.users.length
+                  ? (
+                    <ChatCard
+                      chat={chat}
+                    />
+                  )
+                  : null}
               </View>
-            ))}
+            )) : null}
           </ScrollView>
         )
         : (

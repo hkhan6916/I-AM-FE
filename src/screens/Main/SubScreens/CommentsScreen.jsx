@@ -37,8 +37,8 @@ const CommentsScreen = (props) => {
         commentId: replyingTo.commentId,
         body: commentBody,
       });
-      console.log(message);
       if (success) {
+        console.log(message);
         response.age = { minutes: 1 };
         setNewReply({
           replyingToObj: replyingTo.replyingToType === 'reply' ? replyingTo : null,

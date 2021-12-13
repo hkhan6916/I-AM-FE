@@ -38,7 +38,7 @@ const ChatScreen = () => {
 
     setSocket(connection);
   };
-
+  // if messages.length is 0, send request to actually create the chat. Then send the message.
   const handleMessageSend = async () => {
     if (media?.uri && socket.connected) {
       setMediaSending(true);
