@@ -60,8 +60,4 @@ const UserThumbnail = ({ user, avatarSize, preventClicks }) => {
   );
 };
 
-const styles = StyleSheet.create({
-
-});
-
 export default UserThumbnail;

@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
-  Text, View, StyleSheet, TouchableOpacity, ScrollView,
+  Text, View, StyleSheet, TouchableOpacity,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import themeStyle from '../theme.style';
@@ -15,7 +15,6 @@ const PostCommentCard = ({ comment: initialComment, replyToUser, newReply }) => 
   const [comment, setComment] = useState(initialComment);
   const [replies, setReplies] = useState([]);
   const [showReplies, setShowReplies] = useState(false);
-  const [replyBody, setReplyBody] = useState('');
   const [deleted, setDeleted] = useState(false);
 
   const handleReactionToComment = async () => {

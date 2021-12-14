@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
-  ScrollView, Text, View, StyleSheet, Button, TouchableOpacity,
+  ScrollView, Text, View, StyleSheet, TouchableOpacity,
 } from 'react-native';
 import apiCall from '../../../helpers/apiCall';
 import UserThumbnail from '../../../components/UserThumbnail';

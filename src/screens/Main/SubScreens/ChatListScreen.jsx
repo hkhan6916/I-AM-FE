@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ScrollView, Text, View, StyleSheet, Button,
+  ScrollView, Text, View, StyleSheet, Button, TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import apiCall from '../../../helpers/apiCall';
@@ -33,15 +33,17 @@ const ChatListScreen = () => {
         ? (
           <ScrollView>
             {chats.length ? chats.map((chat) => (
-              <View key={chat._id}>
-                {chat.users.length
-                  ? (
-                    <ChatCard
-                      chat={chat}
-                    />
-                  )
-                  : null}
-              </View>
+              <TouchableOpacity key={chat._id} onPress={() => navigation.navigate('ChatScreen', { existingChat: chat })}>
+                <View>
+                  {chat.users.length
+                    ? (
+                      <ChatCard
+                        chat={chat}
+                      />
+                    )
+                    : null}
+                </View>
+              </TouchableOpacity>
             )) : null}
           </ScrollView>
         )

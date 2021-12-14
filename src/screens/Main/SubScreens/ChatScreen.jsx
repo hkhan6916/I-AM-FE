@@ -7,7 +7,6 @@ import { io } from 'socket.io-client';
 import * as ImagePicker from 'expo-image-picker';
 import { Video } from 'expo-av';
 import { getInfoAsync } from 'expo-file-system';
-import { useNavigation } from '@react-navigation/native';
 import sendMessage from '../../../helpers/sendMessage';
 import MessageBox from '../../../components/MessageBox';
 import VideoPlayer from '../../../components/VideoPlayer';
@@ -24,17 +23,26 @@ const ChatScreen = (props) => {
   const [messageBody, setMessageBody] = useState('');
   const [messages, setMessages] = useState([]);
   const [showError, setShowError] = useState(false);
+  const [chat, setChat] = useState(props.route.params.existingChat);
 
-  const { chatUserId } = props.route.params;
-  const navigation = useNavigation();
+  const { chatUserId, existingChat } = props.route.params;
 
   const createChat = async () => {
     setShowError(false);
-    const { response, success, message } = await apiCall('POST', '/chat/new', { participants: [chatUserId] });
+    const { response, success } = await apiCall('POST', '/chat/new', { participants: [chatUserId] });
     if (success) {
-      navigation.navigate('ChatScreen', { chatId: response._id });
+      setChat(response);
     } else {
-      console.log(message);
+      setShowError(true);
+    }
+  };
+
+  const getChatMessages = async () => {
+    setShowError(false);
+    const { response, success } = await apiCall('GET', `/chat/${existingChat._id}/messages/${messages.length}`);
+    if (success) {
+      setMessages(response);
+    } else {
       setShowError(true);
     }
   };
@@ -53,6 +61,7 @@ const ChatScreen = (props) => {
 
     setSocket(connection);
   };
+
   const handleMessageSend = async () => {
     if (socket.connected && !messages.length && chatUserId) {
       await createChat();
@@ -69,10 +78,19 @@ const ChatScreen = (props) => {
       const { response, success } = await apiCall('POST', '/files/upload', formData);
       if (success) {
         await sendMessage({
-          socket, body: messageBody, chatId: '61b54aebd030ffd067da91d1', senderId: authInfo.senderId, mediaUrl: response.fileUrl,
+          socket,
+          body: messageBody,
+          chatId: chat._id,
+          senderId: authInfo.senderId,
+          mediaUrl: response.fileUrl,
         });
         setMessages([...messages, {
-          body: messageBody, chatId: '61b54aebd030ffd067da91d1', senderId: authInfo.senderId, user: 'sender', mediaUrl: response.fileUrl, mediaHeaders: response.fileHeaders,
+          body: messageBody,
+          chatId: chat._id,
+          senderId: authInfo.senderId,
+          user: 'sender',
+          mediaUrl: response.fileUrl,
+          mediaHeaders: response.fileHeaders,
         }]);
         setMessageBody('');
         setMedia({});
@@ -83,10 +101,10 @@ const ChatScreen = (props) => {
     }
     if (socket.connected) {
       await sendMessage({
-        socket, body: messageBody, chatId: '61b54aebd030ffd067da91d1', senderId: authInfo.senderId,
+        socket, body: messageBody, chatId: chat._id, senderId: authInfo.senderId,
       });
       setMessages([...messages, {
-        body: messageBody, chatId: '61b54aebd030ffd067da91d1', senderId: authInfo.senderId, user: 'sender',
+        body: messageBody, chatId: chat._id, senderId: authInfo.senderId, user: 'sender',
       }]);
       setMessageBody('');
       setMediaSending(false);
@@ -126,6 +144,10 @@ const ChatScreen = (props) => {
     if (isMounted) {
       (async () => {
         await initSocket();
+        if (existingChat) {
+          setChat(existingChat);
+          await getChatMessages();
+        }
       })();
     }
     return () => { isMounted = false; };
@@ -135,7 +157,7 @@ const ChatScreen = (props) => {
     let isMounted = true;
 
     if (socket && isMounted && authInfo) {
-      socket.emit('joinRoom', { chatId: '61b54aebd030ffd067da91d1', userId: authInfo.senderId });
+      socket.emit('joinRoom', { chatId: chat._id, userId: authInfo.senderId });
       socket.on('receiveMessage', ({
         body, chatId, senderId, user,
       }) => {
@@ -158,7 +180,6 @@ const ChatScreen = (props) => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <TextInput styles={styles.inputBox} value={messageBody} placeholder="Type a message..." onChangeText={(v) => setMessageBody(v)} />
       {showError
         ? (
           <Text>
@@ -169,13 +190,21 @@ const ChatScreen = (props) => {
         : null}
       <ScrollView>
         {messages.length ? messages.map((message, i) => (
-          <MessageBox key={`message-${i}`} body={message.body} user={message.user} mediaUrl={message.mediaUrl} mediaHeaders={message.mediaHeaders} />
+          <MessageBox
+            key={`message-${i}`}
+            body={message.body}
+            user={message.user}
+            mediaUrl={message.mediaUrl}
+            mediaHeaders={message.mediaHeaders}
+            belongsToSender={authInfo.senderId === message.user._id || message.user === 'sender'}
+          />
         )) : (
           <View>
             <Text>Send a message to start a conversation.</Text>
           </View>
         )}
       </ScrollView>
+      <TextInput styles={styles.inputBox} value={messageBody} placeholder="Type a message..." onChangeText={(v) => setMessageBody(v)} />
       <View style={[{ alignItems: 'center' }, mediaSending && { backgroundColor: 'grey' }]}>
         {
         media?.type === 'image' ? (
@@ -203,7 +232,12 @@ const ChatScreen = (props) => {
         ) : null
         }
         {showMediaSizeError
-          ? <Text>We can&apos;t send the chosen media file as it exceeds our 50MB limit.</Text>
+          ? (
+            <Text>
+              We can&apos;t send the chosen media file as it exceeds our 50MB limit.
+              Please choose a smaller file
+            </Text>
+          )
           : null}
       </View>
       <View
