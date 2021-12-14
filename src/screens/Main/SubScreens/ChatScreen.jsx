@@ -11,6 +11,8 @@ import sendMessage from '../../../helpers/sendMessage';
 import MessageBox from '../../../components/MessageBox';
 import VideoPlayer from '../../../components/VideoPlayer';
 import apiCall from '../../../helpers/apiCall';
+import get12HourTime from '../../../helpers/get12HourTime';
+import getNameDate from '../../../helpers/getNameDate';
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -24,7 +26,7 @@ const ChatScreen = (props) => {
   const [messages, setMessages] = useState([]);
   const [showError, setShowError] = useState(false);
   const [chat, setChat] = useState(props.route.params.existingChat);
-
+  const [comparisonDate, setComparisonDate] = useState('');
   const { chatUserId, existingChat } = props.route.params;
 
   const createChat = async () => {
@@ -50,9 +52,7 @@ const ChatScreen = (props) => {
   const initSocket = async () => {
     const token = await getItemAsync('authToken');
     const senderId = await getItemAsync('userId');
-
     setAuthInfo({ token, senderId });
-
     const connection = io.connect('http://192.168.5.101:5000', {
       auth: {
         token,
@@ -91,6 +91,8 @@ const ChatScreen = (props) => {
           user: 'sender',
           mediaUrl: response.fileUrl,
           mediaHeaders: response.fileHeaders,
+          stringTime: get12HourTime(new Date()),
+          stringDate: getNameDate(new Date()),
         }]);
         setMessageBody('');
         setMedia({});
@@ -104,7 +106,12 @@ const ChatScreen = (props) => {
         socket, body: messageBody, chatId: chat._id, senderId: authInfo.senderId,
       });
       setMessages([...messages, {
-        body: messageBody, chatId: chat._id, senderId: authInfo.senderId, user: 'sender',
+        body: messageBody,
+        chatId: chat._id,
+        senderId: authInfo.senderId,
+        user: 'sender',
+        stringTime: get12HourTime(new Date()),
+        stringDate: getNameDate(new Date()),
       }]);
       setMessageBody('');
       setMediaSending(false);
@@ -189,15 +196,21 @@ const ChatScreen = (props) => {
         )
         : null}
       <ScrollView>
+        {/* {messages.length && messages[messages.length - 1].stringDate
+             !== comparisonDate ? <Text>{messages[messages.length - 1].stringDate}</Text> : null} */}
+
         {messages.length ? messages.map((message, i) => (
-          <MessageBox
-            key={`message-${i}`}
-            body={message.body}
-            user={message.user}
-            mediaUrl={message.mediaUrl}
-            mediaHeaders={message.mediaHeaders}
-            belongsToSender={authInfo.senderId === message.user._id || message.user === 'sender'}
-          />
+          <View key={`message-${i}`}>
+            <MessageBox
+              message={message}
+              belongsToSender={authInfo.senderId === message.user._id || message.user === 'sender'}
+            />
+            {messages[i + 1] && message.stringDate !== messages[i + 1].stringDate ? (
+              <Text key={i}>
+                {messages[i + 1].stringDate}
+              </Text>
+            ) : console.log(message.stringDate)}
+          </View>
         )) : (
           <View>
             <Text>Send a message to start a conversation.</Text>

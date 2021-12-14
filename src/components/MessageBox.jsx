@@ -4,31 +4,39 @@ import {
 } from 'react-native';
 import ImageWithCache from './ImageWithCache';
 import themeStyle from '../theme.style';
-import Avatar from './Avatar';
 
 const MessageBox = ({
-  user, body, mediaUrl, mediaHeaders, belongsToSender,
-}) => (
-  <View style={styles.container}>
-    <Avatar initials={belongsToSender ? 'ME' : null} size={35} profileGifHeaders={user.profileGifHeaders} avatarUrl={user.profileGifUrl} />
-    <View style={styles.subContainer}>
-      <Text style={styles.senderName}>
-        {user === 'sender' ? 'Me' : `${user.firstName} ${user.lastName}`}
-      </Text>
-      {mediaUrl ? (
-        <ImageWithCache
-          resizeMode="cover"
-          mediaUrl={mediaUrl}
-          mediaHeaders={mediaHeaders}
-          aspectRatio={1 / 1}
-        />
-      ) : null}
-      {body ? (
-        <Text>{body}</Text>
-      ) : null}
+  belongsToSender, message,
+}) => {
+  const {
+    user, body, mediaUrl, mediaHeaders, stringDate, stringTime,
+  } = message;
+  return (
+    <View style={styles.container}>
+      <View style={styles.subContainer}>
+        <View style={styles.messageInfo}>
+          <Text style={styles.senderName}>
+            {belongsToSender ? 'Me' : `${user.firstName} ${user.lastName}`}
+          </Text>
+          <Text style={{ fontSize: 12, fontWeight: '700' }}>
+            {stringTime}
+          </Text>
+        </View>
+        {mediaUrl ? (
+          <ImageWithCache
+            resizeMode="cover"
+            mediaUrl={mediaUrl}
+            mediaHeaders={mediaHeaders}
+            aspectRatio={1 / 1}
+          />
+        ) : null}
+        {body ? (
+          <Text>{body}</Text>
+        ) : null}
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -41,6 +49,11 @@ const styles = StyleSheet.create({
   senderName: {
     color: themeStyle.colors.grayscale.black,
     fontWeight: '700',
+    marginRight: 10,
+  },
+  messageInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   subContainer: {
     marginHorizontal: 10,
