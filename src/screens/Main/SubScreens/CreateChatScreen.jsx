@@ -21,6 +21,20 @@ const CreateChatScreen = () => {
     }
   };
 
+  const handleChatNavigation = async (chatUserId) => {
+    setError(false);
+    const { response, success } = await apiCall('POST', '/chat/exists', { participants: [chatUserId] });
+    if (success) {
+      if (response === null) {
+        navigation.navigate('ChatScreen', { chatUserId });
+      } else {
+        navigation.navigate('ChatScreen', { existingChat: response });
+      }
+    } else {
+      setError(true);
+    }
+  };
+
   useEffect(() => {
     (async () => {
       await getUserFriends();
@@ -34,7 +48,7 @@ const CreateChatScreen = () => {
             {friends.map((friend) => (
               <TouchableOpacity
                 key={friend._id}
-                onPress={() => navigation.navigate('ChatScreen', { chatUserId: friend._id })}
+                onPress={() => handleChatNavigation(friend._id)}
               >
                 <UserThumbnail preventClicks user={friend} avatarSize={50} />
               </TouchableOpacity>

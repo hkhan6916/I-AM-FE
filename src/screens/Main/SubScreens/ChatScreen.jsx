@@ -26,7 +26,6 @@ const ChatScreen = (props) => {
   const [messages, setMessages] = useState([]);
   const [showError, setShowError] = useState(false);
   const [chat, setChat] = useState(props.route.params.existingChat);
-  const [comparisonDate, setComparisonDate] = useState('');
   const { chatUserId, existingChat } = props.route.params;
 
   const createChat = async () => {
@@ -150,21 +149,22 @@ const ChatScreen = (props) => {
     let isMounted = true;
     if (isMounted) {
       (async () => {
-        await initSocket();
-        if (existingChat) {
-          setChat(existingChat);
+        if (chat) {
+          await initSocket();
           await getChatMessages();
         }
       })();
     }
     return () => { isMounted = false; };
-  }, []);
+  }, [chat]);
 
   useEffect(() => {
     let isMounted = true;
 
     if (socket && isMounted && authInfo) {
-      socket.emit('joinRoom', { chatId: chat._id, userId: authInfo.senderId });
+      if (chat) {
+        socket.emit('joinRoom', { chatId: chat._id, userId: authInfo.senderId });
+      }
       socket.on('receiveMessage', ({
         body, chatId, senderId, user,
       }) => {
@@ -183,7 +183,7 @@ const ChatScreen = (props) => {
         socket.off('receiveMessage');
       }
     };
-  }, [socket, authInfo]);
+  }, [socket, authInfo, chat]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
