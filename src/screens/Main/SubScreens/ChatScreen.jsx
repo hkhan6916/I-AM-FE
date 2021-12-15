@@ -7,12 +7,14 @@ import { io } from 'socket.io-client';
 import * as ImagePicker from 'expo-image-picker';
 import { Video } from 'expo-av';
 import { getInfoAsync } from 'expo-file-system';
+import { useNavigation } from '@react-navigation/native';
 import sendMessage from '../../../helpers/sendMessage';
 import MessageBox from '../../../components/MessageBox';
 import VideoPlayer from '../../../components/VideoPlayer';
 import apiCall from '../../../helpers/apiCall';
 import get12HourTime from '../../../helpers/get12HourTime';
 import getNameDate from '../../../helpers/getNameDate';
+import themeStyle from '../../../theme.style';
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -27,7 +29,7 @@ const ChatScreen = (props) => {
   const [showError, setShowError] = useState(false);
   const [chat, setChat] = useState(props.route.params.existingChat);
   const { chatUserId, existingChat } = props.route.params;
-
+  const navigation = useNavigation();
   const createChat = async () => {
     setShowError(false);
     const { response, success } = await apiCall('POST', '/chat/new', { participants: [chatUserId] });
@@ -153,6 +155,9 @@ const ChatScreen = (props) => {
           await initSocket();
           await getChatMessages();
         }
+        if (chat.users.length) {
+          navigation.setOptions({ title: chat.users[0].firstName });
+        }
       })();
     }
     return () => { isMounted = false; };
@@ -195,10 +200,7 @@ const ChatScreen = (props) => {
           </Text>
         )
         : null}
-      <ScrollView>
-        {/* {messages.length && messages[messages.length - 1].stringDate
-             !== comparisonDate ? <Text>{messages[messages.length - 1].stringDate}</Text> : null} */}
-
+      <ScrollView style={{ flex: 1 }}>
         {messages.length ? messages.map((message, i) => (
           <View key={`message-${i}`}>
             <MessageBox
@@ -206,10 +208,14 @@ const ChatScreen = (props) => {
               belongsToSender={authInfo.senderId === message.user._id || message.user === 'sender'}
             />
             {messages[i + 1] && message.stringDate !== messages[i + 1].stringDate ? (
-              <Text key={i}>
-                {messages[i + 1].stringDate}
-              </Text>
-            ) : console.log(message.stringDate)}
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={styles.horizontalLines} />
+                <Text style={{ textAlign: 'center', marginHorizontal: 10, color: themeStyle.colors.grayscale.mediumGray }}>
+                  {messages[i + 1].stringDate}
+                </Text>
+                <View style={styles.horizontalLines} />
+              </View>
+            ) : null}
           </View>
         )) : (
           <View>
@@ -273,6 +279,11 @@ const ChatScreen = (props) => {
 const styles = StyleSheet.create({
   inputBox: {
     height: 48,
+  },
+  horizontalLines: {
+    flex: 1,
+    height: 1,
+    backgroundColor: themeStyle.colors.grayscale.lightGray,
   },
 });
 
