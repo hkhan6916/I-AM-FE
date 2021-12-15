@@ -8,6 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Video } from 'expo-av';
 import { getInfoAsync } from 'expo-file-system';
 import { useNavigation } from '@react-navigation/native';
+import Aes from 'react-native-aes-crypto';
 import sendMessage from '../../../helpers/sendMessage';
 import MessageBox from '../../../components/MessageBox';
 import VideoPlayer from '../../../components/VideoPlayer';
@@ -30,6 +31,45 @@ const ChatScreen = (props) => {
   const [chat, setChat] = useState(props.route.params.existingChat);
   const { chatUserId, existingChat } = props.route.params;
   const navigation = useNavigation();
+
+  const generateKey = (password, salt, cost, length) => Aes.pbkdf2(password, salt, cost, length);
+
+  const encryptData = (text, key) => Aes.randomKey(16).then((iv) => Aes.encrypt(text, key, iv, 'aes-256-cbc').then((cipher) => ({
+    cipher,
+    iv,
+  })));
+
+  const decryptData = (encryptedData, key) => Aes.decrypt(encryptedData.cipher, key, encryptedData.iv, 'aes-256-cbc');
+
+  const testEncryption = async () => {
+    try {
+      generateKey('Arnold', 'salt', 5000, 256).then((key) => {
+        console.log('Key:', key);
+        encryptData('These violent delights have violent ends', key)
+          .then(({ cipher, iv }) => {
+            console.log('Encrypted:', cipher);
+
+            decryptData({ cipher, iv }, key)
+              .then((text) => {
+                console.log('Decrypted:', text);
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+
+            Aes.hmac256(cipher, key).then((hash) => {
+              console.log('HMAC', hash);
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const createChat = async () => {
     setShowError(false);
     const { response, success } = await apiCall('POST', '/chat/new', { participants: [chatUserId] });
@@ -200,6 +240,7 @@ const ChatScreen = (props) => {
           </Text>
         )
         : null}
+      <Button title="test" onPress={() => testEncryption()} />
       <ScrollView style={{ flex: 1 }}>
         {messages.length ? messages.map((message, i) => (
           <View key={`message-${i}`}>
