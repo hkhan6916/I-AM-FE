@@ -3,7 +3,7 @@ import {
   Text, View, StyleSheet, TouchableHighlight, TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
+import { MaterialCommunityIcons, FontAwesome, Ionicons } from '@expo/vector-icons';
 import VideoPlayer from './VideoPlayer';
 import formatAge from '../helpers/formatAge';
 import Avatar from './Avatar';
@@ -282,7 +282,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                   name={post.liked ? 'thumb-up' : 'thumb-up-outline'}
                   size={24}
                   color={post.liked ? themeStyle.colors.secondary.default
-                    : themeStyle.colors.grayscale.black}
+                    : themeStyle.colors.grayscale.darkGray}
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -297,7 +297,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                   marginHorizontal: 5,
                 }}
               >
-                <FontAwesome name="comment-o" size={24} color="black" />
+                <FontAwesome name="comment-o" size={24} color={themeStyle.colors.grayscale.darkGray} />
               </TouchableOpacity>
             </View>
             <TouchableOpacity
@@ -314,7 +314,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                 justifySelf: 'flex-end',
               }}
             >
-              <FontAwesome name="paper-plane-o" size={24} color="black" />
+              <Ionicons name="arrow-redo-outline" size={26} color={themeStyle.colors.grayscale.darkGray} />
             </TouchableOpacity>
           </View>
           <Text style={{ marginHorizontal: 10, marginVertical: 5 }}>

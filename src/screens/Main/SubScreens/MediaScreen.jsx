@@ -100,7 +100,7 @@ const MediaScreen = (props) => {
             position: 'absolute',
             bottom: 70,
             right: 0,
-            opacity: showActions ? 1 : 0.2,
+            opacity: post.mediaType !== 'video' ? 1 : (showActions ? 1 : 0.2),
             borderRadius: 20,
             display: 'flex',
             flexDirection: 'column',
@@ -111,7 +111,7 @@ const MediaScreen = (props) => {
             })}
             >
               <Text style={{ color: themeStyle.colors.grayscale.white, margin: 20 }}>
-                <FontAwesome name="comment-o" size={24} color="white" />
+                <FontAwesome name="comment-o" size={24} color={themeStyle.colors.grayscale.white} />
               </Text>
             </TouchableOpacity>
             {!post.belongsToUser

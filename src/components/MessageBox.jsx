@@ -1,16 +1,37 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  View, Text, StyleSheet,
+  View, Text, StyleSheet, Dimensions,
 } from 'react-native';
+import { Video } from 'expo-av';
 import ImageWithCache from './ImageWithCache';
 import themeStyle from '../theme.style';
 
 const MessageBox = ({
-  belongsToSender, message,
+  belongsToSender, message, setMediaUrlPlaying, mediaUrlPlaying,
 }) => {
   const {
-    body, mediaUrl, mediaHeaders, stringTime,
+    body, mediaUrl, mediaHeaders, stringTime, mediaType,
   } = message;
+  const video = useRef(null);
+  const [videoPlaying, setVideoPlaying] = useState(false);
+
+  // const handleVideoStatusChange = (status) => {
+  //   setVideoPlaying(true);
+  //   if (mediaUrlPlaying !== mediaUrl) {
+  //     setMediaUrlPlaying(mediaUrl);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   (async () => {
+  //     if (mediaUrlPlaying !== mediaUrl) {
+  //       setVideoPlaying(false);
+  //       await video.current?.pauseAsync();
+  //     }
+  //   })();
+  // }, [mediaUrlPlaying]);
+
+  const { width: screenWidth } = Dimensions.get('window');
   return (
     <View style={styles.container}>
       <View style={[styles.subContainer, { alignItems: belongsToSender ? 'flex-end' : 'flex-start' }]}>
@@ -21,12 +42,26 @@ const MessageBox = ({
           >
             {stringTime}
           </Text>
-          {mediaUrl ? (
+          {mediaUrl && mediaType === 'image' ? (
             <ImageWithCache
               resizeMode="cover"
               mediaUrl={mediaUrl}
               mediaHeaders={mediaHeaders}
               aspectRatio={1 / 1}
+            />
+          ) : mediaUrl && mediaType === 'video' ? (
+            <Video
+              // onPlaybackStatusUpdate={(status) => handleVideoStatusChange(status)}
+              onsta
+              ref={video}
+              style={{ resizeMode: 1, height: screenWidth / 1.5, width: screenWidth / 1.5 }}
+              source={{
+                uri: mediaUrl,
+                headers: mediaHeaders,
+              }}
+              isLooping
+              useNativeControls
+              resizeMode="cover"
             />
           ) : null}
           {body ? (

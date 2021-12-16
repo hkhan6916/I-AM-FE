@@ -6,7 +6,6 @@ import { Camera } from 'expo-camera';
 import {
   Ionicons, EvilIcons,
 } from '@expo/vector-icons';
-
 import { DeviceMotion } from 'expo-sensors';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
@@ -84,7 +83,6 @@ const CameraStandard = ({
 
     return () => {
       DeviceMotion.removeAllListeners();
-      // setType(0);
     };
   }, [type]);
   if (hasCameraPermission === null || hasMicrophonePermission === null) {

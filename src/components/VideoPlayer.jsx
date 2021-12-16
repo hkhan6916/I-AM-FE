@@ -11,7 +11,7 @@ import useScreenOrientation from '../helpers/hooks/useScreenOrientation';
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
 const VideoPlayer = ({
-  url, isFullScreen, setShowActions, mediaOrientation, mediaIsSelfie,
+  url, isFullScreen, setShowActions, mediaOrientation, mediaIsSelfie, mediaHeaders,
 }) => {
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
@@ -113,7 +113,7 @@ const VideoPlayer = ({
                   }],
                 }}
                 >
-                  {/* <Video
+                  <Video
                     onReadyForDisplay={(params) => {
                       setVideoDimensions(params.naturalSize);
                     }}
@@ -126,11 +126,12 @@ const VideoPlayer = ({
                     }]}
                     source={{
                       uri: url,
+                      headers: mediaHeaders,
                     }}
                     useNativeControls={false}
                     resizeMode={isFullScreen ? 'contain' : 'cover'}
                     onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
-                  /> */}
+                  />
                 </View>
               </View>
             </TouchableWithoutFeedback>
@@ -149,7 +150,7 @@ const VideoPlayer = ({
                 }],
               }}
               >
-                {/* <Video
+                <Video
                   onReadyForDisplay={(params) => {
                     setVideoDimensions(params.naturalSize);
                   }}
@@ -162,11 +163,12 @@ const VideoPlayer = ({
                   }]}
                   source={{
                     uri: url,
+                    headers: mediaHeaders,
                   }}
                   useNativeControls={false}
                   resizeMode={isFullScreen ? 'contain' : 'cover'}
                   onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
-                /> */}
+                />
               </View>
             </View>
           )}

@@ -7,7 +7,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import Constants from 'expo-constants';
-import FastImage from 'react-native-fast-image';
+import { Ionicons } from '@expo/vector-icons';
 import themeStyle from '../../../theme.style';
 import FeedContext from '../../../Context';
 import PostCard from '../../../components/PostCard';
@@ -91,8 +91,8 @@ const HomeScreen = () => {
       ) : null}
       <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text>Add Logo Here</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('ChatListScreen')}>
-          <Text>Link to messages</Text>
+        <TouchableOpacity style={{ padding: 10, marginRight: 10 }} onPress={() => navigation.navigate('ChatListScreen')}>
+          <Ionicons name="paper-plane-outline" size={24} color="black" />
         </TouchableOpacity>
       </View>
       <ScrollView

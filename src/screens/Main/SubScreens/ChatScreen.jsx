@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, Button, TextInput, ScrollView, SafeAreaView, StyleSheet, Image,
+  View, Text, Button, TextInput, ScrollView, SafeAreaView, StyleSheet, Image, FlatList,
 } from 'react-native';
 import { getItemAsync } from 'expo-secure-store';
 import { io } from 'socket.io-client';
@@ -16,6 +16,7 @@ import apiCall from '../../../helpers/apiCall';
 import get12HourTime from '../../../helpers/get12HourTime';
 import getNameDate from '../../../helpers/getNameDate';
 import themeStyle from '../../../theme.style';
+import CameraStandard from '../../../components/CameraStandard';
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -28,47 +29,13 @@ const ChatScreen = (props) => {
   const [messageBody, setMessageBody] = useState('');
   const [messages, setMessages] = useState([]);
   const [showError, setShowError] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [mediaUrlPlaying, setMediaUrlPlaying] = useState('');
+
   const [chat, setChat] = useState(props.route.params.existingChat);
   const { chatUserId, existingChat } = props.route.params;
   const navigation = useNavigation();
-
-  const generateKey = (password, salt, cost, length) => Aes.pbkdf2(password, salt, cost, length);
-
-  const encryptData = (text, key) => Aes.randomKey(16).then((iv) => Aes.encrypt(text, key, iv, 'aes-256-cbc').then((cipher) => ({
-    cipher,
-    iv,
-  })));
-
-  const decryptData = (encryptedData, key) => Aes.decrypt(encryptedData.cipher, key, encryptedData.iv, 'aes-256-cbc');
-
-  const testEncryption = async () => {
-    try {
-      generateKey('Arnold', 'salt', 5000, 256).then((key) => {
-        console.log('Key:', key);
-        encryptData('These violent delights have violent ends', key)
-          .then(({ cipher, iv }) => {
-            console.log('Encrypted:', cipher);
-
-            decryptData({ cipher, iv }, key)
-              .then((text) => {
-                console.log('Decrypted:', text);
-              })
-              .catch((error) => {
-                console.log(error);
-              });
-
-            Aes.hmac256(cipher, key).then((hash) => {
-              console.log('HMAC', hash);
-            });
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   const createChat = async () => {
     setShowError(false);
@@ -94,7 +61,7 @@ const ChatScreen = (props) => {
     const token = await getItemAsync('authToken');
     const senderId = await getItemAsync('userId');
     setAuthInfo({ token, senderId });
-    const connection = io.connect('http://192.168.5.101:5000', {
+    const connection = io.connect('ws://192.168.5.101:5000', {
       auth: {
         token,
       },
@@ -113,9 +80,15 @@ const ChatScreen = (props) => {
 
       const formData = new FormData();
       const mediaExtension = media.uri.split('.').pop();
-      formData.append('file', {
-        uri: media.uri, name: media.uri, type: `${media.type}/${mediaExtension}`,
-      });
+      if (media.type?.split('/').length === 2) {
+        formData.append('file', {
+          uri: media.uri, name: media.uri, type: `${media.type}`,
+        });
+      } else {
+        formData.append('file', {
+          uri: media.uri, name: media.uri, type: `${media.type}/${mediaExtension}`,
+        });
+      }
       const { response, success } = await apiCall('POST', '/files/upload', formData);
       if (success) {
         await sendMessage({
@@ -124,6 +97,7 @@ const ChatScreen = (props) => {
           chatId: chat._id,
           senderId: authInfo.senderId,
           mediaUrl: response.fileUrl,
+          mediaType: media.type?.split('/')[0],
         });
         setMessages([...messages, {
           body: messageBody,
@@ -132,6 +106,7 @@ const ChatScreen = (props) => {
           user: 'sender',
           mediaUrl: response.fileUrl,
           mediaHeaders: response.fileHeaders,
+          mediaType: media.type?.split('/')[0],
           stringTime: get12HourTime(new Date()),
           stringDate: getNameDate(new Date()),
         }]);
@@ -187,6 +162,11 @@ const ChatScreen = (props) => {
     }
   };
 
+  const handleActivateCamera = () => {
+    setMedia({});
+    setCameraActive(true);
+  };
+
   useEffect(() => {
     let isMounted = true;
     if (isMounted) {
@@ -230,6 +210,17 @@ const ChatScreen = (props) => {
     };
   }, [socket, authInfo, chat]);
 
+  if (cameraActive) {
+    return (
+      <CameraStandard
+        recording={recording}
+        setCameraActive={setCameraActive}
+        setFile={setMedia}
+        setRecording={setRecording}
+      />
+    );
+  }
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       {showError
@@ -240,11 +231,12 @@ const ChatScreen = (props) => {
           </Text>
         )
         : null}
-      <Button title="test" onPress={() => testEncryption()} />
       <ScrollView style={{ flex: 1 }}>
         {messages.length ? messages.map((message, i) => (
           <View key={`message-${i}`}>
             <MessageBox
+              setMediaUrlPlaying={setMediaUrlPlaying}
+              mediaUrlPlaying={mediaUrlPlaying}
               message={message}
               belongsToSender={authInfo.senderId === message.user._id || message.user === 'sender'}
             />
@@ -267,7 +259,7 @@ const ChatScreen = (props) => {
       <TextInput styles={styles.inputBox} value={messageBody} placeholder="Type a message..." onChangeText={(v) => setMessageBody(v)} />
       <View style={[{ alignItems: 'center' }, mediaSending && { backgroundColor: 'grey' }]}>
         {
-        media?.type === 'image' ? (
+        media?.type?.includes('image') ? (
           <Image
             style={{
               borderRadius: 10,
@@ -277,11 +269,8 @@ const ChatScreen = (props) => {
             resizeMode="contain"
             source={{ uri: media.uri }}
           />
-        ) : media?.type === 'video' ? (
+        ) : media?.type?.includes('video') ? (
           <View style={{ width: 200, height: 200 }}>
-            {/* <VideoPlayer
-                url={media.uri}
-              /> */}
             <Video
               useNativeControls
               source={{ uri: media.uri }}
@@ -311,6 +300,10 @@ const ChatScreen = (props) => {
         <Button
           title="send"
           onPress={() => handleMessageSend()}
+        />
+        <Button
+          title="camera"
+          onPress={() => handleActivateCamera(true)}
         />
       </View>
     </SafeAreaView>
