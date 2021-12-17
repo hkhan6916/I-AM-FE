@@ -1,41 +1,26 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
-  View, Text, StyleSheet, Dimensions,
+  View, Text, StyleSheet, TouchableOpacity,
 } from 'react-native';
 import { Video } from 'expo-av';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ImageWithCache from './ImageWithCache';
 import themeStyle from '../theme.style';
 
 const MessageBox = ({
-  belongsToSender, message, setMediaUrlPlaying, mediaUrlPlaying,
+  belongsToSender, message,
 }) => {
   const {
     body, mediaUrl, mediaHeaders, stringTime, mediaType,
   } = message;
-  const video = useRef(null);
-  const [videoPlaying, setVideoPlaying] = useState(false);
+  const [imageFullScreen, setImageFullScreen] = useState(false);
 
-  // const handleVideoStatusChange = (status) => {
-  //   setVideoPlaying(true);
-  //   if (mediaUrlPlaying !== mediaUrl) {
-  //     setMediaUrlPlaying(mediaUrl);
-  //   }
-  // };
+  const videoRef = useRef(null);
 
-  // useEffect(() => {
-  //   (async () => {
-  //     if (mediaUrlPlaying !== mediaUrl) {
-  //       setVideoPlaying(false);
-  //       await video.current?.pauseAsync();
-  //     }
-  //   })();
-  // }, [mediaUrlPlaying]);
-
-  const { width: screenWidth } = Dimensions.get('window');
   return (
     <View style={styles.container}>
       <View style={[styles.subContainer, { alignItems: belongsToSender ? 'flex-end' : 'flex-start' }]}>
-        <View style={styles.message}>
+        <View style={[styles.message, belongsToSender ? { marginLeft: 50 } : { marginRight: 50 }]}>
           <Text style={{
             fontSize: 12, fontWeight: '700', textAlign: 'right', color: 'white',
           }}
@@ -43,26 +28,51 @@ const MessageBox = ({
             {stringTime}
           </Text>
           {mediaUrl && mediaType === 'image' ? (
-            <ImageWithCache
-              resizeMode="cover"
-              mediaUrl={mediaUrl}
-              mediaHeaders={mediaHeaders}
-              aspectRatio={1 / 1}
-            />
+            <TouchableOpacity onPress={() => setImageFullScreen(true)}>
+              <ImageWithCache
+                resizeMode="cover"
+                mediaUrl={mediaUrl}
+                mediaHeaders={mediaHeaders}
+                aspectRatio={1 / 1}
+                toggleFullScreen={setImageFullScreen}
+                isFullScreen={imageFullScreen}
+              />
+            </TouchableOpacity>
           ) : mediaUrl && mediaType === 'video' ? (
-            <Video
-              // onPlaybackStatusUpdate={(status) => handleVideoStatusChange(status)}
-              onsta
-              ref={video}
-              style={{ resizeMode: 1, height: screenWidth / 1.5, width: screenWidth / 1.5 }}
-              source={{
-                uri: mediaUrl,
-                headers: mediaHeaders,
-              }}
-              isLooping
-              useNativeControls
-              resizeMode="cover"
-            />
+            <TouchableOpacity onPress={() => videoRef.current.presentFullscreenPlayer()}>
+              <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                <Video
+                  ref={videoRef}
+                  style={{
+                    display: 'none',
+                  }}
+                  source={{
+                    uri: mediaUrl,
+                    headers: mediaHeaders,
+                  }}
+                  useNativeControls={false}
+                  resizeMode="cover"
+                />
+                <ImageWithCache
+                  resizeMode="cover"
+                  mediaUrl={mediaUrl}
+                  mediaHeaders={mediaHeaders}
+                  aspectRatio={1 / 1}
+                />
+                <View style={{
+                  position: 'absolute',
+                  backgroundColor: themeStyle.colors.grayscale.black,
+                  borderRadius: 100,
+                }}
+                >
+                  <MaterialCommunityIcons
+                    name="play"
+                    size={60}
+                    color={themeStyle.colors.grayscale.white}
+                  />
+                </View>
+              </View>
+            </TouchableOpacity>
           ) : null}
           {body ? (
             <Text style={{ color: themeStyle.colors.grayscale.white }}>
@@ -91,7 +101,6 @@ const styles = StyleSheet.create({
     backgroundColor: themeStyle.colors.primary.default,
     borderRadius: 10,
     padding: 5,
-    marginLeft: 50,
   },
   subContainer: {
     marginHorizontal: 10,

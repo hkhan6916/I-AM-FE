@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, Button, TextInput, ScrollView, SafeAreaView, StyleSheet, Image, FlatList,
+  View, Text, TouchableOpacity, TextInput, ScrollView, SafeAreaView, StyleSheet, Image,
 } from 'react-native';
 import { getItemAsync } from 'expo-secure-store';
 import { io } from 'socket.io-client';
@@ -9,9 +9,9 @@ import { Video } from 'expo-av';
 import { getInfoAsync } from 'expo-file-system';
 import { useNavigation } from '@react-navigation/native';
 import Aes from 'react-native-aes-crypto';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import sendMessage from '../../../helpers/sendMessage';
 import MessageBox from '../../../components/MessageBox';
-import VideoPlayer from '../../../components/VideoPlayer';
 import apiCall from '../../../helpers/apiCall';
 import get12HourTime from '../../../helpers/get12HourTime';
 import getNameDate from '../../../helpers/getNameDate';
@@ -31,7 +31,6 @@ const ChatScreen = (props) => {
   const [showError, setShowError] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [recording, setRecording] = useState(false);
-  const [mediaUrlPlaying, setMediaUrlPlaying] = useState('');
 
   const [chat, setChat] = useState(props.route.params.existingChat);
   const { chatUserId, existingChat } = props.route.params;
@@ -235,8 +234,6 @@ const ChatScreen = (props) => {
         {messages.length ? messages.map((message, i) => (
           <View key={`message-${i}`}>
             <MessageBox
-              setMediaUrlPlaying={setMediaUrlPlaying}
-              mediaUrlPlaying={mediaUrlPlaying}
               message={message}
               belongsToSender={authInfo.senderId === message.user._id || message.user === 'sender'}
             />
@@ -256,7 +253,42 @@ const ChatScreen = (props) => {
           </View>
         )}
       </ScrollView>
-      <TextInput styles={styles.inputBox} value={messageBody} placeholder="Type a message..." onChangeText={(v) => setMessageBody(v)} />
+      <View style={{
+        flexDirection: 'row', minHeight: 48, maxHeight: 100, alignItems: 'center',
+      }}
+      >
+        <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity
+            style={{ marginHorizontal: 5 }}
+            onPress={() => pickImage()}
+          >
+            <FontAwesome name="photo" size={24} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ marginHorizontal: 5 }}
+            onPress={() => handleActivateCamera(true)}
+          >
+            <Ionicons name="camera-outline" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
+        <View style={{ flex: 1 }}>
+          <ScrollView>
+            <TextInput
+              styles={styles.inputBox}
+              value={messageBody}
+              multiline
+              placeholder="Type a message..."
+              onChangeText={(v) => setMessageBody(v)}
+            />
+          </ScrollView>
+        </View>
+        <TouchableOpacity
+          style={{ marginLeft: 20, marginRight: 10 }}
+          onPress={() => handleMessageSend()}
+        >
+          <Ionicons name="send-sharp" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
       <View style={[{ alignItems: 'center' }, mediaSending && { backgroundColor: 'grey' }]}>
         {
         media?.type?.includes('image') ? (
@@ -288,23 +320,6 @@ const ChatScreen = (props) => {
             </Text>
           )
           : null}
-      </View>
-      <View
-        style={{ margin: 20 }}
-      >
-        <Button title="Pick Image" onPress={() => pickImage()} />
-      </View>
-      <View
-        style={{ margin: 20 }}
-      >
-        <Button
-          title="send"
-          onPress={() => handleMessageSend()}
-        />
-        <Button
-          title="camera"
-          onPress={() => handleActivateCamera(true)}
-        />
       </View>
     </SafeAreaView>
   );
