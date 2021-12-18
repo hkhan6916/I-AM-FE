@@ -83,7 +83,7 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
-        title: '',
+        title: 'ChatScreen',
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {

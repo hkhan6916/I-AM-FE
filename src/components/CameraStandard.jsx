@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Text, View, TouchableOpacity, Dimensions, Linking, Platform,
+  Text, View, TouchableOpacity, Dimensions, Linking, Platform, BackHandler,
 } from 'react-native';
 import { Camera } from 'expo-camera';
 import {
@@ -85,6 +85,17 @@ const CameraStandard = ({
       DeviceMotion.removeAllListeners();
     };
   }, [type]);
+  const handleBackButtonClick = () => {
+    setCameraActive(false);
+    return true;
+  };
+
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
+    };
+  }, []);
   if (hasCameraPermission === null || hasMicrophonePermission === null) {
     return <View />;
   }
@@ -147,6 +158,17 @@ const CameraStandard = ({
   }
   return (
     <View style={{ flex: 1, backgroundColor: themeStyle.colors.grayscale.black }}>
+      <TouchableOpacity
+        onPress={() => setCameraActive(false)}
+        style={{
+          height: 48, width: 48, margin: 15,
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Ionicons name="arrow-back" size={24} color={themeStyle.colors.grayscale.white} />
+          <Text style={{ color: themeStyle.colors.grayscale.white, marginLeft: 10 }}>Back</Text>
+        </View>
+      </TouchableOpacity>
       <Camera
         mirror
         style={{

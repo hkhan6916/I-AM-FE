@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, TouchableOpacity, TextInput, ScrollView, SafeAreaView, StyleSheet, Image,
+  View, Text, TouchableOpacity, TextInput, ScrollView, SafeAreaView, StyleSheet, Image, BackHandler,
 } from 'react-native';
 import { getItemAsync } from 'expo-secure-store';
 import { io } from 'socket.io-client';
@@ -163,6 +163,7 @@ const ChatScreen = (props) => {
 
   const handleActivateCamera = () => {
     setMedia({});
+    navigation.setOptions({ headerShown: false });
     setCameraActive(true);
   };
 
@@ -253,42 +254,72 @@ const ChatScreen = (props) => {
           </View>
         )}
       </ScrollView>
+
       <View style={{
-        flexDirection: 'row', minHeight: 48, maxHeight: 100, alignItems: 'center',
+        flexDirection: 'row',
+        minHeight: 48,
+        maxHeight: 100,
+        alignItems: 'center',
+        paddingVertical: 10,
       }}
       >
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{
+          flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end', height: '100%',
+        }}
+        >
           <TouchableOpacity
-            style={{ marginHorizontal: 5 }}
+            style={{ marginHorizontal: 5, height: 48, justifyContent: 'center' }}
             onPress={() => pickImage()}
           >
             <FontAwesome name="photo" size={24} color="black" />
           </TouchableOpacity>
           <TouchableOpacity
-            style={{ marginHorizontal: 5 }}
+            style={{ marginHorizontal: 5, height: 48, justifyContent: 'center' }}
             onPress={() => handleActivateCamera(true)}
           >
             <Ionicons name="camera-outline" size={24} color="black" />
           </TouchableOpacity>
         </View>
-        <View style={{ flex: 1 }}>
-          <ScrollView>
-            <TextInput
-              styles={styles.inputBox}
-              value={messageBody}
-              multiline
-              placeholder="Type a message..."
-              onChangeText={(v) => setMessageBody(v)}
-            />
-          </ScrollView>
-        </View>
-        <TouchableOpacity
-          style={{ marginLeft: 20, marginRight: 10 }}
-          onPress={() => handleMessageSend()}
+        <View style={{
+          flex: 1, minHeight: 48, height: '100%', justifyContent: 'flex-end',
+        }}
         >
-          <Ionicons name="send-sharp" size={24} color="black" />
-        </TouchableOpacity>
+          <TextInput
+            style={{
+              minHeight: 48,
+              backgroundColor: themeStyle.colors.grayscale.superLightGray,
+              borderRadius: 10,
+              paddingHorizontal: 10,
+            }}
+            value={messageBody}
+            multiline
+            placeholder="Type a message..."
+            onChangeText={(v) => setMessageBody(v)}
+            scrollEnabled
+          />
+        </View>
+        <View style={{
+          justifyContent: 'flex-end',
+          height: '100%',
+        }}
+        >
+          <TouchableOpacity
+            style={{
+              marginLeft: 10,
+              marginRight: 10,
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: 48,
+              width: 48,
+              borderRadius: 100,
+            }}
+            onPress={() => handleMessageSend()}
+          >
+            <Ionicons name="send-sharp" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
       </View>
+
       <View style={[{ alignItems: 'center' }, mediaSending && { backgroundColor: 'grey' }]}>
         {
         media?.type?.includes('image') ? (
@@ -326,9 +357,6 @@ const ChatScreen = (props) => {
 };
 
 const styles = StyleSheet.create({
-  inputBox: {
-    height: 48,
-  },
   horizontalLines: {
     flex: 1,
     height: 1,
