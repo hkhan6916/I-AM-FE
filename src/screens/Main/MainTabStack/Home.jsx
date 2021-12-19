@@ -2,7 +2,7 @@ import React, {
   useEffect, useContext, useState, useCallback,
 } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, SafeAreaView,
+  View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, SafeAreaView, StatusBar,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
@@ -89,6 +89,10 @@ const HomeScreen = () => {
       {newPostCreated.state ? (
         <Text style={styles.newPostPill}>Post created</Text>
       ) : null}
+      <StatusBar
+        backgroundColor={themeStyle.colors.grayscale.black}
+        barStyle="light-content"
+      />
       <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text>Add Logo Here</Text>
         <TouchableOpacity style={{ padding: 10, marginRight: 10 }} onPress={() => navigation.navigate('ChatListScreen')}>

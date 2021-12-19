@@ -97,6 +97,7 @@ const ChatScreen = (props) => {
           senderId: authInfo.senderId,
           mediaUrl: response.fileUrl,
           mediaType: media.type?.split('/')[0],
+          mediaHeaders: response.fileHeaders,
         });
         setMessages([...messages, {
           body: messageBody,
@@ -167,6 +168,13 @@ const ChatScreen = (props) => {
     setCameraActive(true);
   };
 
+  const toggleCamera = (state) => {
+    setCameraActive(state);
+    if (!state) {
+      navigation.setOptions({ headerShown: true });
+    }
+  };
+
   useEffect(() => {
     let isMounted = true;
     if (isMounted) {
@@ -191,13 +199,13 @@ const ChatScreen = (props) => {
         socket.emit('joinRoom', { chatId: chat._id, userId: authInfo.senderId });
       }
       socket.on('receiveMessage', ({
-        body, chatId, senderId, user,
+        body, chatId, senderId, user, mediaHeaders, mediaUrl, mediaType, stringDate, stringTime,
       }) => {
         if (!socket.connected) {
           setShowError(true);
         } else {
           setMessages((prevMessages) => [...prevMessages, {
-            body, chatId, senderId, user,
+            body, chatId, senderId, user, mediaHeaders, mediaUrl, mediaType, stringDate, stringTime,
           }]);
         }
       });
@@ -214,7 +222,7 @@ const ChatScreen = (props) => {
     return (
       <CameraStandard
         recording={recording}
-        setCameraActive={setCameraActive}
+        setCameraActive={toggleCamera}
         setFile={setMedia}
         setRecording={setRecording}
       />

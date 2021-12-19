@@ -1,8 +1,8 @@
 const sendMessage = async ({
-  socket, body, chatId, senderId, mediaUrl, mediaType,
+  socket, body, chatId, senderId, mediaUrl, mediaType, mediaHeaders,
 }) => {
   socket.emit('sendMessage', {
-    body, chatId, senderId, mediaUrl, mediaType,
+    body, chatId, senderId, mediaUrl, mediaType, mediaHeaders,
   });
 };
 
