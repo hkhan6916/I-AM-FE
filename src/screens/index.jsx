@@ -6,7 +6,7 @@ import {
 import { useSelector } from 'react-redux';
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
-import { setItemAsync } from 'expo-secure-store';
+import { getItemAsync, setItemAsync } from 'expo-secure-store';
 import apiCall from '../helpers/apiCall';
 import AuthScreens from './Auth';
 import MainScreens from './Main';
@@ -83,7 +83,12 @@ const Screens = () => {
   useEffect(() => {
     if (!notificationToken && loaded) {
       registerForPushNotificationsAsync().then(async (token) => {
-        await setItemAsync('notificationToken', token);
+        const currentToken = await getItemAsync('notificationToken');
+        if (currentToken !== token) {
+          await setItemAsync('notificationToken', token);
+          const userId = await getItemAsync('userId');
+          await apiCall('POST', '/user/notifications/token/update', { userId, notificationToken: token });
+        }
         setNotificationToken(token || 'none');
       });
     }
