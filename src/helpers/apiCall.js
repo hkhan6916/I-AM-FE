@@ -2,8 +2,6 @@ import axios from 'axios';
 import { getItemAsync } from 'expo-secure-store';
 
 const apiCall = async (method, route, payload = null) => {
-  const token = await getItemAsync('authToken');
-
   const apiUrl = 'http://192.168.5.101:5000';
   // const apiUrl = 'https://i-am-be.herokuapp.com';
   const callConfig = {
@@ -13,8 +11,13 @@ const apiCall = async (method, route, payload = null) => {
     headers: {},
   };
 
-  if (token) {
-    callConfig.headers.Authorization = `Bearer ${token}`;
+  try {
+    const token = await getItemAsync('authToken');
+    if (token) {
+      callConfig.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch (error) {
+    callConfig.headers.Authorization = `Bearer ${null}`;
   }
 
   if (payload !== null) {

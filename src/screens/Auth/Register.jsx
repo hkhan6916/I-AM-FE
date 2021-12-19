@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, TextInput, StyleSheet, Text, TouchableOpacity,
+  View, TextInput, Text, TouchableOpacity,
   Dimensions, ScrollView, ActivityIndicator,
 } from 'react-native';
-
 import { useNavigation } from '@react-navigation/native';
 import { Camera } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { Video } from 'expo-av';
+import { getExpoPushTokenAsync } from 'expo-notifications';
 import themeStyle from '../../theme.style';
 import apiCall from '../../helpers/apiCall';
 import ProfileVideoCamera from '../../components/ProfileVideoCamera';
@@ -70,6 +70,8 @@ const RegisterationScreen = () => {
       email,
       password,
       username,
+      notificationToken: await getExpoPushTokenAsync().data || null,
+
       file: {
         uri: profileVideo, name: 'profileVideo.mp4', type: 'video/mp4',
       },
@@ -277,100 +279,5 @@ const RegisterationScreen = () => {
     </View>
   );
 };
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  formContainer: {
-    padding: 20,
-    backgroundColor: themeStyle.colors.grayscale.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-    textAlign: 'center',
-  },
-  formHeader: {
-    fontSize: 20,
-  },
-  cameraContainer: {
-    backgroundColor: '#000',
-    flex: 1,
-  },
-  registerationError: {
-    textAlign: 'center',
-    color: 'red',
-    fontWeight: '500',
-  },
-  faceDetectionError: {
-    color: themeStyle.colors.error.default,
-    textAlign: 'center',
-    fontWeight: '700',
-  },
-  buttonContainer: {
-    flex: 1,
-    backgroundColor: 'transparent',
-    flexDirection: 'row',
-    margin: 20,
-  },
-  button: {
-    flex: 0.1,
-    alignSelf: 'flex-end',
-    alignItems: 'center',
-  },
-  registerationButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    margin: 20,
-    borderRadius: 50,
-    backgroundColor: themeStyle.colors.primary.default,
-  },
-  registerationButtonText: {
-    color: themeStyle.colors.grayscale.white,
-  },
-  takeVideoButton: {
-    margin: 10,
-    padding: 10,
-    borderWidth: 2,
-    borderColor: themeStyle.colors.primary.default,
-    borderRadius: 5,
-  },
-  takeVideoButtonText: {
-    color: themeStyle.colors.grayscale.black,
-    fontWeight: '700',
-  },
-  text: {
-    fontSize: 18,
-    color: 'white',
-  },
-  visibleTextInputs: {
-    fontSize: 15,
-    height: 45,
-    borderRadius: 5,
-    alignSelf: 'stretch',
-    marginVertical: 20,
-    paddingHorizontal: 10,
-    borderWidth: 2,
-    borderColor: themeStyle.colors.primary.default,
-  },
-  passwordInput: {
-    flex: 1,
-    fontSize: 15,
-    color: '#000',
-  },
-  passwordInputContainer: {
-    flexDirection: 'row',
-    height: 45,
-    borderRadius: 5,
-    alignSelf: 'stretch',
-    marginVertical: 20,
-    padding: 5,
-    borderWidth: 2,
-    borderColor: themeStyle.colors.primary.default,
-  },
-  eyeIcon: {
-    justifyContent: 'center',
-    paddingHorizontal: 5,
-  },
-});
 
 export default RegisterationScreen;

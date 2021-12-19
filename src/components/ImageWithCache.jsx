@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import {
-  View, Modal, TouchableOpacity, BackHandler, StatusBar,
+  View, Modal, TouchableOpacity, BackHandler,
 } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import { AntDesign } from '@expo/vector-icons';
@@ -11,8 +11,10 @@ const ImageWithCache = ({
   mediaOrientation, mediaHeaders, isFullScreen, toggleFullScreen,
 }) => {
   const handleBackButtonClick = () => {
-    toggleFullScreen(false);
-    return true;
+    if (toggleFullScreen) {
+      toggleFullScreen(false);
+      return true;
+    }
   };
 
   useEffect(() => {

@@ -1,17 +1,25 @@
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import {
+  View, Text, StyleSheet, Platform,
+} from 'react-native';
 import { useSelector } from 'react-redux';
+import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
+import { setItemAsync } from 'expo-secure-store';
 import apiCall from '../helpers/apiCall';
 import AuthScreens from './Auth';
 import MainScreens from './Main';
 import themeStyle from '../theme.style';
 import FeedContext from '../Context';
+import registerNotifications from '../helpers/registerNotifications';
 
 const Screens = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [feed, setFeed] = useState([]);
+  const [notificationToken, setNotificationToken] = useState('');
+
   const loginAttemptStatus = useSelector((state) => state.loggedIn);
   const Theme = {
     ...DefaultTheme,
@@ -42,7 +50,46 @@ const Screens = () => {
     }
   }, [loginAttemptStatus]);
 
-  if (!loaded) {
+  const registerForPushNotificationsAsync = async () => {
+    let token;
+    if (Constants.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      // TODO: Change experience id in production
+      token = (await Notifications.getExpoPushTokenAsync({ experienceId: '@hkhan6916/I-Am-FE' })).data;
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+    if (Platform === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+
+    return token;
+  };
+
+  useEffect(() => {
+    if (!notificationToken && loaded) {
+      registerForPushNotificationsAsync().then(async (token) => {
+        await setItemAsync('notificationToken', token);
+        setNotificationToken(token || 'none');
+      });
+    }
+  }, [loaded]);
+
+  if (!loaded || !notificationToken) {
     return (
       <View style={styles.splashScreenContainer}>
         <Text>Splash Screen</Text>
@@ -51,7 +98,7 @@ const Screens = () => {
   }
   return (
     <NavigationContainer theme={Theme}>
-      {loaded && loggedIn
+      {loaded && loggedIn && notificationToken
         ? (
           <FeedContext.Provider value={feed}>
             <MainScreens />

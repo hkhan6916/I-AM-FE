@@ -24,5 +24,6 @@ module.exports = {
     'no-underscore-dangle': 0,
     'react/destructuring-assignment': 0,
     'no-return-await': 0,
+    'consistent-return': 0,
   },
 };

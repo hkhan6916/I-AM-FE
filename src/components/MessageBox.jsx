@@ -22,7 +22,13 @@ const MessageBox = ({
       <View style={[styles.subContainer, { alignItems: belongsToSender ? 'flex-end' : 'flex-start' }]}>
         <View style={[styles.message, belongsToSender ? { marginLeft: 50 } : { marginRight: 50 }]}>
           <Text style={{
-            fontSize: 12, fontWeight: '700', textAlign: 'right', color: 'white',
+            fontSize: 12,
+            fontWeight: '700',
+            textAlign: 'right',
+            color: 'white',
+            alignSelf: belongsToSender ? 'flex-end' : 'flex-start',
+            marginHorizontal: 10,
+            marginVertical: 5,
           }}
           >
             {stringTime}
