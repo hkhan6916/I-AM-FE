@@ -83,13 +83,17 @@ const Screens = () => {
   useEffect(() => {
     if (!notificationToken && loaded) {
       registerForPushNotificationsAsync().then(async (token) => {
-        const currentToken = await getItemAsync('notificationToken');
-        if (currentToken !== token) {
+        try {
+          const currentToken = await getItemAsync('notificationToken');
+          if (currentToken !== token) {
+            await setItemAsync('notificationToken', token);
+            const userId = await getItemAsync('userId');
+            await apiCall('POST', '/user/notifications/token/update', { userId, notificationToken: token });
+          }
+          setNotificationToken(token || 'none');
+        } catch (error) {
           await setItemAsync('notificationToken', token);
-          const userId = await getItemAsync('userId');
-          await apiCall('POST', '/user/notifications/token/update', { userId, notificationToken: token });
         }
-        setNotificationToken(token || 'none');
       });
     }
   }, [loaded]);

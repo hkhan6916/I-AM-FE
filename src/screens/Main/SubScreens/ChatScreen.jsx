@@ -210,9 +210,11 @@ const ChatScreen = (props) => {
         }
       });
     }
+
     return () => {
       isMounted = false;
       if (socket) {
+        socket.disconnect();
         socket.off('receiveMessage');
       }
     };

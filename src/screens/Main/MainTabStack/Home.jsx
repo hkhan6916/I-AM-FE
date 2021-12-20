@@ -12,6 +12,7 @@ import themeStyle from '../../../theme.style';
 import FeedContext from '../../../Context';
 import PostCard from '../../../components/PostCard';
 import apiCall from '../../../helpers/apiCall';
+import Logo from '../../../../assets/Logo';
 
 const { statusBarHeight } = Constants;
 
@@ -93,10 +94,21 @@ const HomeScreen = () => {
         backgroundColor={themeStyle.colors.grayscale.black}
         barStyle="light-content"
       />
-      <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text>Add Logo Here</Text>
+      <View style={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: themeStyle.colors.grayscale.white,
+        borderBottomWidth: 1,
+        borderBottomColor: themeStyle.colors.grayscale.black,
+      }}
+      >
+        <View style={{ marginHorizontal: 20 }}>
+          <Logo fill={themeStyle.colors.grayscale.black} />
+        </View>
         <TouchableOpacity style={{ padding: 10, marginRight: 10 }} onPress={() => navigation.navigate('ChatListScreen')}>
-          <Ionicons name="paper-plane-outline" size={24} color="black" />
+          <Ionicons name="paper-plane-outline" size={24} color={themeStyle.colors.grayscale.black} />
         </TouchableOpacity>
       </View>
       <ScrollView

@@ -282,7 +282,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                   name={post.liked ? 'thumb-up' : 'thumb-up-outline'}
                   size={24}
                   color={post.liked ? themeStyle.colors.secondary.default
-                    : themeStyle.colors.grayscale.darkGray}
+                    : themeStyle.colors.grayscale.black}
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -297,7 +297,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                   marginHorizontal: 5,
                 }}
               >
-                <FontAwesome name="comment-o" size={24} color={themeStyle.colors.grayscale.darkGray} />
+                <FontAwesome name="comment-o" size={24} color={themeStyle.colors.grayscale.black} />
               </TouchableOpacity>
             </View>
             <TouchableOpacity
@@ -314,7 +314,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                 justifySelf: 'flex-end',
               }}
             >
-              <Ionicons name="arrow-redo-outline" size={26} color={themeStyle.colors.grayscale.darkGray} />
+              <Ionicons name="arrow-redo-outline" size={26} color={themeStyle.colors.grayscale.black} />
             </TouchableOpacity>
           </View>
           <Text style={{ marginHorizontal: 10, marginVertical: 5 }}>

@@ -48,9 +48,9 @@ const MainTabStack = () => {
         tabBarStyle: [
           {
             display: cameraActivated.state ? 'none' : 'flex',
-            borderRadius: 20,
-            height: 65,
-            margin: 5,
+            // borderRadius: 20,
+            height: 55,
+            // margin: 5,
             borderTopWidth: 0,
           },
           null,
