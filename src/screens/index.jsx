@@ -59,6 +59,13 @@ const Screens = () => {
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
+      Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldPlaySound: true,
+          shouldSetBadge: false,
+        }),
+      });
       if (finalStatus !== 'granted') {
         alert('Failed to get push token for push notification!');
         return;
@@ -84,11 +91,10 @@ const Screens = () => {
     if (!notificationToken && loaded) {
       registerForPushNotificationsAsync().then(async (token) => {
         try {
-          const currentToken = await getItemAsync('notificationToken');
-          if (currentToken !== token) {
+          const userId = await getItemAsync('userId');
+          const { success } = await apiCall('POST', '/user/notifications/token/update', { userId, notificationToken: token });
+          if (success) {
             await setItemAsync('notificationToken', token);
-            const userId = await getItemAsync('userId');
-            await apiCall('POST', '/user/notifications/token/update', { userId, notificationToken: token });
           }
           setNotificationToken(token || 'none');
         } catch (error) {
