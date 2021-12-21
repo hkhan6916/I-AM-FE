@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, TouchableOpacity, TextInput, ScrollView, SafeAreaView, StyleSheet, Image, BackHandler,
+  View, Text, TouchableOpacity, TextInput, ScrollView, SafeAreaView, StyleSheet, Image, BackHandler, FlatList,
 } from 'react-native';
 import { getItemAsync } from 'expo-secure-store';
 import { io } from 'socket.io-client';
@@ -10,6 +10,7 @@ import { getInfoAsync } from 'expo-file-system';
 import { useNavigation } from '@react-navigation/native';
 import Aes from 'react-native-aes-crypto';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import { nanoid } from 'nanoid/non-secure';
 import sendMessage from '../../../helpers/sendMessage';
 import MessageBox from '../../../components/MessageBox';
 import apiCall from '../../../helpers/apiCall';
@@ -31,6 +32,7 @@ const ChatScreen = (props) => {
   const [showError, setShowError] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [scrollHeight, setScrollHeight] = useState(0);
 
   const [chat, setChat] = useState(props.route.params.existingChat);
   const { chatUserId, existingChat } = props.route.params;
@@ -50,7 +52,7 @@ const ChatScreen = (props) => {
     setShowError(false);
     const { response, success } = await apiCall('GET', `/chat/${existingChat._id}/messages/${messages.length}`);
     if (success) {
-      setMessages(response);
+      setMessages([...messages, ...response]);
     } else {
       setShowError(true);
     }
@@ -99,7 +101,7 @@ const ChatScreen = (props) => {
           mediaType: media.type?.split('/')[0],
           mediaHeaders: response.fileHeaders,
         });
-        setMessages([...messages, {
+        setMessages([{
           body: messageBody,
           chatId: chat._id,
           senderId: authInfo.senderId,
@@ -109,7 +111,8 @@ const ChatScreen = (props) => {
           mediaType: media.type?.split('/')[0],
           stringTime: get12HourTime(new Date()),
           stringDate: getNameDate(new Date()),
-        }]);
+          _id: nanoid(),
+        }, ...messages]);
         setMessageBody('');
         setMedia({});
       }
@@ -121,14 +124,15 @@ const ChatScreen = (props) => {
       await sendMessage({
         socket, body: messageBody, chatId: chat._id, senderId: authInfo.senderId,
       });
-      setMessages([...messages, {
+      setMessages([{
         body: messageBody,
         chatId: chat._id,
         senderId: authInfo.senderId,
         user: 'sender',
         stringTime: get12HourTime(new Date()),
         stringDate: getNameDate(new Date()),
-      }]);
+        _id: nanoid(),
+      }, ...messages]);
       setMessageBody('');
       setMediaSending(false);
 
@@ -175,6 +179,12 @@ const ChatScreen = (props) => {
     }
   };
 
+  const isCloseToTop = ({ contentOffset }) => {
+    const contactViewY = contentOffset.y;
+    setScrollHeight(contactViewY);
+    return contentOffset.y <= 0;
+  };
+
   useEffect(() => {
     let isMounted = true;
     if (isMounted) {
@@ -205,7 +215,16 @@ const ChatScreen = (props) => {
           setShowError(true);
         } else {
           setMessages((prevMessages) => [...prevMessages, {
-            body, chatId, senderId, user, mediaHeaders, mediaUrl, mediaType, stringDate, stringTime,
+            body,
+            chatId,
+            senderId,
+            user,
+            mediaHeaders,
+            mediaUrl,
+            mediaType,
+            stringDate,
+            stringTime,
+            _id: nanoid(),
           }]);
         }
       });
@@ -241,7 +260,17 @@ const ChatScreen = (props) => {
           </Text>
         )
         : null}
-      <ScrollView style={{ flex: 1 }}>
+      {/* <ScrollView
+        style={[{ flex: 1 }, scrollHeight && { height: scrollHeight }]}
+        scrollEventThrottle={0}
+        contentContainerStyle={{ flexGrow: 1 }}
+        onContentSizeChange={(e) => console.log('he', e)}
+        onScroll={({ nativeEvent }) => {
+          if (isCloseToTop(nativeEvent)) {
+            getChatMessages();
+          }
+        }}
+      >
         {messages.length ? messages.map((message, i) => (
           <View key={`message-${i}`}>
             <MessageBox
@@ -263,7 +292,32 @@ const ChatScreen = (props) => {
             <Text>Send a message to start a conversation.</Text>
           </View>
         )}
-      </ScrollView>
+      </ScrollView> */}
+
+      <FlatList
+        data={messages}
+        renderItem={({ item: message, index: i }) => (
+          <View key={`message-${i}`}>
+            {messages[i + 1] && message.stringDate !== messages[i + 1].stringDate ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={styles.horizontalLines} />
+                <Text style={{ textAlign: 'center', marginHorizontal: 10, color: themeStyle.colors.grayscale.mediumGray }}>
+                  {messages[i + 1].stringDate}
+                </Text>
+                <View style={styles.horizontalLines} />
+              </View>
+            ) : null}
+            <MessageBox
+              message={message}
+              belongsToSender={authInfo.senderId === message.user._id || message.user === 'sender'}
+            />
+          </View>
+        )}
+        onEndReached={() => getChatMessages()}
+        onEndReachedThreshold={0.5}
+        inverted
+        keyExtractor={(item) => item._id}
+      />
 
       <View style={{
         flexDirection: 'row',
