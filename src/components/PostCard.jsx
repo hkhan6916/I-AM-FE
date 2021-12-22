@@ -107,11 +107,12 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
               }}
               >
                 <ImageWithCache
-                  mediaHeaders={post.mediaHeaders}
-                  mediaOrientation={post.mediaOrientation}
-                  mediaIsSelfie={post.mediaIsSelfie}
+                  removeBorderRadius
+                  mediaHeaders={postContent.mediaHeaders}
+                  mediaOrientation={postContent.mediaOrientation}
+                  mediaIsSelfie={postContent.mediaIsSelfie}
                   resizeMode="cover"
-                  mediaUrl={post.mediaUrl}
+                  mediaUrl={postContent.mediaUrl}
                   aspectRatio={1 / 1}
                 />
               </View>
@@ -209,7 +210,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
             underlayColor={themeStyle.colors.grayscale.mediumGray}
           >
             <View style={{
-              margin: 5,
+              margin: 1,
             }}
             >
               {post.mediaType === 'video'
@@ -234,6 +235,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                     }}
                     >
                       <ImageWithCache
+                        removeBorderRadius
                         mediaHeaders={post.mediaHeaders}
                         mediaOrientation={post.mediaOrientation}
                         mediaIsSelfie={post.mediaIsSelfie}
@@ -334,7 +336,7 @@ const styles = StyleSheet.create({
     borderRightWidth: 0,
     borderLeftWidth: 0,
     borderColor: themeStyle.colors.grayscale.lightGray,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   postAge: {
     color: themeStyle.colors.grayscale.mediumGray,
@@ -372,7 +374,7 @@ const styles = StyleSheet.create({
   repostedPostContent: {
     borderWidth: 1,
     borderColor: themeStyle.colors.grayscale.lightGray,
-    borderRadius: 10,
+    // borderRadius: 10,
     margin: 10,
   },
 });

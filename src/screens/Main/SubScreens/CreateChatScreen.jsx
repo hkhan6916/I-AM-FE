@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
-  ScrollView, Text, View, StyleSheet, TouchableOpacity,
+  ScrollView, Text, View, StyleSheet, TouchableOpacity, FlatList,
 } from 'react-native';
 import apiCall from '../../../helpers/apiCall';
 import UserThumbnail from '../../../components/UserThumbnail';
@@ -44,16 +44,29 @@ const CreateChatScreen = () => {
     <View style={styles.container}>
       {!error
         ? (
-          <ScrollView>
-            {friends.map((friend) => (
+          // <ScrollView>
+          //   {friends.map((friend) => (
+          //     <TouchableOpacity
+          //       key={friend._id}
+          //       onPress={() => handleChatNavigation(friend._id)}
+          //     >
+          //       <UserThumbnail preventClicks user={friend} avatarSize={50} />
+          //     </TouchableOpacity>
+          //   ))}
+          // </ScrollView>
+          <FlatList
+            data={friends}
+            renderItem={({ item: friend }) => (
               <TouchableOpacity
-                key={friend._id}
                 onPress={() => handleChatNavigation(friend._id)}
               >
                 <UserThumbnail preventClicks user={friend} avatarSize={50} />
               </TouchableOpacity>
-            ))}
-          </ScrollView>
+            )}
+            onEndReached={() => getUserFriends()}
+            onEndReachedThreshold={0.3}
+            keyExtractor={(item) => item._id}
+          />
         )
         : (
           <View>

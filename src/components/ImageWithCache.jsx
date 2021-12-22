@@ -8,7 +8,7 @@ import themeStyle from '../theme.style';
 
 const ImageWithCache = ({
   resizeMode, aspectRatio, mediaUrl, mediaIsSelfie,
-  mediaOrientation, mediaHeaders, isFullScreen, toggleFullScreen,
+  mediaOrientation, mediaHeaders, isFullScreen, toggleFullScreen, removeBorderRadius,
 }) => {
   const handleBackButtonClick = () => {
     if (toggleFullScreen) {
@@ -56,7 +56,7 @@ const ImageWithCache = ({
                   resizeMode={FastImage.resizeMode.contain}
                   source={{ uri: mediaUrl, headers: mediaHeaders || {} }}
                   style={{
-                    borderRadius: 10,
+                    borderRadius: removeBorderRadius ? 0 : 10,
                     width: '100%',
                     height: '100%',
                   }}
@@ -69,7 +69,7 @@ const ImageWithCache = ({
               resizeMode={resizeMode === 'cover' ? FastImage.resizeMode.cover : FastImage.resizeMode.contain}
               source={{ uri: mediaUrl, headers: mediaHeaders || {} }}
               style={{
-                borderRadius: 10,
+                borderRadius: removeBorderRadius ? 0 : 10,
                 aspectRatio,
                 width: '100%',
               }}

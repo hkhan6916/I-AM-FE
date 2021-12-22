@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, TouchableOpacity, TextInput, ScrollView, SafeAreaView, StyleSheet, Image, BackHandler, FlatList,
+  View, Text, TouchableOpacity, TextInput,
+  SafeAreaView, StyleSheet, Image, FlatList,
 } from 'react-native';
 import { getItemAsync } from 'expo-secure-store';
 import { io } from 'socket.io-client';
@@ -8,7 +9,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { Video } from 'expo-av';
 import { getInfoAsync } from 'expo-file-system';
 import { useNavigation } from '@react-navigation/native';
-import Aes from 'react-native-aes-crypto';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { nanoid } from 'nanoid/non-secure';
 import sendMessage from '../../../helpers/sendMessage';
@@ -32,9 +32,10 @@ const ChatScreen = (props) => {
   const [showError, setShowError] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [recording, setRecording] = useState(false);
-  const [scrollHeight, setScrollHeight] = useState(0);
-
   const [chat, setChat] = useState(props.route.params.existingChat);
+  const [allMessagesLoaded, setAllMessagesLoaded] = useState(false);
+  const [showActions, setShowActions] = useState(false);
+
   const { chatUserId, existingChat } = props.route.params;
   const navigation = useNavigation();
 
@@ -53,6 +54,9 @@ const ChatScreen = (props) => {
     const { response, success } = await apiCall('GET', `/chat/${existingChat._id}/messages/${messages.length}`);
     if (success) {
       setMessages([...messages, ...response]);
+      if (messages.length && response.length === 0) {
+        setAllMessagesLoaded(true);
+      }
     } else {
       setShowError(true);
     }
@@ -118,6 +122,7 @@ const ChatScreen = (props) => {
       }
       setMediaSendFail(true);
       setMediaSending(false);
+      setShowActions(false);
       return true;
     }
     if (socket.connected) {
@@ -179,12 +184,6 @@ const ChatScreen = (props) => {
     }
   };
 
-  const isCloseToTop = ({ contentOffset }) => {
-    const contactViewY = contentOffset.y;
-    setScrollHeight(contactViewY);
-    return contentOffset.y <= 0;
-  };
-
   useEffect(() => {
     let isMounted = true;
     if (isMounted) {
@@ -193,7 +192,7 @@ const ChatScreen = (props) => {
           await initSocket();
           await getChatMessages();
         }
-        if (chat.users.length) {
+        if (chat.users?.length) {
           navigation.setOptions({ title: chat.users[0].firstName });
         }
       })();
@@ -260,53 +259,30 @@ const ChatScreen = (props) => {
           </Text>
         )
         : null}
-      {/* <ScrollView
-        style={[{ flex: 1 }, scrollHeight && { height: scrollHeight }]}
-        scrollEventThrottle={0}
-        contentContainerStyle={{ flexGrow: 1 }}
-        onContentSizeChange={(e) => console.log('he', e)}
-        onScroll={({ nativeEvent }) => {
-          if (isCloseToTop(nativeEvent)) {
-            getChatMessages();
-          }
-        }}
-      >
-        {messages.length ? messages.map((message, i) => (
-          <View key={`message-${i}`}>
-            <MessageBox
-              message={message}
-              belongsToSender={authInfo.senderId === message.user._id || message.user === 'sender'}
-            />
-            {messages[i + 1] && message.stringDate !== messages[i + 1].stringDate ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={styles.horizontalLines} />
-                <Text style={{ textAlign: 'center', marginHorizontal: 10, color: themeStyle.colors.grayscale.mediumGray }}>
-                  {messages[i + 1].stringDate}
-                </Text>
-                <View style={styles.horizontalLines} />
-              </View>
-            ) : null}
-          </View>
-        )) : (
-          <View>
-            <Text>Send a message to start a conversation.</Text>
-          </View>
-        )}
-      </ScrollView> */}
-
       <FlatList
         data={messages}
         renderItem={({ item: message, index: i }) => (
           <View key={`message-${i}`}>
-            {messages[i + 1] && message.stringDate !== messages[i + 1].stringDate ? (
+            {messages[i - 1] && message.stringDate !== messages[i - 1].stringDate ? (
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View style={styles.horizontalLines} />
                 <Text style={{ textAlign: 'center', marginHorizontal: 10, color: themeStyle.colors.grayscale.mediumGray }}>
-                  {messages[i + 1].stringDate}
+                  {messages[i - 1].stringDate}
                 </Text>
                 <View style={styles.horizontalLines} />
               </View>
             ) : null}
+            {allMessagesLoaded && i === messages.length - 1
+              ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={styles.horizontalLines} />
+                  <Text style={{ textAlign: 'center', marginHorizontal: 10, color: themeStyle.colors.grayscale.mediumGray }}>
+                    {messages[i].stringDate}
+                  </Text>
+                  <View style={styles.horizontalLines} />
+                </View>
+              )
+              : null}
             <MessageBox
               message={message}
               belongsToSender={authInfo.senderId === message.user._id || message.user === 'sender'}
@@ -314,7 +290,7 @@ const ChatScreen = (props) => {
           </View>
         )}
         onEndReached={() => getChatMessages()}
-        onEndReachedThreshold={0.5}
+        onEndReachedThreshold={0.9}
         inverted
         keyExtractor={(item) => item._id}
       />
@@ -327,7 +303,7 @@ const ChatScreen = (props) => {
         paddingVertical: 10,
       }}
       >
-        <View style={{
+        {/* <View style={{
           flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end', height: '100%',
         }}
         >
@@ -341,8 +317,50 @@ const ChatScreen = (props) => {
             style={{ marginHorizontal: 5, height: 48, justifyContent: 'center' }}
             onPress={() => handleActivateCamera(true)}
           >
-            <Ionicons name="camera-outline" size={24} color="black" />
+            <Ionicons name="camera-outline" size={26} color="black" />
           </TouchableOpacity>
+        </View> */}
+        <View style={{
+          flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'flex-end', height: '100%',
+        }}
+        >
+          <View style={[{
+            flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end', height: '100%',
+          }, !showActions && { width: 0 }]}
+          >
+            <TouchableOpacity
+              style={{
+                marginHorizontal: 5, width: 48, height: 48, justifyContent: 'center', alignItems: 'center',
+              }}
+              onPress={() => pickImage()}
+            >
+              <FontAwesome name="photo" size={24} color="black" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                marginHorizontal: 5, width: 48, height: 48, justifyContent: 'center', alignItems: 'center',
+              }}
+              onPress={() => handleActivateCamera(true)}
+            >
+              <Ionicons name="camera-outline" size={26} color="black" />
+            </TouchableOpacity>
+          </View>
+          <View>
+            <TouchableOpacity
+              style={{
+                width: 48,
+                height: 48,
+                marginHorizontal: 10,
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: 100,
+                backgroundColor: themeStyle.colors.secondary.light,
+              }}
+              onPress={() => setShowActions(!showActions)}
+            >
+              <Ionicons name={showActions ? 'close' : 'add'} size={26} color={themeStyle.colors.grayscale.white} />
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={{
           flex: 1, minHeight: 48, height: '100%', justifyContent: 'flex-end',
@@ -352,7 +370,6 @@ const ChatScreen = (props) => {
             style={{
               minHeight: 48,
               backgroundColor: themeStyle.colors.grayscale.superLightGray,
-              borderRadius: 10,
               paddingHorizontal: 10,
             }}
             value={messageBody}
@@ -384,7 +401,7 @@ const ChatScreen = (props) => {
         </View>
       </View>
 
-      <View style={[{ alignItems: 'center' }, mediaSending && { backgroundColor: 'grey' }]}>
+      <View style={[{ alignItems: 'center' }, media.uri && { margin: 20 }, mediaSending && { backgroundColor: 'grey' }]}>
         {
         media?.type?.includes('image') ? (
           <Image
