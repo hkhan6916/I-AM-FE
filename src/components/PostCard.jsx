@@ -97,6 +97,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                 mediaOrientation={post.mediaOrientation}
                 mediaIsSelfie={post.mediaIsSelfie}
                 url={post.mediaUrl}
+                mediaHeaders={post.mediaHeaders}
               />
             </View>
           ) : postContent.mediaType === 'image'
@@ -225,6 +226,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
                       mediaOrientation={post.mediaOrientation}
                       mediaIsSelfie={post.mediaIsSelfie}
                       url={post.mediaUrl}
+                      mediaHeaders={post.mediaHeaders}
                     />
                   </View>
                 ) : post.mediaType === 'image'
@@ -374,7 +376,6 @@ const styles = StyleSheet.create({
   repostedPostContent: {
     borderWidth: 1,
     borderColor: themeStyle.colors.grayscale.lightGray,
-    // borderRadius: 10,
     margin: 10,
   },
 });

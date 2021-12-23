@@ -303,23 +303,6 @@ const ChatScreen = (props) => {
         paddingVertical: 10,
       }}
       >
-        {/* <View style={{
-          flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end', height: '100%',
-        }}
-        >
-          <TouchableOpacity
-            style={{ marginHorizontal: 5, height: 48, justifyContent: 'center' }}
-            onPress={() => pickImage()}
-          >
-            <FontAwesome name="photo" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ marginHorizontal: 5, height: 48, justifyContent: 'center' }}
-            onPress={() => handleActivateCamera(true)}
-          >
-            <Ionicons name="camera-outline" size={26} color="black" />
-          </TouchableOpacity>
-        </View> */}
         <View style={{
           flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'flex-end', height: '100%',
         }}
@@ -401,9 +384,9 @@ const ChatScreen = (props) => {
         </View>
       </View>
 
-      <View style={[{ alignItems: 'center' }, media.uri && { margin: 20 }, mediaSending && { backgroundColor: 'grey' }]}>
-        {
-        media?.type?.includes('image') ? (
+      <View style={[{ alignItems: 'center', position: 'relative' }, media.uri && { margin: 20 }, mediaSending && { backgroundColor: 'grey' }]}>
+
+        {media?.type?.includes('image') ? (
           <Image
             style={{
               borderRadius: 10,
@@ -422,8 +405,20 @@ const ChatScreen = (props) => {
               style={{ width: '100%', height: '100%', alignSelf: 'center' }}
             />
           </View>
-        ) : null
-        }
+        ) : null}
+        {media.uri
+          ? (
+            <TouchableOpacity
+              onPress={() => {
+                setMedia({});
+                setShowActions(false);
+              }}
+              style={{ padding: 10 }}
+            >
+              <Text style={{ color: themeStyle.colors.error.default }}>Cancel</Text>
+            </TouchableOpacity>
+          )
+          : null}
         {showMediaSizeError
           ? (
             <Text>

@@ -4,6 +4,7 @@ import { Video } from 'expo-av';
 import { useSelector, useDispatch } from 'react-redux';
 
 import apiCall from '../../../helpers/apiCall';
+import VideoPlayer from '../../../components/VideoPlayer';
 
 const UserProfileScreen = (props) => {
   const { userId } = props.route.params;
@@ -108,27 +109,13 @@ const UserProfileScreen = (props) => {
 
   if (user) {
     return (
-      <View>
-        <Video
-          style={{
-            transform: [
-              { scaleX: -1 },
-            ],
-            alignSelf: 'center',
-            width: 400,
-            height: 300,
-            borderWidth: 2,
-            borderColor: '#138294',
-            borderRadius: 10,
-          }}
-          useNativeControls
-          onPlaybackStatusUpdate={(status) => setProfileVideoPlaying(() => status)}
-          ref={profileVideoRef}
-          source={{
-            uri: user.profileVideoUrl,
-          }}
-          resizeMode="cover"
+      <View style={{ height: 400 }}>
+        <VideoPlayer
+          url={user.profileVideoUrl}
+          mediaHeaders={user.profileVideoHeaders}
+          mediaIsSelfie
         />
+
         <Text>{user.firstName}</Text>
 
         <Text>TODO add job title search here.</Text>

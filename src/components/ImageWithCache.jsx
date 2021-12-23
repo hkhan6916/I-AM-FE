@@ -18,10 +18,10 @@ const ImageWithCache = ({
   };
 
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
-    return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
-    };
+    // BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
+    // return () => {
+    //   BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
+    // };
   }, []);
 
   return (

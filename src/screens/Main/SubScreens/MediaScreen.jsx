@@ -56,6 +56,7 @@ const MediaScreen = (props) => {
               url={post.mediaUrl}
               mediaOrientation={post.mediaOrientation}
               mediaIsSelfie={post.mediaIsSelfie}
+              mediaHeaders={post.mediaHeaders}
               isFullScreen
               setShowActions={setShowActions}
             />
@@ -66,6 +67,7 @@ const MediaScreen = (props) => {
                   mediaOrientation={post.mediaOrientation}
                   mediaIsSelfie={post.mediaIsSelfie}
                   resizeMode="cover"
+                  mediaHeaders={post.mediaHeaders}
                   mediaUrl={post.mediaUrl}
                   aspectRatio={1 / 1}
                 />
@@ -94,7 +96,6 @@ const MediaScreen = (props) => {
             </Text>
           </View>
         </TouchableOpacity>
-
         <TouchableWithoutFeedback>
           <View style={{
             position: 'absolute',

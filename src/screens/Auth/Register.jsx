@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, TextInput, Text, TouchableOpacity,
-  Dimensions, ScrollView, ActivityIndicator,
+  Dimensions, ScrollView, ActivityIndicator, StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Camera } from 'expo-camera';
@@ -82,7 +82,6 @@ const RegisterationScreen = () => {
     });
     setLoading(true);
     const { success, message } = await apiCall('POST', '/user/register', formData);
-    console.log(message);
     if (success) {
       navigation.navigate('Login');
     } else if (message === 'exists') {
@@ -245,7 +244,10 @@ const RegisterationScreen = () => {
             </Text>
           )
             : null}
-          <TouchableOpacity style={styles.takeVideoButton} onPress={() => { setFaceDetected(false); setCameraActivated(true); }}>
+          <TouchableOpacity
+            style={styles.takeVideoButton}
+            onPress={() => { setFaceDetected(false); setCameraActivated(true); }}
+          >
             <Text style={styles.takeVideoButtonText}>
               <Ionicons
                 name="videocam"
@@ -280,4 +282,99 @@ const RegisterationScreen = () => {
   );
 };
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  formContainer: {
+    padding: 20,
+    backgroundColor: themeStyle.colors.grayscale.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+  },
+  formHeader: {
+    fontSize: 20,
+  },
+  cameraContainer: {
+    backgroundColor: '#000',
+    flex: 1,
+  },
+  registerationError: {
+    textAlign: 'center',
+    color: 'red',
+    fontWeight: '500',
+  },
+  faceDetectionError: {
+    color: themeStyle.colors.error.default,
+    textAlign: 'center',
+    fontWeight: '700',
+  },
+  buttonContainer: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    flexDirection: 'row',
+    margin: 20,
+  },
+  button: {
+    flex: 0.1,
+    alignSelf: 'flex-end',
+    alignItems: 'center',
+  },
+  registerationButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    margin: 20,
+    borderRadius: 50,
+    backgroundColor: themeStyle.colors.primary.default,
+  },
+  registerationButtonText: {
+    color: themeStyle.colors.grayscale.white,
+  },
+  takeVideoButton: {
+    margin: 10,
+    padding: 10,
+    borderWidth: 2,
+    borderColor: themeStyle.colors.primary.default,
+    borderRadius: 5,
+  },
+  takeVideoButtonText: {
+    color: themeStyle.colors.grayscale.black,
+    fontWeight: '700',
+  },
+  text: {
+    fontSize: 18,
+    color: 'white',
+  },
+  visibleTextInputs: {
+    fontSize: 15,
+    height: 45,
+    borderRadius: 5,
+    alignSelf: 'stretch',
+    marginVertical: 20,
+    paddingHorizontal: 10,
+    borderWidth: 2,
+    borderColor: themeStyle.colors.primary.default,
+  },
+  passwordInput: {
+    flex: 1,
+    fontSize: 15,
+    color: '#000',
+  },
+  passwordInputContainer: {
+    flexDirection: 'row',
+    height: 45,
+    borderRadius: 5,
+    alignSelf: 'stretch',
+    marginVertical: 20,
+    padding: 5,
+    borderWidth: 2,
+    borderColor: themeStyle.colors.primary.default,
+  },
+  eyeIcon: {
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+  },
+});
 export default RegisterationScreen;
