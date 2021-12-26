@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Text, View, StyleSheet, TouchableOpacity,
 } from 'react-native';
@@ -6,73 +6,116 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import themeStyle from '../theme.style';
 import Avatar from './Avatar';
+import apiCall from '../helpers/apiCall';
+import formatAge from '../helpers/formatAge';
 
-const CommentReplyCard = ({ reply, handleReplyToReply }) => {
+const CommentReplyCard = ({ reply: initialReply, handleReplyToReply }) => {
   const navigation = useNavigation();
-  return (
-    <View style={styles.replyContainer}>
-      <View style={styles.profileInfoContainer}>
-        <Avatar
-          hasBorder
-          userId={reply.userId}
-          navigation={navigation}
-          size={35}
-          avatarUrl={reply.replyAuthor.profileGifUrl}
-          profileGifHeaders={reply.replyAuthor.profileGifHeaders}
-        />
-        <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen',
-          { userId: reply.userId })}
-        >
-          <Text style={styles.replyAuthorName} numberOfLines={1}>
-            {reply.replyAuthor?.firstName}
-            {' '}
-            {reply.replyAuthor?.lastName}
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.replyBodyContainer}>
-        {reply.replyingToObj && reply.replyingToId
-          ? (
-            <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen',
-              { userId: reply.replyingToId })}
-            >
-              <Text style={{
-                color: themeStyle.colors.secondary.default,
-                fontWeight: '700',
-                justifyContent: 'center',
-              }}
-              >
-                {reply.replyingToObj.firstName}
-                {' '}
-                {reply.replyingToObj.lastName}
-                {' '}
-              </Text>
-            </TouchableOpacity>
-          )
-          : null}
-        <Text>
-          {reply.body}
-        </Text>
-      </View>
-      <View style={styles.actionsContainer}>
-        <View style={styles.actions}>
-          {!reply.belongsToUser
+  const [reply, setReply] = useState(initialReply);
+  const [deleted, setDeleted] = useState(false);
+
+  const handleReaction = async () => {
+    if (reply.liked) {
+      const newComment = { ...reply, liked: false };
+      newComment.likes -= 1;
+      setReply(newComment);
+      const { success } = await apiCall('GET', `/posts/comment/like/remove/${reply._id}`);
+      if (!success) {
+        setReply(initialReply);
+      }
+    } else {
+      const newComment = { ...reply, liked: true };
+      newComment.likes += 1;
+      setReply(newComment);
+      const { success } = await apiCall('GET', `/posts/comment/like/add/${reply._id}`);
+      if (!success) {
+        setReply(initialReply);
+      }
+    }
+  };
+
+  const deleteReply = async () => {
+    const { success } = await apiCall('DELETE', `/posts/comments/remove/${reply._id}`);
+    if (success) {
+      setDeleted(true);
+    }
+  };
+
+  const CommentAge = () => {
+    const { age } = reply;
+    const ageObject = formatAge(age);
+
+    return (
+      <Text style={styles.commentAge}>
+        {ageObject.age}
+        {' '}
+        {ageObject.unit}
+        {' '}
+        ago
+      </Text>
+    );
+  };
+  if (!deleted) {
+    return (
+      <View style={styles.replyContainer}>
+        <View style={styles.profileInfoContainer}>
+          <Avatar
+            hasBorder
+            userId={reply.userId}
+            navigation={navigation}
+            size={35}
+            avatarUrl={reply.replyAuthor.profileGifUrl}
+            profileGifHeaders={reply.replyAuthor.profileGifHeaders}
+          />
+          <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen',
+            { userId: reply.userId })}
+          >
+            <Text style={styles.replyAuthorName} numberOfLines={1}>
+              {reply.replyAuthor?.firstName}
+              {' '}
+              {reply.replyAuthor?.lastName}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.replyBodyContainer}>
+          {reply.replyingToObj && reply.replyingToId
             ? (
-              <TouchableOpacity
-                onPress={() => handleReplyToReply({
-                  firstName: reply.replyAuthor.firstName,
-                  lastName: reply.replyAuthor.lastName,
-                  commentId: reply._id,
-                })}
-                style={styles.replyTrigger}
+              <TouchableOpacity onPress={() => navigation.navigate('UserProfileScreen',
+                { userId: reply.replyingToId })}
               >
-                <Text style={{ color: themeStyle.colors.grayscale.mediumGray, fontWeight: '700' }}>Reply</Text>
+                <Text style={{
+                  color: themeStyle.colors.secondary.default,
+                  fontWeight: '700',
+                  justifyContent: 'center',
+                }}
+                >
+                  {reply.replyingToObj.firstName}
+                  {' '}
+                  {reply.replyingToObj.lastName}
+                  {' '}
+                </Text>
               </TouchableOpacity>
             )
             : null}
-          {!reply.belongsToUser ? (
+          <Text>
+            {reply.body}
+          </Text>
+        </View>
+        <View style={styles.actionsContainer}>
+          <View style={styles.actions}>
             <TouchableOpacity
-              // onPress={() => handleReaction()}
+              onPress={() => handleReplyToReply({
+                firstName: reply.replyAuthor.firstName,
+                lastName: reply.replyAuthor.lastName,
+                commentId: reply._id,
+              })}
+              style={styles.replyTrigger}
+            >
+              <Text style={{ color: themeStyle.colors.grayscale.mediumGray, fontWeight: '700' }}>Reply</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => handleReaction()}
               style={{
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -86,30 +129,42 @@ const CommentReplyCard = ({ reply, handleReplyToReply }) => {
                   : themeStyle.colors.grayscale.mediumGray}
               />
             </TouchableOpacity>
-          ) : null}
-          {reply.likes > 0
-            ? (
-              <Text style={{ color: themeStyle.colors.grayscale.black, marginLeft: 10 }}>
-                {reply.likes}
-                {' '}
-                {reply.likes > 1 ? 'likes' : 'like'}
-              </Text>
-            )
-            : null}
+
+            {reply.likes > 0
+              ? (
+                <Text style={{ color: themeStyle.colors.grayscale.black, marginLeft: 10 }}>
+                  {reply.likes}
+                  {' '}
+                  {reply.likes > 1 ? 'likes' : 'like'}
+                </Text>
+              )
+              : null}
+          </View>
+          <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
+            <CommentAge />
+            {reply.belongsToUser
+              ? (
+                <TouchableOpacity onPress={() => deleteReply()}>
+                  <Text style={{
+                    color: themeStyle.colors.error.default,
+                    marginHorizontal: 10,
+                  }}
+                  >
+                    delete
+                  </Text>
+                </TouchableOpacity>
+              )
+              : null}
+          </View>
         </View>
       </View>
-    </View>
-  );
+    );
+  } return <View />;
 };
 const styles = StyleSheet.create({
-  container: {
-    borderBottomWidth: 0.5,
-    borderColor: themeStyle.colors.grayscale.mediumGray,
-    display: 'flex',
-    flexDirection: 'column',
-  },
   replyContainer: {
     marginLeft: 70,
+    marginVertical: 20,
   },
   profileInfoContainer: {
     display: 'flex',
@@ -145,6 +200,12 @@ const styles = StyleSheet.create({
   },
   likeTrigger: {
     marginRight: 10,
+  },
+  commentAge: {
+    color: themeStyle.colors.grayscale.mediumGray,
+    marginHorizontal: 10,
+    marginVertical: 5,
+    fontSize: 12,
   },
 });
 export default React.memo(CommentReplyCard);

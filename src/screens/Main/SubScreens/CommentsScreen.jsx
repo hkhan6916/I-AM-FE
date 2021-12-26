@@ -10,7 +10,6 @@ import CommentTextInput from '../../../components/CommentTextInput';
 const CommentsScreen = (props) => {
   const { postId } = props.route.params;
 
-  //   const [commentBody, setCommentBody] = useState('');
   const [comments, setComments] = useState([]);
   const [replyingTo, setReplyingTo] = useState(null);
   const [allCommentsLoaded, setAllCommentsLoaded] = useState(false);
@@ -109,7 +108,7 @@ const CommentsScreen = (props) => {
       >
         {comments.length ? comments.map((comment, i) => (
           <PostCommentCard
-            newReply={newReply}
+            newReply={newReply?.parentCommentId === comment._id ? newReply : null}
             replyToUser={replyToUser}
             key={comment._id || `comment-${i}`}
             comment={comment}

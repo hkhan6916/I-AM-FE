@@ -120,10 +120,10 @@ const VideoPlayer = ({
                     volume={!isFullScreen ? 0 : 1}
                     ref={video}
                     isLooping={!isFullScreen}
-                    style={[styles.video, {
+                    style={{
                       aspectRatio: handleVideoAspectRatio() || 1,
                       width: ScreenOrientation === 'PORTRAIT' ? screenWidth : screenHeight,
-                    }]}
+                    }}
                     source={{
                       uri: url,
                       headers: mediaHeaders,
@@ -220,9 +220,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  video: {
-    borderRadius: 10,
   },
   buttons: {
     marginTop: 200,

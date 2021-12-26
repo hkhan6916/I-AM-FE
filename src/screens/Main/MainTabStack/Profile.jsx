@@ -1,14 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-  View, Text, Button, StyleSheet, ScrollView, RefreshControl, SafeAreaView,
+  Button, StyleSheet, ScrollView, RefreshControl, SafeAreaView,
 } from 'react-native';
 import { setItemAsync } from 'expo-secure-store';
 import { useDispatch } from 'react-redux';
-import Constants from 'expo-constants';
+
 import apiCall from '../../../helpers/apiCall';
 import PostCard from '../../../components/PostCard';
-
-const { statusBarHeight } = Constants;
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -51,6 +49,7 @@ const ProfileScreen = () => {
     return layoutMeasurement.height + contentOffset.y
       >= contentSize.height - paddingToBottom;
   };
+
   useEffect(() => {
     (async () => {
       await getUserPosts();
@@ -75,15 +74,13 @@ const ProfileScreen = () => {
           />
       )}
       >
-        {userPosts.map((post, i) => (
-          <PostCard key={`postcard-${i}`} post={post} />
+        {userPosts.map((post) => (
+          <PostCard key={post._id} post={post} />
         ))}
       </ScrollView>
-      <Text>Profile Screen</Text>
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

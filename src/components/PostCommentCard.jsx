@@ -17,19 +17,19 @@ const PostCommentCard = ({ comment: initialComment, replyToUser, newReply }) => 
   const [showReplies, setShowReplies] = useState(false);
   const [deleted, setDeleted] = useState(false);
 
-  const handleReactionToComment = async () => {
+  const handleReaction = async () => {
     if (comment.liked) {
-      const newPost = { ...comment, liked: false };
-      newPost.likes -= 1;
-      setComment(newPost);
+      const newComment = { ...comment, liked: false };
+      newComment.likes -= 1;
+      setComment(newComment);
       const { success } = await apiCall('GET', `/posts/comment/like/remove/${comment._id}`);
       if (!success) {
         setComment(initialComment);
       }
     } else {
-      const newPost = { ...comment, liked: true };
-      newPost.likes += 1;
-      setComment(newPost);
+      const newComment = { ...comment, liked: true };
+      newComment.likes += 1;
+      setComment(newComment);
       const { success } = await apiCall('GET', `/posts/comment/like/add/${comment._id}`);
       if (!success) {
         setComment(initialComment);
@@ -50,6 +50,7 @@ const PostCommentCard = ({ comment: initialComment, replyToUser, newReply }) => 
     const { success } = await apiCall('DELETE', `/posts/comments/remove/${comment._id}`);
     if (success) {
       setDeleted(true);
+      setReplies([]);
     }
   };
 
@@ -77,6 +78,7 @@ const PostCommentCard = ({ comment: initialComment, replyToUser, newReply }) => 
   };
 
   const handleReplyToComment = async () => {
+    setShowReplies(true);
     await replyToUser({
       commentId: comment._id,
       firstName: comment.commentAuthor?.firstName,
@@ -87,7 +89,7 @@ const PostCommentCard = ({ comment: initialComment, replyToUser, newReply }) => 
 
   useEffect(() => {
     if (newReply) {
-      setReplies([newReply, ...replies]);
+      setReplies([...replies, newReply]);
     }
   }, [newReply]);
 
@@ -128,7 +130,7 @@ const PostCommentCard = ({ comment: initialComment, replyToUser, newReply }) => 
             </TouchableOpacity>
             {!comment.belongsToUser ? (
               <TouchableOpacity
-                onPress={() => handleReactionToComment()}
+                onPress={() => handleReaction()}
                 style={{
                   justifyContent: 'center',
                   alignItems: 'center',
@@ -182,7 +184,7 @@ const PostCommentCard = ({ comment: initialComment, replyToUser, newReply }) => 
             </View>
           )
           : null}
-        {showReplies && replies.length ? replies.map((reply, i) => (
+        {showReplies && replies.length ? replies.map((reply) => (
           <CommentReplyCard
             handleReplyToReply={handleReplyToReply}
             key={reply._id}
@@ -201,7 +203,10 @@ const PostCommentCard = ({ comment: initialComment, replyToUser, newReply }) => 
             </View>
           )
           : null}
-        <View style={{ flex: 1, justifyContent: 'space-between', flexDirection: 'row' }}>
+        <View style={{
+          flex: 1, justifyContent: 'space-between', flexDirection: 'row', marginTop: 20,
+        }}
+        >
           <CommentAge />
           {comment.belongsToUser
             ? (
@@ -231,6 +236,7 @@ const styles = StyleSheet.create({
   },
   replyContainer: {
     marginLeft: 70,
+    padding: 20,
   },
   profileInfoConatiner: {
     display: 'flex',

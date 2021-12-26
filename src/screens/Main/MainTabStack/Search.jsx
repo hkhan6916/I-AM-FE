@@ -16,9 +16,6 @@ const SearchScreen = () => {
   const [searchInput, setSearchInput] = useState();
   const [results, setResults] = useState([]);
   const [showAllResults, setShowAllResults] = useState(false);
-  const navigation = useNavigation();
-
-  const userData = useSelector((state) => state.userData);
 
   const handleSearch = async (username) => {
     setSearchInput(username);
