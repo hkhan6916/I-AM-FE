@@ -70,8 +70,7 @@ const RegisterationScreen = () => {
       email,
       password,
       username,
-      notificationToken: await getExpoPushTokenAsync().data || null,
-
+      notificationToken: await getExpoPushTokenAsync({ experienceId: '@hkhan6916/I-Am-FE' }).data,
       file: {
         uri: profileVideo, name: 'profileVideo.mp4', type: 'video/mp4',
       },
@@ -86,7 +85,7 @@ const RegisterationScreen = () => {
       navigation.navigate('Login');
     } else if (message === 'exists') {
       setLoading(false);
-      setRegisterationError('A user already exists with this Email Address.');
+      setRegisterationError('A user already exists with these details.');
     } else {
       setLoading(false);
       setRegisterationError('Error, maybe network error.');

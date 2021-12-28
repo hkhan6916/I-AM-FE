@@ -20,6 +20,7 @@ const ProfileEditScreen = () => {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [initialProfileData, setInitialProfileData] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
@@ -34,6 +35,7 @@ const ProfileEditScreen = () => {
   const [faceDectected, setFaceDetected] = useState(false);
 
   const [profileVideo, setProfileVideo] = useState('');
+  const [profileVideoHeaders, setProfileVideoHeaders] = useState({});
   const [profileVideoPlaying, setProfileVideoPlaying] = useState(false);
   const profileVideoRef = useRef(null);
 
@@ -46,19 +48,6 @@ const ProfileEditScreen = () => {
 
   const navigation = useNavigation();
 
-  const validateUserInformation = () => {
-    if (firstName
-      && lastName
-      && email
-      && username
-      && password
-       && profileVideo
-       && faceDectected) {
-      return true;
-    }
-    return false;
-  };
-
   const handleFacesDetected = (obj) => {
     try {
       if (recording && obj.faces.length !== 0 && !faceDectected) {
@@ -69,30 +58,30 @@ const ProfileEditScreen = () => {
     }
   };
 
-  const registerUser = async () => {
+  const updateProfile = async () => {
     const payload = {
       firstName,
       lastName,
       email,
       password,
       username,
-      notificationToken: await getExpoPushTokenAsync().data || null,
-
-      file: {
+      file: profileVideo ? {
         uri: profileVideo, name: 'profileVideo.mp4', type: 'video/mp4',
-      },
+      } : null,
     };
+
     const formData = new FormData();
     Object.keys(payload).forEach((key) => {
-      formData.append(key, payload[key]);
+      if (payload[key]) {
+        formData.append(key, payload[key]);
+      }
     });
     setLoading(true);
-    const { success, message } = await apiCall('POST', '/user/register', formData);
+    console.log(formData);
+    const { success, message } = await apiCall('POST', '/user/update/profile', formData);
+    console.log(message);
     if (success) {
-      navigation.navigate('Login');
-    } else if (message === 'exists') {
       setLoading(false);
-      setRegisterationError('A user already exists with this Email Address.');
     } else {
       setLoading(false);
       setRegisterationError('Error, maybe network error.');
@@ -121,6 +110,21 @@ const ProfileEditScreen = () => {
       setHasCameraPermission(cameraStatus.status === 'granted');
       const audioStatus = await Camera.requestMicrophonePermissionsAsync();
       setHasAudioPermission(audioStatus.status === 'granted');
+
+      setLoading(true);
+      const { response, success } = await apiCall('GET', '/user/data');
+      setLoading(false);
+      if (success) {
+        setInitialProfileData(
+          response,
+        );
+        // setEmail(response.email);
+        // setUsername(response.username);
+        // setFirstName(response.firstName);
+        // setLastName(response.lastName);
+        // setProfileVideo(response.profileVideoUrl);
+        // setProfileVideoHeaders(response.profileVideoHeaders);
+      }
     })();
     return () => {
       setHasCameraPermission(false);
@@ -156,8 +160,7 @@ const ProfileEditScreen = () => {
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.formContainer}>
-          <Text style={styles.formHeader}>I AM Sign Up</Text>
-          <View style={styles.searchSection}>
+          {/* <View style={styles.searchSection}>
             <Ionicons
               style={styles.searchIcon}
               name="search"
@@ -175,28 +178,28 @@ const ProfileEditScreen = () => {
             {results.map((result) => (
               <Text>{result.title}</Text>
             ))}
-          </View>
+          </View> */}
           <TextInput
             style={styles.visibleTextInputs}
-            value={firstName}
+            value={firstName || initialProfileData.firstName}
             placeholder="FirstName..."
             onChangeText={(v) => setFirstName(v)}
           />
           <TextInput
             style={styles.visibleTextInputs}
-            value={lastName}
+            value={lastName || initialProfileData.lastName}
             placeholder="LastName..."
             onChangeText={(v) => setLastName(v)}
           />
           <TextInput
             style={styles.visibleTextInputs}
-            value={email}
+            value={email || initialProfileData.email}
             placeholder="Email..."
             onChangeText={(v) => setEmail(v)}
           />
           <TextInput
             style={styles.visibleTextInputs}
-            value={username}
+            value={username || initialProfileData.username}
             placeholder="Username..."
             onChangeText={(v) => setUsername(v)}
           />
@@ -219,7 +222,7 @@ const ProfileEditScreen = () => {
               />
             </TouchableOpacity>
           </View>
-          {profileVideo && faceDectected ? (
+          {(profileVideo && faceDectected) || (initialProfileData.profileVideoHeaders && initialProfileData.profileVideoUrl) ? (
             <TouchableOpacity
               style={{
                 alignSelf: 'center',
@@ -242,7 +245,8 @@ const ProfileEditScreen = () => {
                 onPlaybackStatusUpdate={(status) => setProfileVideoPlaying(() => status)}
                 ref={profileVideoRef}
                 source={{
-                  uri: profileVideo,
+                  uri: profileVideo || initialProfileData?.profileVideoUrl,
+                  headers: initialProfileData?.profileVideoHeaders,
                 }}
                 isLooping
                 resizeMode="cover"
@@ -299,12 +303,8 @@ const ProfileEditScreen = () => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.registerationButton, {
-              opacity:
-              !validateUserInformation() ? 0.5 : 1,
-            }]}
-            onPress={() => registerUser()}
-            disabled={!validateUserInformation()}
+            style={styles.registerationButton}
+            onPress={() => updateProfile()}
           >
             <Text style={styles.registerationButtonText}>
               Submit
@@ -428,6 +428,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
 });
+
 export default ProfileEditScreen;
 
 // import React, { useState } from 'react';
