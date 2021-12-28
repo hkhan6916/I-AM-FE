@@ -13,6 +13,7 @@ import ImageWithCache from '../../../components/ImageWithCache';
 const AddScreen = () => {
   const isFocused = useIsFocused();
   const [postBody, setPostBody] = useState('');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [file, setFile] = useState({});
   const [cameraActive, setCameraActive] = useState(false);
@@ -42,6 +43,7 @@ const AddScreen = () => {
   };
 
   const createPost = async () => {
+    setLoading(true);
     const postData = await createPostData();
     const { success } = await apiCall('POST', '/posts/new', postData);
     if (success) {
@@ -115,7 +117,7 @@ const AddScreen = () => {
       />
       <Button title="Camera" onPress={() => setCameraActive(true)} />
       <Button
-        disabled={!postBody && !file}
+        disabled={(!postBody && !file) || loading}
         title="Make Post"
         onPress={() => createPost()}
       />

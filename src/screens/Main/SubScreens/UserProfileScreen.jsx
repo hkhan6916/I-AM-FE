@@ -116,9 +116,11 @@ const UserProfileScreen = (props) => {
           mediaIsSelfie
         />
 
-        <Text>{user.firstName}</Text>
-
-        <Text>TODO add job title search here.</Text>
+        <Text>
+          {user.firstName}
+          {' '}
+          {user.lastName}
+        </Text>
         <Button
           title={userData.state?.connections.includes(userId)
             ? 'Remove From Friends'

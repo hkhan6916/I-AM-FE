@@ -94,10 +94,10 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
             }}
             >
               <VideoPlayer
-                mediaOrientation={post.mediaOrientation}
-                mediaIsSelfie={post.mediaIsSelfie}
-                url={post.mediaUrl}
-                mediaHeaders={post.mediaHeaders}
+                mediaOrientation={postContent.mediaOrientation}
+                mediaIsSelfie={postContent.mediaIsSelfie}
+                url={postContent.mediaUrl}
+                mediaHeaders={postContent.mediaHeaders}
               />
             </View>
           ) : postContent.mediaType === 'image'
@@ -206,61 +206,63 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
           </View>
         )
         : (
-          <TouchableHighlight
-            onPress={() => navigation.navigate('MediaScreen', { post })}
-            underlayColor={themeStyle.colors.grayscale.mediumGray}
+          <View style={{
+            margin: 1,
+          }}
           >
-            <View style={{
-              margin: 1,
-            }}
+            <TouchableHighlight
+              onPress={() => navigation.navigate('MediaScreen', { post })}
+              underlayColor={themeStyle.colors.grayscale.mediumGray}
             >
-              {post.mediaType === 'video'
-                ? (
-                  <View
-                    style={{
-                      flex: 1,
-                      flexDirection: 'column',
-                    }}
-                  >
-                    <VideoPlayer
-                      mediaOrientation={post.mediaOrientation}
-                      mediaIsSelfie={post.mediaIsSelfie}
-                      url={post.mediaUrl}
-                      mediaHeaders={post.mediaHeaders}
-                    />
-                  </View>
-                ) : post.mediaType === 'image'
+              <View>
+                {post.mediaType === 'video'
                   ? (
-                    <View style={{
-                      flex: 1,
-                      flexDirection: 'column',
-                    }}
+                    <View
+                      style={{
+                        flex: 1,
+                        flexDirection: 'column',
+                      }}
                     >
-                      <ImageWithCache
-                        removeBorderRadius
-                        mediaHeaders={post.mediaHeaders}
+                      <VideoPlayer
                         mediaOrientation={post.mediaOrientation}
                         mediaIsSelfie={post.mediaIsSelfie}
-                        resizeMode="cover"
-                        mediaUrl={post.mediaUrl}
-                        aspectRatio={1 / 1}
+                        url={post.mediaUrl}
+                        mediaHeaders={post.mediaHeaders}
                       />
                     </View>
-                  )
-                  : null}
-              {post.body
-                ? (
-                  <View style={{
-                    padding: 5,
-                  }}
-                  >
-                    <Text style={{ textAlign: 'left' }}>
-                      {post.body}
-                    </Text>
-                  </View>
-                ) : null}
-            </View>
-          </TouchableHighlight>
+                  ) : post.mediaType === 'image'
+                    ? (
+                      <View style={{
+                        flex: 1,
+                        flexDirection: 'column',
+                      }}
+                      >
+                        <ImageWithCache
+                          removeBorderRadius
+                          mediaHeaders={post.mediaHeaders}
+                          mediaOrientation={post.mediaOrientation}
+                          mediaIsSelfie={post.mediaIsSelfie}
+                          resizeMode="cover"
+                          mediaUrl={post.mediaUrl}
+                          aspectRatio={1 / 1}
+                        />
+                      </View>
+                    )
+                    : null}
+              </View>
+            </TouchableHighlight>
+            {post.body
+              ? (
+                <View style={{
+                  padding: 5,
+                }}
+                >
+                  <Text style={{ textAlign: 'left' }}>
+                    {post.body}
+                  </Text>
+                </View>
+              ) : null}
+          </View>
         )}
       {!hideActions
       && (

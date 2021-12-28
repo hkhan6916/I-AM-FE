@@ -16,15 +16,37 @@ const SearchScreen = () => {
   const [searchInput, setSearchInput] = useState();
   const [results, setResults] = useState([]);
   const [showAllResults, setShowAllResults] = useState(false);
+  const [test, setTest] = useState({
+    name: '',
+    typing: false,
+    typingTimeout: 0,
+  });
+  const navigation = useNavigation();
 
-  const handleSearch = async (username) => {
-    setSearchInput(username);
-    const { response } = await apiCall('GET', `/user/search/${username}`);
+  const userData = useSelector((state) => state.userData);
+
+  const handleSearch = async (searchTerm) => {
+    setSearchInput(searchTerm);
+    const { response } = await apiCall('POST', `/user/search/${results.length}`, { searchTerm });
     if (response.length) {
       setResults(response);
     } else {
       setResults([]);
     }
+  };
+
+  const searchUsers = (searchTerm) => {
+    if (test.typingTimeout) {
+      clearTimeout(test.typingTimeout);
+    }
+
+    setTest({
+      name: searchTerm,
+      typing: false,
+      typingTimeout: setTimeout(() => {
+        handleSearch(searchTerm);
+      }, 500),
+    });
   };
 
   return (
@@ -40,8 +62,8 @@ const SearchScreen = () => {
           style={styles.searchBar}
           placeholderTextColor="#b8b894"
           autoCorrect={false}
-          placeholder="Type a username..."
-          onChangeText={(v) => handleSearch(v)}
+          placeholder="Search for someone..."
+          onChangeText={(v) => searchUsers(v)}
           returnKeyType="search"
           onFocus={() => {
             setShowAllResults(false);

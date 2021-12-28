@@ -71,7 +71,7 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
-        title: 'PostsScreen',
+        title: 'View Post',
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {

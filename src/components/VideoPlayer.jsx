@@ -117,9 +117,9 @@ const VideoPlayer = ({
                     onReadyForDisplay={(params) => {
                       setVideoDimensions(params.naturalSize);
                     }}
-                    volume={!isFullScreen ? 0 : 1}
+                    volume={1}
                     ref={video}
-                    isLooping={!isFullScreen}
+                    isLooping={false}
                     style={{
                       aspectRatio: handleVideoAspectRatio() || 1,
                       width: ScreenOrientation === 'PORTRAIT' ? screenWidth : screenHeight,
@@ -129,7 +129,7 @@ const VideoPlayer = ({
                       headers: mediaHeaders,
                     }}
                     useNativeControls={false}
-                    resizeMode={isFullScreen ? 'contain' : 'cover'}
+                    resizeMode="contain"
                     onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
                   />
                 </View>
@@ -154,19 +154,19 @@ const VideoPlayer = ({
                   onReadyForDisplay={(params) => {
                     setVideoDimensions(params.naturalSize);
                   }}
-                  volume={!isFullScreen ? 0 : 1}
+                  volume={0}
                   ref={video}
-                  isLooping={!isFullScreen}
-                  style={[styles.video, {
+                  isLooping
+                  style={{
                     aspectRatio: handleVideoAspectRatio() || 1,
                     width: ScreenOrientation === 'PORTRAIT' ? screenWidth : screenHeight,
-                  }]}
+                  }}
                   source={{
                     uri: url,
                     headers: mediaHeaders,
                   }}
                   useNativeControls={false}
-                  resizeMode={isFullScreen ? 'contain' : 'cover'}
+                  resizeMode="cover"
                   onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
                 />
               </View>

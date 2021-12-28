@@ -2,7 +2,7 @@ import React, {
   useEffect, useContext, useState, useCallback,
 } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, SafeAreaView, StatusBar,
+  View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, SafeAreaView, StatusBar, FlatList,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
@@ -111,7 +111,25 @@ const HomeScreen = () => {
           <Ionicons name="paper-plane-outline" size={24} color={themeStyle.colors.grayscale.black} />
         </TouchableOpacity>
       </View>
-      <ScrollView
+      <FlatList
+        data={feed}
+        renderItem={({ item }) => (
+          <View>
+            <PostCard post={item} />
+          </View>
+        )}
+        keyExtractor={(item, index) => `${item._id}-${index}`}
+        refreshControl={(
+          <RefreshControl
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+          />
+        )}
+        contentContainerStyle={{ flexGrow: 1 }}
+        onEndReached={() => getUserFeed()}
+        onEndReachedThreshold={0.5}
+      />
+      {/* <ScrollView
         scrollEventThrottle={0}
         contentContainerStyle={{ flexGrow: 1 }}
         onScroll={({ nativeEvent }) => {
@@ -129,7 +147,7 @@ const HomeScreen = () => {
         {feed.map((post, i) => (
           <PostCard key={`postcard-${i}`} post={post} />
         ))}
-      </ScrollView>
+      </ScrollView> */}
     </SafeAreaView>
   );
 };
@@ -148,7 +166,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignSelf: 'center',
     position: 'absolute',
-    marginTop: statusBarHeight,
+    marginTop: statusBarHeight + 80,
   },
 });
 
