@@ -91,8 +91,7 @@ const Screens = () => {
     if (!notificationToken && loaded) {
       registerForPushNotificationsAsync().then(async (token) => {
         try {
-          const userId = await getItemAsync('userId');
-          const { success } = await apiCall('POST', '/user/notifications/token/update', { userId, notificationToken: token });
+          const { success } = await apiCall('POST', '/user/notifications/token/update', { notificationToken: token });
           if (success) {
             await setItemAsync('notificationToken', token);
           }

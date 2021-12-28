@@ -8,11 +8,11 @@ import { Camera } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { Video } from 'expo-av';
 import { getExpoPushTokenAsync } from 'expo-notifications';
-import themeStyle from '../../theme.style';
-import apiCall from '../../helpers/apiCall';
-import ProfileVideoCamera from '../../components/ProfileVideoCamera';
+import themeStyle from '../../../theme.style';
+import apiCall from '../../../helpers/apiCall';
+import ProfileVideoCamera from '../../../components/ProfileVideoCamera';
 
-const RegisterationScreen = () => {
+const ProfileEditScreen = () => {
   const [loading, setLoading] = useState(false);
 
   const [email, setEmail] = useState('');
@@ -38,6 +38,12 @@ const RegisterationScreen = () => {
   const profileVideoRef = useRef(null);
 
   const [registerationError, setRegisterationError] = useState('');
+
+  const [searchInput, setSearchInput] = useState();
+  const [results, setResults] = useState([]);
+  const [details, setDetails] = useState({});
+  const [successful, setSuccessful] = useState(false);
+
   const navigation = useNavigation();
 
   const validateUserInformation = () => {
@@ -93,6 +99,22 @@ const RegisterationScreen = () => {
     }
   };
 
+  const handleSearch = async (query) => {
+    setSearchInput(query);
+    const { response } = await apiCall('GET', `/jobs/search/${query}`);
+    if (response.length) {
+      setResults(response);
+    } else {
+      setResults([]);
+    }
+  };
+
+  const handleProfileUpdate = async () => {
+    const { success } = await apiCall('PATCH', '/user/update/profile', { details });
+
+    setSuccessful(success);
+  };
+
   useEffect(() => {
     (async () => {
       const cameraStatus = await Camera.requestCameraPermissionsAsync();
@@ -135,6 +157,25 @@ const RegisterationScreen = () => {
       <ScrollView>
         <View style={styles.formContainer}>
           <Text style={styles.formHeader}>I AM Sign Up</Text>
+          <View style={styles.searchSection}>
+            <Ionicons
+              style={styles.searchIcon}
+              name="search"
+              size={12}
+              color={searchInput ? '#000' : '#b8b894'}
+            />
+            <TextInput
+              style={styles.searchBar}
+              placeholderTextColor="#b8b894"
+              autoCorrect={false}
+              placeholder="Search job titles..."
+              onChangeText={(v) => handleSearch(v)}
+              returnKeyType="search"
+            />
+            {results.map((result) => (
+              <Text>{result.title}</Text>
+            ))}
+          </View>
           <TextInput
             style={styles.visibleTextInputs}
             value={firstName}
@@ -372,5 +413,98 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 5,
   },
+  searchBar: {
+    flex: 1,
+    color: '#000',
+  },
+  searchSection: {
+    flexDirection: 'row',
+  },
+  searchIcon: {
+    padding: 10,
+  },
+  userResult: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
 });
-export default RegisterationScreen;
+export default ProfileEditScreen;
+
+// import React, { useState } from 'react';
+// import {
+//   View, Text, Button, StyleSheet, ScrollView, TextInput,
+// } from 'react-native';
+// import { Ionicons } from '@expo/vector-icons';
+// import apiCall from '../../../helpers/apiCall';
+
+// const ProfileEdit = () => {
+//   const [searchInput, setSearchInput] = useState();
+//   const [results, setResults] = useState([]);
+//   const [details, setDetails] = useState({});
+//   const [successful, setSuccessful] = useState(false);
+
+//   const handleSearch = async (query) => {
+//     setSearchInput(query);
+//     const { response } = await apiCall('GET', `/jobs/search/${query}`);
+//     if (response.length) {
+//       setResults(response);
+//     } else {
+//       setResults([]);
+//     }
+//   };
+
+//   const handleProfileUpdate = async () => {
+//     const { success } = await apiCall('PATCH', '/user/update/profile', { details });
+
+//     setSuccessful(success);
+//   };
+//   // Option to update profile video
+//   // option to update firstname
+//   // option to update username
+//   // option to update password
+//   return (
+//     <ScrollView>
+//       <View style={styles.searchSection}>
+//         <Ionicons
+//           style={styles.searchIcon}
+//           name="search"
+//           size={12}
+//           color={searchInput ? '#000' : '#b8b894'}
+//         />
+//         <TextInput
+//           style={styles.searchBar}
+//           placeholderTextColor="#b8b894"
+//           autoCorrect={false}
+//           placeholder="Search job titles..."
+//           onChangeText={(v) => handleSearch(v)}
+//           returnKeyType="search"
+//         />
+//         {results.map((result) => (
+//           <Text>{result.title}</Text>
+//         ))}
+//       </View>
+//     </ScrollView>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//   },
+//   searchBar: {
+//     flex: 1,
+//     color: '#000',
+//   },
+//   searchSection: {
+//     flexDirection: 'row',
+//   },
+//   searchIcon: {
+//     padding: 10,
+//   },
+//   userResult: {
+//     paddingHorizontal: 20,
+//     paddingVertical: 10,
+//   },
+// });
+
+// export default ProfileEdit;

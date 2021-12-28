@@ -10,6 +10,7 @@ import PostScreen from './SubScreens/PostScreen';
 import ChatScreen from './SubScreens/ChatScreen';
 import ChatListScreen from './SubScreens/ChatListScreen';
 import CreateChatScreen from './SubScreens/CreateChatScreen';
+import ProfileEditScreen from './SubScreens/ProfileEditScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -117,7 +118,18 @@ const MainStack = () => (
       name="CreateChatScreen"
       component={CreateChatScreen}
     />
-
+    <Stack.Screen
+      options={{
+        title: 'Edit Profile',
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+      name="ProfileEdit"
+      component={ProfileEditScreen}
+    />
   </Stack.Navigator>
 );
 export default MainStack;

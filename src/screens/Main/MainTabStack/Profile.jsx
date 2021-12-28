@@ -5,6 +5,7 @@ import {
 import { setItemAsync } from 'expo-secure-store';
 import { useDispatch } from 'react-redux';
 
+import { useNavigation } from '@react-navigation/native';
 import apiCall from '../../../helpers/apiCall';
 import PostCard from '../../../components/PostCard';
 
@@ -12,7 +13,7 @@ const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-
+  const navigation = useNavigation();
   const dispatch = useDispatch();
 
   const logout = async () => {
@@ -61,6 +62,7 @@ const ProfileScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Button onPress={() => logout()} title="logout" />
+      <Button onPress={() => navigation.navigate('ProfileEdit')} title="Edit profile" />
       <ScrollView
         onScroll={({ nativeEvent }) => {
           if (isCloseToBottom(nativeEvent)) {

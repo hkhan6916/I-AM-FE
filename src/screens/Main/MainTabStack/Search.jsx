@@ -1,15 +1,9 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, StyleSheet, Image, SafeAreaView,
+  View, TextInput, StyleSheet, SafeAreaView,
 } from 'react-native';
-import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
-import { TouchableHighlight } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
 import apiCall from '../../../helpers/apiCall';
-import themeStyle from '../../../theme.style';
-import Avatar from '../../../components/Avatar';
 import UserThumbnail from '../../../components/UserThumbnail';
 
 const SearchScreen = () => {
@@ -21,9 +15,6 @@ const SearchScreen = () => {
     typing: false,
     typingTimeout: 0,
   });
-  const navigation = useNavigation();
-
-  const userData = useSelector((state) => state.userData);
 
   const handleSearch = async (searchTerm) => {
     setSearchInput(searchTerm);
