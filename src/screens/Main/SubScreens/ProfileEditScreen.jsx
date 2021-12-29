@@ -7,10 +7,10 @@ import { useNavigation } from '@react-navigation/native';
 import { Camera } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { Video } from 'expo-av';
-import { getExpoPushTokenAsync } from 'expo-notifications';
 import themeStyle from '../../../theme.style';
 import apiCall from '../../../helpers/apiCall';
 import ProfileVideoCamera from '../../../components/ProfileVideoCamera';
+import PreviewVideo from '../../../components/PreviewVideo';
 
 const ProfileEditScreen = () => {
   const [loading, setLoading] = useState(false);
@@ -32,10 +32,9 @@ const ProfileEditScreen = () => {
   const [recordingLength, setRecordingLength] = useState(15);
 
   const { width: screenWidth } = Dimensions.get('window');
-  const [faceDectected, setFaceDetected] = useState(false);
+  const [faceDetected, setFaceDetected] = useState(false);
 
   const [profileVideo, setProfileVideo] = useState('');
-  const [profileVideoHeaders, setProfileVideoHeaders] = useState({});
   const [profileVideoPlaying, setProfileVideoPlaying] = useState(false);
   const profileVideoRef = useRef(null);
 
@@ -50,7 +49,7 @@ const ProfileEditScreen = () => {
 
   const handleFacesDetected = (obj) => {
     try {
-      if (recording && obj.faces.length !== 0 && !faceDectected) {
+      if (recording && obj.faces.length !== 0 && !faceDetected) {
         setFaceDetected(true);
       }
     } catch (error) {
@@ -77,13 +76,9 @@ const ProfileEditScreen = () => {
       }
     });
     setLoading(true);
-    console.log(formData);
     const { success, message } = await apiCall('POST', '/user/update/profile', formData);
-    console.log(message);
-    if (success) {
-      setLoading(false);
-    } else {
-      setLoading(false);
+    setLoading(false);
+    if (!success) {
       setRegisterationError('Error, maybe network error.');
     }
   };
@@ -222,73 +217,27 @@ const ProfileEditScreen = () => {
               />
             </TouchableOpacity>
           </View>
-          {(profileVideo && faceDectected) || (initialProfileData.profileVideoHeaders && initialProfileData.profileVideoUrl) ? (
-            <TouchableOpacity
-              style={{
-                alignSelf: 'center',
-              }}
-              onPress={() => (profileVideoPlaying.isPlaying
-                ? profileVideoRef.current.pauseAsync() : profileVideoRef.current.playAsync())}
-            >
-              <Video
-                style={{
-                  transform: [
-                    { scaleX: -1 },
-                  ],
-                  alignSelf: 'center',
-                  width: screenWidth / 1.5,
-                  height: (screenWidth * 1.33) / 1.5,
-                  borderWidth: 2,
-                  borderColor: themeStyle.colors.primary.default,
-                  borderRadius: 10,
-                }}
-                onPlaybackStatusUpdate={(status) => setProfileVideoPlaying(() => status)}
-                ref={profileVideoRef}
-                source={{
-                  uri: profileVideo || initialProfileData?.profileVideoUrl,
-                  headers: initialProfileData?.profileVideoHeaders,
-                }}
-                isLooping
-                resizeMode="cover"
+          {(profileVideo && faceDetected)
+           || (!profileVideo && initialProfileData.profileVideoHeaders
+            && initialProfileData.profileVideoUrl) ? (
+              <PreviewVideo
+                uri={profileVideo
+                || initialProfileData?.profileVideoUrl}
+                headers={initialProfileData?.profileVideoHeaders}
               />
-              {!profileVideoPlaying.isPlaying
-                ? (
-                  <View style={{
-                    position: 'absolute',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: screenWidth / 1.5,
-                    height: (screenWidth * 1.33) / 1.5,
-                    borderWidth: 2,
-                    borderColor: themeStyle.colors.primary.default,
-                    borderRadius: 10,
-                    backgroundColor: '#000',
-                    opacity: 0.5,
-                  }}
-                  >
-                    <Text style={{
-                      flex: 1,
-                      position: 'absolute',
-                      fontSize: 20,
-                      textAlign: 'center',
-                      width: screenWidth / 1.5,
-                      color: '#fff',
-                    }}
-                    >
-                      Tap to preview
-                    </Text>
-                  </View>
-                )
-                : null}
-            </TouchableOpacity>
-          ) : profileVideo ? (
-            <Text style={styles.faceDetectionError}>
-              No face detected. Make sure your
-              face is shown at the start and end of
-              your profile video.
-            </Text>
-          )
-            : null}
+            ) : profileVideo ? (
+              <View>
+                <PreviewVideo
+                  uri={profileVideo}
+                />
+                <Text style={styles.faceDetectionError}>
+                  No face detected. Make sure your
+                  face is shown at the start and end of
+                  your profile video.
+                </Text>
+              </View>
+            )
+              : null}
           <TouchableOpacity
             style={styles.takeVideoButton}
             onPress={() => { setFaceDetected(false); setCameraActivated(true); }}
@@ -299,7 +248,7 @@ const ProfileEditScreen = () => {
                 size={14}
               />
               {' '}
-              {profileVideo ? 'Retake profile video' : 'Take profile video'}
+              Update profile video
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -430,82 +379,3 @@ const styles = StyleSheet.create({
 });
 
 export default ProfileEditScreen;
-
-// import React, { useState } from 'react';
-// import {
-//   View, Text, Button, StyleSheet, ScrollView, TextInput,
-// } from 'react-native';
-// import { Ionicons } from '@expo/vector-icons';
-// import apiCall from '../../../helpers/apiCall';
-
-// const ProfileEdit = () => {
-//   const [searchInput, setSearchInput] = useState();
-//   const [results, setResults] = useState([]);
-//   const [details, setDetails] = useState({});
-//   const [successful, setSuccessful] = useState(false);
-
-//   const handleSearch = async (query) => {
-//     setSearchInput(query);
-//     const { response } = await apiCall('GET', `/jobs/search/${query}`);
-//     if (response.length) {
-//       setResults(response);
-//     } else {
-//       setResults([]);
-//     }
-//   };
-
-//   const handleProfileUpdate = async () => {
-//     const { success } = await apiCall('PATCH', '/user/update/profile', { details });
-
-//     setSuccessful(success);
-//   };
-//   // Option to update profile video
-//   // option to update firstname
-//   // option to update username
-//   // option to update password
-//   return (
-//     <ScrollView>
-//       <View style={styles.searchSection}>
-//         <Ionicons
-//           style={styles.searchIcon}
-//           name="search"
-//           size={12}
-//           color={searchInput ? '#000' : '#b8b894'}
-//         />
-//         <TextInput
-//           style={styles.searchBar}
-//           placeholderTextColor="#b8b894"
-//           autoCorrect={false}
-//           placeholder="Search job titles..."
-//           onChangeText={(v) => handleSearch(v)}
-//           returnKeyType="search"
-//         />
-//         {results.map((result) => (
-//           <Text>{result.title}</Text>
-//         ))}
-//       </View>
-//     </ScrollView>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//   },
-//   searchBar: {
-//     flex: 1,
-//     color: '#000',
-//   },
-//   searchSection: {
-//     flexDirection: 'row',
-//   },
-//   searchIcon: {
-//     padding: 10,
-//   },
-//   userResult: {
-//     paddingHorizontal: 20,
-//     paddingVertical: 10,
-//   },
-// });
-
-// export default ProfileEdit;

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   View, StyleSheet, Text, TouchableOpacity,
   Dimensions,
+  BackHandler,
+  TouchableOpacityComponent,
 } from 'react-native';
 
 import { Camera } from 'expo-camera';
@@ -55,109 +57,130 @@ const ProfileVideoCamera = ({
     }, 1000);
     return () => clearInterval(interval);
   }, [recording]);
+  const DeactivateCamera = () => {
+    setCameraActivated(false);
+    return true;
+  };
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', DeactivateCamera);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', DeactivateCamera);
+    };
+  }, []);
+
   const cameraHeight = screenWidth * 1.33;
   return (
     <View style={styles.container}>
       {hasCameraPermission && hasAudioPermission
         ? (
-          <Camera
-            mirror
-            style={{
-              width: screenWidth,
-              height: cameraHeight,
-              marginTop: (screenHeight - cameraHeight) / 2.5,
-              marginBottom: (screenHeight - cameraHeight) / 1.5,
-            }}
-            ratio="4:3"
-            type={type}
-            ref={(ref) => {
-              setCameraRef(ref);
-            }}
-            onFacesDetected={(e) => handleFacesDetected(e)}
-            faceDetectorSettings={{
-              mode: FaceDetector.FaceDetectorMode.fast,
-              detectLandmarks: FaceDetector.FaceDetectorLandmarks.none,
-              runClassifications: FaceDetector.FaceDetectorClassifications.none,
-              minDetectionInterval: 100,
-              tracking: true,
-            }}
-          >
-            <View
-              style={styles.cameraBottomSection}
+          <View>
+            <Camera
+              mirror
+              style={{
+                width: screenWidth,
+                height: cameraHeight,
+                marginTop: (screenHeight - cameraHeight) / 2.5,
+                marginBottom: (screenHeight - cameraHeight) / 1.5,
+              }}
+              ratio="4:3"
+              type={type}
+              ref={(ref) => {
+                setCameraRef(ref);
+              }}
+              onFacesDetected={(e) => handleFacesDetected(e)}
+              faceDetectorSettings={{
+                mode: FaceDetector.FaceDetectorMode.fast,
+                detectLandmarks: FaceDetector.FaceDetectorLandmarks.none,
+                runClassifications: FaceDetector.FaceDetectorClassifications.none,
+                minDetectionInterval: 100,
+                tracking: true,
+              }}
             >
-              <Text>{recordingLength}</Text>
-              <View style={styles.controlsContainer}>
-                <View style={{
-                  flex: 0.3,
-                }}
-                >
-                  <TouchableOpacity
-                    style={{
-                      width: 50,
-                      height: 50,
-                    }}
-                    onPress={() => {
-                      setType(
-                        type === Camera.Constants.Type.back
-                          ? Camera.Constants.Type.front
-                          : Camera.Constants.Type.back,
-                      );
-                    }}
+              <View
+                style={styles.cameraBottomSection}
+              >
+                <Text>{recordingLength}</Text>
+                <View style={styles.controlsContainer}>
+                  <View style={{
+                    flex: 0.3,
+                  }}
                   >
-                    <Ionicons name="camera-reverse-outline" size={40} color={themeStyle.colors.grayscale.white} />
-                  </TouchableOpacity>
-                </View>
-                <View style={{
-                  flex: 0.5,
-                }}
-                >
-                  <TouchableOpacity
-                    style={{
-                      width: 50,
-                      height: 50,
-                    }}
-                    disabled={recording && recordingLength > 12}
-                    onPress={() => handleRecordClick()}
-                  >
-                    <View style={{
-                      borderWidth: 2,
-                      borderRadius: 25,
-                      borderColor: recording && recordingLength > 12 ? 'grey' : 'red',
-                      height: 50,
-                      width: 50,
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
+                    <TouchableOpacity
+                      style={{
+                        width: 50,
+                        height: 50,
+                      }}
+                      onPress={() => {
+                        setType(
+                          type === Camera.Constants.Type.back
+                            ? Camera.Constants.Type.front
+                            : Camera.Constants.Type.back,
+                        );
+                      }}
                     >
-                      {recording
-                        ? (
-                          <View style={{
-                            borderWidth: 2,
-                            borderRadius: 5,
-                            borderColor: recordingLength > 12 ? 'grey' : 'red',
-                            height: 25,
-                            width: 25,
-                            backgroundColor: recordingLength > 12 ? 'grey' : 'red',
-                          }}
-                          />
-                        ) : (
-                          <View style={{
-                            borderWidth: 2,
-                            borderRadius: 25,
-                            borderColor: 'red',
-                            height: 40,
-                            width: 40,
-                            backgroundColor: 'red',
-                          }}
-                          />
-                        )}
-                    </View>
-                  </TouchableOpacity>
+                      <Ionicons name="camera-reverse-outline" size={40} color={themeStyle.colors.grayscale.white} />
+                    </TouchableOpacity>
+                  </View>
+                  <View style={{
+                    flex: 0.5,
+                  }}
+                  >
+                    <TouchableOpacity
+                      style={{
+                        width: 50,
+                        height: 50,
+                      }}
+                      disabled={recording && recordingLength > 12}
+                      onPress={() => handleRecordClick()}
+                    >
+                      <View style={{
+                        borderWidth: 2,
+                        borderRadius: 25,
+                        borderColor: recording && recordingLength > 12 ? 'grey' : 'red',
+                        height: 50,
+                        width: 50,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}
+                      >
+                        {recording
+                          ? (
+                            <View style={{
+                              borderWidth: 2,
+                              borderRadius: 5,
+                              borderColor: recordingLength > 12 ? 'grey' : 'red',
+                              height: 25,
+                              width: 25,
+                              backgroundColor: recordingLength > 12 ? 'grey' : 'red',
+                            }}
+                            />
+                          ) : (
+                            <View style={{
+                              borderWidth: 2,
+                              borderRadius: 25,
+                              borderColor: 'red',
+                              height: 40,
+                              width: 40,
+                              backgroundColor: 'red',
+                            }}
+                            />
+                          )}
+                      </View>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
-            </View>
-          </Camera>
+            </Camera>
+            <TouchableOpacity
+              style={{
+                position: 'absolute', right: 20, top: 20,
+              }}
+              onPress={() => DeactivateCamera()}
+            >
+              <Ionicons name="close" size={24} style={{ color: themeStyle.colors.grayscale.white }} />
+            </TouchableOpacity>
+          </View>
         )
         : (
           <View>

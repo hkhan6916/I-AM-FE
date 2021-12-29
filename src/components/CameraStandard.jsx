@@ -85,15 +85,15 @@ const CameraStandard = ({
       DeviceMotion.removeAllListeners();
     };
   }, [type]);
-  const handleBackButtonClick = () => {
+  const deactivateCamera = () => {
     setCameraActive(false);
     return true;
   };
 
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
+    BackHandler.addEventListener('hardwareBackPress', deactivateCamera);
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
+      BackHandler.removeEventListener('hardwareBackPress', deactivateCamera);
     };
   }, []);
   if (hasCameraPermission === null || hasMicrophonePermission === null) {
