@@ -25,6 +25,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
+      "softwareKeyboardLayoutMode": "pan",
       "useNextNotificationsApi": true,
       "googleServicesFile": "./google-services.json",
       "package": "com.hkhan6916.IAmFE"
