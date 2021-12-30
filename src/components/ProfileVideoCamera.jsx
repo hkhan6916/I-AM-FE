@@ -3,12 +3,16 @@ import {
   View, StyleSheet, Text, TouchableOpacity,
   Dimensions,
   BackHandler,
-  TouchableOpacityComponent,
+  Linking,
+  Platform,
 } from 'react-native';
 
 import { Camera } from 'expo-camera';
-import { Ionicons } from '@expo/vector-icons';
+import { EvilIcons, Ionicons } from '@expo/vector-icons';
 import * as FaceDetector from 'expo-face-detector';
+import { startActivityAsync, ActivityAction } from 'expo-intent-launcher';
+import Constants from 'expo-constants';
+import { useNavigation } from '@react-navigation/native';
 import themeStyle from '../theme.style';
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
@@ -26,6 +30,24 @@ const ProfileVideoCamera = ({
   const [cameraRef, setCameraRef] = useState(null);
 
   const [type, setType] = useState(Camera.Constants.Type.front);
+
+  const navigation = useNavigation();
+
+  const packageName = Constants.manifest.releaseChannel
+    ? Constants.manifest.android.package
+    : 'host.exp.exponent';
+
+  const openAppSettings = () => {
+    if (Platform.OS === 'ios') {
+      Linking.openURL('app-settings:');
+    } else {
+      startActivityAsync(
+        ActivityAction.APPLICATION_DETAILS_SETTINGS,
+        { data: `package:${packageName}` },
+      );
+    }
+  };
+
   const handleRecordClick = async () => {
     if (!recording) {
       setRecordingLength(15);
@@ -57,18 +79,78 @@ const ProfileVideoCamera = ({
     }, 1000);
     return () => clearInterval(interval);
   }, [recording]);
-  const DeactivateCamera = () => {
+  const deactivateCamera = () => {
     setCameraActivated(false);
     return true;
   };
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', DeactivateCamera);
+    BackHandler.addEventListener('hardwareBackPress', deactivateCamera);
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', DeactivateCamera);
+      BackHandler.removeEventListener('hardwareBackPress', deactivateCamera);
     };
   }, []);
 
   const cameraHeight = screenWidth * 1.33;
+  if (hasCameraPermission === null || hasAudioPermission === null) {
+    return <View />;
+  }
+  if (hasCameraPermission === false || hasAudioPermission === false) {
+    return (
+      <View style={{
+        flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: themeStyle.colors.primary.default,
+      }}
+      >
+        <View style={{
+          borderColor: themeStyle.colors.grayscale.white,
+          borderWidth: 3,
+          padding: 20,
+          width: 150,
+          height: 150,
+          borderRadius: 200,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        >
+          <EvilIcons name="camera" size={104} color={themeStyle.colors.grayscale.white} />
+        </View>
+        <Text style={{ margin: 20, textAlign: 'center', color: themeStyle.colors.grayscale.white }}>
+          Well...? No worries, this should be easy.
+          {' '}
+          Please enable
+          {' '}
+          {!hasCameraPermission && !hasAudioPermission ? 'camera and microphone permissions'
+            : !hasAudioPermission ? 'microphone permission'
+              : !hasCameraPermission ? 'camera permission' : null}
+          {' '}
+          in device settings.
+        </Text>
+        <View style={{ display: 'flex', flexDirection: 'row' }}>
+          <TouchableOpacity onPress={() => deactivateCamera()}>
+            <View style={{
+              display: 'flex', flexDirection: 'row', alignItems: 'center', margin: 10, padding: 5, borderRadius: 5, borderWidth: 2, borderColor: themeStyle.colors.grayscale.white,
+            }}
+            >
+              <Text style={{ textAlign: 'center', color: themeStyle.colors.grayscale.white, fontWeight: '700' }}>
+                Go back
+                {' '}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => openAppSettings()}>
+            <View style={{
+              display: 'flex', flexDirection: 'row', alignItems: 'center', margin: 10, padding: 5, borderRadius: 5, borderWidth: 2, borderColor: themeStyle.colors.grayscale.white,
+            }}
+            >
+              <Text style={{ textAlign: 'center', color: themeStyle.colors.grayscale.white, fontWeight: '700' }}>
+                Go to Settings
+                {' '}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       {hasCameraPermission && hasAudioPermission
@@ -176,7 +258,7 @@ const ProfileVideoCamera = ({
               style={{
                 position: 'absolute', right: 20, top: 20,
               }}
-              onPress={() => DeactivateCamera()}
+              onPress={() => deactivateCamera()}
             >
               <Ionicons name="close" size={24} style={{ color: themeStyle.colors.grayscale.white }} />
             </TouchableOpacity>

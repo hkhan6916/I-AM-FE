@@ -22,6 +22,9 @@ const RegisterationScreen = () => {
   const [lastName, setLastName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  const [validationErrors, setValidationErrors] = useState({});
+  const [userCheckConfig, setUserCheckConfig] = useState({});
+
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [hasAudioPermission, setHasAudioPermission] = useState(null);
 
@@ -53,6 +56,14 @@ const RegisterationScreen = () => {
     return false;
   };
 
+  const checkUserExists = async (type, identifier) => {
+    const { response, success } = await apiCall('POST', '/user/check/exists', { type, identifier });
+    console.log(response[type]);
+    if (success && response[type]) {
+      setValidationErrors({ ...validationErrors, [type]: { exists: response[type].exists } });
+    }
+  };
+
   const handleFacesDetected = (obj) => {
     try {
       if (recording && obj.faces.length !== 0 && !faceDectected) {
@@ -80,16 +91,15 @@ const RegisterationScreen = () => {
       formData.append(key, payload[key]);
     });
     setLoading(true);
-    const { success, message } = await apiCall('POST', '/user/register', formData);
+    const { success, message, other } = await apiCall('POST', '/user/register', formData);
     if (success) {
       navigation.navigate('Login');
-    } else if (message === 'exists') {
-      setLoading(false);
-      setRegisterationError('A user already exists with these details.');
+    } else if (other) {
+      setValidationErrors(other);
     } else {
-      setLoading(false);
       setRegisterationError('Error, maybe network error.');
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -104,6 +114,14 @@ const RegisterationScreen = () => {
       setHasAudioPermission(false);
     };
   }, []);
+
+  useEffect(() => {
+    if (cameraActivated) {
+      navigation.setOptions({ headerShown: false });
+    } else {
+      navigation.setOptions({ headerShown: true });
+    }
+  }, [cameraActivated]);
 
   if (loading) {
     return (
@@ -134,48 +152,65 @@ const RegisterationScreen = () => {
       <ScrollView>
         <View style={styles.formContainer}>
           <Text style={styles.formHeader}>I AM Sign Up</Text>
-          <TextInput
-            style={styles.visibleTextInputs}
-            value={firstName}
-            placeholder="FirstName..."
-            onChangeText={(v) => setFirstName(v)}
-          />
-          <TextInput
-            style={styles.visibleTextInputs}
-            value={lastName}
-            placeholder="LastName..."
-            onChangeText={(v) => setLastName(v)}
-          />
-          <TextInput
-            style={styles.visibleTextInputs}
-            value={email}
-            placeholder="Email..."
-            onChangeText={(v) => setEmail(v)}
-          />
-          <TextInput
-            style={styles.visibleTextInputs}
-            value={username}
-            placeholder="Username..."
-            onChangeText={(v) => setUsername(v)}
-          />
-          <View style={styles.passwordInputContainer}>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.label}>Firstname</Text>
             <TextInput
-              style={styles.passwordInput}
-              placeholderTextColor={themeStyle.colors.grayscale.lightGray}
-              secureTextEntry={!showPassword}
-              autoCorrect={false}
-              placeholder="Password..."
-              onChangeText={(v) => setPassword(v)}
+              style={styles.visibleTextInputs}
+              value={firstName}
+              onChangeText={(v) => setFirstName(v)}
             />
-            <TouchableOpacity
-              style={styles.eyeIcon}
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <Ionicons
-                name={showPassword ? 'eye-outline' : 'eye-off-outline'}
-                size={19}
+          </View>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.label}>Lastname</Text>
+            <TextInput
+              style={styles.visibleTextInputs}
+              value={lastName}
+              onChangeText={(v) => setLastName(v)}
+            />
+          </View>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={[styles.visibleTextInputs, validationErrors.email?.exists && { borderColor: 'red' }]}
+              value={email}
+              onChangeText={(v) => setEmail(v)}
+              onEndEditing={(e) => checkUserExists('email', e.nativeEvent.text)}
+            />
+            {validationErrors.email?.exists
+              ? <Text style={styles.errorText}>This email already exists</Text> : null}
+          </View>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.label}>Username</Text>
+            <TextInput
+              style={[styles.visibleTextInputs, validationErrors.username?.exists && { borderColor: 'red' }]}
+              value={username}
+              onChangeText={(v) => setUsername(v)}
+              onEndEditing={(e) => checkUserExists('username', e.nativeEvent.text)}
+            />
+            {validationErrors.username?.exists
+              ? <Text style={styles.errorText}>This username already exists</Text> : null}
+          </View>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.label}>Password</Text>
+            <View style={styles.passwordInputContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholderTextColor={themeStyle.colors.grayscale.lightGray}
+                secureTextEntry={!showPassword}
+                autoCorrect={false}
+                value={password}
+                onChangeText={(v) => setPassword(v)}
               />
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Ionicons
+                  name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                  size={19}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
           {profileVideo && faceDectected ? (
             <TouchableOpacity
@@ -342,15 +377,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
   },
+  errorText: {
+    fontSize: 12,
+    color: themeStyle.colors.error.default,
+  },
+  label: {
+    fontWeight: '700',
+  },
   visibleTextInputs: {
     fontSize: 15,
     height: 45,
     borderRadius: 5,
-    alignSelf: 'stretch',
-    marginVertical: 20,
     paddingHorizontal: 10,
     borderWidth: 2,
     borderColor: themeStyle.colors.primary.default,
+  },
+  textInputContainer: {
+    alignSelf: 'stretch',
+    marginBottom: 20,
   },
   passwordInput: {
     flex: 1,
@@ -361,9 +405,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 45,
     borderRadius: 5,
-    alignSelf: 'stretch',
-    marginVertical: 20,
+    marginBottom: 20,
     padding: 5,
+    paddingHorizontal: 8,
     borderWidth: 2,
     borderColor: themeStyle.colors.primary.default,
   },

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View, Text, TextInput, StyleSheet, TouchableOpacity,
 } from 'react-native';
@@ -34,6 +34,14 @@ const LoginScreen = () => {
     }
   };
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('blur', () => {
+      setLoginError('');
+      setShowPassword(false);
+    });
+
+    return unsubscribe;
+  }, [navigation]);
   return (
     <View style={styles.container}>
       <View style={styles.formContainer}>
@@ -50,6 +58,7 @@ const LoginScreen = () => {
             style={styles.passwordInput}
             placeholderTextColor={themeStyle.colors.grayscale.lightGray}
             secureTextEntry={!showPassword}
+            value={password}
             autoCorrect={false}
             onChangeText={(v) => setPassword(v)}
             placeholder="Password..."
@@ -152,7 +161,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignSelf: 'stretch',
     marginVertical: 20,
-    padding: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
     borderWidth: 2,
     borderColor: themeStyle.colors.primary.default,
   },

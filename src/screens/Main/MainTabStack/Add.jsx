@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, StyleSheet, Button, Image, Keyboard, SafeAreaView,
+  View, Text, TextInput, StyleSheet, Button, Image, Keyboard, SafeAreaView, ScrollView, KeyboardAvoidingView,
 } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
@@ -50,6 +50,7 @@ const AddScreen = () => {
       setPostBody('');
       setFile('');
       dispatch({ type: 'SET_POST_CREATED', payload: true });
+      setLoading(false);
       navigation.navigate('Home');
     } else {
       setError({ title: "Well... that wasn't supposed to happen!", message: 'An error occured creating your post.' });
@@ -68,15 +69,17 @@ const AddScreen = () => {
   }
   return (
     <SafeAreaView style={styles.container}>
-      <Button title="Done" onPress={() => Keyboard.dismiss()} />
-      {postBody.length >= 1000 - 25 ? (
-        <Text style={styles.postLimitMessage}>
-          {1000 - postBody.length}
-          {' '}
-          Characters Remaining
-        </Text>
-      ) : null}
-      {
+      <KeyboardAvoidingView keyboardVerticalOffset={200}>
+
+        <Button title="Done" onPress={() => Keyboard.dismiss()} />
+        {postBody.length >= 1000 - 25 ? (
+          <Text style={styles.postLimitMessage}>
+            {1000 - postBody.length}
+            {' '}
+            Characters Remaining
+          </Text>
+        ) : null}
+        {
         file.type?.split('/')[0] === 'video'
           ? (
             <Video
@@ -98,36 +101,39 @@ const AddScreen = () => {
             ? (
               <ImageWithCache
                 mediaOrientation={file.mediaOrientation}
-                mediaIsSelfie={file.mediaIsSelfie}
+                mediaIsSelfie={file.isSelfie}
                 resizeMode="cover"
-                mediaUrl={file.mediaUrl}
+                mediaUrl={file.uri}
                 aspectRatio={1 / 1}
               />
             )
             : null
-        }
-      <TextInput
-        style={{ minHeight: 100, textAlignVertical: 'top' }}
-        value={postBody}
-        placeholder="What's on your mind?"
-        placeholderTextColor={themeStyle.colors.grayscale.lightGray}
-        multiline
-        maxLength={1000}
-        onChangeText={(v) => setPostBody(v)}
-      />
-      <Button title="Camera" onPress={() => setCameraActive(true)} />
-      <Button
-        disabled={(!postBody && !file) || loading}
-        title="Make Post"
-        onPress={() => createPost()}
-      />
-      {error ? (
-        <View>
-          <Text style={styles.errorTitle}>{error.title}</Text>
-          <Text style={styles.errorMessage}>{error.message}</Text>
-        </View>
-      ) : null}
+          }
+        <ScrollView>
+          <TextInput
+            style={{ minHeight: 100, textAlignVertical: 'top' }}
+            value={postBody}
+            placeholder="What's on your mind?"
+            placeholderTextColor={themeStyle.colors.grayscale.lightGray}
+            multiline
+            maxLength={1000}
+            onChangeText={(v) => setPostBody(v)}
+          />
+        </ScrollView>
+        <Button title="Camera" onPress={() => setCameraActive(true)} />
+        <Button
+          disabled={(!postBody && !file) || loading || postBody.length >= 1000}
+          title="Make Post"
+          onPress={() => createPost()}
+        />
+        {error ? (
+          <View>
+            <Text style={styles.errorTitle}>{error.title}</Text>
+            <Text style={styles.errorMessage}>{error.message}</Text>
+          </View>
+        ) : null}
 
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

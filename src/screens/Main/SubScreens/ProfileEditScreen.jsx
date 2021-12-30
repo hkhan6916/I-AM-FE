@@ -6,7 +6,6 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { Camera } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
-import { Video } from 'expo-av';
 import themeStyle from '../../../theme.style';
 import apiCall from '../../../helpers/apiCall';
 import ProfileVideoCamera from '../../../components/ProfileVideoCamera';
@@ -20,6 +19,7 @@ const ProfileEditScreen = () => {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [validationErrors, setValidationErrors] = useState({});
   const [initialProfileData, setInitialProfileData] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
@@ -76,10 +76,15 @@ const ProfileEditScreen = () => {
       }
     });
     setLoading(true);
-    const { success, message } = await apiCall('POST', '/user/update/profile', formData);
+    const { success, message, other } = await apiCall('POST', '/user/update/profile', formData);
     setLoading(false);
     if (!success) {
-      setRegisterationError('Error, maybe network error.');
+      // if (validationFailure = { type: 'email', exists: true })
+      if (other?.validationError) {
+        setValidationErrors(other.validationErrors);
+      } else {
+        setRegisterationError('Error, maybe network error.');
+      }
     }
   };
 
@@ -127,6 +132,14 @@ const ProfileEditScreen = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (cameraActivated) {
+      navigation.setOptions({ headerShown: false });
+    } else {
+      navigation.setOptions({ headerShown: true });
+    }
+  }, [cameraActivated]);
+
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -155,7 +168,7 @@ const ProfileEditScreen = () => {
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.formContainer}>
-          {/* <View style={styles.searchSection}>
+          <View style={styles.searchSection}>
             <Ionicons
               style={styles.searchIcon}
               name="search"
@@ -173,7 +186,10 @@ const ProfileEditScreen = () => {
             {results.map((result) => (
               <Text>{result.title}</Text>
             ))}
-          </View> */}
+          </View>
+          <Text style={{ alignSelf: 'flex-start' }}>
+            Firstname
+          </Text>
           <TextInput
             style={styles.visibleTextInputs}
             value={firstName || initialProfileData.firstName}
@@ -193,7 +209,7 @@ const ProfileEditScreen = () => {
             onChangeText={(v) => setEmail(v)}
           />
           <TextInput
-            style={styles.visibleTextInputs}
+            style={[styles.visibleTextInputs, validationErrors.username && { borderColor: 'red' }]}
             value={username || initialProfileData.username}
             placeholder="Username..."
             onChangeText={(v) => setUsername(v)}
@@ -204,7 +220,7 @@ const ProfileEditScreen = () => {
               placeholderTextColor={themeStyle.colors.grayscale.lightGray}
               secureTextEntry={!showPassword}
               autoCorrect={false}
-              placeholder="Password..."
+              placeholder="Update password..."
               onChangeText={(v) => setPassword(v)}
             />
             <TouchableOpacity

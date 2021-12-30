@@ -6,7 +6,7 @@ import RegisterationScreen from './Register';
 const Stack = createNativeStackNavigator();
 const AuthScreens = () => (
   <Stack.Navigator>
-    <Stack.Screen name="Login" component={LoginScreen} />
+    <Stack.Screen name="Login" options={{ headerShown: false }} component={LoginScreen} />
     <Stack.Screen name="Register" component={RegisterationScreen} />
   </Stack.Navigator>
 );

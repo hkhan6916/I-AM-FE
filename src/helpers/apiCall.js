@@ -30,13 +30,14 @@ const apiCall = async (method, route, payload = null) => {
   try {
     const { data: response } = await axios(callConfig);
     const {
-      message, error, success, data,
+      message, error, success, data, other,
     } = response;
     return {
       success,
       message,
       response: data || null,
       error: error || null,
+      other: other || null,
     };
   } catch (e) {
     if (e.response) {
