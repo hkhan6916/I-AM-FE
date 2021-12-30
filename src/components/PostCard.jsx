@@ -207,7 +207,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
         )
         : (
           <View style={{
-            margin: 1,
+            // margin: 1,
           }}
           >
             <TouchableHighlight

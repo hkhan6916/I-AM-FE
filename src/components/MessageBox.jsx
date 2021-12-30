@@ -21,18 +21,6 @@ const MessageBox = ({
     <View style={styles.container}>
       <View style={[styles.subContainer, { alignItems: belongsToSender ? 'flex-end' : 'flex-start' }]}>
         <View style={[styles.message, belongsToSender ? { marginLeft: 50 } : { marginRight: 50 }]}>
-          <Text style={{
-            fontSize: 12,
-            fontWeight: '700',
-            textAlign: 'right',
-            color: 'white',
-            alignSelf: belongsToSender ? 'flex-end' : 'flex-start',
-            marginHorizontal: 10,
-            marginVertical: 5,
-          }}
-          >
-            {stringTime}
-          </Text>
           {mediaUrl && mediaType === 'image' ? (
             <TouchableOpacity onPress={() => setImageFullScreen(true)}>
               <ImageWithCache
@@ -85,6 +73,18 @@ const MessageBox = ({
               {body}
             </Text>
           ) : null}
+          <Text style={{
+            fontSize: 12,
+            fontWeight: '700',
+            textAlign: 'right',
+            color: 'white',
+            alignSelf: belongsToSender ? 'flex-end' : 'flex-start',
+            marginHorizontal: 10,
+            marginVertical: 5,
+          }}
+          >
+            {stringTime}
+          </Text>
         </View>
       </View>
     </View>

@@ -100,10 +100,10 @@ const FriendRequestsScreen = () => {
         )}
       >
         {currentTab === 'received' ? friendRequestsReceived.map((received) => (
-          <UserThumbnail key={received._id} user={received} />
+          <UserThumbnail avatarSize={50} key={received._id} user={received} />
         ))
           : friendRequestsSent.map((sent) => (
-            <UserThumbnail key={sent._id} user={sent} />
+            <UserThumbnail avatarSize={50} key={sent._id} user={sent} />
           ))}
       </ScrollView>
     </View>

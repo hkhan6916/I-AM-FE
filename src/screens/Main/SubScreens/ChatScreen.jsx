@@ -43,22 +43,25 @@ const ChatScreen = (props) => {
     setShowError(false);
     const { response, success } = await apiCall('POST', '/chat/new', { participants: [chatUserId] });
     if (success) {
-      setChat(response);
+      await setChat(response);
     } else {
       setShowError(true);
     }
+    return response;
   };
 
   const getChatMessages = async () => {
-    setShowError(false);
-    const { response, success } = await apiCall('GET', `/chat/${existingChat._id}/messages/${messages.length}`);
-    if (success) {
-      setMessages([...messages, ...response]);
-      if (messages.length && response.length === 0) {
-        setAllMessagesLoaded(true);
+    if (chat) {
+      setShowError(false);
+      const { response, success } = await apiCall('GET', `/chat/${chat._id}/messages/${messages.length}`);
+      if (success) {
+        setMessages([...messages, ...response]);
+        if (messages.length && response.length === 0) {
+          setAllMessagesLoaded(true);
+        }
+      } else {
+        setShowError(true);
       }
-    } else {
-      setShowError(true);
     }
   };
 
@@ -75,11 +78,21 @@ const ChatScreen = (props) => {
     setSocket(connection);
   };
 
-  const handleMessageSend = async () => {
-    if (socket.connected && !messages.length && chatUserId) {
-      await createChat();
+  const handleMessage = async () => {
+    if (socket.connected && !messages.length) {
+      await createChat().then(async (newChat) => {
+        socket.emit('joinRoom', { chatId: newChat?._id, userId: authInfo.senderId });
+        await handleMessageSend(newChat._id);
+      });
+      return;
     }
 
+    if (socket.connected && chat?._id) {
+      await handleMessageSend(chat._id);
+    }
+  };
+
+  const handleMessageSend = async (chatId) => {
     if (media?.uri && socket.connected) {
       setMediaSending(true);
 
@@ -99,7 +112,7 @@ const ChatScreen = (props) => {
         await sendMessage({
           socket,
           body: messageBody,
-          chatId: chat._id,
+          chatId,
           senderId: authInfo.senderId,
           mediaUrl: response.fileUrl,
           mediaType: media.type?.split('/')[0],
@@ -107,7 +120,7 @@ const ChatScreen = (props) => {
         });
         setMessages([{
           body: messageBody,
-          chatId: chat._id,
+          chatId,
           senderId: authInfo.senderId,
           user: 'sender',
           mediaUrl: response.fileUrl,
@@ -127,11 +140,11 @@ const ChatScreen = (props) => {
     }
     if (socket.connected) {
       await sendMessage({
-        socket, body: messageBody, chatId: chat._id, senderId: authInfo.senderId,
+        socket, body: messageBody, chatId, senderId: authInfo.senderId,
       });
       setMessages([{
         body: messageBody,
-        chatId: chat._id,
+        chatId,
         senderId: authInfo.senderId,
         user: 'sender',
         stringTime: get12HourTime(new Date()),
@@ -188,11 +201,12 @@ const ChatScreen = (props) => {
     let isMounted = true;
     if (isMounted) {
       (async () => {
-        if (chat) {
-          await initSocket();
+        await initSocket();
+        if (chat && existingChat) {
           await getChatMessages();
         }
-        if (chat.users?.length) {
+
+        if (socket && chat?.users?.length) {
           navigation.setOptions({ title: chat.users[0].firstName });
         }
       })();
@@ -205,7 +219,7 @@ const ChatScreen = (props) => {
 
     if (socket && isMounted && authInfo) {
       if (chat) {
-        socket.emit('joinRoom', { chatId: chat._id, userId: authInfo.senderId });
+        socket.emit('joinRoom', { chatId: chat?._id, userId: authInfo.senderId });
       }
       socket.on('receiveMessage', ({
         body, chatId, senderId, user, mediaHeaders, mediaUrl, mediaType, stringDate, stringTime,
@@ -377,15 +391,13 @@ const ChatScreen = (props) => {
               width: 48,
               borderRadius: 100,
             }}
-            onPress={() => handleMessageSend()}
+            onPress={() => handleMessage()}
           >
             <Ionicons name="send-sharp" size={24} color="black" />
           </TouchableOpacity>
         </View>
       </View>
-
       <View style={[{ alignItems: 'center', position: 'relative' }, media.uri && { margin: 20 }, mediaSending && { backgroundColor: 'grey' }]}>
-
         {media?.type?.includes('image') ? (
           <Image
             style={{

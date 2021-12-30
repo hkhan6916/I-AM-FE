@@ -58,7 +58,6 @@ const RegisterationScreen = () => {
 
   const checkUserExists = async (type, identifier) => {
     const { response, success } = await apiCall('POST', '/user/check/exists', { type, identifier });
-    console.log(response[type]);
     if (success && response[type]) {
       setValidationErrors({ ...validationErrors, [type]: { exists: response[type].exists } });
     }

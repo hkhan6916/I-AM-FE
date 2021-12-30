@@ -44,29 +44,29 @@ const CreateChatScreen = () => {
     <View style={styles.container}>
       {!error
         ? (
-          // <ScrollView>
-          //   {friends.map((friend) => (
-          //     <TouchableOpacity
-          //       key={friend._id}
-          //       onPress={() => handleChatNavigation(friend._id)}
-          //     >
-          //       <UserThumbnail preventClicks user={friend} avatarSize={50} />
-          //     </TouchableOpacity>
-          //   ))}
-          // </ScrollView>
-          <FlatList
-            data={friends}
-            renderItem={({ item: friend }) => (
+          <ScrollView>
+            {friends.map((friend) => (
               <TouchableOpacity
+                key={friend._id}
                 onPress={() => handleChatNavigation(friend._id)}
               >
                 <UserThumbnail preventClicks user={friend} avatarSize={50} />
               </TouchableOpacity>
-            )}
-            onEndReached={() => getUserFriends()}
-            onEndReachedThreshold={0.3}
-            keyExtractor={(item) => item._id}
-          />
+            ))}
+          </ScrollView>
+          // <FlatList
+          //   data={friends}
+          //   renderItem={({ item: friend }) => (
+          //     <TouchableOpacity
+          //       onPress={() => handleChatNavigation(friend._id)}
+          //     >
+          //       <UserThumbnail preventClicks user={friend} avatarSize={50} />
+          //     </TouchableOpacity>
+          //   )}
+          //   onEndReached={() => getUserFriends()}
+          //   onEndReachedThreshold={0.3}
+          //   keyExtractor={(item) => item._id}
+          // />
         )
         : (
           <View>

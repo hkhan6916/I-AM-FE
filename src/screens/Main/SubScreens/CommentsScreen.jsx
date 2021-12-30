@@ -96,6 +96,7 @@ const CommentsScreen = (props) => {
   }, [navigation]);
 
   return (
+    // <KeyboardAvoidingView></KeyboardAvoidingView>
     <SafeAreaView style={styles.container}>
       <ScrollView
         scrollEventThrottle={0}
