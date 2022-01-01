@@ -23,7 +23,6 @@ const CameraStandard = ({
   const [cameraRef, setCameraRef] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [orientation, setOrientation] = useState('portrait');
-  const [imageTaken, setImageTaken] = useState(false);
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -220,7 +219,6 @@ const CameraStandard = ({
                   const resizedPhoto = await manipulateAsync(photo.uri,
                     [{ resize: { width: 1000 } }],
                     { format: `${fileExtension === 'jpg' ? 'jpeg' : 'png'}` });
-                  setImageTaken(true);
                   setFile({
                     type: `image/${fileExtension}`,
                     name: `${'media.'}${fileExtension}`,

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, Text, TouchableHighlight, StyleSheet, Image,
+  View, Text, TouchableHighlight,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Avatar from './Avatar';

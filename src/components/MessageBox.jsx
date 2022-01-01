@@ -69,7 +69,7 @@ const MessageBox = ({
             </TouchableOpacity>
           ) : null}
           {body ? (
-            <Text style={{ color: themeStyle.colors.grayscale.white }}>
+            <Text style={{ color: themeStyle.colors.grayscale.white, marginHorizontal: 5 }}>
               {body}
             </Text>
           ) : null}
@@ -79,7 +79,7 @@ const MessageBox = ({
             textAlign: 'right',
             color: 'white',
             alignSelf: belongsToSender ? 'flex-end' : 'flex-start',
-            marginHorizontal: 10,
+            // marginHorizontal: 10,
             marginVertical: 5,
           }}
           >

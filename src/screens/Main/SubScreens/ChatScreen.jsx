@@ -23,6 +23,8 @@ const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
   const [socket, setSocket] = useState(null);
 
+  const [roomJoined, setRoomJoined] = useState(false);
+
   const [media, setMedia] = useState({});
   const [mediaSendFail, setMediaSendFail] = useState(false);
   const [showMediaSizeError, setShowMediaSizeError] = useState(false);
@@ -38,20 +40,22 @@ const ChatScreen = (props) => {
 
   const { chatUserId, existingChat } = props.route.params;
   const navigation = useNavigation();
-
   const createChat = async () => {
-    setShowError(false);
-    const { response, success } = await apiCall('POST', '/chat/new', { participants: [chatUserId] });
-    if (success) {
-      await setChat(response);
-    } else {
-      setShowError(true);
+    if (!existingChat) {
+      setShowError(false);
+      const { response, success } = await apiCall('POST', '/chat/new', { participants: [chatUserId] });
+      if (success) {
+        await setChat(response);
+        socket.emit('joinRoom', { chatId: response._id, userId: authInfo.senderId });
+      } else {
+        setShowError(true);
+      }
+      return response;
     }
-    return response;
   };
 
   const getChatMessages = async () => {
-    if (chat) {
+    if (chat && existingChat) {
       setShowError(false);
       const { response, success } = await apiCall('GET', `/chat/${chat._id}/messages/${messages.length}`);
       if (success) {
@@ -78,12 +82,22 @@ const ChatScreen = (props) => {
     setSocket(connection);
   };
 
+  // const joinRoom = async ({ chatId, userId }) => {
+  //   console.log('hey');
+  //   socket.emit('joinRoom', { chatId, userId });
+  //   socket.emit('sendMessage', { body: chatId, chatId, senderId: authInfo.senderId });
+  // };
+
   const handleMessage = async () => {
     if (socket.connected && !messages.length) {
-      await createChat().then(async (newChat) => {
-        socket.emit('joinRoom', { chatId: newChat?._id, userId: authInfo.senderId });
-        await handleMessageSend(newChat._id);
-      });
+      // await createChat().then(async (newChat) => {
+      //   if (!showError) {
+      //     await joinRoom({ chatId: newChat?._id, userId: authInfo.senderId }).then(async () => {
+      //       await handleMessageSend(newChat._id);
+      //     });
+      //   }
+      // });
+      await createChat();
       return;
     }
 
@@ -93,7 +107,7 @@ const ChatScreen = (props) => {
   };
 
   const handleMessageSend = async (chatId) => {
-    if (media?.uri && socket.connected) {
+    if (media?.uri && media?.type && socket.connected) {
       setMediaSending(true);
 
       const formData = new FormData();
@@ -109,8 +123,7 @@ const ChatScreen = (props) => {
       }
       const { response, success } = await apiCall('POST', '/files/upload', formData);
       if (success) {
-        await sendMessage({
-          socket,
+        socket.emit('sendMessage', {
           body: messageBody,
           chatId,
           senderId: authInfo.senderId,
@@ -118,6 +131,7 @@ const ChatScreen = (props) => {
           mediaType: media.type?.split('/')[0],
           mediaHeaders: response.fileHeaders,
         });
+
         setMessages([{
           body: messageBody,
           chatId,
@@ -132,15 +146,16 @@ const ChatScreen = (props) => {
         }, ...messages]);
         setMessageBody('');
         setMedia({});
+      } else {
+        setMediaSendFail(true);
+        setMediaSending(false);
+        setShowActions(false);
       }
-      setMediaSendFail(true);
-      setMediaSending(false);
-      setShowActions(false);
       return true;
     }
     if (socket.connected) {
-      await sendMessage({
-        socket, body: messageBody, chatId, senderId: authInfo.senderId,
+      socket.emit('sendMessage', {
+        body: messageBody, chatId, senderId: authInfo.senderId,
       });
       setMessages([{
         body: messageBody,
@@ -202,7 +217,7 @@ const ChatScreen = (props) => {
     if (isMounted) {
       (async () => {
         await initSocket();
-        if (chat && existingChat) {
+        if (chat) {
           await getChatMessages();
         }
 
@@ -221,6 +236,14 @@ const ChatScreen = (props) => {
       if (chat) {
         socket.emit('joinRoom', { chatId: chat?._id, userId: authInfo.senderId });
       }
+
+      socket.on('joinRoomSuccess', async ({ chatId }) => {
+        // if (!messages.length === 1) {}
+        if (messageBody || media?.uri) {
+          await handleMessageSend(chatId);
+        }
+      });
+
       socket.on('receiveMessage', ({
         body, chatId, senderId, user, mediaHeaders, mediaUrl, mediaType, stringDate, stringTime,
       }) => {
@@ -306,7 +329,7 @@ const ChatScreen = (props) => {
         onEndReached={() => getChatMessages()}
         onEndReachedThreshold={0.9}
         inverted
-        keyExtractor={(item) => item._id}
+        keyExtractor={(item, i) => item._id + i}
       />
 
       <View style={{

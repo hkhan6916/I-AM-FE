@@ -25,7 +25,10 @@ const ChatListScreen = () => {
     (async () => {
       await getUserChats();
     })();
-  }, []);
+    navigation.addListener('focus', async () => {
+      await getUserChats();
+    });
+  }, [navigation]);
   return (
     <View style={styles.container}>
       <Button title="New chat" onPress={() => navigation.navigate('CreateChatScreen')} />
