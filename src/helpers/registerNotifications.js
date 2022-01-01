@@ -6,6 +6,7 @@ import {
   AndroidImportance,
 } from 'expo-notifications';
 import { Platform } from 'react-native';
+import themeStyle from '../theme.style';
 
 const registerNotifications = async () => {
   if (Platform.OS === 'android') {
@@ -13,7 +14,7 @@ const registerNotifications = async () => {
       name: 'default',
       importance: AndroidImportance.DEFAULT, // TODO: LOOK INTO PRIORITY
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
+      lightColor: themeStyle.colors.primary.light,
     });
   }
 

@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   passwordInput: {
     flex: 1,
     fontSize: 15,
-    color: '#000',
+    color: themeStyle.colors.grayscale.black,
   },
   passwordInputContainer: {
     flexDirection: 'row',

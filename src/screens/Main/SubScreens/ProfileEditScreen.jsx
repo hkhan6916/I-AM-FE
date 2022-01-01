@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, TextInput, Text, TouchableOpacity,
-  Dimensions, ScrollView, ActivityIndicator, StyleSheet,
+  ScrollView, ActivityIndicator, StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Camera } from 'expo-camera';
@@ -19,6 +19,7 @@ const ProfileEditScreen = () => {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [jobTitle, setJobTitle] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
   const [initialProfileData, setInitialProfileData] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -31,19 +32,14 @@ const ProfileEditScreen = () => {
   const [recording, setRecording] = useState(false);
   const [recordingLength, setRecordingLength] = useState(15);
 
-  const { width: screenWidth } = Dimensions.get('window');
   const [faceDetected, setFaceDetected] = useState(false);
 
   const [profileVideo, setProfileVideo] = useState('');
-  const [profileVideoPlaying, setProfileVideoPlaying] = useState(false);
-  const profileVideoRef = useRef(null);
 
   const [registerationError, setRegisterationError] = useState('');
 
   const [searchInput, setSearchInput] = useState();
   const [results, setResults] = useState([]);
-  const [details, setDetails] = useState({});
-  const [successful, setSuccessful] = useState(false);
 
   const navigation = useNavigation();
 
@@ -64,6 +60,7 @@ const ProfileEditScreen = () => {
       email,
       password,
       username,
+      jobTitle,
       file: profileVideo ? {
         uri: profileVideo, name: 'profileVideo.mp4', type: 'video/mp4',
       } : null,
@@ -98,10 +95,11 @@ const ProfileEditScreen = () => {
     }
   };
 
-  const handleProfileUpdate = async () => {
-    const { success } = await apiCall('PATCH', '/user/update/profile', { details });
-
-    setSuccessful(success);
+  const checkUserExists = async (type, identifier) => {
+    const { response, success } = await apiCall('POST', '/user/check/exists', { type, identifier });
+    if (success && response[type]) {
+      setValidationErrors({ ...validationErrors, [type]: { exists: response[type].exists } });
+    }
   };
 
   useEffect(() => {
@@ -168,12 +166,13 @@ const ProfileEditScreen = () => {
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.formContainer}>
-          <View style={styles.searchSection}>
+          {/* <View style={styles.searchSection}>
             <Ionicons
               style={styles.searchIcon}
               name="search"
               size={12}
-              color={searchInput ? '#000' : '#b8b894'}
+              color={searchInput ? themeStyle.colors.grayscale.black
+                : themeStyle.colors.grayscale.lightGray}
             />
             <TextInput
               style={styles.searchBar}
@@ -186,52 +185,74 @@ const ProfileEditScreen = () => {
             {results.map((result) => (
               <Text>{result.title}</Text>
             ))}
-          </View>
-          <Text style={{ alignSelf: 'flex-start' }}>
-            Firstname
-          </Text>
-          <TextInput
-            style={styles.visibleTextInputs}
-            value={firstName || initialProfileData.firstName}
-            placeholder="FirstName..."
-            onChangeText={(v) => setFirstName(v)}
-          />
-          <TextInput
-            style={styles.visibleTextInputs}
-            value={lastName || initialProfileData.lastName}
-            placeholder="LastName..."
-            onChangeText={(v) => setLastName(v)}
-          />
-          <TextInput
-            style={styles.visibleTextInputs}
-            value={email || initialProfileData.email}
-            placeholder="Email..."
-            onChangeText={(v) => setEmail(v)}
-          />
-          <TextInput
-            style={[styles.visibleTextInputs, validationErrors.username && { borderColor: 'red' }]}
-            value={username || initialProfileData.username}
-            placeholder="Username..."
-            onChangeText={(v) => setUsername(v)}
-          />
-          <View style={styles.passwordInputContainer}>
+          </View> */}
+          <View style={styles.textInputContainer}>
+            <Text style={styles.label}>Job Title or Education</Text>
             <TextInput
-              style={styles.passwordInput}
-              placeholderTextColor={themeStyle.colors.grayscale.lightGray}
-              secureTextEntry={!showPassword}
-              autoCorrect={false}
-              placeholder="Update password..."
-              onChangeText={(v) => setPassword(v)}
+              style={styles.visibleTextInputs}
+              value={jobTitle}
+              onChangeText={(v) => setJobTitle(v)}
             />
-            <TouchableOpacity
-              style={styles.eyeIcon}
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <Ionicons
-                name={showPassword ? 'eye-outline' : 'eye-off-outline'}
-                size={19}
+          </View>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.label}>Firstname</Text>
+            <TextInput
+              style={styles.visibleTextInputs}
+              value={firstName}
+              onChangeText={(v) => setFirstName(v)}
+            />
+          </View>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.label}>Lastname</Text>
+            <TextInput
+              style={styles.visibleTextInputs}
+              value={lastName}
+              onChangeText={(v) => setLastName(v)}
+            />
+          </View>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={[styles.visibleTextInputs, validationErrors.email?.exists && { borderColor: 'red' }]}
+              value={email}
+              onChangeText={(v) => setEmail(v)}
+              onEndEditing={(e) => checkUserExists('email', e.nativeEvent.text)}
+            />
+            {validationErrors.email?.exists
+              ? <Text style={styles.errorText}>This email already exists</Text> : null}
+          </View>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.label}>Username</Text>
+            <TextInput
+              style={[styles.visibleTextInputs, validationErrors.username?.exists && { borderColor: 'red' }]}
+              value={username}
+              onChangeText={(v) => setUsername(v)}
+              onEndEditing={(e) => checkUserExists('username', e.nativeEvent.text)}
+            />
+            {validationErrors.username?.exists
+              ? <Text style={styles.errorText}>This username already exists</Text> : null}
+          </View>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.label}>Password</Text>
+            <View style={styles.passwordInputContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholderTextColor={themeStyle.colors.grayscale.lightGray}
+                secureTextEntry={!showPassword}
+                autoCorrect={false}
+                value={password}
+                onChangeText={(v) => setPassword(v)}
               />
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Ionicons
+                  name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                  size={19}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
           {(profileVideo && faceDetected)
            || (!profileVideo && initialProfileData.profileVideoHeaders
@@ -324,6 +345,10 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     alignItems: 'center',
   },
+  textInputContainer: {
+    alignSelf: 'stretch',
+    marginBottom: 20,
+  },
   registerationButton: {
     paddingVertical: 10,
     paddingHorizontal: 15,
@@ -349,12 +374,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
   },
+  errorText: {
+    fontSize: 12,
+    color: themeStyle.colors.error.default,
+  },
   visibleTextInputs: {
     fontSize: 15,
     height: 45,
     borderRadius: 5,
-    alignSelf: 'stretch',
-    marginVertical: 20,
     paddingHorizontal: 10,
     borderWidth: 2,
     borderColor: themeStyle.colors.primary.default,
@@ -368,9 +395,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 45,
     borderRadius: 5,
-    alignSelf: 'stretch',
-    marginVertical: 20,
+    marginBottom: 20,
     padding: 5,
+    paddingHorizontal: 8,
     borderWidth: 2,
     borderColor: themeStyle.colors.primary.default,
   },
@@ -380,7 +407,7 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     flex: 1,
-    color: '#000',
+    color: themeStyle.colors.grayscale.black,
   },
   searchSection: {
     flexDirection: 'row',

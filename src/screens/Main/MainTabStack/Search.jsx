@@ -5,6 +5,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import apiCall from '../../../helpers/apiCall';
 import UserThumbnail from '../../../components/UserThumbnail';
+import themeStyle from '../../../theme.style';
 
 const SearchScreen = () => {
   const [searchInput, setSearchInput] = useState();
@@ -47,7 +48,8 @@ const SearchScreen = () => {
           style={styles.searchIcon}
           name="search"
           size={12}
-          color={searchInput ? '#000' : '#b8b894'}
+          color={searchInput ? themeStyle.colors.grayscale.black
+            : themeStyle.colors.grayscale.lightGray}
         />
         <TextInput
           style={styles.searchBar}
@@ -79,7 +81,7 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     flex: 1,
-    color: '#000',
+    color: themeStyle.colors.grayscale.black,
   },
   searchSection: {
     flexDirection: 'row',

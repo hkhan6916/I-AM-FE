@@ -50,7 +50,7 @@ const PreviewVideo = ({ uri, headers }) => {
               borderWidth: 2,
               borderColor: themeStyle.colors.primary.default,
               borderRadius: 10,
-              backgroundColor: '#000',
+              backgroundColor: themeStyle.colors.grayscale.black,
               opacity: 0.5,
             }}
             >
@@ -60,7 +60,7 @@ const PreviewVideo = ({ uri, headers }) => {
                 fontSize: 20,
                 textAlign: 'center',
                 width: screenWidth / 1.5,
-                color: '#fff',
+                color: themeStyle.colors.grayscale.white,
               }}
               >
                 Tap to preview

@@ -18,7 +18,7 @@ const MainStack = () => (
   <Stack.Navigator
     screenOptions={{
       headerStyle: { elevation: 0 },
-      cardStyle: { backgroundColor: '#fff' },
+      cardStyle: { backgroundColor: themeStyle.colors.grayscale.white },
     }}
     initialRouteName="MainTabStack"
   >

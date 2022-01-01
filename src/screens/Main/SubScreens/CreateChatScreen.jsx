@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import apiCall from '../../../helpers/apiCall';
 import UserThumbnail from '../../../components/UserThumbnail';
+import themeStyle from '../../../theme.style';
 
 const CreateChatScreen = () => {
   const [friends, setFriends] = useState([]);
@@ -35,6 +36,12 @@ const CreateChatScreen = () => {
     }
   };
 
+  const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+    const paddingToBottom = 20;
+    return layoutMeasurement.height + contentOffset.y
+      >= contentSize.height - paddingToBottom;
+  };
+
   useEffect(() => {
     (async () => {
       await getUserFriends();
@@ -44,29 +51,26 @@ const CreateChatScreen = () => {
     <View style={styles.container}>
       {!error
         ? (
-          <ScrollView>
+          <ScrollView onScroll={({ nativeEvent }) => {
+            if (isCloseToBottom(nativeEvent)) {
+              getUserFriends();
+            }
+          }}
+          >
             {friends.map((friend) => (
               <TouchableOpacity
                 key={friend._id}
                 onPress={() => handleChatNavigation(friend._id)}
               >
-                <UserThumbnail preventClicks user={friend} avatarSize={50} />
+                <View style={{
+                  padding: 20,
+                }}
+                >
+                  <UserThumbnail preventClicks user={friend} avatarSize={50} />
+                </View>
               </TouchableOpacity>
             ))}
           </ScrollView>
-          // <FlatList
-          //   data={friends}
-          //   renderItem={({ item: friend }) => (
-          //     <TouchableOpacity
-          //       onPress={() => handleChatNavigation(friend._id)}
-          //     >
-          //       <UserThumbnail preventClicks user={friend} avatarSize={50} />
-          //     </TouchableOpacity>
-          //   )}
-          //   onEndReached={() => getUserFriends()}
-          //   onEndReachedThreshold={0.3}
-          //   keyExtractor={(item) => item._id}
-          // />
         )
         : (
           <View>

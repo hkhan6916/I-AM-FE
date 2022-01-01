@@ -250,7 +250,7 @@ const RegisterationScreen = () => {
                     borderWidth: 2,
                     borderColor: themeStyle.colors.primary.default,
                     borderRadius: 10,
-                    backgroundColor: '#000',
+                    backgroundColor: themeStyle.colors.grayscale.black,
                     opacity: 0.5,
                   }}
                   >
@@ -260,7 +260,7 @@ const RegisterationScreen = () => {
                       fontSize: 20,
                       textAlign: 'center',
                       width: screenWidth / 1.5,
-                      color: '#fff',
+                      color: themeStyle.colors.grayscale.white,
                     }}
                     >
                       Tap to preview
@@ -299,7 +299,7 @@ const RegisterationScreen = () => {
             disabled={!validateUserInformation()}
           >
             <Text style={styles.registerationButtonText}>
-              Submit
+              Sign Up
               {' '}
               <Ionicons
                 name="paper-plane-outline"

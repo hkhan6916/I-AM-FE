@@ -41,11 +41,14 @@ const ChatScreen = (props) => {
   const { chatUserId, existingChat } = props.route.params;
   const navigation = useNavigation();
   const createChat = async () => {
+    // If the chat doesn't exist, send request
     if (!existingChat) {
       setShowError(false);
       const { response, success } = await apiCall('POST', '/chat/new', { participants: [chatUserId] });
       if (success) {
-        await setChat(response);
+        setChat(response);
+        /* Wait for the chat creation and join the room. Should get
+        a joinRoomSuccess event from the backend */
         socket.emit('joinRoom', { chatId: response._id, userId: authInfo.senderId });
       } else {
         setShowError(true);
@@ -82,25 +85,15 @@ const ChatScreen = (props) => {
     setSocket(connection);
   };
 
-  // const joinRoom = async ({ chatId, userId }) => {
-  //   console.log('hey');
-  //   socket.emit('joinRoom', { chatId, userId });
-  //   socket.emit('sendMessage', { body: chatId, chatId, senderId: authInfo.senderId });
-  // };
-
   const handleMessage = async () => {
+    /* If first message, first create chat. The actual message will be sent on
+    the joinRoomSuccess event. */
     if (socket.connected && !messages.length) {
-      // await createChat().then(async (newChat) => {
-      //   if (!showError) {
-      //     await joinRoom({ chatId: newChat?._id, userId: authInfo.senderId }).then(async () => {
-      //       await handleMessageSend(newChat._id);
-      //     });
-      //   }
-      // });
       await createChat();
       return;
     }
 
+    // Not the first message, emit the message as standard
     if (socket.connected && chat?._id) {
       await handleMessageSend(chat._id);
     }
@@ -238,8 +231,8 @@ const ChatScreen = (props) => {
       }
 
       socket.on('joinRoomSuccess', async ({ chatId }) => {
-        // if (!messages.length === 1) {}
-        if (messageBody || media?.uri) {
+        /* This will send the message only if it's the first message */
+        if ((messageBody || media?.uri) && !existingChat) {
           await handleMessageSend(chatId);
         }
       });

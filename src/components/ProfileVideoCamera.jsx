@@ -278,7 +278,7 @@ const ProfileVideoCamera = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: themeStyle.colors.grayscale.black,
   },
   cameraBottomSection: {
     flex: 1,
