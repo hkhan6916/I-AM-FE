@@ -6,26 +6,27 @@ import { useNavigation } from '@react-navigation/native';
 import PostCommentCard from '../../../components/PostCommentCard';
 import apiCall from '../../../helpers/apiCall';
 import CommentTextInput from '../../../components/CommentTextInput';
+import ContentLoader from '../../../components/ContentLoader';
 
 const CommentsScreen = (props) => {
-  const isMounted = useRef(null);
-
   const { postId } = props.route.params;
 
   const [comments, setComments] = useState([]);
   const [replyingTo, setReplyingTo] = useState(null);
   const [allCommentsLoaded, setAllCommentsLoaded] = useState(false);
   const [newReply, setNewReply] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const navigation = useNavigation();
   const textInputRef = useRef();
 
   const getComments = async () => {
     if (!allCommentsLoaded) {
       const { response, success } = await apiCall('GET', `/posts/comments/${postId}/${comments.length}`);
-      if (success && isMounted.current) {
+      if (success) {
         if (!response.length) {
           setAllCommentsLoaded(true);
-        } else if (isMounted.current) {
+        } else {
           setComments([...comments, ...response]);
         }
       }
@@ -90,15 +91,40 @@ const CommentsScreen = (props) => {
   };
 
   useEffect(() => {
-    isMounted.current = true;
+    let isMounted = true;
     navigation.addListener('focus', async () => {
-      await getComments();
+      setLoading(true);
+      await apiCall('GET', `/posts/comments/${postId}/${comments.length}`).then(({ success, response }) => {
+        if (isMounted) {
+          setLoading(false);
+          if (success) {
+            if (!response.length) {
+              setAllCommentsLoaded(true);
+            } else {
+              setComments([...comments, ...response]);
+            }
+          }
+        }
+      });
     });
-    return () => { isMounted.current = false; };
+    return () => { isMounted = false; };
   }, [navigation]);
 
+  if (loading) {
+    return (
+      <View>
+        <ContentLoader active />
+        <ContentLoader active />
+        <ContentLoader active />
+        <ContentLoader active />
+        <ContentLoader active />
+        <ContentLoader active />
+        <ContentLoader active />
+      </View>
+    );
+  }
+
   return (
-    // <KeyboardAvoidingView></KeyboardAvoidingView>
     <SafeAreaView style={styles.container}>
       <ScrollView
         scrollEventThrottle={0}

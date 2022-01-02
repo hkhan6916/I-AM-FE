@@ -13,6 +13,7 @@ import FeedContext from '../../../Context';
 import PostCard from '../../../components/PostCard';
 import apiCall from '../../../helpers/apiCall';
 import Logo from '../../../../assets/Logo';
+import ContentLoader from '../../../components/ContentLoader';
 
 const { statusBarHeight } = Constants;
 
