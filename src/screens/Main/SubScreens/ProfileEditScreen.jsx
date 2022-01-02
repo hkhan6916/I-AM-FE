@@ -75,6 +75,7 @@ const ProfileEditScreen = () => {
 
     const formData = new FormData();
     Object.keys(payload).forEach((key) => {
+      // check if value is not null. Don't want to send null data to BE
       if (payload[key]) {
         formData.append(key, payload[key]);
       }
@@ -110,7 +111,6 @@ const ProfileEditScreen = () => {
 
   const checkUserExists = async (type, identifier) => {
     const { response, success } = await apiCall('POST', '/user/check/exists', { type, identifier, userId });
-    console.log(response);
 
     if (success && response[type]?.exists) {
       setValidationErrors({ ...validationErrors, [type]: { exists: response[type].exists } });
