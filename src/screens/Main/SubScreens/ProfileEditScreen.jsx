@@ -3,24 +3,29 @@ import {
   View, TextInput, Text, TouchableOpacity,
   ScrollView, ActivityIndicator, StyleSheet,
 } from 'react-native';
+import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
 import { Camera } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
+import { getItemAsync } from 'expo-secure-store';
 import themeStyle from '../../../theme.style';
 import apiCall from '../../../helpers/apiCall';
 import ProfileVideoCamera from '../../../components/ProfileVideoCamera';
 import PreviewVideo from '../../../components/PreviewVideo';
 
+const { statusBarHeight } = Constants;
 const ProfileEditScreen = () => {
   const [loading, setLoading] = useState(false);
 
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
+  const [userId, setUserId] = useState('');
+
+  const [email, setEmail] = useState(null);
+  const [username, setUsername] = useState(null);
   const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [jobTitle, setJobTitle] = useState('');
-  const [validationErrors, setValidationErrors] = useState({});
+  const [firstName, setFirstName] = useState(null);
+  const [lastName, setLastName] = useState(null);
+  const [jobTitle, setJobTitle] = useState(null);
+  const [validationErrors, setValidationErrors] = useState(null);
   const [initialProfileData, setInitialProfileData] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
@@ -37,6 +42,8 @@ const ProfileEditScreen = () => {
   const [profileVideo, setProfileVideo] = useState('');
 
   const [registerationError, setRegisterationError] = useState('');
+
+  const [showUpdatedPill, setShowUpdatedPill] = useState(false);
 
   const [searchInput, setSearchInput] = useState();
   const [results, setResults] = useState([]);
@@ -75,8 +82,14 @@ const ProfileEditScreen = () => {
     setLoading(true);
     const { success, message, other } = await apiCall('POST', '/user/update/profile', formData);
     setLoading(false);
+    if (success) {
+      setShowUpdatedPill(true);
+
+      setTimeout(() => {
+        setShowUpdatedPill(false);
+      }, 3000);
+    }
     if (!success) {
-      // if (validationFailure = { type: 'email', exists: true })
       if (other?.validationError) {
         setValidationErrors(other.validationErrors);
       } else {
@@ -96,14 +109,30 @@ const ProfileEditScreen = () => {
   };
 
   const checkUserExists = async (type, identifier) => {
-    const { response, success } = await apiCall('POST', '/user/check/exists', { type, identifier });
-    if (success && response[type]) {
+    const { response, success } = await apiCall('POST', '/user/check/exists', { type, identifier, userId });
+    console.log(response);
+
+    if (success && response[type]?.exists) {
       setValidationErrors({ ...validationErrors, [type]: { exists: response[type].exists } });
+    }
+
+    if (success && !response[type]?.exists && validationErrors) {
+      const updatedValidationErrors = validationErrors;
+      delete updatedValidationErrors[type];
+      if (!Object.keys(updatedValidationErrors).length) {
+        setValidationErrors(null);
+      } else {
+        setValidationErrors(updatedValidationErrors);
+      }
     }
   };
 
   useEffect(() => {
     (async () => {
+      const _userId = await getItemAsync('userId');
+
+      setUserId(_userId);
+
       const cameraStatus = await Camera.requestCameraPermissionsAsync();
       setHasCameraPermission(cameraStatus.status === 'granted');
       const audioStatus = await Camera.requestMicrophonePermissionsAsync();
@@ -138,14 +167,6 @@ const ProfileEditScreen = () => {
     }
   }, [cameraActivated]);
 
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color={themeStyle.colors.primary.default} />
-      </View>
-    );
-  }
-
   if (cameraActivated) {
     return (
       <ProfileVideoCamera
@@ -164,8 +185,54 @@ const ProfileEditScreen = () => {
 
   return (
     <View style={styles.container}>
+      {showUpdatedPill ? (
+        <Text style={styles.newPostPill}>Post created</Text>
+      ) : null}
       <ScrollView>
         <View style={styles.formContainer}>
+          {(profileVideo && faceDetected)
+           || (!profileVideo && initialProfileData.profileVideoHeaders
+            && initialProfileData.profileVideoUrl) ? (
+              <PreviewVideo
+                isFullWidth
+                uri={profileVideo
+                || initialProfileData?.profileVideoUrl}
+                headers={initialProfileData?.profileVideoHeaders}
+              />
+            ) : profileVideo ? (
+              <View>
+                <PreviewVideo
+                  isFullWidth
+                  uri={profileVideo}
+                />
+                <View style={styles.faceDetectionError}>
+                  <Text style={styles.faceDetectionErrorText}>
+                    No face detected. Make sure your
+                    face is shown at the start and end of
+                    your profile video.
+                  </Text>
+                  <TouchableOpacity onPress={() => setProfileVideo('')}>
+                    <Text style={styles.resetProfileVideoText}>
+                      Reset Profile Video
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )
+              : null}
+          <TouchableOpacity
+            style={styles.takeVideoButton}
+            onPress={() => { setFaceDetected(false); setCameraActivated(true); }}
+          >
+            <Text style={styles.takeVideoButtonText}>
+              <Ionicons
+                name="videocam"
+                size={14}
+              />
+              {' '}
+              Retake profile video
+            </Text>
+          </TouchableOpacity>
           {/* <View style={styles.searchSection}>
             <Ionicons
               style={styles.searchIcon}
@@ -190,7 +257,7 @@ const ProfileEditScreen = () => {
             <Text style={styles.label}>Job Title or Education</Text>
             <TextInput
               style={styles.visibleTextInputs}
-              value={jobTitle}
+              value={jobTitle !== null ? jobTitle : initialProfileData.jobTitle}
               onChangeText={(v) => setJobTitle(v)}
             />
           </View>
@@ -198,7 +265,7 @@ const ProfileEditScreen = () => {
             <Text style={styles.label}>Firstname</Text>
             <TextInput
               style={styles.visibleTextInputs}
-              value={firstName}
+              value={firstName !== null ? firstName : initialProfileData.firstName}
               onChangeText={(v) => setFirstName(v)}
             />
           </View>
@@ -206,30 +273,30 @@ const ProfileEditScreen = () => {
             <Text style={styles.label}>Lastname</Text>
             <TextInput
               style={styles.visibleTextInputs}
-              value={lastName}
+              value={lastName !== null ? lastName : initialProfileData.lastName}
               onChangeText={(v) => setLastName(v)}
             />
           </View>
           <View style={styles.textInputContainer}>
             <Text style={styles.label}>Email</Text>
             <TextInput
-              style={[styles.visibleTextInputs, validationErrors.email?.exists && { borderColor: 'red' }]}
-              value={email}
+              style={[styles.visibleTextInputs, validationErrors?.email?.exists && { borderColor: 'red' }]}
+              value={email !== null ? email : initialProfileData.email}
               onChangeText={(v) => setEmail(v)}
               onEndEditing={(e) => checkUserExists('email', e.nativeEvent.text)}
             />
-            {validationErrors.email?.exists
+            {validationErrors?.email?.exists
               ? <Text style={styles.errorText}>This email already exists</Text> : null}
           </View>
           <View style={styles.textInputContainer}>
             <Text style={styles.label}>Username</Text>
             <TextInput
-              style={[styles.visibleTextInputs, validationErrors.username?.exists && { borderColor: 'red' }]}
-              value={username}
+              style={[styles.visibleTextInputs, validationErrors?.username?.exists && { borderColor: 'red' }]}
+              value={username !== null ? username : initialProfileData.username}
               onChangeText={(v) => setUsername(v)}
               onEndEditing={(e) => checkUserExists('username', e.nativeEvent.text)}
             />
-            {validationErrors.username?.exists
+            {validationErrors?.username?.exists
               ? <Text style={styles.errorText}>This username already exists</Text> : null}
           </View>
           <View style={styles.textInputContainer}>
@@ -254,52 +321,22 @@ const ProfileEditScreen = () => {
               </TouchableOpacity>
             </View>
           </View>
-          {(profileVideo && faceDetected)
-           || (!profileVideo && initialProfileData.profileVideoHeaders
-            && initialProfileData.profileVideoUrl) ? (
-              <PreviewVideo
-                uri={profileVideo
-                || initialProfileData?.profileVideoUrl}
-                headers={initialProfileData?.profileVideoHeaders}
-              />
-            ) : profileVideo ? (
-              <View>
-                <PreviewVideo
-                  uri={profileVideo}
-                />
-                <Text style={styles.faceDetectionError}>
-                  No face detected. Make sure your
-                  face is shown at the start and end of
-                  your profile video.
-                </Text>
-              </View>
-            )
-              : null}
           <TouchableOpacity
-            style={styles.takeVideoButton}
-            onPress={() => { setFaceDetected(false); setCameraActivated(true); }}
-          >
-            <Text style={styles.takeVideoButtonText}>
-              <Ionicons
-                name="videocam"
-                size={14}
-              />
-              {' '}
-              Update profile video
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.registerationButton}
+            style={[styles.registerationButton, (profileVideo && !faceDetected) || validationErrors && { opacity: 0.5 }]}
             onPress={() => updateProfile()}
+            disabled={(profileVideo && !faceDetected) || validationErrors}
           >
-            <Text style={styles.registerationButtonText}>
-              Submit
-              {' '}
-              <Ionicons
-                name="paper-plane-outline"
-                size={14}
-              />
-            </Text>
+            {loading ? <ActivityIndicator size="small" color={themeStyle.colors.grayscale.white} />
+              : (
+                <Text style={[styles.registerationButtonText]}>
+                  Submit
+                  {' '}
+                  <Ionicons
+                    name="paper-plane-outline"
+                    size={14}
+                  />
+                </Text>
+              )}
           </TouchableOpacity>
           {registerationError
             ? <Text style={styles.registerationError}>{registerationError}</Text> : null}
@@ -314,8 +351,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: themeStyle.colors.grayscale.white,
   },
+  newPostPill: {
+    zIndex: 3, // works on ios
+    elevation: 3, // works on android
+    backgroundColor: themeStyle.colors.primary.default,
+    color: themeStyle.colors.grayscale.white,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    alignSelf: 'center',
+    position: 'absolute',
+    marginTop: statusBarHeight + 80,
+  },
   formContainer: {
-    padding: 20,
+    paddingHorizontal: 20,
     backgroundColor: themeStyle.colors.grayscale.white,
     alignItems: 'center',
     justifyContent: 'center',
@@ -329,10 +378,17 @@ const styles = StyleSheet.create({
     color: themeStyle.colors.error.default,
     fontWeight: '500',
   },
+  resetProfileVideoText: {
+    textAlign: 'center',
+  },
   faceDetectionError: {
+    marginVertical: 20,
+  },
+  faceDetectionErrorText: {
     color: themeStyle.colors.error.default,
     textAlign: 'center',
     fontWeight: '700',
+    marginBottom: 10,
   },
   buttonContainer: {
     flex: 1,
@@ -355,6 +411,7 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 50,
     backgroundColor: themeStyle.colors.primary.default,
+    width: 100,
   },
   registerationButtonText: {
     color: themeStyle.colors.grayscale.white,
@@ -373,6 +430,9 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 18,
     color: 'white',
+  },
+  label: {
+    fontWeight: '700',
   },
   errorText: {
     fontSize: 12,

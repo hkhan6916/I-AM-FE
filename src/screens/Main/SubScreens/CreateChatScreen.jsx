@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
   ScrollView, Text, View, StyleSheet, TouchableOpacity, FlatList,
@@ -8,6 +8,8 @@ import UserThumbnail from '../../../components/UserThumbnail';
 import themeStyle from '../../../theme.style';
 
 const CreateChatScreen = () => {
+  const isMounted = useRef(null);
+
   const [friends, setFriends] = useState([]);
   const [error, setError] = useState(false);
 
@@ -15,10 +17,12 @@ const CreateChatScreen = () => {
 
   const getUserFriends = async () => {
     const { success, response } = await apiCall('GET', `/user/friend/fetch/all/${friends.length}`);
-    if (success) {
-      setFriends(response);
-    } else {
-      setError(true);
+    if (isMounted.current) {
+      if (success) {
+        setFriends(response);
+      } else {
+        setError(true);
+      }
     }
   };
 
@@ -43,9 +47,11 @@ const CreateChatScreen = () => {
   };
 
   useEffect(() => {
+    isMounted.current = true;
     (async () => {
       await getUserFriends();
     })();
+    return () => { isMounted.current = false; };
   }, []);
   return (
     <View style={styles.container}>

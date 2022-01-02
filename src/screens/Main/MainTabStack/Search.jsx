@@ -11,7 +11,7 @@ const SearchScreen = () => {
   const [searchInput, setSearchInput] = useState();
   const [results, setResults] = useState([]);
   const [showAllResults, setShowAllResults] = useState(false);
-  const [test, setTest] = useState({
+  const [typingStatus, setTypingStatus] = useState({
     name: '',
     typing: false,
     typingTimeout: 0,
@@ -28,11 +28,11 @@ const SearchScreen = () => {
   };
 
   const searchUsers = (searchTerm) => {
-    if (test.typingTimeout) {
-      clearTimeout(test.typingTimeout);
+    if (typingStatus.typingTimeout) {
+      clearTimeout(typingStatus.typingTimeout);
     }
 
-    setTest({
+    setTypingStatus({
       name: searchTerm,
       typing: false,
       typingTimeout: setTimeout(() => {

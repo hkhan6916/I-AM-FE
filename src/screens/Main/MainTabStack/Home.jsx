@@ -2,7 +2,7 @@ import React, {
   useEffect, useContext, useState, useCallback,
 } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, SafeAreaView, StatusBar, FlatList,
+  View, Text, StyleSheet, RefreshControl, TouchableOpacity, SafeAreaView, StatusBar, FlatList,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
-  ScrollView, Text, View, StyleSheet, Button, TouchableOpacity,
+  ScrollView, Text, View, StyleSheet, TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Entypo } from '@expo/vector-icons';
@@ -11,16 +11,19 @@ import themeStyle from '../../../theme.style';
 const ChatListScreen = () => {
   const [chats, setChats] = useState([]);
   const [error, setError] = useState(false);
+  const isMounted = useRef(null);
 
   const navigation = useNavigation();
 
   const getUserChats = async () => {
-    setError(false);
     const { response, success } = await apiCall('GET', `/user/chats/${chats.length}`);
-    if (success) {
-      setChats(response);
-    } else {
-      setError(true);
+    if (isMounted.current) {
+      setError(false);
+      if (success) {
+        setChats(response);
+      } else if (isMounted.current) {
+        setError(true);
+      }
     }
   };
 
@@ -31,12 +34,15 @@ const ChatListScreen = () => {
   };
 
   useEffect(() => {
+    isMounted.current = true;
     (async () => {
       await getUserChats();
     })();
     navigation.addListener('focus', async () => {
       await getUserChats();
     });
+
+    return () => { isMounted.current = false; };
   }, [navigation]);
   return (
     <View style={styles.container}>

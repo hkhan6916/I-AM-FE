@@ -5,7 +5,7 @@ import {
 import { Video } from 'expo-av';
 import themeStyle from '../theme.style';
 
-const PreviewVideo = ({ uri, headers }) => {
+const PreviewVideo = ({ uri, headers, isFullWidth }) => {
   const { width: screenWidth } = Dimensions.get('window');
   const [profileVideoPlaying, setProfileVideoPlaying] = useState(false);
   const profileVideoRef = useRef(null);
@@ -24,11 +24,11 @@ const PreviewVideo = ({ uri, headers }) => {
               { scaleX: -1 },
             ],
             alignSelf: 'center',
-            width: screenWidth / 1.5,
-            height: (screenWidth * 1.33) / 1.5,
+            width: isFullWidth ? screenWidth : screenWidth / 1.5,
+            height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
             borderWidth: 2,
             borderColor: themeStyle.colors.primary.default,
-            borderRadius: 10,
+            borderRadius: isFullWidth ? 0 : 10,
           }}
           onPlaybackStatusUpdate={(status) => setProfileVideoPlaying(() => status)}
           ref={profileVideoRef}
@@ -45,11 +45,11 @@ const PreviewVideo = ({ uri, headers }) => {
               position: 'absolute',
               alignItems: 'center',
               justifyContent: 'center',
-              width: screenWidth / 1.5,
-              height: (screenWidth * 1.33) / 1.5,
+              width: isFullWidth ? screenWidth : screenWidth / 1.5,
+              height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
               borderWidth: 2,
               borderColor: themeStyle.colors.primary.default,
-              borderRadius: 10,
+              borderRadius: isFullWidth ? 0 : 10,
               backgroundColor: themeStyle.colors.grayscale.black,
               opacity: 0.5,
             }}

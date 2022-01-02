@@ -8,6 +8,8 @@ import apiCall from '../../../helpers/apiCall';
 import CommentTextInput from '../../../components/CommentTextInput';
 
 const CommentsScreen = (props) => {
+  const isMounted = useRef(null);
+
   const { postId } = props.route.params;
 
   const [comments, setComments] = useState([]);
@@ -20,10 +22,10 @@ const CommentsScreen = (props) => {
   const getComments = async () => {
     if (!allCommentsLoaded) {
       const { response, success } = await apiCall('GET', `/posts/comments/${postId}/${comments.length}`);
-      if (success) {
+      if (success && isMounted.current) {
         if (!response.length) {
           setAllCommentsLoaded(true);
-        } else {
+        } else if (isMounted.current) {
           setComments([...comments, ...response]);
         }
       }
@@ -88,11 +90,11 @@ const CommentsScreen = (props) => {
   };
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', async () => {
+    isMounted.current = true;
+    navigation.addListener('focus', async () => {
       await getComments();
     });
-
-    return unsubscribe;
+    return () => { isMounted.current = false; };
   }, [navigation]);
 
   return (
