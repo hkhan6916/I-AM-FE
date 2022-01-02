@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, TextInput, Text, TouchableOpacity,
-  ScrollView, ActivityIndicator, StyleSheet,
+  ScrollView, ActivityIndicator, StyleSheet, Dimensions,
 } from 'react-native';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
@@ -12,16 +12,18 @@ import themeStyle from '../../../theme.style';
 import apiCall from '../../../helpers/apiCall';
 import ProfileVideoCamera from '../../../components/ProfileVideoCamera';
 import PreviewVideo from '../../../components/PreviewVideo';
+import ContentLoader from '../../../components/ContentLoader';
 
 const { statusBarHeight } = Constants;
 const ProfileEditScreen = () => {
+  const { width: screenWidth } = Dimensions.get('window');
   const [loading, setLoading] = useState(false);
-
+  const [isUpdating, setIsUpdating] = useState(false);
   const [userId, setUserId] = useState('');
 
   const [email, setEmail] = useState(null);
   const [username, setUsername] = useState(null);
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState(null);
   const [firstName, setFirstName] = useState(null);
   const [lastName, setLastName] = useState(null);
   const [jobTitle, setJobTitle] = useState(null);
@@ -41,12 +43,9 @@ const ProfileEditScreen = () => {
 
   const [profileVideo, setProfileVideo] = useState('');
 
-  const [registerationError, setRegisterationError] = useState('');
+  const [updateError, setupdateError] = useState('');
 
   const [showUpdatedPill, setShowUpdatedPill] = useState(false);
-
-  const [searchInput, setSearchInput] = useState();
-  const [results, setResults] = useState([]);
 
   const navigation = useNavigation();
 
@@ -61,6 +60,9 @@ const ProfileEditScreen = () => {
   };
 
   const updateProfile = async () => {
+    setIsUpdating(true);
+    setupdateError('');
+
     const payload = {
       firstName,
       lastName,
@@ -74,39 +76,36 @@ const ProfileEditScreen = () => {
     };
 
     const formData = new FormData();
-    Object.keys(payload).forEach((key) => {
+    const validValues = Object.keys(payload).filter((key) => {
       // check if value is not null. Don't want to send null data to BE
       if (payload[key]) {
         formData.append(key, payload[key]);
       }
+      return payload[key];
     });
-    setLoading(true);
-    const { success, message, other } = await apiCall('POST', '/user/update/profile', formData);
-    setLoading(false);
-    if (success) {
-      setShowUpdatedPill(true);
 
-      setTimeout(() => {
-        setShowUpdatedPill(false);
-      }, 3000);
-    }
-    if (!success) {
-      if (other?.validationError) {
-        setValidationErrors(other.validationErrors);
-      } else {
-        setRegisterationError('Error, maybe network error.');
+    if (validValues.length) {
+      const {
+        success, other, response,
+      } = await apiCall('POST', '/user/update/profile', formData);
+      if (success) {
+        setShowUpdatedPill(true);
+
+        setTimeout(() => {
+          setShowUpdatedPill(false);
+        }, 3000);
+
+        setInitialProfileData(response);
+      }
+      if (!success) {
+        if (other?.validationErrors) {
+          setValidationErrors(other.validationErrors);
+        } else {
+          setupdateError('Error, maybe network error.');
+        }
       }
     }
-  };
-
-  const handleSearch = async (query) => {
-    setSearchInput(query);
-    const { response } = await apiCall('GET', `/jobs/search/${query}`);
-    if (response.length) {
-      setResults(response);
-    } else {
-      setResults([]);
-    }
+    setIsUpdating(false);
   };
 
   const checkUserExists = async (type, identifier) => {
@@ -129,6 +128,7 @@ const ProfileEditScreen = () => {
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
       const _userId = await getItemAsync('userId');
 
       setUserId(_userId);
@@ -138,19 +138,12 @@ const ProfileEditScreen = () => {
       const audioStatus = await Camera.requestMicrophonePermissionsAsync();
       setHasAudioPermission(audioStatus.status === 'granted');
 
-      setLoading(true);
       const { response, success } = await apiCall('GET', '/user/data');
       setLoading(false);
       if (success) {
         setInitialProfileData(
           response,
         );
-        // setEmail(response.email);
-        // setUsername(response.username);
-        // setFirstName(response.firstName);
-        // setLastName(response.lastName);
-        // setProfileVideo(response.profileVideoUrl);
-        // setProfileVideoHeaders(response.profileVideoHeaders);
       }
     })();
     return () => {
@@ -183,10 +176,25 @@ const ProfileEditScreen = () => {
     );
   }
 
+  if (loading) {
+    return (
+      <View>
+        <View style={{ width: screenWidth, height: screenWidth }}>
+          <ContentLoader active isProfileVideo />
+        </View>
+        <ContentLoader active isInput />
+        <ContentLoader active isInput />
+        <ContentLoader active isInput />
+        <ContentLoader active isInput />
+        <ContentLoader active isInput />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       {showUpdatedPill ? (
-        <Text style={styles.newPostPill}>Post created</Text>
+        <Text style={styles.newPostPill}>Profile Updated</Text>
       ) : null}
       <ScrollView>
         <View style={styles.formContainer}>
@@ -233,28 +241,11 @@ const ProfileEditScreen = () => {
               Retake profile video
             </Text>
           </TouchableOpacity>
-          {/* <View style={styles.searchSection}>
-            <Ionicons
-              style={styles.searchIcon}
-              name="search"
-              size={12}
-              color={searchInput ? themeStyle.colors.grayscale.black
-                : themeStyle.colors.grayscale.lightGray}
-            />
-            <TextInput
-              style={styles.searchBar}
-              placeholderTextColor="#b8b894"
-              autoCorrect={false}
-              placeholder="Search job titles..."
-              onChangeText={(v) => handleSearch(v)}
-              returnKeyType="search"
-            />
-            {results.map((result) => (
-              <Text>{result.title}</Text>
-            ))}
-          </View> */}
           <View style={styles.textInputContainer}>
-            <Text style={styles.label}>Job Title or Education</Text>
+            <Text style={styles.label}>
+              Job Title or Education
+              {' '}
+            </Text>
             <TextInput
               style={styles.visibleTextInputs}
               value={jobTitle !== null ? jobTitle : initialProfileData.jobTitle}
@@ -321,27 +312,26 @@ const ProfileEditScreen = () => {
               </TouchableOpacity>
             </View>
           </View>
-          <TouchableOpacity
-            style={[styles.registerationButton, (profileVideo && !faceDetected) || validationErrors && { opacity: 0.5 }]}
-            onPress={() => updateProfile()}
-            disabled={(profileVideo && !faceDetected) || validationErrors}
-          >
-            {loading ? <ActivityIndicator size="small" color={themeStyle.colors.grayscale.white} />
-              : (
-                <Text style={[styles.registerationButtonText]}>
-                  Submit
-                  {' '}
-                  <Ionicons
-                    name="paper-plane-outline"
-                    size={14}
-                  />
-                </Text>
-              )}
-          </TouchableOpacity>
-          {registerationError
-            ? <Text style={styles.registerationError}>{registerationError}</Text> : null}
+          {updateError
+            ? <Text style={styles.updateError}>{updateError}</Text> : null}
         </View>
       </ScrollView>
+      <View style={styles.submitButtonContainer}>
+        <TouchableOpacity
+          style={[styles.submitButton]}
+          onPress={() => updateProfile()}
+          // disabled={(profileVideo && !faceDetected) || validationErrors}
+        >
+          {isUpdating ? <ActivityIndicator size="large" color={themeStyle.colors.primary.default} />
+            : (
+              <Ionicons
+                name="checkmark"
+                size={30}
+                color={themeStyle.colors.primary.light}
+              />
+            )}
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -350,6 +340,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: themeStyle.colors.grayscale.white,
+  },
+  formContainer: {
+    paddingHorizontal: 20,
+    backgroundColor: themeStyle.colors.grayscale.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+    marginBottom: 50,
   },
   newPostPill: {
     zIndex: 3, // works on ios
@@ -361,19 +359,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignSelf: 'center',
     position: 'absolute',
-    marginTop: statusBarHeight + 80,
-  },
-  formContainer: {
-    paddingHorizontal: 20,
-    backgroundColor: themeStyle.colors.grayscale.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-    textAlign: 'center',
+    marginTop: statusBarHeight,
   },
   formHeader: {
     fontSize: 20,
   },
-  registerationError: {
+  updateError: {
     textAlign: 'center',
     color: themeStyle.colors.error.default,
     fontWeight: '500',
@@ -405,16 +396,23 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     marginBottom: 20,
   },
-  registerationButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    margin: 20,
-    borderRadius: 50,
-    backgroundColor: themeStyle.colors.primary.default,
-    width: 100,
+  submitButtonContainer: {
+    width: '100%',
+    backgroundColor: themeStyle.colors.grayscale.white,
+    position: 'absolute',
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 48,
+    zIndex: 1,
   },
-  registerationButtonText: {
-    color: themeStyle.colors.grayscale.white,
+  submitButton: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderTopWidth: 2,
+    borderColor: themeStyle.colors.grayscale.superLightGray,
   },
   takeVideoButton: {
     margin: 10,
@@ -441,10 +439,8 @@ const styles = StyleSheet.create({
   visibleTextInputs: {
     fontSize: 15,
     height: 45,
-    borderRadius: 5,
     paddingHorizontal: 10,
-    borderWidth: 2,
-    borderColor: themeStyle.colors.primary.default,
+    backgroundColor: themeStyle.colors.grayscale.superLightGray,
   },
   passwordInput: {
     flex: 1,
@@ -454,12 +450,10 @@ const styles = StyleSheet.create({
   passwordInputContainer: {
     flexDirection: 'row',
     height: 45,
-    borderRadius: 5,
     marginBottom: 20,
     padding: 5,
     paddingHorizontal: 8,
-    borderWidth: 2,
-    borderColor: themeStyle.colors.primary.default,
+    backgroundColor: themeStyle.colors.grayscale.superLightGray,
   },
   eyeIcon: {
     justifyContent: 'center',

@@ -18,7 +18,9 @@ const AVATAR_SIZE = {
 
 const ContentLoader = ({
   active,
-  animationDuration,
+  showAvatar,
+  isProfileVideo,
+  isInput,
   pHeight,
   pWidth,
   pRows,
@@ -27,9 +29,8 @@ const ContentLoader = ({
   tWidth,
   titleStyles,
   secondaryTitleStyles,
-  aShape,
   sTWidth,
-  aSize,
+  avatarSize,
   avatarStyles,
   reverse,
   containerStyles,
@@ -70,13 +71,55 @@ const ContentLoader = ({
     height: tHeight,
     width: sTWidth,
   };
+  const inputInitialStyles = {
+    height: 48,
+    width: '100%',
+    paddingHorizontal: 20,
+  };
   const avatarInitialStyles = {
-    height: AVATAR_SIZE[aSize] || aSize,
-    width: AVATAR_SIZE[aSize] || aSize,
-    borderRadius: aShape === 'circle' ? AVATAR_SIZE[aSize] / 2 || (aSize) / 2 : 3,
+    height: AVATAR_SIZE[avatarSize] || avatarSize,
+    width: AVATAR_SIZE[avatarSize] || avatarSize,
+    borderRadius: AVATAR_SIZE[avatarSize] / 2,
     marginRight: reverse ? 0 : 10,
     marginLeft: reverse ? 10 : 0,
   };
+  const profileVideoInitialStyles = {
+    height: '100%',
+    width: '100%',
+  };
+
+  if (isInput) {
+    return (
+      <View style={{ margin: 10 }}>
+        <Animated.View
+          style={[
+            styles.label,
+            { backgroundColor: interpolatedBackground },
+          ]}
+        />
+        <Animated.View
+          style={[
+            styles.input,
+            inputInitialStyles,
+            secondaryTitleStyles,
+            { backgroundColor: interpolatedBackground },
+          ]}
+        />
+      </View>
+    );
+  }
+
+  if (isProfileVideo) {
+    return (
+      <Animated.View
+        style={[
+          profileVideoInitialStyles,
+          avatarStyles,
+          { backgroundColor: interpolatedBackground },
+        ]}
+      />
+    );
+  }
   return [...Array(listSize)].map((_, index) => (
     <View key={index} style={{ width: '100%', marginVertical: 8 }}>
       <View
@@ -86,14 +129,18 @@ const ContentLoader = ({
           containerStyles,
         ]}
       >
-        <Animated.View
-          style={[
-            styles.avatar,
-            avatarInitialStyles,
-            avatarStyles,
-            { backgroundColor: interpolatedBackground },
-          ]}
-        />
+        {showAvatar
+          ? (
+            <Animated.View
+              style={[
+                styles.avatar,
+                avatarInitialStyles,
+                avatarStyles,
+                { backgroundColor: interpolatedBackground },
+              ]}
+            />
+          )
+          : null}
 
         <View style={styles.content}>
           <Animated.View
@@ -169,8 +216,14 @@ const styles = StyleSheet.create({
   paragraph: {
     marginVertical: 7,
     borderRadius: 3,
+    height: 10,
   },
-
+  label: {
+    marginVertical: 7,
+    width: 100,
+    borderRadius: 3,
+    height: 10,
+  },
   paragraphContainer: {
     paddingHorizontal: 12,
     marginTop: 10,

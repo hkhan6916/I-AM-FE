@@ -113,13 +113,13 @@ const CommentsScreen = (props) => {
   if (loading) {
     return (
       <View>
-        <ContentLoader active />
-        <ContentLoader active />
-        <ContentLoader active />
-        <ContentLoader active />
-        <ContentLoader active />
-        <ContentLoader active />
-        <ContentLoader active />
+        <ContentLoader active showAvatar />
+        <ContentLoader active showAvatar />
+        <ContentLoader active showAvatar />
+        <ContentLoader active showAvatar />
+        <ContentLoader active showAvatar />
+        <ContentLoader active showAvatar />
+        <ContentLoader active showAvatar />
       </View>
     );
   }
