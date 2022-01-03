@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, TextInput, Text, TouchableOpacity,
-  ScrollView, ActivityIndicator, StyleSheet, Dimensions,
+  ScrollView, ActivityIndicator, StyleSheet, Dimensions, Keyboard,
 } from 'react-native';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
@@ -46,6 +46,8 @@ const ProfileEditScreen = () => {
   const [updateError, setupdateError] = useState('');
 
   const [showUpdatedPill, setShowUpdatedPill] = useState(false);
+
+  const [scrollMargin, setScrollMargin] = useState(0);
 
   const navigation = useNavigation();
 
@@ -101,7 +103,7 @@ const ProfileEditScreen = () => {
         if (other?.validationErrors) {
           setValidationErrors(other.validationErrors);
         } else {
-          setupdateError('Error, maybe network error.');
+          setupdateError("Sorry, we couldn't update your details. Please check your connection and try again.");
         }
       }
     }
@@ -144,6 +146,8 @@ const ProfileEditScreen = () => {
         setInitialProfileData(
           response,
         );
+      } else {
+        setupdateError('An unexpected error ocurred. Please check your connection.');
       }
     })();
     return () => {
@@ -196,7 +200,7 @@ const ProfileEditScreen = () => {
       {showUpdatedPill ? (
         <Text style={styles.newPostPill}>Profile Updated</Text>
       ) : null}
-      <ScrollView>
+      <ScrollView style={{ marginBottom: 48 }}>
         <View style={styles.formContainer}>
           {(profileVideo && faceDetected)
            || (!profileVideo && initialProfileData.profileVideoHeaders
@@ -271,7 +275,11 @@ const ProfileEditScreen = () => {
           <View style={styles.textInputContainer}>
             <Text style={styles.label}>Email</Text>
             <TextInput
-              style={[styles.visibleTextInputs, validationErrors?.email?.exists && { borderColor: 'red' }]}
+              style={[styles.visibleTextInputs, validationErrors?.email?.exists && {
+                borderColor:
+                themeStyle.colors.error.default,
+                borderWidth: 2,
+              }]}
               value={email !== null ? email : initialProfileData.email}
               onChangeText={(v) => setEmail(v)}
               onEndEditing={(e) => checkUserExists('email', e.nativeEvent.text)}
@@ -282,7 +290,11 @@ const ProfileEditScreen = () => {
           <View style={styles.textInputContainer}>
             <Text style={styles.label}>Username</Text>
             <TextInput
-              style={[styles.visibleTextInputs, validationErrors?.username?.exists && { borderColor: 'red' }]}
+              style={[styles.visibleTextInputs, validationErrors?.username?.exists && {
+                borderColor:
+                themeStyle.colors.error.default,
+                borderWidth: 2,
+              }]}
               value={username !== null ? username : initialProfileData.username}
               onChangeText={(v) => setUsername(v)}
               onEndEditing={(e) => checkUserExists('username', e.nativeEvent.text)}

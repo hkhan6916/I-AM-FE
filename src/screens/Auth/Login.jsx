@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   },
   loginError: {
     textAlign: 'center',
-    color: 'red',
+    color: themeStyle.colors.error.default,
     fontWeight: '500',
   },
   loginButton: {

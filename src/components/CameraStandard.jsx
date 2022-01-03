@@ -276,7 +276,7 @@ const CameraStandard = ({
               <View style={{
                 borderWidth: 2,
                 borderRadius: 25,
-                borderColor: 'red',
+                borderColor: themeStyle.colors.error.default,
                 height: 50,
                 width: 50,
                 display: 'flex',
@@ -289,20 +289,20 @@ const CameraStandard = ({
                     <View style={{
                       borderWidth: 2,
                       borderRadius: 5,
-                      borderColor: 'red',
+                      borderColor: themeStyle.colors.error.default,
                       height: 25,
                       width: 25,
-                      backgroundColor: 'red',
+                      backgroundColor: themeStyle.colors.error.default,
                     }}
                     />
                   ) : (
                     <View style={{
                       borderWidth: 2,
                       borderRadius: 25,
-                      borderColor: 'red',
+                      borderColor: themeStyle.colors.error.default,
                       height: 40,
                       width: 40,
-                      backgroundColor: 'red',
+                      backgroundColor: themeStyle.colors.error.default,
                     }}
                     />
                   )}

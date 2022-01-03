@@ -15,6 +15,8 @@ import ProfileVideoCamera from '../../components/ProfileVideoCamera';
 const RegisterationScreen = () => {
   const [loading, setLoading] = useState(false);
 
+  const 
+
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -170,7 +172,7 @@ const RegisterationScreen = () => {
           <View style={styles.textInputContainer}>
             <Text style={styles.label}>Email</Text>
             <TextInput
-              style={[styles.visibleTextInputs, validationErrors.email?.exists && { borderColor: 'red' }]}
+              style={[styles.visibleTextInputs, validationErrors.email?.exists && { borderColor: themeStyle.colors.error.default }]}
               value={email}
               onChangeText={(v) => setEmail(v)}
               onEndEditing={(e) => checkUserExists('email', e.nativeEvent.text)}
@@ -181,7 +183,7 @@ const RegisterationScreen = () => {
           <View style={styles.textInputContainer}>
             <Text style={styles.label}>Username</Text>
             <TextInput
-              style={[styles.visibleTextInputs, validationErrors.username?.exists && { borderColor: 'red' }]}
+              style={[styles.visibleTextInputs, validationErrors.username?.exists && { borderColor: themeStyle.colors.error.default }]}
               value={username}
               onChangeText={(v) => setUsername(v)}
               onEndEditing={(e) => checkUserExists('username', e.nativeEvent.text)}
