@@ -8,7 +8,7 @@ import {
   startAnimationHelper,
   commonDefaultProps,
   paragraphInitialStyles,
-} from './shared';
+} from './helpers';
 
 const AVATAR_SIZE = {
   default: 70,

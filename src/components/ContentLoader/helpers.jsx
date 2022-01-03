@@ -19,8 +19,6 @@ export const startAnimationHelper = (animation, duration) => {
 
 export const getInterpolatedColor = (
   animation,
-  primaryColor,
-  secondaryColor,
 ) => animation.interpolate({
   inputRange: [0, 1],
   outputRange: [

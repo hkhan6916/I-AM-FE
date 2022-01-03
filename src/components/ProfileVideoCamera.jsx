@@ -12,7 +12,6 @@ import { EvilIcons, Ionicons } from '@expo/vector-icons';
 import * as FaceDetector from 'expo-face-detector';
 import { startActivityAsync, ActivityAction } from 'expo-intent-launcher';
 import Constants from 'expo-constants';
-import { useNavigation } from '@react-navigation/native';
 import themeStyle from '../theme.style';
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
