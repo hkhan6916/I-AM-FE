@@ -5,7 +5,9 @@ import {
 import { Video } from 'expo-av';
 import themeStyle from '../theme.style';
 
-const PreviewVideo = ({ uri, headers, isFullWidth }) => {
+const PreviewVideo = ({
+  uri, headers, isFullWidth, removeBorder,
+}) => {
   const { width: screenWidth } = Dimensions.get('window');
   const [profileVideoPlaying, setProfileVideoPlaying] = useState(false);
   const profileVideoRef = useRef(null);
@@ -26,7 +28,7 @@ const PreviewVideo = ({ uri, headers, isFullWidth }) => {
             alignSelf: 'center',
             width: isFullWidth ? screenWidth : screenWidth / 1.5,
             height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
-            borderWidth: 2,
+            borderWidth: removeBorder ? 0 : 2,
             borderColor: themeStyle.colors.primary.default,
             borderRadius: isFullWidth ? 0 : 10,
           }}
@@ -47,7 +49,7 @@ const PreviewVideo = ({ uri, headers, isFullWidth }) => {
               justifyContent: 'center',
               width: isFullWidth ? screenWidth : screenWidth / 1.5,
               height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
-              borderWidth: 2,
+              borderWidth: removeBorder ? 0 : 2,
               borderColor: themeStyle.colors.primary.default,
               borderRadius: isFullWidth ? 0 : 10,
               backgroundColor: themeStyle.colors.grayscale.black,

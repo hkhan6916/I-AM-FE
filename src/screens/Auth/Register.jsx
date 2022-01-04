@@ -15,8 +15,6 @@ import ProfileVideoCamera from '../../components/ProfileVideoCamera';
 const RegisterationScreen = () => {
   const [loading, setLoading] = useState(false);
 
-  const 
-
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -25,7 +23,6 @@ const RegisterationScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const [validationErrors, setValidationErrors] = useState({});
-  const [userCheckConfig, setUserCheckConfig] = useState({});
 
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [hasAudioPermission, setHasAudioPermission] = useState(null);
@@ -93,6 +90,7 @@ const RegisterationScreen = () => {
     });
     setLoading(true);
     const { success, message, other } = await apiCall('POST', '/user/register', formData);
+    console.log(message);
     if (success) {
       navigation.navigate('Login');
     } else if (other) {
@@ -170,26 +168,28 @@ const RegisterationScreen = () => {
             />
           </View>
           <View style={styles.textInputContainer}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={[styles.visibleTextInputs, validationErrors.email?.exists && { borderColor: themeStyle.colors.error.default }]}
-              value={email}
-              onChangeText={(v) => setEmail(v)}
-              onEndEditing={(e) => checkUserExists('email', e.nativeEvent.text)}
-            />
-            {validationErrors.email?.exists
-              ? <Text style={styles.errorText}>This email already exists</Text> : null}
-          </View>
-          <View style={styles.textInputContainer}>
             <Text style={styles.label}>Username</Text>
             <TextInput
-              style={[styles.visibleTextInputs, validationErrors.username?.exists && { borderColor: themeStyle.colors.error.default }]}
+              style={[styles.visibleTextInputs, validationErrors.username?.exists
+                && { borderColor: themeStyle.colors.error.default }]}
               value={username}
               onChangeText={(v) => setUsername(v)}
               onEndEditing={(e) => checkUserExists('username', e.nativeEvent.text)}
             />
             {validationErrors.username?.exists
               ? <Text style={styles.errorText}>This username already exists</Text> : null}
+          </View>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={[styles.visibleTextInputs, validationErrors.email?.exists
+                && { borderColor: themeStyle.colors.error.default }]}
+              value={email}
+              onChangeText={(v) => setEmail(v)}
+              onEndEditing={(e) => checkUserExists('email', e.nativeEvent.text)}
+            />
+            {validationErrors.email?.exists
+              ? <Text style={styles.errorText}>This email already exists</Text> : null}
           </View>
           <View style={styles.textInputContainer}>
             <Text style={styles.label}>Password</Text>

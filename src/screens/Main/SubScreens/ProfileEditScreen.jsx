@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, TextInput, Text, TouchableOpacity,
-  ScrollView, ActivityIndicator, StyleSheet, Dimensions, Keyboard,
+  ScrollView, ActivityIndicator, StyleSheet, Dimensions,
 } from 'react-native';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
@@ -206,6 +206,7 @@ const ProfileEditScreen = () => {
            || (!profileVideo && initialProfileData.profileVideoHeaders
             && initialProfileData.profileVideoUrl) ? (
               <PreviewVideo
+                removeBorder
                 isFullWidth
                 uri={profileVideo
                 || initialProfileData?.profileVideoUrl}
@@ -214,6 +215,7 @@ const ProfileEditScreen = () => {
             ) : profileVideo ? (
               <View>
                 <PreviewVideo
+                  removeBorder
                   isFullWidth
                   uri={profileVideo}
                 />
@@ -273,26 +275,11 @@ const ProfileEditScreen = () => {
             />
           </View>
           <View style={styles.textInputContainer}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={[styles.visibleTextInputs, validationErrors?.email?.exists && {
-                borderColor:
-                themeStyle.colors.error.default,
-                borderWidth: 2,
-              }]}
-              value={email !== null ? email : initialProfileData.email}
-              onChangeText={(v) => setEmail(v)}
-              onEndEditing={(e) => checkUserExists('email', e.nativeEvent.text)}
-            />
-            {validationErrors?.email?.exists
-              ? <Text style={styles.errorText}>This email already exists</Text> : null}
-          </View>
-          <View style={styles.textInputContainer}>
             <Text style={styles.label}>Username</Text>
             <TextInput
               style={[styles.visibleTextInputs, validationErrors?.username?.exists && {
                 borderColor:
-                themeStyle.colors.error.default,
+                      themeStyle.colors.error.default,
                 borderWidth: 2,
               }]}
               value={username !== null ? username : initialProfileData.username}
@@ -301,6 +288,20 @@ const ProfileEditScreen = () => {
             />
             {validationErrors?.username?.exists
               ? <Text style={styles.errorText}>This username already exists</Text> : null}
+          </View>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={[styles.visibleTextInputs, validationErrors?.email?.exists && {
+                borderColor: themeStyle.colors.error.default,
+                borderWidth: 2,
+              }]}
+              value={email !== null ? email : initialProfileData.email}
+              onChangeText={(v) => setEmail(v)}
+              onEndEditing={(e) => checkUserExists('email', e.nativeEvent.text)}
+            />
+            {validationErrors?.email?.exists
+              ? <Text style={styles.errorText}>This email already exists</Text> : null}
           </View>
           <View style={styles.textInputContainer}>
             <Text style={styles.label}>Password</Text>
