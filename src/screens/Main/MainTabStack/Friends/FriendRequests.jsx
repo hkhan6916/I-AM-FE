@@ -40,40 +40,6 @@ const FriendRequestsScreen = () => {
     };
   }, [navigation]);
 
-  useEffect(() => {
-    (async () => {
-      friendRequestsSent.forEach((request) => {
-        if (!userData.state?.friendRequestsSent?.includes(request._id)) {
-          const array = friendRequestsSent; // make a separate copy of the array
-          const index = array.indexOf(request);
-          if (index !== -1) {
-            array.splice(index, 1);
-            setFriendRequestsSent(array);
-          }
-        }
-      });
-      if (userData.state.friendRequestsSent.length > friendRequestsReceived.length) {
-        await getFriendRequests();
-      }
-      friendRequestsReceived.forEach((request) => {
-        if (!userData.state?.friendRequestsReceived?.includes(request._id)) {
-          const array = friendRequestsReceived; // make a separate copy of the array
-          const index = array.indexOf(request);
-          if (index !== -1) {
-            array.splice(index, 1);
-            setFriendRequestsReceived(array);
-          }
-        }
-      });
-      if (userData.state.friendRequestsReceived.length > friendRequestsReceived.length) {
-        await getFriendRequests();
-      }
-    })();
-    return () => {
-      setFriendRequestsReceived([]);
-      setFriendRequestsSent([]);
-    };
-  }, [userData]);
   return (
     <View style={styles.container}>
       <View style={styles.tabsContainer}>
