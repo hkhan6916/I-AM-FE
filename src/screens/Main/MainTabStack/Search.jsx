@@ -1,25 +1,25 @@
-import React, { useState } from 'react';
-import {
-  View, TextInput, StyleSheet, SafeAreaView,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import apiCall from '../../../helpers/apiCall';
-import UserThumbnail from '../../../components/UserThumbnail';
-import themeStyle from '../../../theme.style';
+import React, { useState } from "react";
+import { View, TextInput, StyleSheet, SafeAreaView } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import apiCall from "../../../helpers/apiCall";
+import UserThumbnail from "../../../components/UserThumbnail";
+import themeStyle from "../../../theme.style";
 
 const SearchScreen = () => {
   const [searchInput, setSearchInput] = useState();
   const [results, setResults] = useState([]);
   const [showAllResults, setShowAllResults] = useState(false);
   const [typingStatus, setTypingStatus] = useState({
-    name: '',
+    name: "",
     typing: false,
     typingTimeout: 0,
   });
 
   const handleSearch = async (searchTerm) => {
-    setSearchInput(searchTerm);
-    const { response } = await apiCall('POST', `/user/search/${results.length}`, { searchTerm });
+    const { response } = await apiCall("POST", `/user/search/0`, {
+      searchTerm,
+    });
+    console.log(searchTerm, response);
     if (response.length) {
       setResults(response);
     } else {
@@ -27,17 +27,29 @@ const SearchScreen = () => {
     }
   };
 
+  const loadMore = async (searchTerm) => {
+    const { response } = await apiCall(
+      "POST",
+      `/user/search/${results.length}`,
+      { searchTerm }
+    );
+    console.log(searchTerm, response);
+    if (response.length) {
+      setResults([...results, ...response]);
+    }
+  };
+
   const searchUsers = (searchTerm) => {
     if (typingStatus.typingTimeout) {
       clearTimeout(typingStatus.typingTimeout);
     }
-
+    setSearchInput(searchTerm);
     setTypingStatus({
       name: searchTerm,
       typing: false,
       typingTimeout: setTimeout(() => {
         handleSearch(searchTerm);
-      }, 500),
+      }, 250),
     });
   };
 
@@ -48,8 +60,11 @@ const SearchScreen = () => {
           style={styles.searchIcon}
           name="search"
           size={12}
-          color={searchInput ? themeStyle.colors.grayscale.black
-            : themeStyle.colors.grayscale.lightGray}
+          color={
+            searchInput
+              ? themeStyle.colors.grayscale.black
+              : themeStyle.colors.grayscale.lightGray
+          }
         />
         <TextInput
           style={styles.searchBar}
@@ -68,7 +83,11 @@ const SearchScreen = () => {
       </View>
       <View>
         {results.map((user) => (
-          <UserThumbnail key={user._id} user={user} avatarSize={showAllResults ? 70 : 55} />
+          <UserThumbnail
+            key={user._id}
+            user={user}
+            avatarSize={showAllResults ? 70 : 55}
+          />
         ))}
       </View>
     </SafeAreaView>
@@ -84,7 +103,7 @@ const styles = StyleSheet.create({
     color: themeStyle.colors.grayscale.black,
   },
   searchSection: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   searchIcon: {
     padding: 10,

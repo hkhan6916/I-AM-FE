@@ -1,27 +1,32 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, RefreshControl,
-} from 'react-native';
-import Constants from 'expo-constants';
-import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
-import themeStyle from '../../../../theme.style';
-import apiCall from '../../../../helpers/apiCall';
-import UserThumbnail from '../../../../components/UserThumbnail';
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
+import Constants from "expo-constants";
+import { useNavigation } from "@react-navigation/native";
+import { useSelector } from "react-redux";
+import themeStyle from "../../../../theme.style";
+import apiCall from "../../../../helpers/apiCall";
+import UserThumbnail from "../../../../components/UserThumbnail";
 
 const FriendRequestsScreen = () => {
-  const [currentTab, setCurrentTab] = useState('received');
+  const [currentTab, setCurrentTab] = useState("received");
   const [friendRequestsReceived, setFriendRequestsReceived] = useState([]);
   const [friendRequestsSent, setFriendRequestsSent] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
-  const userData = useSelector((state) => state.userData);
 
   const getFriendRequests = async () => {
-    const { success, response } = await apiCall('GET', '/user/friend/requests');
+    const { success, response } = await apiCall("GET", "/user/friend/requests");
+
     if (success) {
-      setFriendRequestsReceived(response.received);
-      setFriendRequestsSent(response.sent);
+      setFriendRequestsReceived(response.received || {});
+      setFriendRequestsSent(response.sent || {});
     }
   };
 
@@ -31,7 +36,7 @@ const FriendRequestsScreen = () => {
   }, []);
 
   useEffect(() => {
-    navigation.addListener('focus', async () => {
+    navigation.addListener("focus", async () => {
       await getFriendRequests();
     });
     return () => {
@@ -44,33 +49,40 @@ const FriendRequestsScreen = () => {
     <View style={styles.container}>
       <View style={styles.tabsContainer}>
         <TouchableOpacity
-          style={[styles.requestsTab,
-            currentTab === 'received' && styles.activeTab]}
-          onPress={() => setCurrentTab('received')}
+          style={[
+            styles.requestsTab,
+            currentTab === "received" && styles.activeTab,
+          ]}
+          onPress={() => setCurrentTab("received")}
         >
           <Text style={styles.requestsTabText}>Received</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.requestsTab,
-            currentTab === 'sent' && styles.activeTab]}
-          onPress={() => setCurrentTab('sent')}
+          style={[
+            styles.requestsTab,
+            currentTab === "sent" && styles.activeTab,
+          ]}
+          onPress={() => setCurrentTab("sent")}
         >
           <Text style={styles.requestsTabText}>Sent</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView refreshControl={(
-        <RefreshControl
-          onRefresh={onRefresh}
-          refreshing={refreshing}
-        />
-        )}
+      <ScrollView
+        refreshControl={
+          <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+        }
       >
-        {currentTab === 'received' ? friendRequestsReceived.map((received) => (
-          <UserThumbnail avatarSize={50} key={received._id} user={received} />
-        ))
+        {currentTab === "received"
+          ? friendRequestsReceived.map((received) => (
+              <UserThumbnail
+                avatarSize={50}
+                key={received._id}
+                user={received}
+              />
+            ))
           : friendRequestsSent.map((sent) => (
-            <UserThumbnail avatarSize={50} key={sent._id} user={sent} />
-          ))}
+              <UserThumbnail avatarSize={50} key={sent._id} user={sent} />
+            ))}
       </ScrollView>
     </View>
   );
@@ -85,18 +97,18 @@ const styles = StyleSheet.create({
     borderBottomColor: themeStyle.colors.secondary.default,
   },
   tabsContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     backgroundColor: themeStyle.colors.grayscale.lightGray,
   },
   requestsTab: {
     marginHorizontal: 10,
     height: 50,
-    alignSelf: 'flex-end',
-    justifyContent: 'center',
+    alignSelf: "flex-end",
+    justifyContent: "center",
     paddingHorizontal: 10,
   },
   requestsTabText: {
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });
 

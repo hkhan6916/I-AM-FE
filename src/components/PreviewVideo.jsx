@@ -1,38 +1,37 @@
-import React, { useState, useRef } from 'react';
-import {
-  View, Text, TouchableOpacity, Dimensions,
-} from 'react-native';
-import { Video } from 'expo-av';
-import themeStyle from '../theme.style';
+import React, { useState, useRef } from "react";
+import { View, Text, TouchableOpacity, Dimensions } from "react-native";
+import { Video } from "expo-av";
+import themeStyle from "../theme.style";
 
-const PreviewVideo = ({
-  uri, headers, isFullWidth, removeBorder,
-}) => {
-  const { width: screenWidth } = Dimensions.get('window');
+const PreviewVideo = ({ uri, headers, isFullWidth, removeBorder }) => {
+  const { width: screenWidth } = Dimensions.get("window");
   const [profileVideoPlaying, setProfileVideoPlaying] = useState(false);
   const profileVideoRef = useRef(null);
   return (
     <View>
       <TouchableOpacity
         style={{
-          alignSelf: 'center',
+          alignSelf: "center",
         }}
-        onPress={() => (profileVideoPlaying.isPlaying
-          ? profileVideoRef.current.pauseAsync() : profileVideoRef.current.playAsync())}
+        onPress={() =>
+          profileVideoPlaying.isPlaying
+            ? profileVideoRef.current.pauseAsync()
+            : profileVideoRef.current.playAsync()
+        }
       >
         <Video
           style={{
-            transform: [
-              { scaleX: -1 },
-            ],
-            alignSelf: 'center',
+            transform: [{ scaleX: -1 }],
+            alignSelf: "center",
             width: isFullWidth ? screenWidth : screenWidth / 1.5,
             height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
             borderWidth: removeBorder ? 0 : 2,
             borderColor: themeStyle.colors.primary.default,
             borderRadius: isFullWidth ? 0 : 10,
           }}
-          onPlaybackStatusUpdate={(status) => setProfileVideoPlaying(() => status)}
+          onPlaybackStatusUpdate={(status) =>
+            setProfileVideoPlaying(() => status)
+          }
           ref={profileVideoRef}
           source={{
             uri,
@@ -41,12 +40,12 @@ const PreviewVideo = ({
           isLooping
           resizeMode="cover"
         />
-        {!profileVideoPlaying.isPlaying
-          ? (
-            <View style={{
-              position: 'absolute',
-              alignItems: 'center',
-              justifyContent: 'center',
+        {!profileVideoPlaying.isPlaying ? (
+          <View
+            style={{
+              position: "absolute",
+              alignItems: "center",
+              justifyContent: "center",
               width: isFullWidth ? screenWidth : screenWidth / 1.5,
               height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
               borderWidth: removeBorder ? 0 : 2,
@@ -55,21 +54,21 @@ const PreviewVideo = ({
               backgroundColor: themeStyle.colors.grayscale.black,
               opacity: 0.5,
             }}
-            >
-              <Text style={{
+          >
+            <Text
+              style={{
                 flex: 1,
-                position: 'absolute',
+                position: "absolute",
                 fontSize: 20,
-                textAlign: 'center',
+                textAlign: "center",
                 width: screenWidth / 1.5,
                 color: themeStyle.colors.grayscale.white,
               }}
-              >
-                Tap to preview
-              </Text>
-            </View>
-          )
-          : null}
+            >
+              Tap to preview
+            </Text>
+          </View>
+        ) : null}
       </TouchableOpacity>
     </View>
   );

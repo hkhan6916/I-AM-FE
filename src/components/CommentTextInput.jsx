@@ -1,36 +1,35 @@
-import React, { useState, forwardRef } from 'react';
+import React, { useState, forwardRef } from "react";
 import {
-  TextInput, Text, View, TouchableOpacity, StyleSheet,
-} from 'react-native';
-import themeStyle from '../theme.style';
+  TextInput,
+  Text,
+  View,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import themeStyle from "../theme.style";
 
 const CommentTextInput = forwardRef((props, ref) => {
-  const [commentBody, setCommentBody] = useState('');
+  const [commentBody, setCommentBody] = useState("");
   const undoReply = () => {
     props.setReplyingTo(null);
-    setCommentBody('');
+    setCommentBody("");
   };
   const handleSubmit = async () => {
     const success = await props.submitAction(commentBody);
 
     if (success) {
       props.setReplyingTo(null);
-      setCommentBody('');
+      setCommentBody("");
     }
   };
-  const replyingToFieldsExists = props.replyingTo
-  && props.replyingTo.firstName
-  && props.replyingTo.lastName;
+  const replyingToFieldsExists =
+    props.replyingTo && props.replyingTo.firstName && props.replyingTo.lastName;
   return (
     <View>
       {replyingToFieldsExists ? (
         <View style={styles.replyingToBanner}>
           <Text style={styles.replyingToBannerText}>
-            Replying to
-            {' '}
-            {props.replyingTo.firstName}
-            {' '}
-            {props.replyingTo.lastName}
+            Replying to {props.replyingTo.firstName} {props.replyingTo.lastName}
           </Text>
           <TouchableOpacity onPress={() => undoReply()}>
             <Text>Undo</Text>
@@ -41,7 +40,11 @@ const CommentTextInput = forwardRef((props, ref) => {
         <TextInput
           ref={ref}
           style={styles.inputBox}
-          placeholder={replyingToFieldsExists ? 'Type a reply here...' : 'Type a comment here...'}
+          placeholder={
+            replyingToFieldsExists
+              ? "Type a reply here..."
+              : "Type a comment here..."
+          }
           value={commentBody}
           onChangeText={(v) => setCommentBody(v)}
           returnKeyType="go"
@@ -53,28 +56,31 @@ const CommentTextInput = forwardRef((props, ref) => {
     </View>
   );
 });
+
+CommentTextInput.displayName = "CommentTextInput";
 const styles = StyleSheet.create({
   inputBox: {
-    height: 48, flex: 1,
+    height: 48,
+    flex: 1,
   },
   inputBoxContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
     paddingHorizontal: 10,
     borderWidth: 0.5,
     borderColor: themeStyle.colors.grayscale.lightGray,
   },
   postTrigger: {
     color: themeStyle.colors.secondary.default,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   replyingToBanner: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
     padding: 10,
     backgroundColor: themeStyle.colors.grayscale.lightGray,
   },
