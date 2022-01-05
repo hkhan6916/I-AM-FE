@@ -13,8 +13,8 @@ const Input = ({ label, value, onChangeText, error, onEndEditing }) => {
           },
         ]}
         value={value}
-        onChangeText={(v) => onChangeText(v)}
-        onEndEditing={(e) => onEndEditing(e)}
+        onChangeText={onChangeText ? (v) => onChangeText(v) : null}
+        onEndEditing={onEndEditing ? (e) => onEndEditing(e) : null}
       />
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>

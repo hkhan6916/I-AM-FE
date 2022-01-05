@@ -33,7 +33,7 @@ const SearchScreen = () => {
       `/user/search/${results.length}`,
       { searchTerm }
     );
-    console.log(searchTerm, response);
+
     if (response.length) {
       setResults([...results, ...response]);
     }

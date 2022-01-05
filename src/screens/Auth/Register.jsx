@@ -174,9 +174,9 @@ const RegisterationScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView style={{ marginBottom: 48 }}>
         <View style={styles.formContainer}>
-          <Text style={styles.formHeader}>I AM Sign Up</Text>
+          <Text style={styles.signupText}>SIGN UP</Text>
           <Input
             label="First Name"
             value={firstName}
@@ -347,9 +347,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     textAlign: "center",
   },
-  formHeader: {
-    fontSize: 20,
-  },
   registerationError: {
     textAlign: "center",
     color: themeStyle.colors.error.default,
@@ -434,5 +431,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 5,
   },
+  signupText: {
+    padding: 20,
+    fontSize: 30,
+    color: themeStyle.colors.primary.default,
+    fontWeight: "700",
+  },
 });
-export default RegisterationScreen;
+export default React.memo(RegisterationScreen);

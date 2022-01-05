@@ -1,12 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
-import {
-  View, StyleSheet, ScrollView, SafeAreaView,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import PostCommentCard from '../../../components/PostCommentCard';
-import apiCall from '../../../helpers/apiCall';
-import CommentTextInput from '../../../components/CommentTextInput';
-import ContentLoader from '../../../components/ContentLoader';
+import React, { useEffect, useState, useRef } from "react";
+import { View, StyleSheet, ScrollView, SafeAreaView } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import PostCommentCard from "../../../components/PostCommentCard";
+import apiCall from "../../../helpers/apiCall";
+import CommentTextInput from "../../../components/CommentTextInput";
+import ContentLoader from "../../../components/ContentLoader";
 
 const CommentsScreen = (props) => {
   const { postId } = props.route.params;
@@ -22,7 +20,10 @@ const CommentsScreen = (props) => {
 
   const getComments = async () => {
     if (!allCommentsLoaded) {
-      const { response, success } = await apiCall('GET', `/posts/comments/${postId}/${comments.length}`);
+      const { response, success } = await apiCall(
+        "GET",
+        `/posts/comments/${postId}/${comments.length}`
+      );
       if (success) {
         if (!response.length) {
           setAllCommentsLoaded(true);
@@ -35,15 +36,20 @@ const CommentsScreen = (props) => {
 
   const postComment = async (commentBody) => {
     if (replyingTo && replyingTo.commentId) {
-      const { response, success, message } = await apiCall('POST', '/posts/comments/replies/add', {
-        commentId: replyingTo.commentId,
-        body: commentBody,
-      });
+      const { response, success, message } = await apiCall(
+        "POST",
+        "/posts/comments/replies/add",
+        {
+          commentId: replyingTo.commentId,
+          body: commentBody,
+        }
+      );
       if (success) {
         console.log(message);
         response.age = { minutes: 1 };
         setNewReply({
-          replyingToObj: replyingTo.replyingToType === 'reply' ? replyingTo : null,
+          replyingToObj:
+            replyingTo.replyingToType === "reply" ? replyingTo : null,
           replyingToId: replyingTo.commentId,
           belongsToUser: true,
           ...response,
@@ -51,7 +57,7 @@ const CommentsScreen = (props) => {
       }
       return success;
     }
-    const { response, success } = await apiCall('POST', '/posts/comments/add', {
+    const { response, success } = await apiCall("POST", "/posts/comments/add", {
       postId,
       body: commentBody,
     });
@@ -65,49 +71,68 @@ const CommentsScreen = (props) => {
   };
 
   const replyToUser = async ({
-    commentId, firstName, lastName, replyingToType,
+    commentId,
+    firstName,
+    lastName,
+    replyingToType,
   }) => {
     if (firstName && lastName && commentId && replyingToType) {
-      if (replyingToType === 'reply') {
+      if (replyingToType === "reply") {
         textInputRef.current.focus();
         setReplyingTo({
-          lastName, firstName, commentId, replyingToType,
+          lastName,
+          firstName,
+          commentId,
+          replyingToType,
         });
       }
 
-      if (replyingToType === 'comment') {
+      if (replyingToType === "comment") {
         textInputRef.current.focus();
         setReplyingTo({
-          lastName, firstName, commentId, replyingToType,
+          lastName,
+          firstName,
+          commentId,
+          replyingToType,
         });
       }
     }
   };
 
-  const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+  const isCloseToBottom = ({
+    layoutMeasurement,
+    contentOffset,
+    contentSize,
+  }) => {
     const paddingToBottom = 20;
-    return layoutMeasurement.height + contentOffset.y
-      >= contentSize.height - paddingToBottom;
+    return (
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom
+    );
   };
 
   useEffect(() => {
     let isMounted = true;
-    navigation.addListener('focus', async () => {
+    navigation.addListener("focus", async () => {
       setLoading(true);
-      await apiCall('GET', `/posts/comments/${postId}/${comments.length}`).then(({ success, response }) => {
-        if (isMounted) {
-          setLoading(false);
-          if (success) {
-            if (!response.length) {
-              setAllCommentsLoaded(true);
-            } else {
-              setComments([...comments, ...response]);
+      await apiCall("GET", `/posts/comments/${postId}/${comments.length}`).then(
+        ({ success, response }) => {
+          if (isMounted) {
+            setLoading(false);
+            if (success) {
+              if (!response.length) {
+                setAllCommentsLoaded(true);
+              } else {
+                setComments([...comments, ...response]);
+              }
             }
           }
         }
-      });
+      );
     });
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [navigation]);
 
   if (loading) {
@@ -135,14 +160,18 @@ const CommentsScreen = (props) => {
           }
         }}
       >
-        {comments.length ? comments.map((comment, i) => (
-          <PostCommentCard
-            newReply={newReply?.parentCommentId === comment._id ? newReply : null}
-            replyToUser={replyToUser}
-            key={comment._id || `comment-${i}`}
-            comment={comment}
-          />
-        )) : null}
+        {comments.length
+          ? comments.map((comment, i) => (
+              <PostCommentCard
+                newReply={
+                  newReply?.parentCommentId === comment._id ? newReply : null
+                }
+                replyToUser={replyToUser}
+                key={comment._id || `comment-${i}`}
+                comment={comment}
+              />
+            ))
+          : null}
       </ScrollView>
       <View style={styles.inputBoxContainer}>
         <CommentTextInput

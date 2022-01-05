@@ -7,9 +7,7 @@ import {
   ScrollView,
   RefreshControl,
 } from "react-native";
-import Constants from "expo-constants";
 import { useNavigation } from "@react-navigation/native";
-import { useSelector } from "react-redux";
 import themeStyle from "../../../../theme.style";
 import apiCall from "../../../../helpers/apiCall";
 import UserThumbnail from "../../../../components/UserThumbnail";

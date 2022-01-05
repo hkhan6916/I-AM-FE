@@ -1,19 +1,23 @@
-import React, {
-  useEffect, useContext, useState, useCallback,
-} from 'react';
+import React, { useEffect, useContext, useState, useCallback } from "react";
 import {
-  View, Text, StyleSheet, RefreshControl, TouchableOpacity, SafeAreaView, StatusBar, FlatList,
-} from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
-import Constants from 'expo-constants';
-import { Ionicons } from '@expo/vector-icons';
-import themeStyle from '../../../theme.style';
-import FeedContext from '../../../Context';
-import PostCard from '../../../components/PostCard';
-import apiCall from '../../../helpers/apiCall';
-import Logo from '../../../../assets/Logo';
-import ContentLoader from '../../../components/ContentLoader';
+  View,
+  Text,
+  StyleSheet,
+  RefreshControl,
+  TouchableOpacity,
+  SafeAreaView,
+  StatusBar,
+  FlatList,
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
+import Constants from "expo-constants";
+import { Ionicons } from "@expo/vector-icons";
+import themeStyle from "../../../theme.style";
+import FeedContext from "../../../Context";
+import PostCard from "../../../components/PostCard";
+import apiCall from "../../../helpers/apiCall";
+import Logo from "../../../../assets/Logo";
 
 const { statusBarHeight } = Constants;
 
@@ -49,7 +53,11 @@ const HomeScreen = () => {
   const getUserFeed = async () => {
     if (!allPostsLoaded && !refreshing) {
       const offsets = await calculateOffsets();
-      const { success, response } = await apiCall('POST', '/user/feed', offsets);
+      const { success, response } = await apiCall(
+        "POST",
+        "/user/feed",
+        offsets
+      );
       if (success) {
         // if (!response.length && feed.length) {
         if (!response.length) {
@@ -65,7 +73,7 @@ const HomeScreen = () => {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    const { success, response } = await apiCall('POST', '/user/feed', {});
+    const { success, response } = await apiCall("POST", "/user/feed", {});
     setRefreshing(false);
     if (success) {
       setFeed([]);
@@ -76,7 +84,7 @@ const HomeScreen = () => {
   useEffect(() => {
     if (newPostCreated.state) {
       setTimeout(() => {
-        dispatch({ type: 'SET_POST_CREATED', payload: false });
+        dispatch({ type: "SET_POST_CREATED", payload: false });
       }, 3000);
     }
   }, [newPostCreated, feed]);
@@ -89,21 +97,29 @@ const HomeScreen = () => {
         backgroundColor={themeStyle.colors.grayscale.black}
         barStyle="light-content"
       />
-      <View style={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: themeStyle.colors.grayscale.white,
-        borderBottomWidth: 1,
-        borderBottomColor: themeStyle.colors.grayscale.black,
-      }}
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          backgroundColor: themeStyle.colors.grayscale.white,
+          borderBottomWidth: 1,
+          borderBottomColor: themeStyle.colors.grayscale.black,
+        }}
       >
         <View style={{ marginHorizontal: 20 }}>
           <Logo fill={themeStyle.colors.grayscale.black} />
         </View>
-        <TouchableOpacity style={{ padding: 10, marginRight: 10 }} onPress={() => navigation.navigate('ChatListScreen')}>
-          <Ionicons name="paper-plane-outline" size={24} color={themeStyle.colors.grayscale.black} />
+        <TouchableOpacity
+          style={{ padding: 10, marginRight: 10 }}
+          onPress={() => navigation.navigate("ChatListScreen")}
+        >
+          <Ionicons
+            name="paper-plane-outline"
+            size={24}
+            color={themeStyle.colors.grayscale.black}
+          />
         </TouchableOpacity>
       </View>
       <FlatList
@@ -114,12 +130,9 @@ const HomeScreen = () => {
           </View>
         )}
         keyExtractor={(item, index) => `${item._id}-${index}`}
-        refreshControl={(
-          <RefreshControl
-            onRefresh={onRefresh}
-            refreshing={refreshing}
-          />
-        )}
+        refreshControl={
+          <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+        }
         contentContainerStyle={{ flexGrow: 1 }}
         onEndReached={() => getUserFeed()}
         onEndReachedThreshold={0.5}
@@ -159,8 +172,8 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 20,
-    alignSelf: 'center',
-    position: 'absolute',
+    alignSelf: "center",
+    position: "absolute",
     marginTop: statusBarHeight + 80,
   },
 });
