@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Button } from "react-native";
-import { useSelector, useDispatch } from "react-redux";
 
 import apiCall from "../../../helpers/apiCall";
 import VideoPlayer from "../../../components/VideoPlayer";
@@ -9,14 +8,12 @@ const UserProfileScreen = (props) => {
   const { userId } = props.route.params;
   const [user, setUser] = useState({});
 
-  const dispatch = useDispatch();
-  const userData = useSelector((state) => state.userData);
   const sendFriendRequest = async () => {
     const userRequestSent = { ...user, requestSent: true };
 
     setUser(userRequestSent);
 
-    const { success, error, response, message } = await apiCall(
+    const { success, error, message } = await apiCall(
       "GET",
       `/user/friend/request/send/${userId}`
     );
@@ -95,6 +92,7 @@ const UserProfileScreen = (props) => {
       setUser(userIsFriend);
     }
   };
+
   useEffect(() => {
     (async () => {
       const { success, response } = await apiCall("GET", `/user/${userId}`);
@@ -139,26 +137,6 @@ const UserProfileScreen = (props) => {
         ) : (
           <Button title="Add user" onPress={() => sendFriendRequest()} />
         )}
-        {/* <Button
-          title={
-            user.isFriend
-              ? "Remove From Friends"
-              : user.requestReceived
-              ? "Accept Request"
-              : user.requestSent
-              ? "Request sent"
-              : "Add user"
-          }
-          onPress={() =>
-            user.isFriend
-              ? removeConnection()
-              : user.requestReceived
-              ? acceptFriendRequest()
-              : user.requestSent
-              ? recallFriendRequest()
-              : sendFriendRequest()
-          }
-        /> */}
       </View>
     );
   }

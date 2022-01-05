@@ -1,25 +1,32 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
-  View, TextInput, Text, TouchableOpacity,
-  Dimensions, ScrollView, ActivityIndicator, StyleSheet,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Camera } from 'expo-camera';
-import { Ionicons } from '@expo/vector-icons';
-import { Video } from 'expo-av';
-import { getExpoPushTokenAsync } from 'expo-notifications';
-import themeStyle from '../../theme.style';
-import apiCall from '../../helpers/apiCall';
-import ProfileVideoCamera from '../../components/ProfileVideoCamera';
+  View,
+  TextInput,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  ScrollView,
+  ActivityIndicator,
+  StyleSheet,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Camera } from "expo-camera";
+import { Ionicons } from "@expo/vector-icons";
+import { Video } from "expo-av";
+import { getExpoPushTokenAsync } from "expo-notifications";
+import themeStyle from "../../theme.style";
+import apiCall from "../../helpers/apiCall";
+import ProfileVideoCamera from "../../components/ProfileVideoCamera";
+import Input from "../../components/Input";
 
 const RegisterationScreen = () => {
   const [loading, setLoading] = useState(false);
 
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const [validationErrors, setValidationErrors] = useState({});
@@ -32,33 +39,41 @@ const RegisterationScreen = () => {
   const [recording, setRecording] = useState(false);
   const [recordingLength, setRecordingLength] = useState(15);
 
-  const { width: screenWidth } = Dimensions.get('window');
+  const { width: screenWidth } = Dimensions.get("window");
   const [faceDectected, setFaceDetected] = useState(false);
 
-  const [profileVideo, setProfileVideo] = useState('');
+  const [profileVideo, setProfileVideo] = useState("");
   const [profileVideoPlaying, setProfileVideoPlaying] = useState(false);
   const profileVideoRef = useRef(null);
 
-  const [registerationError, setRegisterationError] = useState('');
+  const [registerationError, setRegisterationError] = useState("");
   const navigation = useNavigation();
 
   const validateUserInformation = () => {
-    if (firstName
-      && lastName
-      && email
-      && username
-      && password
-       && profileVideo
-       && faceDectected) {
+    if (
+      firstName &&
+      lastName &&
+      email &&
+      username &&
+      password &&
+      profileVideo &&
+      faceDectected
+    ) {
       return true;
     }
     return false;
   };
 
   const checkUserExists = async (type, identifier) => {
-    const { response, success } = await apiCall('POST', '/user/check/exists', { type, identifier });
+    const { response, success } = await apiCall("POST", "/user/check/exists", {
+      type,
+      identifier,
+    });
     if (success && response[type]) {
-      setValidationErrors({ ...validationErrors, [type]: { exists: response[type].exists } });
+      setValidationErrors({
+        ...validationErrors,
+        [type]: { exists: response[type].exists },
+      });
     }
   };
 
@@ -79,9 +94,13 @@ const RegisterationScreen = () => {
       email,
       password,
       username,
-      notificationToken: await getExpoPushTokenAsync({ experienceId: '@hkhan6916/I-Am-FE' }).data,
+      notificationToken: await getExpoPushTokenAsync({
+        experienceId: "@hkhan6916/I-Am-FE",
+      }).data,
       file: {
-        uri: profileVideo, name: 'profileVideo.mp4', type: 'video/mp4',
+        uri: profileVideo,
+        name: "profileVideo.mp4",
+        type: "video/mp4",
       },
     };
     const formData = new FormData();
@@ -89,14 +108,18 @@ const RegisterationScreen = () => {
       formData.append(key, payload[key]);
     });
     setLoading(true);
-    const { success, message, other } = await apiCall('POST', '/user/register', formData);
+    const { success, message, other } = await apiCall(
+      "POST",
+      "/user/register",
+      formData
+    );
     console.log(message);
     if (success) {
-      navigation.navigate('Login');
+      navigation.navigate("Login");
     } else if (other) {
       setValidationErrors(other);
     } else {
-      setRegisterationError('Error, maybe network error.');
+      setRegisterationError("Error, maybe network error.");
     }
     setLoading(false);
   };
@@ -104,9 +127,9 @@ const RegisterationScreen = () => {
   useEffect(() => {
     (async () => {
       const cameraStatus = await Camera.requestCameraPermissionsAsync();
-      setHasCameraPermission(cameraStatus.status === 'granted');
+      setHasCameraPermission(cameraStatus.status === "granted");
       const audioStatus = await Camera.requestMicrophonePermissionsAsync();
-      setHasAudioPermission(audioStatus.status === 'granted');
+      setHasAudioPermission(audioStatus.status === "granted");
     })();
     return () => {
       setHasCameraPermission(false);
@@ -124,8 +147,11 @@ const RegisterationScreen = () => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color={themeStyle.colors.primary.default} />
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator
+          size="large"
+          color={themeStyle.colors.primary.default}
+        />
       </View>
     );
   }
@@ -151,46 +177,40 @@ const RegisterationScreen = () => {
       <ScrollView>
         <View style={styles.formContainer}>
           <Text style={styles.formHeader}>I AM Sign Up</Text>
-          <View style={styles.textInputContainer}>
-            <Text style={styles.label}>Firstname</Text>
-            <TextInput
-              style={styles.visibleTextInputs}
-              value={firstName}
-              onChangeText={(v) => setFirstName(v)}
-            />
-          </View>
-          <View style={styles.textInputContainer}>
-            <Text style={styles.label}>Lastname</Text>
-            <TextInput
-              style={styles.visibleTextInputs}
-              value={lastName}
-              onChangeText={(v) => setLastName(v)}
-            />
-          </View>
-          <View style={styles.textInputContainer}>
-            <Text style={styles.label}>Username</Text>
-            <TextInput
-              style={[styles.visibleTextInputs, validationErrors.username?.exists
-                && { borderColor: themeStyle.colors.error.default }]}
-              value={username}
-              onChangeText={(v) => setUsername(v)}
-              onEndEditing={(e) => checkUserExists('username', e.nativeEvent.text)}
-            />
-            {validationErrors.username?.exists
-              ? <Text style={styles.errorText}>This username already exists</Text> : null}
-          </View>
-          <View style={styles.textInputContainer}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={[styles.visibleTextInputs, validationErrors.email?.exists
-                && { borderColor: themeStyle.colors.error.default }]}
-              value={email}
-              onChangeText={(v) => setEmail(v)}
-              onEndEditing={(e) => checkUserExists('email', e.nativeEvent.text)}
-            />
-            {validationErrors.email?.exists
-              ? <Text style={styles.errorText}>This email already exists</Text> : null}
-          </View>
+          <Input
+            label="First Name"
+            value={firstName}
+            onChangeText={(v) => setFirstName(v)}
+          />
+          <Input
+            label="Last Name"
+            value={lastName}
+            onChangeText={(v) => setLastName(v)}
+          />
+          <Input
+            error={
+              validationErrors.username?.exists
+                ? "A user with this username already exists."
+                : null
+            }
+            label="Username"
+            value={username}
+            onChangeText={(v) => setUsername(v)}
+            onEndEditing={(e) =>
+              checkUserExists("username", e.nativeEvent.text)
+            }
+          />
+          <Input
+            error={
+              validationErrors.email?.exists
+                ? "A user with this email already exists."
+                : null
+            }
+            label="Email"
+            value={email}
+            onChangeText={(v) => setEmail(v)}
+            onEndEditing={(e) => checkUserExists("email", e.nativeEvent.text)}
+          />
           <View style={styles.textInputContainer}>
             <Text style={styles.label}>Password</Text>
             <View style={styles.passwordInputContainer}>
@@ -207,7 +227,7 @@ const RegisterationScreen = () => {
                 onPress={() => setShowPassword(!showPassword)}
               >
                 <Ionicons
-                  name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                  name={showPassword ? "eye-outline" : "eye-off-outline"}
                   size={19}
                 />
               </TouchableOpacity>
@@ -216,24 +236,27 @@ const RegisterationScreen = () => {
           {profileVideo && faceDectected ? (
             <TouchableOpacity
               style={{
-                alignSelf: 'center',
+                alignSelf: "center",
               }}
-              onPress={() => (profileVideoPlaying.isPlaying
-                ? profileVideoRef.current.pauseAsync() : profileVideoRef.current.playAsync())}
+              onPress={() =>
+                profileVideoPlaying.isPlaying
+                  ? profileVideoRef.current.pauseAsync()
+                  : profileVideoRef.current.playAsync()
+              }
             >
               <Video
                 style={{
-                  transform: [
-                    { scaleX: -1 },
-                  ],
-                  alignSelf: 'center',
+                  transform: [{ scaleX: -1 }],
+                  alignSelf: "center",
                   width: screenWidth / 1.5,
                   height: (screenWidth * 1.33) / 1.5,
                   borderWidth: 2,
                   borderColor: themeStyle.colors.primary.default,
                   borderRadius: 10,
                 }}
-                onPlaybackStatusUpdate={(status) => setProfileVideoPlaying(() => status)}
+                onPlaybackStatusUpdate={(status) =>
+                  setProfileVideoPlaying(() => status)
+                }
                 ref={profileVideoRef}
                 source={{
                   uri: profileVideo,
@@ -241,12 +264,12 @@ const RegisterationScreen = () => {
                 isLooping
                 resizeMode="cover"
               />
-              {!profileVideoPlaying.isPlaying
-                ? (
-                  <View style={{
-                    position: 'absolute',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+              {!profileVideoPlaying.isPlaying ? (
+                <View
+                  style={{
+                    position: "absolute",
+                    alignItems: "center",
+                    justifyContent: "center",
                     width: screenWidth / 1.5,
                     height: (screenWidth * 1.33) / 1.5,
                     borderWidth: 2,
@@ -255,62 +278,57 @@ const RegisterationScreen = () => {
                     backgroundColor: themeStyle.colors.grayscale.black,
                     opacity: 0.5,
                   }}
-                  >
-                    <Text style={{
+                >
+                  <Text
+                    style={{
                       flex: 1,
-                      position: 'absolute',
+                      position: "absolute",
                       fontSize: 20,
-                      textAlign: 'center',
+                      textAlign: "center",
                       width: screenWidth / 1.5,
                       color: themeStyle.colors.grayscale.white,
                     }}
-                    >
-                      Tap to preview
-                    </Text>
-                  </View>
-                )
-                : null}
+                  >
+                    Tap to preview
+                  </Text>
+                </View>
+              ) : null}
             </TouchableOpacity>
           ) : profileVideo ? (
             <Text style={styles.faceDetectionError}>
-              No face detected. Make sure your
-              face is shown at the start and end of
-              your profile video.
+              No face detected. Make sure your face is shown at the start and
+              end of your profile video.
             </Text>
-          )
-            : null}
+          ) : null}
           <TouchableOpacity
             style={styles.takeVideoButton}
-            onPress={() => { setFaceDetected(false); setCameraActivated(true); }}
+            onPress={() => {
+              setFaceDetected(false);
+              setCameraActivated(true);
+            }}
           >
             <Text style={styles.takeVideoButtonText}>
-              <Ionicons
-                name="videocam"
-                size={14}
-              />
-              {' '}
-              {profileVideo ? 'Retake profile video' : 'Take profile video'}
+              <Ionicons name="videocam" size={14} />{" "}
+              {profileVideo ? "Retake profile video" : "Take profile video"}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.registerationButton, {
-              opacity:
-              !validateUserInformation() ? 0.5 : 1,
-            }]}
+            style={[
+              styles.registerationButton,
+              {
+                opacity: !validateUserInformation() ? 0.5 : 1,
+              },
+            ]}
             onPress={() => registerUser()}
             disabled={!validateUserInformation()}
           >
             <Text style={styles.registerationButtonText}>
-              Sign Up
-              {' '}
-              <Ionicons
-                name="paper-plane-outline"
-                size={14}
-              />
+              Sign Up <Ionicons name="paper-plane-outline" size={14} />
             </Text>
           </TouchableOpacity>
-          {registerationError
-            ? <Text style={styles.registerationError}>{registerationError}</Text> : null}
+          {registerationError ? (
+            <Text style={styles.registerationError}>{registerationError}</Text>
+          ) : null}
         </View>
       </ScrollView>
     </View>
@@ -325,33 +343,33 @@ const styles = StyleSheet.create({
   formContainer: {
     padding: 20,
     backgroundColor: themeStyle.colors.grayscale.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-    textAlign: 'center',
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
   },
   formHeader: {
     fontSize: 20,
   },
   registerationError: {
-    textAlign: 'center',
+    textAlign: "center",
     color: themeStyle.colors.error.default,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   faceDetectionError: {
     color: themeStyle.colors.error.default,
-    textAlign: 'center',
-    fontWeight: '700',
+    textAlign: "center",
+    fontWeight: "700",
   },
   buttonContainer: {
     flex: 1,
-    backgroundColor: 'transparent',
-    flexDirection: 'row',
+    backgroundColor: "transparent",
+    flexDirection: "row",
     margin: 20,
   },
   button: {
     flex: 0.1,
-    alignSelf: 'flex-end',
-    alignItems: 'center',
+    alignSelf: "flex-end",
+    alignItems: "center",
   },
   registerationButton: {
     paddingVertical: 10,
@@ -372,18 +390,18 @@ const styles = StyleSheet.create({
   },
   takeVideoButtonText: {
     color: themeStyle.colors.grayscale.black,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   text: {
     fontSize: 18,
-    color: 'white',
+    color: "white",
   },
   errorText: {
     fontSize: 12,
     color: themeStyle.colors.error.default,
   },
   label: {
-    fontWeight: '700',
+    fontWeight: "700",
   },
   visibleTextInputs: {
     fontSize: 15,
@@ -394,7 +412,7 @@ const styles = StyleSheet.create({
     borderColor: themeStyle.colors.primary.default,
   },
   textInputContainer: {
-    alignSelf: 'stretch',
+    alignSelf: "stretch",
     marginBottom: 20,
   },
   passwordInput: {
@@ -403,7 +421,7 @@ const styles = StyleSheet.create({
     color: themeStyle.colors.grayscale.black,
   },
   passwordInputContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     height: 45,
     borderRadius: 5,
     marginBottom: 20,
@@ -413,7 +431,7 @@ const styles = StyleSheet.create({
     borderColor: themeStyle.colors.primary.default,
   },
   eyeIcon: {
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingHorizontal: 5,
   },
 });

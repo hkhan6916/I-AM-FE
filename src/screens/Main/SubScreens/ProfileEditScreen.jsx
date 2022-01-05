@@ -1,25 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-  View, TextInput, Text, TouchableOpacity,
-  ScrollView, ActivityIndicator, StyleSheet, Dimensions,
-} from 'react-native';
-import Constants from 'expo-constants';
-import { useNavigation } from '@react-navigation/native';
-import { Camera } from 'expo-camera';
-import { Ionicons } from '@expo/vector-icons';
-import { getItemAsync } from 'expo-secure-store';
-import themeStyle from '../../../theme.style';
-import apiCall from '../../../helpers/apiCall';
-import ProfileVideoCamera from '../../../components/ProfileVideoCamera';
-import PreviewVideo from '../../../components/PreviewVideo';
-import ContentLoader from '../../../components/ContentLoader';
+  View,
+  TextInput,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
+import Constants from "expo-constants";
+import { useNavigation } from "@react-navigation/native";
+import { Camera } from "expo-camera";
+import { Ionicons } from "@expo/vector-icons";
+import { getItemAsync } from "expo-secure-store";
+import themeStyle from "../../../theme.style";
+import apiCall from "../../../helpers/apiCall";
+import ProfileVideoCamera from "../../../components/ProfileVideoCamera";
+import PreviewVideo from "../../../components/PreviewVideo";
+import ContentLoader from "../../../components/ContentLoader";
 
 const { statusBarHeight } = Constants;
 const ProfileEditScreen = () => {
-  const { width: screenWidth } = Dimensions.get('window');
+  const { width: screenWidth } = Dimensions.get("window");
   const [loading, setLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [userId, setUserId] = useState('');
+  const [userId, setUserId] = useState("");
 
   const [email, setEmail] = useState(null);
   const [username, setUsername] = useState(null);
@@ -41,9 +47,9 @@ const ProfileEditScreen = () => {
 
   const [faceDetected, setFaceDetected] = useState(false);
 
-  const [profileVideo, setProfileVideo] = useState('');
+  const [profileVideo, setProfileVideo] = useState("");
 
-  const [updateError, setupdateError] = useState('');
+  const [updateError, setupdateError] = useState("");
 
   const [showUpdatedPill, setShowUpdatedPill] = useState(false);
 
@@ -63,7 +69,7 @@ const ProfileEditScreen = () => {
 
   const updateProfile = async () => {
     setIsUpdating(true);
-    setupdateError('');
+    setupdateError("");
 
     const payload = {
       firstName,
@@ -72,9 +78,13 @@ const ProfileEditScreen = () => {
       password,
       username,
       jobTitle,
-      file: profileVideo ? {
-        uri: profileVideo, name: 'profileVideo.mp4', type: 'video/mp4',
-      } : null,
+      file: profileVideo
+        ? {
+            uri: profileVideo,
+            name: "profileVideo.mp4",
+            type: "video/mp4",
+          }
+        : null,
     };
 
     const formData = new FormData();
@@ -87,9 +97,11 @@ const ProfileEditScreen = () => {
     });
 
     if (validValues.length) {
-      const {
-        success, other, response,
-      } = await apiCall('POST', '/user/update/profile', formData);
+      const { success, other, response } = await apiCall(
+        "POST",
+        "/user/update/profile",
+        formData
+      );
       if (success) {
         setShowUpdatedPill(true);
 
@@ -103,7 +115,9 @@ const ProfileEditScreen = () => {
         if (other?.validationErrors) {
           setValidationErrors(other.validationErrors);
         } else {
-          setupdateError("Sorry, we couldn't update your details. Please check your connection and try again.");
+          setupdateError(
+            "Sorry, we couldn't update your details. Please check your connection and try again."
+          );
         }
       }
     }
@@ -111,10 +125,17 @@ const ProfileEditScreen = () => {
   };
 
   const checkUserExists = async (type, identifier) => {
-    const { response, success } = await apiCall('POST', '/user/check/exists', { type, identifier, userId });
+    const { response, success } = await apiCall("POST", "/user/check/exists", {
+      type,
+      identifier,
+      userId,
+    });
 
     if (success && response[type]?.exists) {
-      setValidationErrors({ ...validationErrors, [type]: { exists: response[type].exists } });
+      setValidationErrors({
+        ...validationErrors,
+        [type]: { exists: response[type].exists },
+      });
     }
 
     if (success && !response[type]?.exists && validationErrors) {
@@ -131,23 +152,23 @@ const ProfileEditScreen = () => {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const _userId = await getItemAsync('userId');
+      const _userId = await getItemAsync("userId");
 
       setUserId(_userId);
 
       const cameraStatus = await Camera.requestCameraPermissionsAsync();
-      setHasCameraPermission(cameraStatus.status === 'granted');
+      setHasCameraPermission(cameraStatus.status === "granted");
       const audioStatus = await Camera.requestMicrophonePermissionsAsync();
-      setHasAudioPermission(audioStatus.status === 'granted');
+      setHasAudioPermission(audioStatus.status === "granted");
 
-      const { response, success } = await apiCall('GET', '/user/data');
+      const { response, success } = await apiCall("GET", "/user/data");
       setLoading(false);
       if (success) {
-        setInitialProfileData(
-          response,
-        );
+        setInitialProfileData(response);
       } else {
-        setupdateError('An unexpected error ocurred. Please check your connection.');
+        setupdateError(
+          "An unexpected error ocurred. Please check your connection."
+        );
       }
     })();
     return () => {
@@ -202,56 +223,45 @@ const ProfileEditScreen = () => {
       ) : null}
       <ScrollView style={{ marginBottom: 48 }}>
         <View style={styles.formContainer}>
-          {(profileVideo && faceDetected)
-           || (!profileVideo && initialProfileData.profileVideoHeaders
-            && initialProfileData.profileVideoUrl) ? (
-              <PreviewVideo
-                removeBorder
-                isFullWidth
-                uri={profileVideo
-                || initialProfileData?.profileVideoUrl}
-                headers={initialProfileData?.profileVideoHeaders}
-              />
-            ) : profileVideo ? (
-              <View>
-                <PreviewVideo
-                  removeBorder
-                  isFullWidth
-                  uri={profileVideo}
-                />
-                <View style={styles.faceDetectionError}>
-                  <Text style={styles.faceDetectionErrorText}>
-                    No face detected. Make sure your
-                    face is shown at the start and end of
-                    your profile video.
+          {(profileVideo && faceDetected) ||
+          (!profileVideo &&
+            initialProfileData.profileVideoHeaders &&
+            initialProfileData.profileVideoUrl) ? (
+            <PreviewVideo
+              removeBorder
+              isFullWidth
+              uri={profileVideo || initialProfileData?.profileVideoUrl}
+              headers={initialProfileData?.profileVideoHeaders}
+            />
+          ) : profileVideo ? (
+            <View>
+              <PreviewVideo removeBorder isFullWidth uri={profileVideo} />
+              <View style={styles.faceDetectionError}>
+                <Text style={styles.faceDetectionErrorText}>
+                  No face detected. Make sure your face is shown at the start
+                  and end of your profile video.
+                </Text>
+                <TouchableOpacity onPress={() => setProfileVideo("")}>
+                  <Text style={styles.resetProfileVideoText}>
+                    Reset Profile Video
                   </Text>
-                  <TouchableOpacity onPress={() => setProfileVideo('')}>
-                    <Text style={styles.resetProfileVideoText}>
-                      Reset Profile Video
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                </TouchableOpacity>
               </View>
-            )
-              : null}
+            </View>
+          ) : null}
           <TouchableOpacity
             style={styles.takeVideoButton}
-            onPress={() => { setFaceDetected(false); setCameraActivated(true); }}
+            onPress={() => {
+              setFaceDetected(false);
+              setCameraActivated(true);
+            }}
           >
             <Text style={styles.takeVideoButtonText}>
-              <Ionicons
-                name="videocam"
-                size={14}
-              />
-              {' '}
-              Retake profile video
+              <Ionicons name="videocam" size={14} /> Retake profile video
             </Text>
           </TouchableOpacity>
           <View style={styles.textInputContainer}>
-            <Text style={styles.label}>
-              Job Title or Education
-              {' '}
-            </Text>
+            <Text style={styles.label}>Job Title or Education </Text>
             <TextInput
               style={styles.visibleTextInputs}
               value={jobTitle !== null ? jobTitle : initialProfileData.jobTitle}
@@ -262,7 +272,9 @@ const ProfileEditScreen = () => {
             <Text style={styles.label}>Firstname</Text>
             <TextInput
               style={styles.visibleTextInputs}
-              value={firstName !== null ? firstName : initialProfileData.firstName}
+              value={
+                firstName !== null ? firstName : initialProfileData.firstName
+              }
               onChangeText={(v) => setFirstName(v)}
             />
           </View>
@@ -277,31 +289,40 @@ const ProfileEditScreen = () => {
           <View style={styles.textInputContainer}>
             <Text style={styles.label}>Username</Text>
             <TextInput
-              style={[styles.visibleTextInputs, validationErrors?.username?.exists && {
-                borderColor:
-                      themeStyle.colors.error.default,
-                borderWidth: 2,
-              }]}
+              style={[
+                styles.visibleTextInputs,
+                validationErrors?.username?.exists && {
+                  borderColor: themeStyle.colors.error.default,
+                  borderWidth: 2,
+                },
+              ]}
               value={username !== null ? username : initialProfileData.username}
               onChangeText={(v) => setUsername(v)}
-              onEndEditing={(e) => checkUserExists('username', e.nativeEvent.text)}
+              onEndEditing={(e) =>
+                checkUserExists("username", e.nativeEvent.text)
+              }
             />
-            {validationErrors?.username?.exists
-              ? <Text style={styles.errorText}>This username already exists</Text> : null}
+            {validationErrors?.username?.exists ? (
+              <Text style={styles.errorText}>This username already exists</Text>
+            ) : null}
           </View>
           <View style={styles.textInputContainer}>
             <Text style={styles.label}>Email</Text>
             <TextInput
-              style={[styles.visibleTextInputs, validationErrors?.email?.exists && {
-                borderColor: themeStyle.colors.error.default,
-                borderWidth: 2,
-              }]}
+              style={[
+                styles.visibleTextInputs,
+                validationErrors?.email?.exists && {
+                  borderColor: themeStyle.colors.error.default,
+                  borderWidth: 2,
+                },
+              ]}
               value={email !== null ? email : initialProfileData.email}
               onChangeText={(v) => setEmail(v)}
-              onEndEditing={(e) => checkUserExists('email', e.nativeEvent.text)}
+              onEndEditing={(e) => checkUserExists("email", e.nativeEvent.text)}
             />
-            {validationErrors?.email?.exists
-              ? <Text style={styles.errorText}>This email already exists</Text> : null}
+            {validationErrors?.email?.exists ? (
+              <Text style={styles.errorText}>This email already exists</Text>
+            ) : null}
           </View>
           <View style={styles.textInputContainer}>
             <Text style={styles.label}>Password</Text>
@@ -319,14 +340,15 @@ const ProfileEditScreen = () => {
                 onPress={() => setShowPassword(!showPassword)}
               >
                 <Ionicons
-                  name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                  name={showPassword ? "eye-outline" : "eye-off-outline"}
                   size={19}
                 />
               </TouchableOpacity>
             </View>
           </View>
-          {updateError
-            ? <Text style={styles.updateError}>{updateError}</Text> : null}
+          {updateError ? (
+            <Text style={styles.updateError}>{updateError}</Text>
+          ) : null}
         </View>
       </ScrollView>
       <View style={styles.submitButtonContainer}>
@@ -335,14 +357,18 @@ const ProfileEditScreen = () => {
           onPress={() => updateProfile()}
           // disabled={(profileVideo && !faceDetected) || validationErrors}
         >
-          {isUpdating ? <ActivityIndicator size="large" color={themeStyle.colors.primary.default} />
-            : (
-              <Ionicons
-                name="checkmark"
-                size={30}
-                color={themeStyle.colors.primary.light}
-              />
-            )}
+          {isUpdating ? (
+            <ActivityIndicator
+              size="large"
+              color={themeStyle.colors.primary.default}
+            />
+          ) : (
+            <Ionicons
+              name="checkmark"
+              size={30}
+              color={themeStyle.colors.primary.light}
+            />
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -357,9 +383,9 @@ const styles = StyleSheet.create({
   formContainer: {
     paddingHorizontal: 20,
     backgroundColor: themeStyle.colors.grayscale.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-    textAlign: 'center',
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
     marginBottom: 50,
   },
   newPostPill: {
@@ -370,60 +396,60 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 20,
-    alignSelf: 'center',
-    position: 'absolute',
+    alignSelf: "center",
+    position: "absolute",
     marginTop: statusBarHeight,
   },
   formHeader: {
     fontSize: 20,
   },
   updateError: {
-    textAlign: 'center',
+    textAlign: "center",
     color: themeStyle.colors.error.default,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   resetProfileVideoText: {
-    textAlign: 'center',
+    textAlign: "center",
   },
   faceDetectionError: {
     marginVertical: 20,
   },
   faceDetectionErrorText: {
     color: themeStyle.colors.error.default,
-    textAlign: 'center',
-    fontWeight: '700',
+    textAlign: "center",
+    fontWeight: "700",
     marginBottom: 10,
   },
   buttonContainer: {
     flex: 1,
-    backgroundColor: 'transparent',
-    flexDirection: 'row',
+    backgroundColor: "transparent",
+    flexDirection: "row",
     margin: 20,
   },
   button: {
     flex: 0.1,
-    alignSelf: 'flex-end',
-    alignItems: 'center',
+    alignSelf: "flex-end",
+    alignItems: "center",
   },
   textInputContainer: {
-    alignSelf: 'stretch',
+    alignSelf: "stretch",
     marginBottom: 20,
   },
   submitButtonContainer: {
-    width: '100%',
+    width: "100%",
     backgroundColor: themeStyle.colors.grayscale.white,
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     height: 48,
     zIndex: 1,
   },
   submitButton: {
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
     borderTopWidth: 2,
     borderColor: themeStyle.colors.grayscale.superLightGray,
   },
@@ -436,14 +462,14 @@ const styles = StyleSheet.create({
   },
   takeVideoButtonText: {
     color: themeStyle.colors.grayscale.black,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   text: {
     fontSize: 18,
-    color: 'white',
+    color: "white",
   },
   label: {
-    fontWeight: '700',
+    fontWeight: "700",
   },
   errorText: {
     fontSize: 12,
@@ -461,7 +487,7 @@ const styles = StyleSheet.create({
     color: themeStyle.colors.grayscale.black,
   },
   passwordInputContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     height: 45,
     marginBottom: 20,
     padding: 5,
@@ -469,7 +495,7 @@ const styles = StyleSheet.create({
     backgroundColor: themeStyle.colors.grayscale.superLightGray,
   },
   eyeIcon: {
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingHorizontal: 5,
   },
   searchBar: {
@@ -477,7 +503,7 @@ const styles = StyleSheet.create({
     color: themeStyle.colors.grayscale.black,
   },
   searchSection: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   searchIcon: {
     padding: 10,
