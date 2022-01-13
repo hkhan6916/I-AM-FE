@@ -1,16 +1,17 @@
-import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import MainTabStack from './MainTabStack';
-import UserProfileScreen from './SubScreens/UserProfileScreen';
-import MediaScreen from './SubScreens/MediaScreen';
-import RepostScreen from './SubScreens/RepostScreen';
-import CommentsScreen from './SubScreens/CommentsScreen';
-import themeStyle from '../../theme.style';
-import PostScreen from './SubScreens/PostScreen';
-import ChatScreen from './SubScreens/ChatScreen';
-import ChatListScreen from './SubScreens/ChatListScreen';
-import CreateChatScreen from './SubScreens/CreateChatScreen';
-import ProfileEditScreen from './SubScreens/ProfileEditScreen';
+import React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import MainTabStack from "./MainTabStack";
+import UserProfileScreen from "./SubScreens/UserProfileScreen";
+import MediaScreen from "./SubScreens/MediaScreen";
+import RepostScreen from "./SubScreens/RepostScreen";
+import CommentsScreen from "./SubScreens/CommentsScreen";
+import themeStyle from "../../theme.style";
+import PostScreen from "./SubScreens/PostScreen";
+import ChatScreen from "./SubScreens/ChatScreen";
+import ChatListScreen from "./SubScreens/ChatListScreen";
+import CreateChatScreen from "./SubScreens/CreateChatScreen";
+import ProfileEditScreen from "./SubScreens/ProfileEditScreen";
+import SettingsScreen from "./SubScreens/SettingsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -34,7 +35,7 @@ const MainStack = () => (
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: "bold",
         },
       }}
       name="UserProfileScreen"
@@ -52,7 +53,7 @@ const MainStack = () => (
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: "bold",
         },
       }}
       name="RepostScreen"
@@ -60,11 +61,11 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
-        title: 'Comments',
+        title: "Comments",
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: "bold",
         },
       }}
       name="CommentsScreen"
@@ -72,11 +73,11 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
-        title: 'View Post',
+        title: "View Post",
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: "bold",
         },
       }}
       name="PostsScreen"
@@ -84,11 +85,11 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
-        title: 'ChatScreen',
+        title: "ChatScreen",
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: "bold",
         },
       }}
       name="ChatScreen"
@@ -96,11 +97,11 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
-        title: 'ChatListScreen',
+        title: "ChatListScreen",
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: "bold",
         },
       }}
       name="ChatListScreen"
@@ -108,11 +109,11 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
-        title: 'CreateChatScreen',
+        title: "CreateChatScreen",
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: "bold",
         },
       }}
       name="CreateChatScreen"
@@ -120,15 +121,27 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
-        title: 'Edit Profile',
+        title: "Edit Profile",
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: "bold",
         },
       }}
-      name="ProfileEdit"
+      name="ProfileEditScreen"
       component={ProfileEditScreen}
+    />
+    <Stack.Screen
+      options={{
+        title: "Settings",
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+      }}
+      name="SettingsScreen"
+      component={SettingsScreen}
     />
   </Stack.Navigator>
 );

@@ -12,7 +12,7 @@ import { useDispatch } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
 import themeStyle from "../../theme.style";
 import apiCall from "../../helpers/apiCall";
-import Logo from "../../../assets/Logo";
+import Logo from "../../Logo";
 
 const LoginScreen = () => {
   const [identifier, setIdentifier] = useState("");

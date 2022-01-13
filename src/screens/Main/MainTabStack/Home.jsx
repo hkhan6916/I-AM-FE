@@ -17,7 +17,7 @@ import themeStyle from "../../../theme.style";
 import FeedContext from "../../../Context";
 import PostCard from "../../../components/PostCard";
 import apiCall from "../../../helpers/apiCall";
-import Logo from "../../../../assets/Logo";
+import Logo from "../../../Logo";
 
 const { statusBarHeight } = Constants;
 
@@ -91,7 +91,7 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       {newPostCreated.state ? (
-        <Text style={styles.newPostPill}>Post created</Text>
+        <Text style={styles.newPostPill}>Post {newPostCreated.state.type}</Text>
       ) : null}
       <StatusBar
         backgroundColor={themeStyle.colors.grayscale.black}
@@ -167,14 +167,14 @@ const styles = StyleSheet.create({
   newPostPill: {
     zIndex: 3, // works on ios
     elevation: 3, // works on android
-    backgroundColor: themeStyle.colors.primary.default,
+    backgroundColor: themeStyle.colors.secondary.bright,
     color: themeStyle.colors.grayscale.white,
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 20,
     alignSelf: "center",
     position: "absolute",
-    marginTop: statusBarHeight + 80,
+    marginTop: statusBarHeight + 30,
   },
 });
 

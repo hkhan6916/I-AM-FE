@@ -138,13 +138,13 @@ const CommentsScreen = (props) => {
   if (loading) {
     return (
       <View>
-        <ContentLoader active showAvatar />
-        <ContentLoader active showAvatar />
-        <ContentLoader active showAvatar />
-        <ContentLoader active showAvatar />
-        <ContentLoader active showAvatar />
-        <ContentLoader active showAvatar />
-        <ContentLoader active showAvatar />
+        <ContentLoader active showAvatar avatarSize={50} />
+        <ContentLoader active showAvatar avatarSize={50} />
+        <ContentLoader active showAvatar avatarSize={50} />
+        <ContentLoader active showAvatar avatarSize={50} />
+        <ContentLoader active showAvatar avatarSize={50} />
+        <ContentLoader active showAvatar avatarSize={50} />
+        <ContentLoader active showAvatar avatarSize={50} />
       </View>
     );
   }

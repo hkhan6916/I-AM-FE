@@ -1,29 +1,34 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from "react";
 import {
-  Button, StyleSheet, ScrollView, RefreshControl, SafeAreaView,
-} from 'react-native';
-import { setItemAsync } from 'expo-secure-store';
-import { useDispatch } from 'react-redux';
-
-import { useNavigation } from '@react-navigation/native';
-import apiCall from '../../../helpers/apiCall';
-import PostCard from '../../../components/PostCard';
+  Button,
+  StyleSheet,
+  ScrollView,
+  RefreshControl,
+  SafeAreaView,
+  Text,
+  View,
+  TouchableOpacity,
+} from "react-native";
+import VideoPlayer from "../../../components/VideoPlayer";
+import { useNavigation } from "@react-navigation/native";
+import apiCall from "../../../helpers/apiCall";
+import PostCard from "../../../components/PostCard";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
+  const [userData, setUserData] = useState({});
+  const [loading, setLoading] = useState(false);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
-  const dispatch = useDispatch();
-
-  const logout = async () => {
-    await setItemAsync('authToken', '');
-    dispatch({ type: 'SET_USER_LOGGED_IN', payload: false });
-  };
 
   const getUserPosts = async () => {
     if (!allPostsLoaded) {
-      const { success, response } = await apiCall('GET', `/user/posts/${userPosts.length}`);
+      const { success, response } = await apiCall(
+        "GET",
+        `/user/posts/${userPosts.length}`
+      );
       if (success) {
         if (!response.length && userPosts.length) {
           setAllPostsLoaded(true);
@@ -36,50 +41,84 @@ const ProfileScreen = () => {
     }
   };
 
+  const getUserData = async () => {
+    setLoading(true);
+    const { success, response } = await apiCall("GET", `/user/data`);
+
+    if (success) {
+      setUserData(response);
+    }
+    setLoading(false);
+  };
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    const { success, response } = await apiCall('GET', `/user/posts/${userPosts.length}`);
+    const { success, response } = await apiCall(
+      "GET",
+      `/user/posts/${userPosts.length}`
+    );
     setRefreshing(false);
     if (success) {
       setUserPosts(response);
     }
   }, []);
 
-  const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+  const isCloseToBottom = ({
+    layoutMeasurement,
+    contentOffset,
+    contentSize,
+  }) => {
     const paddingToBottom = 20;
-    return layoutMeasurement.height + contentOffset.y
-      >= contentSize.height - paddingToBottom;
+    return (
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom
+    );
   };
 
   useEffect(() => {
+    let isMounted = true;
     (async () => {
-      await getUserPosts();
+      if (isMounted) {
+        await getUserData();
+        await getUserPosts();
+      }
     })();
     return () => {
       setUserPosts([]);
+      isMounted = false;
     };
   }, []);
   return (
     <SafeAreaView style={styles.container}>
-      <Button onPress={() => logout()} title="logout" />
-      <Button onPress={() => navigation.navigate('ProfileEdit')} title="Edit profile" />
-      <ScrollView
-        onScroll={({ nativeEvent }) => {
-          if (isCloseToBottom(nativeEvent)) {
-            getUserPosts();
+      <TouchableOpacity onPress={() => navigation.navigate("SettingsScreen")}>
+        <View style={{ alignItems: "flex-end", margin: 20 }}>
+          <MaterialCommunityIcons name="cog-outline" size={24} color="black" />
+        </View>
+      </TouchableOpacity>
+      {userData ? (
+        <ScrollView
+          onScroll={({ nativeEvent }) => {
+            if (isCloseToBottom(nativeEvent)) {
+              getUserPosts();
+            }
+          }}
+          refreshControl={
+            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }
-        }}
-        refreshControl={(
-          <RefreshControl
-            onRefresh={onRefresh}
-            refreshing={refreshing}
-          />
-      )}
-      >
-        {userPosts.map((post) => (
-          <PostCard key={post._id} post={post} />
-        ))}
-      </ScrollView>
+        >
+          <Text>{userData.numberOfFriends}</Text>
+          <View style={{ width: "100%" }}>
+            <VideoPlayer
+              url={userData.profileVideoUrl}
+              mediaHeaders={userData.profileVideoHeaders}
+              mediaIsSelfie
+            />
+          </View>
+          {userPosts.map((post) => (
+            <PostCard key={post._id} post={post} />
+          ))}
+        </ScrollView>
+      ) : null}
     </SafeAreaView>
   );
 };

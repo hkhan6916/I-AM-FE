@@ -1,14 +1,12 @@
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import {
-  Animated, View, StyleSheet,
-} from 'react-native';
+import * as React from "react";
+import { useEffect, useState } from "react";
+import { Animated, View, StyleSheet } from "react-native";
 import {
   getInterpolatedColor,
   startAnimationHelper,
   commonDefaultProps,
   paragraphInitialStyles,
-} from './helpers';
+} from "./helpers";
 
 const AVATAR_SIZE = {
   default: 70,
@@ -57,7 +55,11 @@ const ContentLoader = ({
     }
   }, [loading]);
 
-  const interpolatedBackground = getInterpolatedColor(animation, primaryColor, secondaryColor);
+  const interpolatedBackground = getInterpolatedColor(
+    animation,
+    primaryColor,
+    secondaryColor
+  );
 
   if (loading === false) {
     return children || null;
@@ -73,29 +75,26 @@ const ContentLoader = ({
   };
   const inputInitialStyles = {
     height: 48,
-    width: '100%',
+    width: "100%",
     paddingHorizontal: 20,
   };
   const avatarInitialStyles = {
-    height: AVATAR_SIZE[avatarSize] || avatarSize,
-    width: AVATAR_SIZE[avatarSize] || avatarSize,
-    borderRadius: AVATAR_SIZE[avatarSize] / 2,
+    height: avatarSize,
+    width: avatarSize || avatarSize,
+    borderRadius: avatarSize / 2,
     marginRight: reverse ? 0 : 10,
     marginLeft: reverse ? 10 : 0,
   };
   const profileVideoInitialStyles = {
-    height: '100%',
-    width: '100%',
+    height: "100%",
+    width: "100%",
   };
 
   if (isInput) {
     return (
       <View style={{ margin: 10 }}>
         <Animated.View
-          style={[
-            styles.label,
-            { backgroundColor: interpolatedBackground },
-          ]}
+          style={[styles.label, { backgroundColor: interpolatedBackground }]}
         />
         <Animated.View
           style={[
@@ -121,26 +120,24 @@ const ContentLoader = ({
     );
   }
   return [...Array(listSize)].map((_, index) => (
-    <View key={index} style={{ width: '100%', marginVertical: 8 }}>
+    <View key={index} style={{ width: "100%", marginVertical: 8 }}>
       <View
         style={[
           styles.container,
-          { flexDirection: reverse ? 'row-reverse' : 'row' },
+          { flexDirection: reverse ? "row-reverse" : "row" },
           containerStyles,
         ]}
       >
-        {showAvatar
-          ? (
-            <Animated.View
-              style={[
-                styles.avatar,
-                avatarInitialStyles,
-                avatarStyles,
-                { backgroundColor: interpolatedBackground },
-              ]}
-            />
-          )
-          : null}
+        {showAvatar ? (
+          <Animated.View
+            style={[
+              styles.avatar,
+              avatarInitialStyles,
+              avatarStyles,
+              { backgroundColor: interpolatedBackground },
+            ]}
+          />
+        ) : null}
 
         <View style={styles.content}>
           <Animated.View
@@ -181,20 +178,20 @@ const ContentLoader = ({
 ContentLoader.defaultProps = {
   ...commonDefaultProps,
   pHeight: 7,
-  pWidth: ['85%', '95%', '75%'],
+  pWidth: ["85%", "95%", "75%"],
   pRows: 3,
-  tWidth: '50%',
+  tWidth: "50%",
   tHeight: 7,
-  sTWidth: '30%',
+  sTWidth: "30%",
   paragraphStyles: {},
   secondaryTitleStyles: {},
 };
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    width: '100%',
+    flexDirection: "row",
+    width: "100%",
     paddingHorizontal: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
 
   content: {

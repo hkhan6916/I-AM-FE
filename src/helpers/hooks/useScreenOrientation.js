@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   getOrientationAsync,
   addOrientationChangeListener,
-} from 'expo-screen-orientation';
+} from "expo-screen-orientation";
 
 const useScreenOrientation = () => {
   const [orientation, setOrientation] = useState(0);
@@ -21,9 +21,9 @@ const useScreenOrientation = () => {
     };
   }, []);
   if (orientation > 2) {
-    return 'LANDSCAPE';
+    return "LANDSCAPE";
   }
-  return 'PORTRAIT';
+  return "PORTRAIT";
 };
 
 export default useScreenOrientation;

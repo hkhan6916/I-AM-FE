@@ -1,17 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  Text, View, StyleSheet, TouchableHighlight, TouchableOpacity,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { MaterialCommunityIcons, FontAwesome, Ionicons } from '@expo/vector-icons';
-import VideoPlayer from './VideoPlayer';
-import formatAge from '../helpers/formatAge';
-import Avatar from './Avatar';
-import themeStyle from '../theme.style';
-import apiCall from '../helpers/apiCall';
-import ImageWithCache from './ImageWithCache';
+  Text,
+  View,
+  StyleSheet,
+  TouchableHighlight,
+  TouchableOpacity,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import {
+  MaterialCommunityIcons,
+  FontAwesome,
+  Ionicons,
+} from "@expo/vector-icons";
+import VideoPlayer from "./VideoPlayer";
+import formatAge from "../helpers/formatAge";
+import Avatar from "./Avatar";
+import themeStyle from "../theme.style";
+import apiCall from "../helpers/apiCall";
+import ImageWithCache from "./ImageWithCache";
 
-const PostCard = ({ post: initialPost, hideActions = false, isPreview = false }) => {
+const PostCard = ({
+  post: initialPost,
+  hideActions = false,
+  isPreview = false,
+}) => {
   const [post, setPost] = useState(initialPost);
   const navigation = useNavigation();
 
@@ -20,7 +32,10 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
       const newPost = { ...post, liked: false };
       newPost.likes -= 1;
       setPost(newPost);
-      const { success } = await apiCall('GET', `/posts/like/remove/${post._id}`);
+      const { success } = await apiCall(
+        "GET",
+        `/posts/like/remove/${post._id}`
+      );
       if (!success) {
         setPost(initialPost);
       }
@@ -28,7 +43,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
       const newPost = { ...post, liked: true };
       newPost.likes += 1;
       setPost(newPost);
-      const { success } = await apiCall('GET', `/posts/like/add/${post._id}`);
+      const { success } = await apiCall("GET", `/posts/like/add/${post._id}`);
       if (!success) {
         setPost(initialPost);
       }
@@ -41,11 +56,7 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
 
     return (
       <Text style={styles.postAge}>
-        {ageObject.age}
-        {' '}
-        {ageObject.unit}
-        {' '}
-        ago
+        {ageObject.age} {ageObject.unit} ago
       </Text>
     );
   };
@@ -53,17 +64,18 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
   const RepostedPost = ({ postContent }) => (
     <TouchableHighlight
       style={styles.repostedPostContent}
-      onPress={() => navigation.navigate('PostsScreen', { post: postContent })}
+      onPress={() => navigation.navigate("PostsScreen", { post: postContent })}
       underlayColor={themeStyle.colors.grayscale.mediumGray}
     >
       <View>
-        <View style={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          padding: 7,
-          borderBottomWidth: isPreview ? 0.5 : 0,
-          borderColor: themeStyle.colors.grayscale.lightGray,
-        }}
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            padding: 7,
+            borderBottomWidth: isPreview ? 0.5 : 0,
+            borderColor: themeStyle.colors.grayscale.lightGray,
+          }}
         >
           <Avatar
             navigation={navigation}
@@ -72,64 +84,68 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
             avatarUrl={postContent.postAuthor.profileGifUrl}
             profileGifHeaders={postContent.postAuthor.profileGifHeaders}
           />
-          <View style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginLeft: 20,
-          }}
+          <View
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginLeft: 20,
+            }}
           >
-            <Text numberOfLines={1} style={{ fontWeight: '700', maxWidth: 200 }}>{postContent.postAuthor.username}</Text>
+            <Text
+              numberOfLines={1}
+              style={{ fontWeight: "700", maxWidth: 200 }}
+            >
+              {postContent.postAuthor.username}
+            </Text>
             <Text style={{ maxWidth: 200 }} numberOfLines={1}>
-              {postContent.postAuthor.firstName}
-              {' '}
+              {postContent.postAuthor.firstName}{" "}
               {postContent.postAuthor.lastName}
             </Text>
           </View>
         </View>
-        {postContent.mediaType === 'video'
-          ? (
-            <View style={{
+        {postContent.mediaType === "video" ? (
+          <View
+            style={{
               flex: 1,
-              flexDirection: 'column',
+              flexDirection: "column",
             }}
-            >
-              <VideoPlayer
-                mediaOrientation={postContent.mediaOrientation}
-                mediaIsSelfie={postContent.mediaIsSelfie}
-                url={postContent.mediaUrl}
-                mediaHeaders={postContent.mediaHeaders}
-              />
-            </View>
-          ) : postContent.mediaType === 'image'
-            ? (
-              <View style={{
-                flex: 1,
-                flexDirection: 'column',
-              }}
-              >
-                <ImageWithCache
-                  removeBorderRadius
-                  mediaHeaders={postContent.mediaHeaders}
-                  mediaOrientation={postContent.mediaOrientation}
-                  mediaIsSelfie={postContent.mediaIsSelfie}
-                  resizeMode="cover"
-                  mediaUrl={postContent.mediaUrl}
-                  aspectRatio={1 / 1}
-                />
-              </View>
-            )
-            : null}
-        {postContent.body
-          ? (
-            <View style={{
+          >
+            <VideoPlayer
+              mediaOrientation={postContent.mediaOrientation}
+              mediaIsSelfie={postContent.mediaIsSelfie}
+              url={postContent.mediaUrl}
+              mediaHeaders={postContent.mediaHeaders}
+            />
+          </View>
+        ) : postContent.mediaType === "image" ? (
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "column",
+            }}
+          >
+            <ImageWithCache
+              removeBorderRadius
+              mediaHeaders={postContent.mediaHeaders}
+              mediaOrientation={postContent.mediaOrientation}
+              mediaIsSelfie={postContent.mediaIsSelfie}
+              resizeMode="cover"
+              mediaUrl={postContent.mediaUrl}
+              aspectRatio={1 / 1}
+            />
+          </View>
+        ) : null}
+        {postContent.body ? (
+          <View
+            style={{
               margin: 10,
             }}
-            >
-              <Text numberOfLines={4} style={{ textAlign: 'left' }}>
-                {postContent.body}
-              </Text>
-            </View>
-          ) : null}
+          >
+            <Text numberOfLines={4} style={{ textAlign: "left" }}>
+              {postContent.body}
+            </Text>
+          </View>
+        ) : null}
       </View>
     </TouchableHighlight>
   );
@@ -143,190 +159,204 @@ const PostCard = ({ post: initialPost, hideActions = false, isPreview = false })
       {post.likedBy && (
         <TouchableOpacity
           style={{ padding: 10 }}
-          onPress={() => navigation.navigate('UserProfileScreen',
-            { userId: post.likedBy._id })}
+          onPress={() =>
+            navigation.navigate("UserProfileScreen", {
+              userId: post.likedBy._id,
+            })
+          }
         >
-          <Text style={{ fontWeight: '700' }}>
-            {post.likedBy.firstName}
-            {' '}
-            {post.likedBy.lastName}
-            {' '}
-            liked this
+          <Text style={{ fontWeight: "700" }}>
+            {post.likedBy.firstName} {post.likedBy.lastName} liked this
           </Text>
         </TouchableOpacity>
       )}
 
       {post.postAuthor && (
-      <View style={[styles.postAuthorContainer, !isPreview && { borderTopWidth: 0.5 }]}>
-        <Avatar
-          navigation={navigation}
-          userId={post.postAuthor._id}
-          size={50}
-          avatarUrl={post.postAuthor.profileGifUrl}
-          profileGifHeaders={post.postAuthor.profileGifHeaders}
-        />
-        <View style={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginLeft: 20,
-        }}
+        <View
+          style={[
+            styles.postAuthorContainer,
+            !isPreview && { borderTopWidth: 0.5 },
+          ]}
         >
-          <Text numberOfLines={1} style={{ fontWeight: '700', maxWidth: 200 }}>{post.postAuthor.username}</Text>
-          <Text style={{ maxWidth: 200 }} numberOfLines={1}>
-            {post.postAuthor.firstName}
-            {' '}
-            {post.postAuthor.lastName}
-          </Text>
-          {post.postAuthor.jobTitle && (
-          <Text
-            numberOfLines={1}
-            style={{ color: themeStyle.colors.grayscale.mediumGray, maxWidth: 200 }}
+          <Avatar
+            navigation={navigation}
+            userId={post.postAuthor._id}
+            size={50}
+            avatarUrl={post.postAuthor.profileGifUrl}
+            profileGifHeaders={post.postAuthor.profileGifHeaders}
+          />
+          <View
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginLeft: 20,
+            }}
           >
-            {post.postAuthor.jobTitle}
-          </Text>
-          )}
-        </View>
-      </View>
-      )}
-      {post.repostPostObj
-        ? (
-          <View>
-            <RepostedPost postContent={post.repostPostObj} />
-            {post.body
-              ? (
-                <View style={{
-                  padding: 5, marginHorizontal: 10,
-                }}
-                >
-                  <Text style={{ textAlign: 'left' }}>
-                    {post.body}
-                  </Text>
-                </View>
-              ) : null}
-          </View>
-        )
-        : (
-          <View style={{
-            // margin: 1,
-          }}
-          >
-            <TouchableHighlight
-              onPress={() => navigation.navigate('MediaScreen', { post })}
-              underlayColor={themeStyle.colors.grayscale.mediumGray}
+            <Text
+              numberOfLines={1}
+              style={{ fontWeight: "700", maxWidth: 200 }}
             >
-              <View>
-                {post.mediaType === 'video'
-                  ? (
-                    <View
-                      style={{
-                        flex: 1,
-                        flexDirection: 'column',
-                      }}
-                    >
-                      <VideoPlayer
-                        mediaOrientation={post.mediaOrientation}
-                        mediaIsSelfie={post.mediaIsSelfie}
-                        url={post.mediaUrl}
-                        mediaHeaders={post.mediaHeaders}
-                      />
-                    </View>
-                  ) : post.mediaType === 'image'
-                    ? (
-                      <View style={{
-                        flex: 1,
-                        flexDirection: 'column',
-                      }}
-                      >
-                        <ImageWithCache
-                          removeBorderRadius
-                          mediaHeaders={post.mediaHeaders}
-                          mediaOrientation={post.mediaOrientation}
-                          mediaIsSelfie={post.mediaIsSelfie}
-                          resizeMode="cover"
-                          mediaUrl={post.mediaUrl}
-                          aspectRatio={1 / 1}
-                        />
-                      </View>
-                    )
-                    : null}
-              </View>
-            </TouchableHighlight>
-            {post.body
-              ? (
-                <View style={{
-                  padding: 5,
+              {post.postAuthor.username}
+            </Text>
+            <Text style={{ maxWidth: 200 }} numberOfLines={1}>
+              {post.postAuthor.firstName} {post.postAuthor.lastName}
+            </Text>
+            {post.postAuthor.jobTitle && (
+              <Text
+                numberOfLines={1}
+                style={{
+                  color: themeStyle.colors.grayscale.mediumGray,
+                  maxWidth: 200,
                 }}
+              >
+                {post.postAuthor.jobTitle}
+              </Text>
+            )}
+          </View>
+        </View>
+      )}
+      {post.repostPostObj ? (
+        <View>
+          <RepostedPost postContent={post.repostPostObj} />
+          {post.body ? (
+            <View
+              style={{
+                padding: 5,
+                marginHorizontal: 10,
+              }}
+            >
+              <Text style={{ textAlign: "left" }}>{post.body}</Text>
+            </View>
+          ) : null}
+        </View>
+      ) : (
+        <View>
+          <TouchableHighlight
+            onPress={() => navigation.navigate("MediaScreen", { post })}
+            underlayColor={themeStyle.colors.grayscale.mediumGray}
+          >
+            <View>
+              {post.mediaType === "video" ? (
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "column",
+                  }}
                 >
-                  <Text style={{ textAlign: 'left' }}>
-                    {post.body}
-                  </Text>
+                  <VideoPlayer
+                    mediaOrientation={post.mediaOrientation}
+                    mediaIsSelfie={post.mediaIsSelfie}
+                    url={post.mediaUrl}
+                    mediaHeaders={post.mediaHeaders}
+                  />
+                </View>
+              ) : post.mediaType === "image" ? (
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "column",
+                  }}
+                >
+                  <ImageWithCache
+                    removeBorderRadius
+                    mediaHeaders={post.mediaHeaders}
+                    mediaOrientation={post.mediaOrientation}
+                    mediaIsSelfie={post.mediaIsSelfie}
+                    resizeMode="cover"
+                    mediaUrl={post.mediaUrl}
+                    aspectRatio={1 / 1}
+                  />
                 </View>
               ) : null}
-          </View>
-        )}
-      {!hideActions
-      && (
+            </View>
+          </TouchableHighlight>
+          {post.body ? (
+            <View
+              style={{
+                padding: 5,
+              }}
+            >
+              <Text style={{ textAlign: "left" }}>{post.body}</Text>
+            </View>
+          ) : null}
+        </View>
+      )}
+      {!hideActions && (
         <View>
-          <View style={{
-            flexDirection: 'row',
-            flex: 1,
-            justifyContent: 'space-between',
-          }}
+          <View
+            style={{
+              flexDirection: "row",
+              flex: 1,
+              justifyContent: "space-between",
+            }}
           >
-            <View style={{ flexDirection: 'row' }}>
+            <View style={{ flexDirection: "row" }}>
               <TouchableOpacity
                 onPress={() => handleReaction()}
                 style={{
                   width: 40,
                   height: 40,
-                  justifyContent: 'center',
-                  alignItems: 'center',
+                  justifyContent: "center",
+                  alignItems: "center",
                   marginHorizontal: 5,
                 }}
               >
                 <MaterialCommunityIcons
-                  name={post.liked ? 'thumb-up' : 'thumb-up-outline'}
+                  name={post.liked ? "thumb-up" : "thumb-up-outline"}
                   size={24}
-                  color={post.liked ? themeStyle.colors.secondary.default
-                    : themeStyle.colors.grayscale.black}
+                  color={
+                    post.liked
+                      ? themeStyle.colors.secondary.default
+                      : themeStyle.colors.grayscale.black
+                  }
                 />
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => navigation.navigate('CommentsScreen', {
-                  postId: post._id,
-                })}
+                onPress={() =>
+                  navigation.navigate("CommentsScreen", {
+                    postId: post._id,
+                  })
+                }
                 style={{
                   width: 40,
                   height: 40,
-                  justifyContent: 'center',
-                  alignItems: 'center',
+                  justifyContent: "center",
+                  alignItems: "center",
                   marginHorizontal: 5,
                 }}
               >
-                <FontAwesome name="comment-o" size={24} color={themeStyle.colors.grayscale.black} />
+                <FontAwesome
+                  name="comment-o"
+                  size={24}
+                  color={themeStyle.colors.grayscale.black}
+                />
               </TouchableOpacity>
             </View>
             <TouchableOpacity
-              onPress={() => navigation.navigate('RepostScreen', {
-                prevScreen: 'Home',
-                post: post.repostPostObj || post,
-              })}
+              onPress={() =>
+                navigation.navigate("RepostScreen", {
+                  prevScreen: "Home",
+                  post: post.repostPostObj || post,
+                })
+              }
               style={{
                 width: 40,
                 height: 40,
-                justifyContent: 'center',
-                alignItems: 'center',
+                justifyContent: "center",
+                alignItems: "center",
                 marginHorizontal: 5,
-                justifySelf: 'flex-end',
+                justifySelf: "flex-end",
               }}
             >
-              <Ionicons name="arrow-redo-outline" size={26} color={themeStyle.colors.grayscale.black} />
+              <Ionicons
+                name="arrow-redo-outline"
+                size={26}
+                color={themeStyle.colors.grayscale.black}
+              />
             </TouchableOpacity>
           </View>
           <Text style={{ marginHorizontal: 10, marginVertical: 5 }}>
-            {post.likes}
-            {' '}
-            likes
+            {post.likes} likes
           </Text>
           <PostAge />
         </View>
@@ -357,21 +387,21 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   postAuthorContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     padding: 5,
     borderColor: themeStyle.colors.grayscale.lightGray,
   },
   postAuthorProfilePic: {
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     width: 50,
     height: 50,
     borderRadius: 50,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   postAuthorProfilePicImage: {
     borderRadius: 10,
-    alignSelf: 'center',
+    alignSelf: "center",
     width: 50,
     height: 50,
   },

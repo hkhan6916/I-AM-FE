@@ -1,14 +1,14 @@
-import React, { useEffect } from 'react';
-import { Ionicons } from '@expo/vector-icons';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useSelector, useDispatch } from 'react-redux';
-import HomeScreen from './Home';
-import AddScreen from './Add';
-import ProfileScreen from './Profile';
-import SearchStack from './Search';
-import FriendsScreen from './Friends';
-import themeStyle from '../../../theme.style';
-import apiCall from '../../../helpers/apiCall';
+import React, { useEffect } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { useSelector, useDispatch } from "react-redux";
+import HomeScreen from "./Home";
+import AddScreen from "./Add";
+import ProfileScreen from "./Profile";
+import SearchStack from "./Search";
+import FriendsScreen from "./Friends";
+import themeStyle from "../../../theme.style";
+import apiCall from "../../../helpers/apiCall";
 
 const Tab = createBottomTabNavigator();
 
@@ -18,10 +18,10 @@ const MainTabStack = () => {
   const cameraActivated = useSelector((state) => state.cameraActivated);
 
   const getUserData = async () => {
-    const { success, response } = await apiCall('GET', '/user/data');
+    const { success, response } = await apiCall("GET", "/user/data");
 
     if (success) {
-      dispatch({ type: 'SET_USER_DATA', payload: response });
+      dispatch({ type: "SET_USER_DATA", payload: response });
     }
   };
   useEffect(() => {
@@ -47,7 +47,7 @@ const MainTabStack = () => {
         tabBarShowLabel: false,
         tabBarStyle: [
           {
-            display: cameraActivated.state ? 'none' : 'flex',
+            display: cameraActivated.state ? "none" : "flex",
             // borderRadius: 20,
             height: 55,
             // margin: 5,
@@ -59,22 +59,22 @@ const MainTabStack = () => {
         headerShown: false,
         tabBarIcon: ({ color, size }) => {
           let iconName;
-          if (route.name === 'Home') {
-            iconName = 'home';
-          } else if (route.name === 'Post') {
-            iconName = 'add';
-          } else if (route.name === 'Me') {
-            iconName = 'happy';
-          } else if (route.name === 'Search') {
-            iconName = 'search';
-          } else if (route.name === 'Friends') {
-            iconName = 'people';
+          if (route.name === "Home") {
+            iconName = "home";
+          } else if (route.name === "Post") {
+            iconName = "add";
+          } else if (route.name === "Me") {
+            iconName = "happy";
+          } else if (route.name === "Search") {
+            iconName = "search";
+          } else if (route.name === "Friends") {
+            iconName = "people";
           }
 
           return (
             <Ionicons
               name={iconName}
-              size={route.name === 'Post' ? 35 : size}
+              size={route.name === "Post" ? 35 : size}
               color={color}
             />
           );

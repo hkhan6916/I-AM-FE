@@ -113,6 +113,7 @@ const UserProfileScreen = (props) => {
           mediaHeaders={user.profileVideoHeaders}
           mediaIsSelfie
         />
+        <Text>{user.numberOfFriends}</Text>
         <Text>
           {user.firstName} {user.lastName}
         </Text>

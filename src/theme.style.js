@@ -1,29 +1,30 @@
 export default {
   colors: {
     primary: {
-      default: '#138294',
-      light: '#00cddb',
+      default: "#138294",
+      light: "#00cddb",
     },
     secondary: {
-      default: '#0085FF',
-      light: '#66b5ff',
+      default: "#0085FF",
+      bright: "#00ddff",
+      light: "#66b5ff",
     },
     warning: {
-      default: '#FFB000',
+      default: "#FFB000",
     },
     success: {
-      default: '#39FF00',
+      default: "#39FF00",
     },
     error: {
-      default: '#FF0000',
+      default: "#FF0000",
     },
     grayscale: {
-      white: '#FFFFFF',
-      black: '#000000',
-      superLightGray: '#F1F1F1',
-      lightGray: '#B8B894',
-      mediumGray: '#848484',
-      darkGray: '#6C6C6C',
+      white: "#FFFFFF",
+      black: "#000000",
+      superLightGray: "#F1F1F1",
+      lightGray: "#B8B894",
+      mediumGray: "#848484",
+      darkGray: "#6C6C6C",
     },
   },
 };

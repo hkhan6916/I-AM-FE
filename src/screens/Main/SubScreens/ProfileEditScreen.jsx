@@ -53,8 +53,6 @@ const ProfileEditScreen = () => {
 
   const [showUpdatedPill, setShowUpdatedPill] = useState(false);
 
-  const [scrollMargin, setScrollMargin] = useState(0);
-
   const navigation = useNavigation();
 
   const handleFacesDetected = (obj) => {
