@@ -1,4 +1,10 @@
-import React, { useEffect, useContext, useState, useCallback } from "react";
+import React, {
+  useEffect,
+  useContext,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
 import {
   View,
   Text,
@@ -28,6 +34,7 @@ const HomeScreen = () => {
   const [feed, setFeed] = useState(initialFeed);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [visibleItems, setVisibleItems] = useState([]);
 
   const navigation = useNavigation();
 
@@ -70,6 +77,35 @@ const HomeScreen = () => {
       }
     }
   };
+  // const onViewableItemsChanged = useCallback(
+  //   (props) => {
+  //     const viewableItems = props.viewableItems;
+
+  //     viewableItems.forEach((item) => {
+  //       if (item.isViewable) {
+  //         // setVisibleItems([])
+  //         console.log(item);
+  //       }
+  //     });
+  //     return null;
+  //   },
+  //   [feed]
+  // );
+  const onViewableItemsChanged = ({ viewableItems }) => {
+    viewableItems.forEach((item) => {
+      if (item.isViewable) {
+        setVisibleItems([item.item._id]);
+      }
+    });
+  };
+  const viewabilityConfig = {
+    waitForInteraction: true,
+    viewAreaCoveragePercentThreshold: 95,
+  };
+
+  const viewabilityConfigCallbackPairs = useRef([
+    { onViewableItemsChanged, viewabilityConfig },
+  ]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -123,10 +159,12 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </View>
       <FlatList
+        // onViewableItemsChanged={(props) => onViewableItemsChanged(props)}
+        viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs.current}
         data={feed}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <View>
-            <PostCard post={item} />
+            <PostCard isVisible={visibleItems.includes(item._id)} post={item} />
           </View>
         )}
         keyExtractor={(item, index) => `${item._id}-${index}`}

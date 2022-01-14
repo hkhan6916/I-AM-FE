@@ -91,7 +91,18 @@ const ProfileScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity onPress={() => navigation.navigate("SettingsScreen")}>
-        <View style={{ alignItems: "flex-end", margin: 20 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            paddingVertical: 10,
+            paddingHorizontal: 15,
+            borderBottomWidth: 1,
+          }}
+        >
+          <Text style={{ fontSize: 20 }} numberOfLines={1}>
+            {userData.username}
+          </Text>
           <MaterialCommunityIcons name="cog-outline" size={24} color="black" />
         </View>
       </TouchableOpacity>
@@ -106,13 +117,15 @@ const ProfileScreen = () => {
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }
         >
-          <Text>{userData.numberOfFriends}</Text>
           <View style={{ width: "100%" }}>
             <VideoPlayer
               url={userData.profileVideoUrl}
               mediaHeaders={userData.profileVideoHeaders}
               mediaIsSelfie
             />
+          </View>
+          <View style={{ flexDirection: "row" }}>
+            <Text>{userData.numberOfFriends} friends</Text>
           </View>
           {userPosts.map((post) => (
             <PostCard key={post._id} post={post} />

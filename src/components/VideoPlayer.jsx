@@ -24,33 +24,34 @@ const VideoPlayer = ({
   mediaOrientation,
   mediaIsSelfie,
   mediaHeaders,
+  shouldPlay,
 }) => {
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
-  const [showControls, setShowControls] = useState(true);
+  const [showControls, setShowControls] = useState(false);
+  const [controlsTimeout, setControlsTimeout] = useState(null);
   const [videoDimensions, setVideoDimensions] = useState({});
+
   const navigation = useNavigation();
   const progressBarWidth = screenWidth - 170;
 
   const ScreenOrientation = useScreenOrientation();
-
-  const handleStatusChange = async (status) => {
-    setVideoStatus(status);
-  };
 
   const handleVideoState = async () => {
     const videoEnded =
       videoStatus.positionMillis &&
       videoStatus.durationMillis &&
       videoStatus.positionMillis === videoStatus.durationMillis;
+    if (controlsTimeout) {
+      clearTimeout(controlsTimeout);
+    }
+    const timeout = setTimeout(() => {
+      setShowControls(false);
+    }, 3000);
+    setControlsTimeout(timeout);
 
     if (videoStatus.isPlaying) {
       await video.current.pauseAsync();
-      if (showControls) {
-        setTimeout(() => {
-          setShowControls(false);
-        }, 5000);
-      }
     } else if (videoEnded) {
       await video.current.setPositionAsync(0);
       await video.current.playAsync();
@@ -153,9 +154,7 @@ const VideoPlayer = ({
                   }}
                   useNativeControls={false}
                   resizeMode="contain"
-                  onPlaybackStatusUpdate={(status) =>
-                    handleStatusChange(status)
-                  }
+                  onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
                 />
               </View>
             </View>
@@ -185,8 +184,9 @@ const VideoPlayer = ({
                   setVideoDimensions(params.naturalSize);
                 }}
                 volume={0}
+                shouldPlay={shouldPlay || false}
                 ref={video}
-                isLooping={false}
+                isLooping={true}
                 style={{
                   aspectRatio: handleVideoAspectRatio() || 1,
                   width: videoStatus.isPlaying
@@ -201,7 +201,7 @@ const VideoPlayer = ({
                 }}
                 useNativeControls={false}
                 resizeMode="cover"
-                onPlaybackStatusUpdate={(status) => handleStatusChange(status)}
+                onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
               />
               <View
                 style={{
@@ -223,14 +223,32 @@ const VideoPlayer = ({
             </View>
           </View>
         )}
+        {!isFullScreen ? (
+          <Text
+            style={{
+              position: "absolute",
+              bottom: 0,
+              right: 0,
+              backgroundColor: themeStyle.colors.grayscale.darkGray,
+              paddingVertical: 5,
+              opacity: 0.8,
+              paddingHorizontal: 10,
+              borderRadius: 15,
+              margin: 10,
+              color: themeStyle.colors.grayscale.white,
+            }}
+          >
+            {handleVideoDuration(
+              videoStatus?.durationMillis - videoStatus?.positionMillis
+            )}
+          </Text>
+        ) : null}
       </View>
-      {showControls || !isFullScreen ? (
+      {showControls ? (
         <TouchableWithoutFeedback onPress={() => handleVideoState()}>
           <View
             style={{
               position: "absolute",
-              backgroundColor: themeStyle.colors.grayscale.black,
-              borderRadius: 100,
             }}
           >
             <MaterialCommunityIcons

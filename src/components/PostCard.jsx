@@ -23,6 +23,7 @@ const PostCard = ({
   post: initialPost,
   hideActions = false,
   isPreview = false,
+  isVisible,
 }) => {
   const [post, setPost] = useState(initialPost);
   const navigation = useNavigation();
@@ -111,6 +112,7 @@ const PostCard = ({
             }}
           >
             <VideoPlayer
+              shouldPlay={isVisible}
               mediaOrientation={postContent.mediaOrientation}
               mediaIsSelfie={postContent.mediaIsSelfie}
               url={postContent.mediaUrl}
@@ -244,6 +246,7 @@ const PostCard = ({
                   }}
                 >
                   <VideoPlayer
+                    shouldPlay={isVisible}
                     mediaOrientation={post.mediaOrientation}
                     mediaIsSelfie={post.mediaIsSelfie}
                     url={post.mediaUrl}

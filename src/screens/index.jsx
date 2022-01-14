@@ -17,7 +17,7 @@ const Screens = () => {
   const [loaded, setLoaded] = useState(false);
   const [feed, setFeed] = useState([]);
   const [notificationToken, setNotificationToken] = useState("");
-
+  const [skipNotificationToken, setSkipNotificationToken] = useState(false);
   const loginAttemptStatus = useSelector((state) => state.loggedIn);
   const Theme = {
     ...DefaultTheme,
@@ -91,30 +91,32 @@ const Screens = () => {
     return token;
   };
 
-  // useEffect(() => {
-  //   if (!notificationToken && loaded) {
-  //     registerForPushNotificationsAsync().then(async (token) => {
-  //       try {
-  //         const { success } = await apiCall(
-  //           "POST",
-  //           "/user/notifications/token/update",
-  //           { notificationToken: token }
-  //         );
-  //         if (success) {
-  //           await setItemAsync("notificationToken", token);
-  //         }
-  //         setNotificationToken(token || "none");
-  //       } catch (error) {
-  //         await setItemAsync("notificationToken", token);
-  //       }
-  //     });
-  //   }
-  // }, [loaded]);
+  useEffect(() => {
+    if (!notificationToken && loaded) {
+      registerForPushNotificationsAsync().then(async (token) => {
+        try {
+          if (token) {
+            const { success } = await apiCall(
+              "POST",
+              "/user/notifications/token/update",
+              { notificationToken: token }
+            );
+            if (success) {
+              await setItemAsync("notificationToken", token);
+            }
+            setNotificationToken(token || "none");
+          } else {
+            setSkipNotificationToken(true);
+          }
+        } catch (error) {
+          setSkipNotificationToken(true);
+          return;
+        }
+      });
+    }
+  }, [loaded]);
 
-  if (
-    !loaded
-    // || !notificationToken
-  ) {
+  if (!loaded || !(notificationToken || skipNotificationToken)) {
     return (
       <View style={styles.splashScreenContainer}>
         <Text>Splash Screen</Text>
@@ -123,8 +125,7 @@ const Screens = () => {
   }
   return (
     <NavigationContainer theme={Theme}>
-      {loaded && loggedIn ? (
-        // && notificationToken  commented as there was an issue with the expo notification service returning a 503. Can't depend upon this service to render the feed.
+      {loaded && loggedIn && (notificationToken || skipNotificationToken) ? (
         <FeedContext.Provider value={feed}>
           <MainScreens />
         </FeedContext.Provider>
