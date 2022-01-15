@@ -1,23 +1,23 @@
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Platform } from "react-native";
+import { View, Platform } from "react-native";
 import { useSelector } from "react-redux";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
-import { getItemAsync, setItemAsync } from "expo-secure-store";
+import { setItemAsync } from "expo-secure-store";
 import apiCall from "../helpers/apiCall";
 import AuthScreens from "./Auth";
 import MainScreens from "./Main";
 import themeStyle from "../theme.style";
 import FeedContext from "../Context";
 import registerNotifications from "../helpers/registerNotifications";
+import * as SplashScreen from "expo-splash-screen";
 
 const Screens = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [feed, setFeed] = useState([]);
   const [notificationToken, setNotificationToken] = useState("");
-  const [skipNotificationToken, setSkipNotificationToken] = useState(false);
   const loginAttemptStatus = useSelector((state) => state.loggedIn);
   const Theme = {
     ...DefaultTheme,
@@ -32,22 +32,9 @@ const Screens = () => {
     if (success) {
       setFeed(response);
       setLoggedIn(true);
-      setLoaded(true);
-    } else {
-      setLoaded(true);
     }
+    setLoaded(true);
   };
-
-  useEffect(() => {
-    if (!loaded || loginAttemptStatus.state) {
-      (async () => {
-        await getUserFeed();
-      })();
-    }
-    if (loaded && !loginAttemptStatus.state) {
-      setLoggedIn(false);
-    }
-  }, [loginAttemptStatus]);
 
   const registerForPushNotificationsAsync = async () => {
     let token;
@@ -92,6 +79,20 @@ const Screens = () => {
   };
 
   useEffect(() => {
+    (async () => {
+      SplashScreen.preventAutoHideAsync();
+      // if not loaded, but authenticated
+      if (!loaded || loginAttemptStatus.state) {
+        await getUserFeed();
+      }
+      // if loaded, but not authenticated. This is used for logging out a user.
+      if (loaded && !loginAttemptStatus.state) {
+        setLoggedIn(false);
+      }
+    })();
+  }, [loginAttemptStatus]);
+
+  useEffect(() => {
     if (!notificationToken && loaded) {
       registerForPushNotificationsAsync().then(async (token) => {
         try {
@@ -106,26 +107,27 @@ const Screens = () => {
             }
             setNotificationToken(token || "none");
           } else {
-            setSkipNotificationToken(true);
+            setNotificationToken("none");
           }
         } catch (error) {
-          setSkipNotificationToken(true);
+          setNotificationToken("none");
           return;
         }
       });
     }
-  }, [loaded]);
+    (async () => {
+      if (loaded && notificationToken) {
+        await SplashScreen.hideAsync();
+      }
+    })();
+  }, [loaded, notificationToken]);
 
-  if (!loaded || !(notificationToken || skipNotificationToken)) {
-    return (
-      <View style={styles.splashScreenContainer}>
-        <Text>Splash Screen</Text>
-      </View>
-    );
-  }
   return (
     <NavigationContainer theme={Theme}>
-      {loaded && loggedIn && (notificationToken || skipNotificationToken) ? (
+      {!loaded || !notificationToken ? (
+        // just so the app has something to render always even if it's an empty view
+        <View />
+      ) : loaded && loggedIn && notificationToken ? (
         <FeedContext.Provider value={feed}>
           <MainScreens />
         </FeedContext.Provider>
@@ -135,14 +137,5 @@ const Screens = () => {
     </NavigationContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  splashScreenContainer: {
-    flex: 1,
-    backgroundColor: themeStyle.colors.grayscale.white,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
 
 export default Screens;

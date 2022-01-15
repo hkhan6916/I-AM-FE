@@ -122,6 +122,7 @@ const ProfileScreen = () => {
               url={userData.profileVideoUrl}
               mediaHeaders={userData.profileVideoHeaders}
               mediaIsSelfie
+              isProfileVideo
             />
           </View>
           <View style={{ flexDirection: "row" }}>

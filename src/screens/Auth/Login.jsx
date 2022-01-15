@@ -55,13 +55,14 @@ const LoginScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.formContainer}>
-        <Logo fill={themeStyle.colors.grayscale.black} />
-        <Text style={styles.formHeaderText}>SIGN IN</Text>
+        <View style={styles.logoContainer}>
+          <Logo fill={themeStyle.colors.grayscale.black} />
+        </View>
         <TextInput
           style={styles.usernameInput}
           placeholderTextColor={themeStyle.colors.grayscale.lightGray}
           value={identifier}
-          placeholder="Username or Email..."
+          placeholder="Username or Email"
           onChangeText={(v) => setIdentifier(v)}
         />
         <View style={styles.passwordInputContainer}>
@@ -72,7 +73,7 @@ const LoginScreen = () => {
             value={password}
             autoCorrect={false}
             onChangeText={(v) => setPassword(v)}
-            placeholder="Password..."
+            placeholder="Password"
           />
           <TouchableOpacity
             style={styles.eyeIcon}
@@ -101,7 +102,7 @@ const LoginScreen = () => {
           <Text style={styles.loginError}>{loginError}</Text>
         ) : null}
       </View>
-      <View>
+      <View style={styles.signupSection}>
         <Text style={styles.signupText}>
           Haven&apos;t signed up yet?{" "}
           <Text
@@ -127,11 +128,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  formHeaderText: {
-    paddingVertical: 20,
-    fontSize: 30,
-    color: themeStyle.colors.primary.default,
-    fontWeight: "700",
+  logoContainer: {
+    marginBottom: 20,
   },
   loginError: {
     textAlign: "center",
@@ -185,6 +183,10 @@ const styles = StyleSheet.create({
   eyeIcon: {
     justifyContent: "center",
     paddingHorizontal: 5,
+  },
+  signupSection: {
+    position: "relative",
+    bottom: 10,
   },
 });
 

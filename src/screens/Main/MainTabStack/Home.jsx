@@ -77,20 +77,7 @@ const HomeScreen = () => {
       }
     }
   };
-  // const onViewableItemsChanged = useCallback(
-  //   (props) => {
-  //     const viewableItems = props.viewableItems;
 
-  //     viewableItems.forEach((item) => {
-  //       if (item.isViewable) {
-  //         // setVisibleItems([])
-  //         console.log(item);
-  //       }
-  //     });
-  //     return null;
-  //   },
-  //   [feed]
-  // );
   const onViewableItemsChanged = ({ viewableItems }) => {
     viewableItems.forEach((item) => {
       if (item.isViewable) {
@@ -100,7 +87,7 @@ const HomeScreen = () => {
   };
   const viewabilityConfig = {
     waitForInteraction: true,
-    viewAreaCoveragePercentThreshold: 95,
+    viewAreaCoveragePercentThreshold: 50,
   };
 
   const viewabilityConfigCallbackPairs = useRef([
@@ -159,10 +146,9 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </View>
       <FlatList
-        // onViewableItemsChanged={(props) => onViewableItemsChanged(props)}
         viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs.current}
         data={feed}
-        renderItem={({ item, index }) => (
+        renderItem={({ item }) => (
           <View>
             <PostCard isVisible={visibleItems.includes(item._id)} post={item} />
           </View>

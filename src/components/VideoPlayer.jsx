@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../theme.style";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
 import ImageWithCache from "./ImageWithCache";
+import ContentLoader from "./ContentLoader";
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 const VideoPlayer = ({
@@ -25,12 +26,14 @@ const VideoPlayer = ({
   mediaIsSelfie,
   mediaHeaders,
   shouldPlay,
+  isProfileVideo,
 }) => {
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
   const [showControls, setShowControls] = useState(false);
   const [controlsTimeout, setControlsTimeout] = useState(null);
   const [videoDimensions, setVideoDimensions] = useState({});
+  const [readyForDisplay, setReadyForDisplay] = useState(false);
 
   const navigation = useNavigation();
   const progressBarWidth = screenWidth - 170;
@@ -61,6 +64,9 @@ const VideoPlayer = ({
   };
 
   const handleVideoDuration = (duration) => {
+    if (!duration) {
+      return "";
+    }
     let seconds = Math.floor((duration / 1000) % 60);
     let minutes = Math.floor((duration / (1000 * 60)) % 60);
     let hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
@@ -182,18 +188,23 @@ const VideoPlayer = ({
               <Video
                 onReadyForDisplay={(params) => {
                   setVideoDimensions(params.naturalSize);
+                  setReadyForDisplay(true);
                 }}
-                volume={0}
+                isMuted={!isProfileVideo}
                 shouldPlay={shouldPlay || false}
                 ref={video}
                 isLooping={true}
                 style={{
                   aspectRatio: handleVideoAspectRatio() || 1,
-                  width: videoStatus.isPlaying
-                    ? ScreenOrientation === "PORTRAIT"
+                  width:
+                    ScreenOrientation === "PORTRAIT"
                       ? screenWidth
-                      : screenHeight
-                    : 0,
+                      : screenHeight,
+                  // width: videoStatus.isPlaying
+                  //   ? ScreenOrientation === "PORTRAIT"
+                  //     ? screenWidth
+                  //     : screenHeight
+                  //   : 0,
                 }}
                 source={{
                   uri: url,
@@ -203,7 +214,19 @@ const VideoPlayer = ({
                 resizeMode="cover"
                 onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
               />
-              <View
+              {!readyForDisplay ? (
+                <View
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    width: "100%",
+                    height: "100%",
+                  }}
+                >
+                  <ContentLoader active isProfileVideo />
+                </View>
+              ) : null}
+              {/* <View
                 style={{
                   width: !videoStatus.isPlaying
                     ? ScreenOrientation === "PORTRAIT"
@@ -219,11 +242,13 @@ const VideoPlayer = ({
                   mediaHeaders={mediaHeaders}
                   aspectRatio={1 / 1}
                 />
-              </View>
+              </View> */}
             </View>
           </View>
         )}
-        {!isFullScreen ? (
+        {!isFullScreen &&
+        videoStatus?.durationMillis &&
+        videoStatus?.positionMillis ? (
           <Text
             style={{
               position: "absolute",
@@ -244,7 +269,7 @@ const VideoPlayer = ({
           </Text>
         ) : null}
       </View>
-      {showControls ? (
+      {showControls || isProfileVideo ? (
         <TouchableWithoutFeedback onPress={() => handleVideoState()}>
           <View
             style={{

@@ -30,6 +30,7 @@
     "expo-screen-orientation": "~4.0.3",
     "expo-secure-store": "~11.0.3",
     "expo-sensors": "~11.0.3",
+    "expo-splash-screen": "^0.14.1",
     "expo-status-bar": "~1.1.0",
     "nanoid": "^3.1.29",
     "react": "17.0.1",
