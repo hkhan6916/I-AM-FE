@@ -4,12 +4,11 @@ import { View, Text, ScrollView } from "react-native";
 const TermsOfUseScreen = () => {
   return (
     <ScrollView style={{ padding: 10 }}>
-      <Text style={{ fontWeight: "700", fontSize: 20 }}>
-        END USER LICENSE AGREEMENT {"\n\n"}
+      <Text style={{ fontWeight: "700", fontSize: 20, margin: 10 }}>
+        END USER LICENSE AGREEMENT {"\n"}
       </Text>
-      <Text style={{ fontWeight: "700" }}>
-        Last updated January 08, 2022{"\n\n"}
-        {"\n\n"}
+      <Text style={{ fontWeight: "700", margin: 10 }}>
+        Last updated January 08, 2022{"\n"}
       </Text>
       <Text style={{ margin: 10 }}>
         Magnet is licensed to You (End-User) by Magnet (hereinafter: Licensor),
