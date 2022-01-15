@@ -5,7 +5,6 @@ import {
   TextInput,
   StyleSheet,
   Button,
-  Image,
   Keyboard,
   SafeAreaView,
   ScrollView,

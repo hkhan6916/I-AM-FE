@@ -12,6 +12,8 @@ import ChatListScreen from "./SubScreens/ChatListScreen";
 import CreateChatScreen from "./SubScreens/CreateChatScreen";
 import ProfileEditScreen from "./SubScreens/ProfileEditScreen";
 import SettingsScreen from "./SubScreens/SettingsScreen";
+import PrivacyPolicyScreen from "./SubScreens/PrivacyPolicyScreen";
+import TermsOfUseScreen from "./SubScreens/TermsOfUseScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -142,6 +144,30 @@ const MainStack = () => (
       }}
       name="SettingsScreen"
       component={SettingsScreen}
+    />
+    <Stack.Screen
+      options={{
+        title: "Privacy Policy",
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+      }}
+      name="PrivacyPolicyScreen"
+      component={PrivacyPolicyScreen}
+    />
+    <Stack.Screen
+      options={{
+        title: "Terms Of Use",
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+      }}
+      name="TermsOfUseScreen"
+      component={TermsOfUseScreen}
     />
   </Stack.Navigator>
 );

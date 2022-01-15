@@ -25,11 +25,31 @@ const SettingScreen = () => {
       <View style={styles.basicOptions}>
         <View style={styles.option}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("EditProfileScreen")}
+            onPress={() => navigation.navigate("ProfileEditScreen")}
           >
             <View style={styles.optionContent}>
               <Feather name="edit-2" size={14} color="black" />
               <Text style={styles.basicOptionsText}>Edit profile</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.option}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("PrivacyPolicyScreen")}
+          >
+            <View style={styles.optionContent}>
+              <Feather name="edit-2" size={14} color="black" />
+              <Text style={styles.basicOptionsText}>Privacy Policy</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.option}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("TermsOfUseScreen")}
+          >
+            <View style={styles.optionContent}>
+              <Feather name="edit-2" size={14} color="black" />
+              <Text style={styles.basicOptionsText}>Terms Of Use</Text>
             </View>
           </TouchableOpacity>
         </View>

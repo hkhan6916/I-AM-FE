@@ -9,13 +9,13 @@ import {
   StatusBar,
 } from "react-native";
 import { Video } from "expo-av";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
 import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../theme.style";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
 import ImageWithCache from "./ImageWithCache";
 import ContentLoader from "./ContentLoader";
+import { Feather } from "@expo/vector-icons";
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 const VideoPlayer = ({
@@ -276,9 +276,9 @@ const VideoPlayer = ({
               position: "absolute",
             }}
           >
-            <MaterialCommunityIcons
+            <Feather
               name={videoStatus.isPlaying ? "pause" : "play"}
-              size={60}
+              size={48}
               color={themeStyle.colors.grayscale.white}
             />
           </View>

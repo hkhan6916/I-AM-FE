@@ -3,7 +3,13 @@ import { View, Text, TouchableOpacity, Dimensions } from "react-native";
 import { Video } from "expo-av";
 import themeStyle from "../theme.style";
 
-const PreviewVideo = ({ uri, headers, isFullWidth, removeBorder }) => {
+const PreviewVideo = ({
+  uri,
+  headers,
+  isFullWidth,
+  removeBorder,
+  previewText,
+}) => {
   const { width: screenWidth } = Dimensions.get("window");
   const [profileVideoPlaying, setProfileVideoPlaying] = useState(false);
   const profileVideoRef = useRef(null);
@@ -65,7 +71,7 @@ const PreviewVideo = ({ uri, headers, isFullWidth, removeBorder }) => {
                 color: themeStyle.colors.grayscale.white,
               }}
             >
-              Tap to preview
+              {previewText || "Tap to preview"}
             </Text>
           </View>
         ) : null}
