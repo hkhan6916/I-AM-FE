@@ -4,21 +4,23 @@ import {
   addOrientationChangeListener,
 } from "expo-screen-orientation";
 
-const useScreenOrientation = () => {
+const useScreenOrientation = (isFullScreen) => {
   const [orientation, setOrientation] = useState(0);
 
   useEffect(() => {
-    getOrientationAsync().then((value) => {
-      setOrientation(value);
-    });
+    if (isFullScreen) {
+      getOrientationAsync().then((value) => {
+        setOrientation(value);
+      });
 
-    const subscription = addOrientationChangeListener((event) => {
-      setOrientation(event.orientationInfo.orientation);
-    });
+      const subscription = addOrientationChangeListener((event) => {
+        setOrientation(event.orientationInfo.orientation);
+      });
 
-    return () => {
-      subscription.remove();
-    };
+      return () => {
+        subscription.remove();
+      };
+    }
   }, []);
   if (orientation > 2) {
     return "LANDSCAPE";

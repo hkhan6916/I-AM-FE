@@ -11,9 +11,9 @@ import {
   StyleSheet,
   RefreshControl,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
@@ -24,6 +24,7 @@ import FeedContext from "../../../Context";
 import PostCard from "../../../components/PostCard";
 import apiCall from "../../../helpers/apiCall";
 import Logo from "../../../Logo";
+import { useScrollToTop } from "@react-navigation/native";
 
 const { statusBarHeight } = Constants;
 
@@ -35,8 +36,15 @@ const HomeScreen = () => {
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [visibleItems, setVisibleItems] = useState([]);
+  const [connectionsAsSenderOffset, setConnectionsAsSenderOffset] = useState(0);
+  const [connectionsAsReceiverOffset, setConnectionsAsReceiverOffset] =
+    useState(0);
+  const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
+  const flatlistRef = useRef(null);
+
+  useScrollToTop(flatlistRef);
 
   const calculateOffsets = async () => {
     if (!feed.length) {
@@ -50,27 +58,33 @@ const HomeScreen = () => {
       }
       i += 1;
     }
-
+    console.log("hey", feed.connectionsAsReceiverOffset);
     return {
       friendsInterestsOffset,
       feedTimelineOffset: feed.length - friendsInterestsOffset,
+      connectionsAsSenderOffset: connectionsAsSenderOffset,
+      connectionsAsReceiverOffset: connectionsAsReceiverOffset,
     };
   };
 
   const getUserFeed = async () => {
     if (!allPostsLoaded && !refreshing) {
       const offsets = await calculateOffsets();
+      setLoading(true);
       const { success, response } = await apiCall(
         "POST",
         "/user/feed",
         offsets
       );
+      console.log(response);
+      setLoading(false);
       if (success) {
-        // if (!response.length && feed.length) {
-        if (!response.length) {
+        if (!response.feed?.length) {
           setAllPostsLoaded(true);
         } else {
-          setFeed([...feed, ...response]);
+          setFeed([...feed, ...response.feed]);
+          setConnectionsAsSenderOffset(response.connectionsAsSenderOffset);
+          setConnectionsAsReceiverOffset(response.connectionsAsReceiverOffset);
         }
       } else if (feed.length) {
         setAllPostsLoaded(true);
@@ -95,14 +109,28 @@ const HomeScreen = () => {
   ]);
 
   const onRefresh = useCallback(async () => {
+    setAllPostsLoaded(false);
     setRefreshing(true);
-    const { success, response } = await apiCall("POST", "/user/feed", {});
+    const { success, response } = await apiCall("POST", "/user/feed");
     setRefreshing(false);
     if (success) {
-      setFeed([]);
-      setFeed(response);
+      setConnectionsAsReceiverOffset(0);
+      setConnectionsAsSenderOffset(0);
+      setFeed(response.feed);
     }
   }, []);
+
+  const renderPosts = ({ item, index }) => (
+    <View>
+      <PostCard isVisible={visibleItems.includes(item._id)} post={item} />
+      {loading && index === feed.length - 1 ? (
+        <ActivityIndicator
+          size="large"
+          color={themeStyle.colors.grayscale.lightGray}
+        />
+      ) : null}
+    </View>
+  );
 
   useEffect(() => {
     if (newPostCreated.state) {
@@ -112,7 +140,7 @@ const HomeScreen = () => {
     }
   }, [newPostCreated, feed]);
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {newPostCreated.state ? (
         <Text style={styles.newPostPill}>Post {newPostCreated.state.type}</Text>
       ) : null}
@@ -146,41 +174,22 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </View>
       <FlatList
+        ref={flatlistRef}
         viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs.current}
         data={feed}
-        renderItem={({ item }) => (
-          <View>
-            <PostCard isVisible={visibleItems.includes(item._id)} post={item} />
-          </View>
-        )}
+        renderItem={renderPosts}
         keyExtractor={(item, index) => `${item._id}-${index}`}
         refreshControl={
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
         contentContainerStyle={{ flexGrow: 1 }}
-        onEndReached={() => getUserFeed()}
-        onEndReachedThreshold={0.5}
+        // onEndReached={() => getUserFeed()}
+        onEndReachedThreshold={0.9}
+        initialNumToRender={10}
+        maxToRenderPerBatch={5}
+        windowSize={5}
       />
-      {/* <ScrollView
-        scrollEventThrottle={0}
-        contentContainerStyle={{ flexGrow: 1 }}
-        onScroll={({ nativeEvent }) => {
-          if (isCloseToBottom(nativeEvent)) {
-            getUserFeed();
-          }
-        }}
-        refreshControl={(
-          <RefreshControl
-            onRefresh={onRefresh}
-            refreshing={refreshing}
-          />
-        )}
-      >
-        {feed.map((post, i) => (
-          <PostCard key={`postcard-${i}`} post={post} />
-        ))}
-      </ScrollView> */}
-    </SafeAreaView>
+    </View>
   );
 };
 

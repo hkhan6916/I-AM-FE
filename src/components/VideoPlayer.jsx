@@ -14,7 +14,6 @@ import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../theme.style";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
 import ImageWithCache from "./ImageWithCache";
-import ContentLoader from "./ContentLoader";
 import { Feather } from "@expo/vector-icons";
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
@@ -38,7 +37,7 @@ const VideoPlayer = ({
   const navigation = useNavigation();
   const progressBarWidth = screenWidth - 170;
 
-  const ScreenOrientation = useScreenOrientation();
+  const ScreenOrientation = useScreenOrientation(isFullScreen);
 
   const handleVideoState = async () => {
     const videoEnded =
@@ -223,26 +222,15 @@ const VideoPlayer = ({
                     height: "100%",
                   }}
                 >
-                  <ContentLoader active isProfileVideo />
+                  <ImageWithCache
+                    removeBorderRadius
+                    resizeMode="cover"
+                    mediaUrl={url}
+                    mediaHeaders={mediaHeaders}
+                    aspectRatio={1 / 1}
+                  />
                 </View>
               ) : null}
-              {/* <View
-                style={{
-                  width: !videoStatus.isPlaying
-                    ? ScreenOrientation === "PORTRAIT"
-                      ? screenWidth
-                      : screenHeight
-                    : 0,
-                }}
-              >
-                <ImageWithCache
-                  removeBorderRadius
-                  resizeMode="cover"
-                  mediaUrl={url}
-                  mediaHeaders={mediaHeaders}
-                  aspectRatio={1 / 1}
-                />
-              </View> */}
             </View>
           </View>
         )}

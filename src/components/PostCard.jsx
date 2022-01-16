@@ -112,7 +112,7 @@ const PostCard = ({
             }}
           >
             <VideoPlayer
-              shouldPlay={isVisible}
+              shouldPlay={false}
               mediaOrientation={postContent.mediaOrientation}
               mediaIsSelfie={postContent.mediaIsSelfie}
               url={postContent.mediaUrl}

@@ -30,7 +30,7 @@ const Screens = () => {
   const getUserFeed = async () => {
     const { success, response } = await apiCall("POST", "/user/feed");
     if (success) {
-      setFeed(response);
+      setFeed(response.feed);
       setLoggedIn(true);
     }
     setLoaded(true);

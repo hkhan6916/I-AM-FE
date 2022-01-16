@@ -97,7 +97,7 @@ const ProfileEditScreen = () => {
     if (validValues.length) {
       const { success, other, response } = await apiCall(
         "POST",
-        "/user/update/profile",
+        "/user/update/details",
         formData
       );
       if (success) {
