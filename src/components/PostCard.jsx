@@ -18,6 +18,7 @@ import Avatar from "./Avatar";
 import themeStyle from "../theme.style";
 import apiCall from "../helpers/apiCall";
 import ImageWithCache from "./ImageWithCache";
+import { Feather } from "@expo/vector-icons";
 
 const PostCard = ({
   post: initialPost,
@@ -111,13 +112,35 @@ const PostCard = ({
               flexDirection: "column",
             }}
           >
-            <VideoPlayer
+            {/* <VideoPlayer
               shouldPlay={false}
               mediaOrientation={postContent.mediaOrientation}
               mediaIsSelfie={postContent.mediaIsSelfie}
               url={postContent.mediaUrl}
               mediaHeaders={postContent.mediaHeaders}
+            /> */}
+            <ImageWithCache
+              removeBorderRadius
+              mediaHeaders={postContent.mediaHeaders}
+              mediaOrientation={postContent.mediaOrientation}
+              mediaIsSelfie={postContent.mediaIsSelfie}
+              resizeMode="cover"
+              mediaUrl={postContent.mediaUrl}
+              aspectRatio={1 / 1}
             />
+            <View
+              style={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+              }}
+            >
+              <Feather
+                name={"play"}
+                size={48}
+                color={themeStyle.colors.grayscale.white}
+              />
+            </View>
           </View>
         ) : postContent.mediaType === "image" ? (
           <View

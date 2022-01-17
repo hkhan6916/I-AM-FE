@@ -58,7 +58,7 @@ const HomeScreen = () => {
       }
       i += 1;
     }
-    console.log("hey", feed.connectionsAsReceiverOffset);
+
     return {
       friendsInterestsOffset,
       feedTimelineOffset: feed.length - friendsInterestsOffset,
@@ -76,7 +76,6 @@ const HomeScreen = () => {
         "/user/feed",
         offsets
       );
-      console.log(response);
       setLoading(false);
       if (success) {
         if (!response.feed?.length) {
@@ -183,8 +182,8 @@ const HomeScreen = () => {
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
         contentContainerStyle={{ flexGrow: 1 }}
-        // onEndReached={() => getUserFeed()}
-        onEndReachedThreshold={0.9}
+        onEndReached={() => getUserFeed()}
+        onEndReachedThreshold={0.5}
         initialNumToRender={10}
         maxToRenderPerBatch={5}
         windowSize={5}
