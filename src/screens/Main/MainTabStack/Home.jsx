@@ -13,7 +13,6 @@ import {
   TouchableOpacity,
   StatusBar,
   FlatList,
-  ActivityIndicator,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
@@ -101,6 +100,7 @@ const HomeScreen = () => {
   const viewabilityConfig = {
     waitForInteraction: true,
     viewAreaCoveragePercentThreshold: 50,
+    minimumViewTime: 2000,
   };
 
   const viewabilityConfigCallbackPairs = useRef([
@@ -118,18 +118,6 @@ const HomeScreen = () => {
       setFeed(response.feed);
     }
   }, []);
-
-  const renderPosts = ({ item, index }) => (
-    <View>
-      <PostCard isVisible={visibleItems.includes(item._id)} post={item} />
-      {loading && index === feed.length - 1 ? (
-        <ActivityIndicator
-          size="large"
-          color={themeStyle.colors.grayscale.lightGray}
-        />
-      ) : null}
-    </View>
-  );
 
   useEffect(() => {
     if (newPostCreated.state) {
@@ -176,7 +164,13 @@ const HomeScreen = () => {
         ref={flatlistRef}
         viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs.current}
         data={feed}
-        renderItem={renderPosts}
+        renderItem={({ item, index }) => (
+          <PostCard
+            loadingMore={loading && index === feed.length - 1}
+            isVisible={visibleItems.includes(item._id)}
+            post={item}
+          />
+        )}
         keyExtractor={(item, index) => `${item._id}-${index}`}
         refreshControl={
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
@@ -186,7 +180,7 @@ const HomeScreen = () => {
         onEndReachedThreshold={0.5}
         initialNumToRender={10}
         maxToRenderPerBatch={5}
-        windowSize={5}
+        // windowSize={5} // this causes re renders of postcard :()
       />
     </View>
   );

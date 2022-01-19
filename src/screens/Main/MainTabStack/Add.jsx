@@ -17,6 +17,12 @@ import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import CameraStandard from "../../../components/CameraStandard";
 import ImageWithCache from "../../../components/ImageWithCache";
+import * as ImagePicker from "expo-image-picker";
+import { getInfoAsync } from "expo-file-system";
+import {
+  Video as VideoCompress,
+  Image as ImageCompress,
+} from "react-native-compressor";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -26,21 +32,25 @@ const AddScreen = () => {
   const [file, setFile] = useState({});
   const [cameraActive, setCameraActive] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [showMediaSizeError, setShowMediaSizeError] = useState(false);
+
   const navigation = useNavigation();
 
   const dispatch = useDispatch();
 
   const createPostData = async () => {
     const postData = new FormData();
+
     if (file.uri) {
       const { type, name, uri, orientation, isSelfie } = file;
+      const format = uri.split(".").pop();
       postData.append("file", {
-        type,
-        name,
+        type: type.split("/").length > 1 ? type : `${type}/${format}`,
+        name: name || `media.${format}`,
         uri,
       });
-      postData.append("mediaOrientation", orientation);
-      postData.append("mediaIsSelfie", isSelfie);
+      postData.append("mediaOrientation", orientation || "");
+      postData.append("mediaIsSelfie", isSelfie || false);
     }
 
     if (postBody) {
@@ -61,13 +71,63 @@ const AddScreen = () => {
         type: "SET_POST_CREATED",
         payload: { posted: true, type: "created" },
       });
-      setLoading(false);
       navigation.navigate("Home");
     } else {
       setError({
         title: "Well... that wasn't supposed to happen!",
         message: "An error occured creating your post.",
       });
+    }
+    setLoading(false);
+  };
+
+  const handleCompression = async (media) => {
+    if (media?.type === "video") {
+      const url = await VideoCompress.compress(
+        media.uri,
+        {
+          compressionMethod: "auto",
+        },
+        (progress) => console.log(progress)
+      );
+      return url;
+    }
+
+    if (media?.type === "image") {
+      const url = await ImageCompress.compress(media.uri, {
+        compressionMethod: "auto",
+      });
+      return url;
+    }
+  };
+
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      alert("Sorry, we need camera roll permissions to make this work.");
+    }
+
+    if (status === "granted") {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        quality: 0.3,
+      });
+      if (!result.cancelled) {
+        const url = await handleCompression(result);
+
+        const mediaInfo = await getInfoAsync(url);
+        const mediaSizeInMb = mediaInfo.size / 1000000;
+        console.log(mediaSizeInMb);
+
+        if (mediaSizeInMb > 50) {
+          setShowMediaSizeError(true);
+        } else {
+          if (showMediaSizeError) {
+            setShowMediaSizeError(false);
+          }
+          setFile({ ...result, uri: url, ...mediaInfo });
+        }
+      }
     }
   };
 
@@ -114,6 +174,8 @@ const AddScreen = () => {
             aspectRatio={1 / 1}
           />
         ) : null}
+        {showMediaSizeError ? <Text>This file is too big</Text> : null}
+
         <ScrollView>
           <TextInput
             style={{ minHeight: 100, textAlignVertical: "top" }}
@@ -126,6 +188,7 @@ const AddScreen = () => {
           />
         </ScrollView>
         <Button title="Camera" onPress={() => setCameraActive(true)} />
+        <Button title="Pick Media" onPress={() => pickImage()} />
         <Button
           disabled={(!postBody && !file) || loading || postBody.length >= 1000}
           title="Make Post"

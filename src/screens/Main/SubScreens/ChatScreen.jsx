@@ -1,23 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  View, Text, TouchableOpacity, TextInput,
-  SafeAreaView, StyleSheet, Image, FlatList,
-} from 'react-native';
-import { getItemAsync } from 'expo-secure-store';
-import { io } from 'socket.io-client';
-import * as ImagePicker from 'expo-image-picker';
-import { Video } from 'expo-av';
-import { getInfoAsync } from 'expo-file-system';
-import { useNavigation } from '@react-navigation/native';
-import { FontAwesome, Ionicons } from '@expo/vector-icons';
-import { nanoid } from 'nanoid/non-secure';
-import sendMessage from '../../../helpers/sendMessage';
-import MessageBox from '../../../components/MessageBox';
-import apiCall from '../../../helpers/apiCall';
-import get12HourTime from '../../../helpers/get12HourTime';
-import getNameDate from '../../../helpers/getNameDate';
-import themeStyle from '../../../theme.style';
-import CameraStandard from '../../../components/CameraStandard';
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  SafeAreaView,
+  StyleSheet,
+  Image,
+  FlatList,
+} from "react-native";
+import { getItemAsync } from "expo-secure-store";
+import { io } from "socket.io-client";
+import * as ImagePicker from "expo-image-picker";
+import { Video } from "expo-av";
+import { getInfoAsync } from "expo-file-system";
+import { useNavigation } from "@react-navigation/native";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { nanoid } from "nanoid/non-secure";
+import sendMessage from "../../../helpers/sendMessage";
+import MessageBox from "../../../components/MessageBox";
+import apiCall from "../../../helpers/apiCall";
+import get12HourTime from "../../../helpers/get12HourTime";
+import getNameDate from "../../../helpers/getNameDate";
+import themeStyle from "../../../theme.style";
+import CameraStandard from "../../../components/CameraStandard";
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -29,7 +35,7 @@ const ChatScreen = (props) => {
   const [mediaSendFail, setMediaSendFail] = useState(false);
   const [showMediaSizeError, setShowMediaSizeError] = useState(false);
   const [mediaSending, setMediaSending] = useState(false);
-  const [messageBody, setMessageBody] = useState('');
+  const [messageBody, setMessageBody] = useState("");
   const [messages, setMessages] = useState([]);
   const [showError, setShowError] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
@@ -44,12 +50,17 @@ const ChatScreen = (props) => {
     // If the chat doesn't exist, send request
     if (!existingChat) {
       setShowError(false);
-      const { response, success } = await apiCall('POST', '/chat/new', { participants: [chatUserId] });
+      const { response, success } = await apiCall("POST", "/chat/new", {
+        participants: [chatUserId],
+      });
       if (success) {
         setChat(response);
         /* Wait for the chat creation and join the room. Should get
         a joinRoomSuccess event from the backend */
-        socket.emit('joinRoom', { chatId: response._id, userId: authInfo.senderId });
+        socket.emit("joinRoom", {
+          chatId: response._id,
+          userId: authInfo.senderId,
+        });
       } else {
         setShowError(true);
       }
@@ -60,7 +71,10 @@ const ChatScreen = (props) => {
   const getChatMessages = async () => {
     if (chat && existingChat) {
       setShowError(false);
-      const { response, success } = await apiCall('GET', `/chat/${chat._id}/messages/${messages.length}`);
+      const { response, success } = await apiCall(
+        "GET",
+        `/chat/${chat._id}/messages/${messages.length}`
+      );
       if (success) {
         setMessages([...messages, ...response]);
         if (messages.length && response.length === 0) {
@@ -73,10 +87,10 @@ const ChatScreen = (props) => {
   };
 
   const initSocket = async () => {
-    const token = await getItemAsync('authToken');
-    const senderId = await getItemAsync('userId');
+    const token = await getItemAsync("authToken");
+    const senderId = await getItemAsync("userId");
     setAuthInfo({ token, senderId });
-    const connection = io.connect('ws://192.168.5.101:5000', {
+    const connection = io.connect("ws://192.168.5.101:5000", {
       auth: {
         token,
       },
@@ -104,40 +118,51 @@ const ChatScreen = (props) => {
       setMediaSending(true);
 
       const formData = new FormData();
-      const mediaExtension = media.uri.split('.').pop();
-      if (media.type?.split('/').length === 2) {
-        formData.append('file', {
-          uri: media.uri, name: media.uri, type: `${media.type}`,
+      const mediaExtension = media.uri.split(".").pop();
+      if (media.type?.split("/").length === 2) {
+        formData.append("file", {
+          uri: media.uri,
+          name: media.uri,
+          type: `${media.type}`,
         });
       } else {
-        formData.append('file', {
-          uri: media.uri, name: media.uri, type: `${media.type}/${mediaExtension}`,
+        formData.append("file", {
+          uri: media.uri,
+          name: media.uri,
+          type: `${media.type}/${mediaExtension}`,
         });
       }
-      const { response, success } = await apiCall('POST', '/files/upload', formData);
+      const { response, success } = await apiCall(
+        "POST",
+        "/files/upload",
+        formData
+      );
       if (success) {
-        socket.emit('sendMessage', {
+        socket.emit("sendMessage", {
           body: messageBody,
           chatId,
           senderId: authInfo.senderId,
           mediaUrl: response.fileUrl,
-          mediaType: media.type?.split('/')[0],
+          mediaType: media.type?.split("/")[0],
           mediaHeaders: response.fileHeaders,
         });
 
-        setMessages([{
-          body: messageBody,
-          chatId,
-          senderId: authInfo.senderId,
-          user: 'sender',
-          mediaUrl: response.fileUrl,
-          mediaHeaders: response.fileHeaders,
-          mediaType: media.type?.split('/')[0],
-          stringTime: get12HourTime(new Date()),
-          stringDate: getNameDate(new Date()),
-          _id: nanoid(),
-        }, ...messages]);
-        setMessageBody('');
+        setMessages([
+          {
+            body: messageBody,
+            chatId,
+            senderId: authInfo.senderId,
+            user: "sender",
+            mediaUrl: response.fileUrl,
+            mediaHeaders: response.fileHeaders,
+            mediaType: media.type?.split("/")[0],
+            stringTime: get12HourTime(new Date()),
+            stringDate: getNameDate(new Date()),
+            _id: nanoid(),
+          },
+          ...messages,
+        ]);
+        setMessageBody("");
         setMedia({});
       } else {
         setMediaSendFail(true);
@@ -147,19 +172,24 @@ const ChatScreen = (props) => {
       return true;
     }
     if (socket.connected) {
-      socket.emit('sendMessage', {
-        body: messageBody, chatId, senderId: authInfo.senderId,
-      });
-      setMessages([{
+      socket.emit("sendMessage", {
         body: messageBody,
         chatId,
         senderId: authInfo.senderId,
-        user: 'sender',
-        stringTime: get12HourTime(new Date()),
-        stringDate: getNameDate(new Date()),
-        _id: nanoid(),
-      }, ...messages]);
-      setMessageBody('');
+      });
+      setMessages([
+        {
+          body: messageBody,
+          chatId,
+          senderId: authInfo.senderId,
+          user: "sender",
+          stringTime: get12HourTime(new Date()),
+          stringDate: getNameDate(new Date()),
+          _id: nanoid(),
+        },
+        ...messages,
+      ]);
+      setMessageBody("");
       setMediaSending(false);
 
       return true;
@@ -168,11 +198,11 @@ const ChatScreen = (props) => {
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Sorry, we need camera roll permissions to make this work.');
+    if (status !== "granted") {
+      alert("Sorry, we need camera roll permissions to make this work.");
     }
 
-    if (status === 'granted') {
+    if (status === "granted") {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         quality: 0.3,
@@ -219,7 +249,9 @@ const ChatScreen = (props) => {
         }
       })();
     }
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [chat]);
 
   useEffect(() => {
@@ -227,43 +259,60 @@ const ChatScreen = (props) => {
 
     if (socket && isMounted && authInfo) {
       if (chat) {
-        socket.emit('joinRoom', { chatId: chat?._id, userId: authInfo.senderId });
+        socket.emit("joinRoom", {
+          chatId: chat?._id,
+          userId: authInfo.senderId,
+        });
       }
 
-      socket.on('joinRoomSuccess', async ({ chatId }) => {
+      socket.on("joinRoomSuccess", async ({ chatId }) => {
         /* This will send the message only if it's the first message */
         if ((messageBody || media?.uri) && !existingChat) {
           await handleMessageSend(chatId);
         }
       });
 
-      socket.on('receiveMessage', ({
-        body, chatId, senderId, user, mediaHeaders, mediaUrl, mediaType, stringDate, stringTime,
-      }) => {
-        if (!socket.connected) {
-          setShowError(true);
-        } else {
-          setMessages((prevMessages) => [...prevMessages, {
-            body,
-            chatId,
-            senderId,
-            user,
-            mediaHeaders,
-            mediaUrl,
-            mediaType,
-            stringDate,
-            stringTime,
-            _id: nanoid(),
-          }]);
+      socket.on(
+        "receiveMessage",
+        ({
+          body,
+          chatId,
+          senderId,
+          user,
+          mediaHeaders,
+          mediaUrl,
+          mediaType,
+          stringDate,
+          stringTime,
+        }) => {
+          if (!socket.connected) {
+            setShowError(true);
+          } else {
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              {
+                body,
+                chatId,
+                senderId,
+                user,
+                mediaHeaders,
+                mediaUrl,
+                mediaType,
+                stringDate,
+                stringTime,
+                _id: nanoid(),
+              },
+            ]);
+          }
         }
-      });
+      );
     }
 
     return () => {
       isMounted = false;
       if (socket) {
         socket.disconnect();
-        socket.off('receiveMessage');
+        socket.off("receiveMessage");
       }
     };
   }, [socket, authInfo, chat]);
@@ -281,41 +330,53 @@ const ChatScreen = (props) => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      {showError
-        ? (
-          <Text>
-            It hurts to say this,
-            but... &quot;An error occurred sending your message.&quot;
-          </Text>
-        )
-        : null}
+      {showError ? (
+        <Text>
+          It hurts to say this, but... &quot;An error occurred sending your
+          message.&quot;
+        </Text>
+      ) : null}
       <FlatList
         data={messages}
         renderItem={({ item: message, index: i }) => (
           <View key={`message-${i}`}>
-            {messages[i - 1] && message.stringDate !== messages[i - 1].stringDate ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {messages[i - 1] &&
+            message.stringDate !== messages[i - 1].stringDate ? (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <View style={styles.horizontalLines} />
-                <Text style={{ textAlign: 'center', marginHorizontal: 10, color: themeStyle.colors.grayscale.mediumGray }}>
+                <Text
+                  style={{
+                    textAlign: "center",
+                    marginHorizontal: 10,
+                    color: themeStyle.colors.grayscale.mediumGray,
+                  }}
+                >
                   {messages[i - 1].stringDate}
                 </Text>
                 <View style={styles.horizontalLines} />
               </View>
             ) : null}
-            {allMessagesLoaded && i === messages.length - 1
-              ? (
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={styles.horizontalLines} />
-                  <Text style={{ textAlign: 'center', marginHorizontal: 10, color: themeStyle.colors.grayscale.mediumGray }}>
-                    {messages[i].stringDate}
-                  </Text>
-                  <View style={styles.horizontalLines} />
-                </View>
-              )
-              : null}
+            {allMessagesLoaded && i === messages.length - 1 ? (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View style={styles.horizontalLines} />
+                <Text
+                  style={{
+                    textAlign: "center",
+                    marginHorizontal: 10,
+                    color: themeStyle.colors.grayscale.mediumGray,
+                  }}
+                >
+                  {messages[i].stringDate}
+                </Text>
+                <View style={styles.horizontalLines} />
+              </View>
+            ) : null}
             <MessageBox
               message={message}
-              belongsToSender={authInfo.senderId === message.user._id || message.user === 'sender'}
+              belongsToSender={
+                authInfo.senderId === message.user._id ||
+                message.user === "sender"
+              }
             />
           </View>
         )}
@@ -325,25 +386,41 @@ const ChatScreen = (props) => {
         keyExtractor={(item, i) => item._id + i}
       />
 
-      <View style={{
-        flexDirection: 'row',
-        minHeight: 48,
-        maxHeight: 100,
-        alignItems: 'center',
-        paddingVertical: 10,
-      }}
-      >
-        <View style={{
-          flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'flex-end', height: '100%',
+      <View
+        style={{
+          flexDirection: "row",
+          minHeight: 48,
+          maxHeight: 100,
+          alignItems: "center",
+          paddingVertical: 10,
         }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "flex-end",
+            justifyContent: "flex-end",
+            height: "100%",
+          }}
         >
-          <View style={[{
-            flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end', height: '100%',
-          }, !showActions && { width: 0 }]}
+          <View
+            style={[
+              {
+                flexDirection: "row",
+                justifyContent: "flex-end",
+                alignItems: "flex-end",
+                height: "100%",
+              },
+              !showActions && { width: 0 },
+            ]}
           >
             <TouchableOpacity
               style={{
-                marginHorizontal: 5, width: 48, height: 48, justifyContent: 'center', alignItems: 'center',
+                marginHorizontal: 5,
+                width: 48,
+                height: 48,
+                justifyContent: "center",
+                alignItems: "center",
               }}
               onPress={() => pickImage()}
             >
@@ -351,7 +428,11 @@ const ChatScreen = (props) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={{
-                marginHorizontal: 5, width: 48, height: 48, justifyContent: 'center', alignItems: 'center',
+                marginHorizontal: 5,
+                width: 48,
+                height: 48,
+                justifyContent: "center",
+                alignItems: "center",
               }}
               onPress={() => handleActivateCamera(true)}
             >
@@ -364,20 +445,28 @@ const ChatScreen = (props) => {
                 width: 48,
                 height: 48,
                 marginHorizontal: 10,
-                justifyContent: 'center',
-                alignItems: 'center',
+                justifyContent: "center",
+                alignItems: "center",
                 borderRadius: 100,
                 backgroundColor: themeStyle.colors.secondary.light,
               }}
               onPress={() => setShowActions(!showActions)}
             >
-              <Ionicons name={showActions ? 'close' : 'add'} size={26} color={themeStyle.colors.grayscale.white} />
+              <Ionicons
+                name={showActions ? "close" : "add"}
+                size={26}
+                color={themeStyle.colors.grayscale.white}
+              />
             </TouchableOpacity>
           </View>
         </View>
-        <View style={{
-          flex: 1, minHeight: 48, height: '100%', justifyContent: 'flex-end',
-        }}
+        <View
+          style={{
+            flex: 1,
+            minHeight: 48,
+            height: "100%",
+            justifyContent: "flex-end",
+          }}
         >
           <TextInput
             style={{
@@ -392,17 +481,18 @@ const ChatScreen = (props) => {
             scrollEnabled
           />
         </View>
-        <View style={{
-          justifyContent: 'flex-end',
-          height: '100%',
-        }}
+        <View
+          style={{
+            justifyContent: "flex-end",
+            height: "100%",
+          }}
         >
           <TouchableOpacity
             style={{
               marginLeft: 10,
               marginRight: 10,
-              alignItems: 'center',
-              justifyContent: 'center',
+              alignItems: "center",
+              justifyContent: "center",
               height: 48,
               width: 48,
               borderRadius: 100,
@@ -413,48 +503,52 @@ const ChatScreen = (props) => {
           </TouchableOpacity>
         </View>
       </View>
-      <View style={[{ alignItems: 'center', position: 'relative' }, media.uri && { margin: 20 }, mediaSending && { backgroundColor: 'grey' }]}>
-        {media?.type?.includes('image') ? (
+      <View
+        style={[
+          { alignItems: "center", position: "relative" },
+          media.uri && { margin: 20 },
+          mediaSending && { backgroundColor: "grey" },
+        ]}
+      >
+        {media?.type?.includes("image") ? (
           <Image
             style={{
               borderRadius: 10,
               aspectRatio: 1 / 1,
-              width: '100%',
+              width: "100%",
             }}
             resizeMode="contain"
             source={{ uri: media.uri }}
           />
-        ) : media?.type?.includes('video') ? (
+        ) : media?.type?.includes("video") ? (
           <View style={{ width: 200, height: 200 }}>
             <Video
               useNativeControls
               source={{ uri: media.uri }}
               resizeMode="cover"
-              style={{ width: '100%', height: '100%', alignSelf: 'center' }}
+              style={{ width: "100%", height: "100%", alignSelf: "center" }}
             />
           </View>
         ) : null}
-        {media.uri
-          ? (
-            <TouchableOpacity
-              onPress={() => {
-                setMedia({});
-                setShowActions(false);
-              }}
-              style={{ padding: 10 }}
-            >
-              <Text style={{ color: themeStyle.colors.error.default }}>Cancel</Text>
-            </TouchableOpacity>
-          )
-          : null}
-        {showMediaSizeError
-          ? (
-            <Text>
-              We can&apos;t send the chosen media file as it exceeds our 50MB limit.
-              Please choose a smaller file
+        {media.uri ? (
+          <TouchableOpacity
+            onPress={() => {
+              setMedia({});
+              setShowActions(false);
+            }}
+            style={{ padding: 10 }}
+          >
+            <Text style={{ color: themeStyle.colors.error.default }}>
+              Cancel
             </Text>
-          )
-          : null}
+          </TouchableOpacity>
+        ) : null}
+        {showMediaSizeError ? (
+          <Text>
+            We can&apos;t send the chosen media file as it exceeds our 50MB
+            limit. Please choose a smaller file
+          </Text>
+        ) : null}
       </View>
     </SafeAreaView>
   );

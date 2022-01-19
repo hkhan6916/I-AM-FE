@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableHighlight,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
@@ -25,6 +26,7 @@ const PostCard = ({
   hideActions = false,
   isPreview = false,
   isVisible,
+  loadingMore,
 }) => {
   const [post, setPost] = useState(initialPost);
   const navigation = useNavigation();
@@ -181,6 +183,7 @@ const PostCard = ({
 
   return (
     <View style={[styles.container, isPreview && styles.preview]}>
+      {console.log("hey")}
       {post.likedBy && (
         <TouchableOpacity
           style={{ padding: 10 }}
@@ -387,6 +390,12 @@ const PostCard = ({
           <PostAge />
         </View>
       )}
+      {loadingMore ? (
+        <ActivityIndicator
+          size="large"
+          color={themeStyle.colors.grayscale.lightGray}
+        />
+      ) : null}
     </View>
   );
 };
@@ -438,4 +447,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PostCard;
+export default React.memo(
+  PostCard,
+  (prevProps, nextProps) => prevProps === nextProps
+);

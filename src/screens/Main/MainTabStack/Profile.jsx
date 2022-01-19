@@ -1,18 +1,21 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   StyleSheet,
-  ScrollView,
   RefreshControl,
   SafeAreaView,
   Text,
   View,
   TouchableOpacity,
+  ActivityIndicator,
+  FlatList,
 } from "react-native";
 import VideoPlayer from "../../../components/VideoPlayer";
 import { useNavigation } from "@react-navigation/native";
 import apiCall from "../../../helpers/apiCall";
 import PostCard from "../../../components/PostCard";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import themeStyle from "../../../theme.style";
+import { LinearGradient } from "expo-linear-gradient";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -20,7 +23,11 @@ const ProfileScreen = () => {
   const [loading, setLoading] = useState(false);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [visibleItems, setVisibleItems] = useState([]);
+  const [scrollTimeout, setScrollTimeout] = useState(null);
   const navigation = useNavigation();
+
+  const flatlistRef = useRef(null);
 
   const getUserPosts = async () => {
     if (!allPostsLoaded) {
@@ -87,8 +94,47 @@ const ProfileScreen = () => {
       isMounted = false;
     };
   }, []);
-  return (
-    <SafeAreaView style={styles.container}>
+  const onViewableItemsChanged = ({ viewableItems }) => {
+    console.log("hey");
+    if (scrollTimeout) {
+      clearTimeout(scrollTimeout);
+    }
+    const timeout = setTimeout(
+      () =>
+        viewableItems.forEach((item) => {
+          if (item.isViewable) {
+            setVisibleItems([item.item._id]);
+          }
+        }),
+      3000
+    );
+    if (timeout) {
+      setScrollTimeout(timeout);
+    }
+  };
+  const viewabilityConfig = {
+    waitForInteraction: true,
+    viewAreaCoveragePercentThreshold: 50,
+    minimumViewTime: 3000,
+  };
+
+  const viewabilityConfigCallbackPairs = useRef([
+    { onViewableItemsChanged, viewabilityConfig },
+  ]);
+
+  const renderPosts = ({ item, index }) => (
+    <View>
+      <PostCard isVisible={visibleItems.includes(item._id)} post={item} />
+      {loading && index === userPosts.length - 1 ? (
+        <ActivityIndicator
+          size="large"
+          color={themeStyle.colors.grayscale.lightGray}
+        />
+      ) : null}
+    </View>
+  );
+  const renderProfileInfo = () => (
+    <View>
       <TouchableOpacity onPress={() => navigation.navigate("SettingsScreen")}>
         <View
           style={{
@@ -105,8 +151,37 @@ const ProfileScreen = () => {
           <MaterialCommunityIcons name="cog-outline" size={24} color="black" />
         </View>
       </TouchableOpacity>
+      <LinearGradient
+        start={[0, 0.5]}
+        end={[1, 0.5]}
+        style={{ padding: 4 }}
+        colors={[
+          themeStyle.colors.grayscale.white,
+          themeStyle.colors.primary.light,
+        ]}
+      >
+        <View
+          style={{
+            width: "100%",
+            borderColor: themeStyle.colors.primary.default,
+            backgroundColor: "white",
+          }}
+        >
+          <VideoPlayer
+            url={userData.profileVideoUrl}
+            mediaHeaders={userData.profileVideoHeaders}
+            mediaIsSelfie
+            isProfileVideo
+          />
+        </View>
+      </LinearGradient>
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
       {userData ? (
-        <ScrollView
+        <View
           onScroll={({ nativeEvent }) => {
             if (isCloseToBottom(nativeEvent)) {
               getUserPosts();
@@ -116,21 +191,29 @@ const ProfileScreen = () => {
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }
         >
-          <View style={{ width: "100%" }}>
-            <VideoPlayer
-              url={userData.profileVideoUrl}
-              mediaHeaders={userData.profileVideoHeaders}
-              mediaIsSelfie
-              isProfileVideo
-            />
-          </View>
           <View style={{ flexDirection: "row" }}>
             <Text>{userData.numberOfFriends} friends</Text>
           </View>
-          {userPosts.map((post) => (
-            <PostCard key={post._id} post={post} />
-          ))}
-        </ScrollView>
+          <FlatList
+            ref={flatlistRef}
+            viewabilityConfigCallbackPairs={
+              viewabilityConfigCallbackPairs.current
+            }
+            data={userPosts}
+            renderItem={renderPosts}
+            keyExtractor={(item, index) => `${item._id}-${index}`}
+            refreshControl={
+              <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+            }
+            ListHeaderComponent={renderProfileInfo}
+            contentContainerStyle={{ flexGrow: 1 }}
+            onEndReached={() => getUserPosts()}
+            onEndReachedThreshold={0.5}
+            initialNumToRender={10}
+            maxToRenderPerBatch={5}
+            // windowSize={5} // this causes re renders of postcard keep until causes issues :()
+          />
+        </View>
       ) : null}
     </SafeAreaView>
   );

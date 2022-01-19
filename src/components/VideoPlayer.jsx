@@ -213,7 +213,7 @@ const VideoPlayer = ({
                 resizeMode="cover"
                 onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
               />
-              {!readyForDisplay ? (
+              {!readyForDisplay || isProfileVideo ? (
                 <View
                   style={{
                     position: "absolute",
