@@ -67,7 +67,7 @@ const HomeScreen = () => {
   };
 
   const getUserFeed = async () => {
-    if (!allPostsLoaded && !refreshing) {
+    if (!allPostsLoaded && !refreshing && !loading) {
       const offsets = await calculateOffsets();
       setLoading(true);
       const { success, response } = await apiCall(
@@ -100,7 +100,7 @@ const HomeScreen = () => {
   const viewabilityConfig = {
     waitForInteraction: true,
     viewAreaCoveragePercentThreshold: 50,
-    minimumViewTime: 2000,
+    minimumViewTime: 1000,
   };
 
   const viewabilityConfigCallbackPairs = useRef([
@@ -178,7 +178,7 @@ const HomeScreen = () => {
         contentContainerStyle={{ flexGrow: 1 }}
         onEndReached={() => getUserFeed()}
         onEndReachedThreshold={0.5}
-        initialNumToRender={10}
+        initialNumToRender={5}
         maxToRenderPerBatch={5}
         // windowSize={5} // this causes re renders of postcard :()
       />

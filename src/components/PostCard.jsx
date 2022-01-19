@@ -183,7 +183,6 @@ const PostCard = ({
 
   return (
     <View style={[styles.container, isPreview && styles.preview]}>
-      {console.log("hey")}
       {post.likedBy && (
         <TouchableOpacity
           style={{ padding: 10 }}
@@ -396,6 +395,7 @@ const PostCard = ({
           color={themeStyle.colors.grayscale.lightGray}
         />
       ) : null}
+      {console.log("rendering")}
     </View>
   );
 };
@@ -449,5 +449,7 @@ const styles = StyleSheet.create({
 
 export default React.memo(
   PostCard,
-  (prevProps, nextProps) => prevProps === nextProps
+  (prevProps, nextProps) =>
+    prevProps.isVisible === nextProps.isVisible &&
+    prevProps.post === nextProps.post
 );

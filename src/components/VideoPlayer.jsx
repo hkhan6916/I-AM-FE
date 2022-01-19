@@ -231,6 +231,13 @@ const VideoPlayer = ({
                   />
                 </View>
               ) : null}
+              <View style={{ position: "absolute", right: 0 }}>
+                <Feather
+                  name={videoStatus?.isPlaying ? "pause" : "play"}
+                  size={48}
+                  color={themeStyle.colors.grayscale.white}
+                />
+              </View>
             </View>
           </View>
         )}

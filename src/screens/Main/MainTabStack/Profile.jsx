@@ -95,27 +95,16 @@ const ProfileScreen = () => {
     };
   }, []);
   const onViewableItemsChanged = ({ viewableItems }) => {
-    console.log("hey");
-    if (scrollTimeout) {
-      clearTimeout(scrollTimeout);
-    }
-    const timeout = setTimeout(
-      () =>
-        viewableItems.forEach((item) => {
-          if (item.isViewable) {
-            setVisibleItems([item.item._id]);
-          }
-        }),
-      3000
-    );
-    if (timeout) {
-      setScrollTimeout(timeout);
-    }
+    viewableItems.forEach((item) => {
+      if (item.isViewable) {
+        setVisibleItems([item.item._id]);
+      }
+    });
   };
   const viewabilityConfig = {
     waitForInteraction: true,
     viewAreaCoveragePercentThreshold: 50,
-    minimumViewTime: 3000,
+    minimumViewTime: 1000,
   };
 
   const viewabilityConfigCallbackPairs = useRef([
