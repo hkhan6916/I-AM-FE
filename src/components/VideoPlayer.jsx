@@ -25,7 +25,8 @@ const VideoPlayer = ({
   mediaIsSelfie,
   mediaHeaders,
   shouldPlay,
-  isProfileVideo,
+  showToggle,
+  isLocalMedia,
 }) => {
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
@@ -189,7 +190,7 @@ const VideoPlayer = ({
                   setVideoDimensions(params.naturalSize);
                   setReadyForDisplay(true);
                 }}
-                isMuted={!isProfileVideo}
+                isMuted={!showToggle}
                 shouldPlay={shouldPlay || false}
                 ref={video}
                 isLooping={true}
@@ -213,7 +214,7 @@ const VideoPlayer = ({
                 resizeMode="cover"
                 onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
               />
-              {!readyForDisplay || isProfileVideo ? (
+              {(!readyForDisplay || showToggle) && !isLocalMedia ? (
                 <View
                   style={{
                     position: "absolute",
@@ -231,13 +232,15 @@ const VideoPlayer = ({
                   />
                 </View>
               ) : null}
-              <View style={{ position: "absolute", right: 0 }}>
-                <Feather
-                  name={videoStatus?.isPlaying ? "pause" : "play"}
-                  size={48}
-                  color={themeStyle.colors.grayscale.white}
-                />
-              </View>
+              {!showToggle ? (
+                <View style={{ position: "absolute", right: 0 }}>
+                  <Feather
+                    name={videoStatus?.isPlaying ? "pause" : "play"}
+                    size={48}
+                    color={themeStyle.colors.grayscale.white}
+                  />
+                </View>
+              ) : null}
             </View>
           </View>
         )}
@@ -264,7 +267,7 @@ const VideoPlayer = ({
           </Text>
         ) : null}
       </View>
-      {showControls || isProfileVideo ? (
+      {showControls || showToggle ? (
         <TouchableWithoutFeedback onPress={() => handleVideoState()}>
           <View
             style={{

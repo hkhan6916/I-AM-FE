@@ -112,7 +112,7 @@ const UserProfileScreen = (props) => {
           url={user.profileVideoUrl}
           mediaHeaders={user.profileVideoHeaders}
           mediaIsSelfie
-          isProfileVideo
+          showToggle
         />
         <Text>{user.numberOfFriends}</Text>
         <Text>

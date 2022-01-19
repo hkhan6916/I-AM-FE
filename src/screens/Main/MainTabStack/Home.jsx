@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   StatusBar,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
@@ -100,7 +101,7 @@ const HomeScreen = () => {
   const viewabilityConfig = {
     waitForInteraction: true,
     viewAreaCoveragePercentThreshold: 50,
-    minimumViewTime: 1000,
+    minimumViewTime: 1500,
   };
 
   const viewabilityConfigCallbackPairs = useRef([
@@ -175,12 +176,19 @@ const HomeScreen = () => {
         refreshControl={
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
+        ListFooterComponent={() => (
+          <ActivityIndicator
+            size="large"
+            animating={loading}
+            color={themeStyle.colors.grayscale.lightGray}
+          />
+        )}
         contentContainerStyle={{ flexGrow: 1 }}
         onEndReached={() => getUserFeed()}
         onEndReachedThreshold={0.5}
-        initialNumToRender={5}
+        initialNumToRender={10}
         maxToRenderPerBatch={5}
-        // windowSize={5} // this causes re renders of postcard :()
+        // windowSize={5}
       />
     </View>
   );

@@ -23,6 +23,8 @@ import {
   Video as VideoCompress,
   Image as ImageCompress,
 } from "react-native-compressor";
+import VideoPlayer from "../../../components/VideoPlayer";
+import { LinearGradient } from "expo-linear-gradient";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -113,20 +115,19 @@ const AddScreen = () => {
         quality: 0.3,
       });
       if (!result.cancelled) {
-        const url = await handleCompression(result);
-
-        const mediaInfo = await getInfoAsync(url);
+        const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
-        console.log(mediaSizeInMb);
-
         if (mediaSizeInMb > 50) {
           setShowMediaSizeError(true);
-        } else {
-          if (showMediaSizeError) {
-            setShowMediaSizeError(false);
-          }
-          setFile({ ...result, uri: url, ...mediaInfo });
+          setFile({ ...result, ...mediaInfo });
+          return;
         }
+        const url = await handleCompression(result);
+
+        if (showMediaSizeError) {
+          setShowMediaSizeError(false);
+        }
+        setFile({ ...result, uri: url, ...mediaInfo });
       }
     }
   };
@@ -150,32 +151,7 @@ const AddScreen = () => {
             {1000 - postBody.length} Characters Remaining
           </Text>
         ) : null}
-        {file.type?.split("/")[0] === "video" ? (
-          <Video
-            style={{
-              alignSelf: "center",
-              width: 320,
-              height: 200,
-              backgroundColor: themeStyle.colors.grayscale.black,
-            }}
-            source={{
-              uri: file.uri,
-            }}
-            useNativeControls
-            resizeMode="contain"
-            isLooping
-          />
-        ) : file.type?.split("/")[0] === "image" ? (
-          <ImageWithCache
-            mediaOrientation={file.mediaOrientation}
-            mediaIsSelfie={file.isSelfie}
-            resizeMode="cover"
-            mediaUrl={file.uri}
-            aspectRatio={1 / 1}
-          />
-        ) : null}
         {showMediaSizeError ? <Text>This file is too big</Text> : null}
-
         <ScrollView>
           <TextInput
             style={{ minHeight: 100, textAlignVertical: "top" }}
@@ -186,6 +162,46 @@ const AddScreen = () => {
             maxLength={1000}
             onChangeText={(v) => setPostBody(v)}
           />
+          {file.type?.split("/")[0] === "video" ? (
+            // <VideoPlayer
+            //   style={{
+            //     alignSelf: "center",
+            //     width: 320,
+            //     height: 200,
+            //     backgroundColor: themeStyle.colors.grayscale.black,
+            //   }}
+            //   source={{
+            //     uri: file.uri,
+            //   }}
+            //   useNativeControls
+            //   resizeMode="contain"
+            //   isLooping
+            // />
+            <LinearGradient
+              start={[0, 0.5]}
+              end={[1, 0.5]}
+              style={{ padding: 4 }}
+              colors={[
+                themeStyle.colors.secondary.bright,
+                themeStyle.colors.primary.default,
+              ]}
+            >
+              <VideoPlayer
+                url={file.uri}
+                mediaHeaders={null}
+                showToggle
+                isLocalMedia
+              />
+            </LinearGradient>
+          ) : file.type?.split("/")[0] === "image" ? (
+            <ImageWithCache
+              mediaOrientation={file.mediaOrientation}
+              mediaIsSelfie={file.isSelfie}
+              resizeMode="cover"
+              mediaUrl={file.uri}
+              aspectRatio={1 / 1}
+            />
+          ) : null}
         </ScrollView>
         <Button title="Camera" onPress={() => setCameraActive(true)} />
         <Button title="Pick Media" onPress={() => pickImage()} />
