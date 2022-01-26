@@ -10,7 +10,7 @@ import { setItemAsync } from "expo-secure-store";
 import { useDispatch } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../../../theme.style";
-import { Feather, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 
 const SettingScreen = () => {
   const dispatch = useDispatch();

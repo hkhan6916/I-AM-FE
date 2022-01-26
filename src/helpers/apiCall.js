@@ -1,8 +1,8 @@
-import axios from 'axios';
-import { getItemAsync } from 'expo-secure-store';
+import axios from "axios";
+import { getItemAsync } from "expo-secure-store";
 
 const apiCall = async (method, route, payload = null) => {
-  const apiUrl = 'http://192.168.5.101:5000';
+  const apiUrl = "http://192.168.5.101:5000";
   // const apiUrl = 'https://i-am-be.herokuapp.com';
   const callConfig = {
     method,
@@ -12,7 +12,7 @@ const apiCall = async (method, route, payload = null) => {
   };
 
   try {
-    const token = await getItemAsync('authToken');
+    const token = await getItemAsync("authToken");
     if (token) {
       callConfig.headers.Authorization = `Bearer ${token}`;
     }
@@ -21,17 +21,15 @@ const apiCall = async (method, route, payload = null) => {
   }
 
   if (payload !== null) {
-    callConfig.headers['Content-Type'] = 'application/json';
+    callConfig.headers["Content-Type"] = "application/json";
   }
 
   if (payload instanceof FormData) {
-    callConfig.headers['Content-Type'] = 'multipart/form-data';
+    callConfig.headers["Content-Type"] = "multipart/form-data";
   }
   try {
     const { data: response } = await axios(callConfig);
-    const {
-      message, error, success, data, other,
-    } = response;
+    const { message, error, success, data, other } = response;
     return {
       success,
       message,
@@ -47,15 +45,15 @@ const apiCall = async (method, route, payload = null) => {
       return {
         success,
         message,
-        response: message ?? '',
-        error: message ?? '',
+        response: message ?? "",
+        error: message ?? "",
       };
     }
     return {
       success: false,
       message: "Couldn't connect to server",
-      response: '',
-      error: 'CONNECTION_FAILED',
+      response: "",
+      error: "CONNECTION_FAILED",
     };
   }
 };

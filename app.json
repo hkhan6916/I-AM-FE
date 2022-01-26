@@ -33,7 +33,18 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "react-native-compressor"
-    ]
+      "react-native-compressor",
+      [
+        "expo-ads-facebook",
+        {
+          "userTrackingPermission": "This identifier will be used to deliver personalized ads to you."
+        }
+      ]
+    ],
+    "facebookScheme": "fb1234567891234567",
+    "facebookAppId": "3130380047243958",
+    "facebookDisplayName": "Magnet",
+    "facebookAutoLogAppEventsEnabled": true,
+    "facebookAdvertiserIDCollectionEnabled": true
   }
 }

@@ -524,7 +524,7 @@ const ChatScreen = (props) => {
           <View style={{ width: 200, height: 200 }}>
             <Video
               useNativeControls
-              source={{ uri: media.uri }}
+              // source={{ uri: media.uri }}
               resizeMode="cover"
               style={{ width: "100%", height: "100%", alignSelf: "center" }}
             />

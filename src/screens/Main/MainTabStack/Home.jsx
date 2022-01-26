@@ -14,6 +14,7 @@ import {
   StatusBar,
   FlatList,
   ActivityIndicator,
+  Button,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
@@ -136,6 +137,7 @@ const HomeScreen = () => {
         backgroundColor={themeStyle.colors.grayscale.black}
         barStyle="light-content"
       />
+      <Button title="test" onPress={() => navigation.navigate("AdScreen")} />
       <View
         style={{
           display: "flex",

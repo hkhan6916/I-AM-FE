@@ -62,7 +62,7 @@ const ImageWithCache = ({
             </View>
             <FastImage
               resizeMode={FastImage.resizeMode.contain}
-              source={{ uri: mediaUrl, headers: mediaHeaders || {} }}
+              // source={{ uri: mediaUrl, headers: mediaHeaders || {} }}
               style={{
                 borderRadius: removeBorderRadius ? 0 : 10,
                 width: "100%",
@@ -78,7 +78,7 @@ const ImageWithCache = ({
               ? FastImage.resizeMode.cover
               : FastImage.resizeMode.contain
           }
-          source={{ uri: mediaUrl, headers: mediaHeaders || {} }}
+          // source={{ uri: mediaUrl, headers: mediaHeaders || {} }}
           style={{
             borderRadius: removeBorderRadius ? 0 : 10,
             aspectRatio,

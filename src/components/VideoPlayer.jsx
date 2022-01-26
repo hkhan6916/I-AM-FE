@@ -206,10 +206,10 @@ const VideoPlayer = ({
                   //     : screenHeight
                   //   : 0,
                 }}
-                source={{
-                  uri: url,
-                  headers: mediaHeaders,
-                }}
+                // source={{
+                //   uri: url,
+                //   headers: mediaHeaders,
+                // }}
                 useNativeControls={false}
                 resizeMode="cover"
                 onPlaybackStatusUpdate={(status) => setVideoStatus(status)}

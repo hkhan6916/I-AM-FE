@@ -274,8 +274,8 @@ const PostCard = ({
                     shouldPlay={isVisible}
                     mediaOrientation={post.mediaOrientation}
                     mediaIsSelfie={post.mediaIsSelfie}
-                    url={post.mediaUrl}
-                    mediaHeaders={post.mediaHeaders}
+                    // url={post.mediaUrl}
+                    // mediaHeaders={post.mediaHeaders}
                   />
                 </View>
               ) : post.mediaType === "image" ? (

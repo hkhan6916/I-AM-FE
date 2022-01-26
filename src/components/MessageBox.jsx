@@ -46,10 +46,10 @@ const MessageBox = ({ belongsToSender, message }) => {
                   style={{
                     display: "none",
                   }}
-                  source={{
-                    uri: mediaUrl,
-                    headers: mediaHeaders,
-                  }}
+                  // source={{
+                  //   uri: mediaUrl,
+                  //   headers: mediaHeaders,
+                  // }}
                   useNativeControls={false}
                   resizeMode="cover"
                 />

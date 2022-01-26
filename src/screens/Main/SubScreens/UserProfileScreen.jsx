@@ -109,8 +109,8 @@ const UserProfileScreen = (props) => {
     return (
       <View style={{ height: 400 }}>
         <VideoPlayer
-          url={user.profileVideoUrl}
-          mediaHeaders={user.profileVideoHeaders}
+          // url={user.profileVideoUrl}
+          // mediaHeaders={user.profileVideoHeaders}
           mediaIsSelfie
           showToggle
         />

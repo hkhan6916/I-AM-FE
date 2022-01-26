@@ -39,10 +39,10 @@ const PreviewVideo = ({
             setProfileVideoPlaying(() => status)
           }
           ref={profileVideoRef}
-          source={{
-            uri,
-            headers,
-          }}
+          // source={{
+          //   uri,
+          //   headers,
+          // }}
           isLooping
           resizeMode="cover"
         />

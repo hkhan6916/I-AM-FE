@@ -187,8 +187,8 @@ const AddScreen = () => {
               ]}
             >
               <VideoPlayer
-                url={file.uri}
-                mediaHeaders={null}
+                // url={file.uri}
+                // mediaHeaders={null}
                 showToggle
                 isLocalMedia
               />

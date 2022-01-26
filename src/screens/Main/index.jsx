@@ -14,7 +14,7 @@ import ProfileEditScreen from "./SubScreens/ProfileEditScreen";
 import SettingsScreen from "./SubScreens/SettingsScreen";
 import PrivacyPolicyScreen from "./SubScreens/PrivacyPolicyScreen";
 import TermsOfUseScreen from "./SubScreens/TermsOfUseScreen";
-
+import AdScreen from "./SubScreens/AdTest";
 const Stack = createNativeStackNavigator();
 
 const MainStack = () => (
@@ -168,6 +168,18 @@ const MainStack = () => (
       }}
       name="TermsOfUseScreen"
       component={TermsOfUseScreen}
+    />
+    <Stack.Screen
+      options={{
+        title: "Ad Screen",
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+      }}
+      name="AdScreen"
+      component={AdScreen}
     />
   </Stack.Navigator>
 );
