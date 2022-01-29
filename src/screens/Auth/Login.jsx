@@ -5,6 +5,7 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { setItemAsync } from "expo-secure-store";
 import { useNavigation } from "@react-navigation/native";
@@ -13,17 +14,19 @@ import { Ionicons } from "@expo/vector-icons";
 import themeStyle from "../../theme.style";
 import apiCall from "../../helpers/apiCall";
 import Logo from "../../Logo";
-
 const LoginScreen = () => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const dispatch = useDispatch();
 
   const navigation = useNavigation();
 
   const authenticateUser = async () => {
+    setLoading(true);
     const { response, success, error } = await apiCall("POST", "/user/login", {
       identifier,
       password,
@@ -42,6 +45,7 @@ const LoginScreen = () => {
           : "Whoops, your credentials do not match. Please try again."
       );
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -96,7 +100,14 @@ const LoginScreen = () => {
           onPress={() => authenticateUser()}
           disabled={!(identifier && password)}
         >
-          <Text style={styles.loginButtonText}>Log me in!</Text>
+          {loading ? (
+            <ActivityIndicator
+              size={"small"}
+              color={themeStyle.colors.grayscale.white}
+            />
+          ) : (
+            <Text style={styles.loginButtonText}>Log me in!</Text>
+          )}
         </TouchableOpacity>
         {loginError ? (
           <Text style={styles.loginError}>{loginError}</Text>
@@ -142,6 +153,7 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 50,
     backgroundColor: themeStyle.colors.primary.default,
+    width: 100,
   },
   loginButtonText: {
     color: themeStyle.colors.grayscale.white,

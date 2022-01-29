@@ -3,7 +3,6 @@ import {
   Text,
   View,
   StyleSheet,
-  TouchableHighlight,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
@@ -19,7 +18,7 @@ import Avatar from "./Avatar";
 import themeStyle from "../theme.style";
 import apiCall from "../helpers/apiCall";
 import ImageWithCache from "./ImageWithCache";
-import { Feather } from "@expo/vector-icons";
+import RepostCard from "./RepostCard";
 
 const PostCard = ({
   post: initialPost,
@@ -29,6 +28,8 @@ const PostCard = ({
   loadingMore,
 }) => {
   const [post, setPost] = useState(initialPost);
+  const [bodyCollapsed, setBodyCollapsed] = useState(false);
+
   const navigation = useNavigation();
 
   const handleReaction = async () => {
@@ -65,139 +66,12 @@ const PostCard = ({
     );
   };
 
-  const RepostedPost = ({ postContent }) => (
-    <TouchableHighlight
-      style={styles.repostedPostContent}
-      onPress={() => navigation.navigate("PostsScreen", { post: postContent })}
-      underlayColor={themeStyle.colors.grayscale.mediumGray}
-    >
-      <View>
-        <View
-          style={{
-            flexDirection: "row",
-            flexWrap: "wrap",
-            padding: 7,
-            borderBottomWidth: isPreview ? 0.5 : 0,
-            borderColor: themeStyle.colors.grayscale.lightGray,
-          }}
-        >
-          <Avatar
-            navigation={navigation}
-            userId={postContent.postAuthor._id}
-            size={50}
-            avatarUrl={postContent.postAuthor.profileGifUrl}
-            profileGifHeaders={postContent.postAuthor.profileGifHeaders}
-          />
-          <View
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              marginLeft: 20,
-            }}
-          >
-            <Text
-              numberOfLines={1}
-              style={{ fontWeight: "700", maxWidth: 200 }}
-            >
-              {postContent.postAuthor.username}
-            </Text>
-            <Text style={{ maxWidth: 200 }} numberOfLines={1}>
-              {postContent.postAuthor.firstName}{" "}
-              {postContent.postAuthor.lastName}
-            </Text>
-          </View>
-        </View>
-        {postContent.mediaType === "video" ? (
-          <View
-            style={{
-              flex: 1,
-              flexDirection: "column",
-            }}
-          >
-            {/* <VideoPlayer
-              shouldPlay={false}
-              mediaOrientation={postContent.mediaOrientation}
-              mediaIsSelfie={postContent.mediaIsSelfie}
-              url={postContent.mediaUrl}
-              mediaHeaders={postContent.mediaHeaders}
-            /> */}
-            <ImageWithCache
-              removeBorderRadius
-              mediaHeaders={postContent.mediaHeaders}
-              mediaOrientation={postContent.mediaOrientation}
-              mediaIsSelfie={postContent.mediaIsSelfie}
-              resizeMode="cover"
-              mediaUrl={postContent.mediaUrl}
-              aspectRatio={1 / 1}
-            />
-            <View
-              style={{
-                position: "absolute",
-                top: 10,
-                right: 10,
-              }}
-            >
-              <Feather
-                name={"play"}
-                size={48}
-                color={themeStyle.colors.grayscale.white}
-              />
-            </View>
-          </View>
-        ) : postContent.mediaType === "image" ? (
-          <View
-            style={{
-              flex: 1,
-              flexDirection: "column",
-            }}
-          >
-            <ImageWithCache
-              removeBorderRadius
-              mediaHeaders={postContent.mediaHeaders}
-              mediaOrientation={postContent.mediaOrientation}
-              mediaIsSelfie={postContent.mediaIsSelfie}
-              resizeMode="cover"
-              mediaUrl={postContent.mediaUrl}
-              aspectRatio={1 / 1}
-            />
-          </View>
-        ) : null}
-        {postContent.body ? (
-          <View
-            style={{
-              margin: 10,
-            }}
-          >
-            <Text numberOfLines={4} style={{ textAlign: "left" }}>
-              {postContent.body}
-            </Text>
-          </View>
-        ) : null}
-      </View>
-    </TouchableHighlight>
-  );
-
   useEffect(() => {
     setPost(initialPost);
   }, [initialPost]);
 
   return (
     <View style={[styles.container, isPreview && styles.preview]}>
-      {post.likedBy && (
-        <TouchableOpacity
-          style={{ padding: 10 }}
-          onPress={() =>
-            navigation.navigate("UserProfileScreen", {
-              userId: post.likedBy._id,
-            })
-          }
-        >
-          <Text style={{ fontWeight: "700" }}>
-            {post.likedBy.firstName} {post.likedBy.lastName} liked this
-          </Text>
-        </TouchableOpacity>
-      )}
-
       {post.postAuthor && (
         <View
           style={[
@@ -244,7 +118,7 @@ const PostCard = ({
       )}
       {post.repostPostObj ? (
         <View>
-          <RepostedPost postContent={post.repostPostObj} />
+          <RepostCard postContent={post.repostPostObj} isPreview={isPreview} />
           {post.body ? (
             <View
               style={{
@@ -252,13 +126,31 @@ const PostCard = ({
                 marginHorizontal: 10,
               }}
             >
-              <Text style={{ textAlign: "left" }}>{post.body}</Text>
+              <Text
+                numberOfLines={!bodyCollapsed ? 3 : null}
+                style={{ textAlign: "left" }}
+              >
+                {post.body}
+              </Text>
+              {!bodyCollapsed ? (
+                <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
+                  <Text
+                    style={{
+                      color: themeStyle.colors.grayscale.darkGray,
+                      marginBottom: 10,
+                      marginTop: 5,
+                    }}
+                  >
+                    Read more
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
             </View>
           ) : null}
         </View>
       ) : (
         <View>
-          <TouchableHighlight
+          <TouchableOpacity
             onPress={() => navigation.navigate("MediaScreen", { post })}
             underlayColor={themeStyle.colors.grayscale.mediumGray}
           >
@@ -297,14 +189,32 @@ const PostCard = ({
                 </View>
               ) : null}
             </View>
-          </TouchableHighlight>
+          </TouchableOpacity>
           {post.body ? (
             <View
               style={{
                 padding: 5,
               }}
             >
-              <Text style={{ textAlign: "left" }}>{post.body}</Text>
+              <Text
+                numberOfLines={!bodyCollapsed ? 3 : null}
+                style={{ textAlign: "left" }}
+              >
+                {post.body}
+              </Text>
+              {!bodyCollapsed ? (
+                <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
+                  <Text
+                    style={{
+                      color: themeStyle.colors.grayscale.darkGray,
+                      marginBottom: 10,
+                      marginTop: 5,
+                    }}
+                  >
+                    Read more
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
             </View>
           ) : null}
         </View>
@@ -383,9 +293,37 @@ const PostCard = ({
               />
             </TouchableOpacity>
           </View>
-          <Text style={{ marginHorizontal: 10, marginVertical: 5 }}>
-            {post.likes} likes
-          </Text>
+          <View
+            style={{
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexDirection: "row",
+            }}
+          >
+            <Text style={{ marginHorizontal: 10, marginVertical: 5 }}>
+              {post.likes} likes
+            </Text>
+            {post.likedBy && (
+              <TouchableOpacity
+                style={{ padding: 10 }}
+                onPress={() =>
+                  navigation.navigate("UserProfileScreen", {
+                    userId: post.likedBy._id,
+                  })
+                }
+              >
+                <Text
+                  style={{
+                    fontWeight: "700",
+                    color: themeStyle.colors.grayscale.mediumGray,
+                    fontSize: 12,
+                  }}
+                >
+                  Liked by {post.likedBy.firstName} {post.likedBy.lastName}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
           <PostAge />
         </View>
       )}

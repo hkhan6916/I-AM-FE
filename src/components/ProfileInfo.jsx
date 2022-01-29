@@ -48,8 +48,10 @@ const ProfileInfo = ({ navigation, userData }) => {
           />
         </View>
       </LinearGradient>
-      {console.log("man")}
     </View>
   );
 };
-export default React.memo(ProfileInfo, (prevProps, nextProps) => true);
+export default React.memo(
+  ProfileInfo,
+  (prevProps, nextProps) => prevProps === nextProps
+);

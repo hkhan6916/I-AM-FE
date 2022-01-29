@@ -6,14 +6,16 @@ import AdCard from "../../../components/AdCard";
 
 export default function AdScreen() {
   let [isLoaded, setIsLoaded] = React.useState(false);
-
+  FacebookAds.AdSettings.addTestDevice(
+    FacebookAds.AdSettings.currentDeviceHash
+  );
   function getPlacementId(bannerAd) {
     let placementId;
     if (bannerAd) {
       placementId =
         Platform.OS === "ios"
-          ? "3130380047243958_3131780643770565"
-          : "3130380047243958_3131780643770565";
+          ? "3130380047243958_3131771590438137"
+          : "3130380047243958_3131771590438137";
     } else {
       placementId =
         Platform.OS === "ios"
@@ -22,7 +24,7 @@ export default function AdScreen() {
     }
 
     if (__DEV__) {
-      return `IMG_16_9_APP_INSTALL#${placementId}`;
+      return `VID_HD_9_16_39S_LINK#${placementId}`;
     }
 
     return placementId;
@@ -31,9 +33,10 @@ export default function AdScreen() {
   const bannerId = getPlacementId(true);
   const interstitialId = getPlacementId(false);
   const adsManager = new FacebookAds.NativeAdsManager(
-    "IMG_16_9_APP_INSTALL#3130380047243958_3130406723907957",
-    1
+    "IMG_16_9_LINK#3130380047243958_3130406723907957"
   );
+
+  console.log(adsManager);
 
   FacebookAds.AdSettings.requestPermissionsAsync().then((permissions) => {
     let canTrack = permissions.status === "granted";
@@ -46,28 +49,30 @@ export default function AdScreen() {
       .then((didClick) => console.log({ didClick }))
       .catch((error) => console.log({ error }));
   }
-  console.log(adsManager);
-  function getBannerAd() {
-    if (isLoaded) {
-      return (
-        <FacebookAds.BannerAd
-          placementId={bannerId}
-          type="large"
-          onPress={() => console.log("click")}
-          onError={(error) => console.log(error.nativeEvent)}
-        />
-      );
-    }
-  }
+  //   function getBannerAd() {
+  //     if (isLoaded) {
+  //       return (
+  //         <FacebookAds.BannerAd
+  //           placementId={bannerId}
+  //           type="large"
+  //           onPress={() => console.log("click")}
+  //           onError={(error) => console.log(error.nativeEvent)}
+  //         />
+  //       );
+  //     }
+  //   }
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <AdCard
+        adsManager={adsManager}
+        onAdLoaded={(e) => console.log(e)}
+        onError={(e) => console.log(e)}
+      />
+      {/* <View style={styles.content}>
         <Button title="Show Interstitial" onPress={showInterstitial} />
-      </View>
-      <AdCard adsManager={adsManager} />
-      <View style={styles.adView}>{getBannerAd()}</View>
-      <StatusBar style="auto" />
+      </View> */}
+      {/* <View style={styles.adView}>{getBannerAd()}</View> */}
     </View>
   );
 }
