@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Text,
   View,
@@ -29,8 +29,13 @@ const PostCard = ({
 }) => {
   const [post, setPost] = useState(initialPost);
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
+  const [isCollapsible, setIsCollapsible] = useState(false);
 
   const navigation = useNavigation();
+
+  const onTextLayout = (e) => {
+    setIsCollapsible(e.nativeEvent.lines.length >= 3);
+  };
 
   const handleReaction = async () => {
     if (post.liked) {
@@ -127,12 +132,13 @@ const PostCard = ({
               }}
             >
               <Text
+                onTextLayout={onTextLayout}
                 numberOfLines={!bodyCollapsed ? 3 : null}
                 style={{ textAlign: "left" }}
               >
                 {post.body}
               </Text>
-              {!bodyCollapsed ? (
+              {isCollapsible && !bodyCollapsed ? (
                 <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
                   <Text
                     style={{
@@ -197,12 +203,13 @@ const PostCard = ({
               }}
             >
               <Text
+                onTextLayout={onTextLayout}
                 numberOfLines={!bodyCollapsed ? 3 : null}
                 style={{ textAlign: "left" }}
               >
                 {post.body}
               </Text>
-              {!bodyCollapsed ? (
+              {isCollapsible && !bodyCollapsed ? (
                 <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
                   <Text
                     style={{

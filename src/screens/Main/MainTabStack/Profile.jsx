@@ -13,6 +13,7 @@ import apiCall from "../../../helpers/apiCall";
 import PostCard from "../../../components/PostCard";
 import themeStyle from "../../../theme.style";
 import ProfileInfo from "../../../components/ProfileInfo";
+import { useScrollToTop } from "@react-navigation/native";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -25,6 +26,8 @@ const ProfileScreen = () => {
   const navigation = useNavigation();
 
   const flatlistRef = useRef(null);
+
+  useScrollToTop(flatlistRef);
 
   const getUserPosts = async () => {
     if (!allPostsLoaded) {

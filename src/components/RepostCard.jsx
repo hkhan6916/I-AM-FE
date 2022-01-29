@@ -8,8 +8,13 @@ import { Feather } from "@expo/vector-icons";
 
 const RepostCard = ({ postContent, isPreview }) => {
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
+  const [isCollapsible, setIsCollapsible] = useState(false);
 
   const navigation = useNavigation();
+  const onTextLayout = (e) => {
+    setIsCollapsible(e.nativeEvent.lines.length >= 3);
+  };
+
   return (
     <TouchableOpacity
       style={styles.repostedPostContent}
@@ -114,12 +119,13 @@ const RepostCard = ({ postContent, isPreview }) => {
             }}
           >
             <Text
+              onTextLayout={onTextLayout}
               numberOfLines={!bodyCollapsed ? 3 : null}
               style={{ textAlign: "left" }}
             >
               {postContent.body}
             </Text>
-            {!bodyCollapsed ? (
+            {isCollapsible && !bodyCollapsed ? (
               <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
                 <Text
                   style={{
