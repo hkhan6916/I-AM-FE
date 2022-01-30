@@ -13,7 +13,7 @@ export default {
       default: "#FFB000",
     },
     success: {
-      default: "#39FF00",
+      default: "#009966",
     },
     error: {
       default: "#FF0000",

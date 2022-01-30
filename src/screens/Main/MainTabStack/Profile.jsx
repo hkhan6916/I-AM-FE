@@ -63,23 +63,12 @@ const ProfileScreen = () => {
       "GET",
       `/user/posts/${userPosts.length}`
     );
+    await getUserData();
     setRefreshing(false);
     if (success) {
       setUserPosts(response);
     }
   }, []);
-
-  const isCloseToBottom = ({
-    layoutMeasurement,
-    contentOffset,
-    contentSize,
-  }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
 
   const onViewableItemsChanged = ({ viewableItems }) => {
     viewableItems.forEach((item) => {
