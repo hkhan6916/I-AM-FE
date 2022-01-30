@@ -546,7 +546,7 @@ const ChatScreen = (props) => {
         {showMediaSizeError ? (
           <Text>
             We can&apos;t send the chosen media file as it exceeds our 50MB
-            limit. Please choose a smaller file
+            limit. Please choose a smaller file.
           </Text>
         ) : null}
       </View>

@@ -81,19 +81,6 @@ const ProfileScreen = () => {
     );
   };
 
-  useEffect(() => {
-    let isMounted = true;
-    (async () => {
-      if (isMounted) {
-        await getUserData();
-        await getUserPosts();
-      }
-    })();
-    return () => {
-      setUserPosts([]);
-      isMounted = false;
-    };
-  }, []);
   const onViewableItemsChanged = ({ viewableItems }) => {
     viewableItems.forEach((item) => {
       if (item.isViewable) {
@@ -111,56 +98,52 @@ const ProfileScreen = () => {
     { onViewableItemsChanged, viewabilityConfig },
   ]);
 
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      if (isMounted) {
+        await getUserData();
+        await getUserPosts();
+      }
+    })();
+    return () => {
+      setUserPosts([]);
+      isMounted = false;
+    };
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       {userData ? (
-        <View
-          onScroll={({ nativeEvent }) => {
-            if (isCloseToBottom(nativeEvent)) {
-              getUserPosts();
-            }
-          }}
+        <FlatList
+          ref={flatlistRef}
+          viewabilityConfigCallbackPairs={
+            viewabilityConfigCallbackPairs.current
+          }
+          data={userPosts}
+          renderItem={({ item }) => (
+            <PostCard isVisible={visibleItems.includes(item._id)} post={item} />
+          )}
+          keyExtractor={(item, index) => `${item._id}-${index}`}
           refreshControl={
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }
-        >
-          <View style={{ flexDirection: "row" }}>
-            <Text>{userData.numberOfFriends} friends</Text>
-          </View>
-          <FlatList
-            ref={flatlistRef}
-            viewabilityConfigCallbackPairs={
-              viewabilityConfigCallbackPairs.current
-            }
-            data={userPosts}
-            renderItem={({ item }) => (
-              <PostCard
-                isVisible={visibleItems.includes(item._id)}
-                post={item}
-              />
-            )}
-            keyExtractor={(item, index) => `${item._id}-${index}`}
-            refreshControl={
-              <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-            }
-            ListHeaderComponent={() => (
-              <ProfileInfo userData={userData} navigation={navigation} />
-            )}
-            ListFooterComponent={() => (
-              <ActivityIndicator
-                size="large"
-                animating={loading}
-                color={themeStyle.colors.grayscale.lightGray}
-              />
-            )}
-            contentContainerStyle={{ flexGrow: 1 }}
-            onEndReached={() => getUserPosts()}
-            onEndReachedThreshold={0.5}
-            initialNumToRender={10}
-            maxToRenderPerBatch={5}
-            // windowSize={5}
-          />
-        </View>
+          ListHeaderComponent={() => (
+            <ProfileInfo userData={userData} navigation={navigation} />
+          )}
+          ListFooterComponent={() => (
+            <ActivityIndicator
+              size="large"
+              animating={loading}
+              color={themeStyle.colors.grayscale.lightGray}
+            />
+          )}
+          contentContainerStyle={{ flexGrow: 1 }}
+          onEndReached={() => getUserPosts()}
+          onEndReachedThreshold={0.5}
+          initialNumToRender={10}
+          maxToRenderPerBatch={5}
+          // windowSize={5}
+        />
       ) : null}
     </SafeAreaView>
   );

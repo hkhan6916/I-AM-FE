@@ -30,7 +30,7 @@ const Avatar = ({
         underlayColor={themeStyle.colors.grayscale.mediumGray}
       >
         <FastImage
-          // source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}
+          source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}
           style={{
             borderRadius: 10,
             alignSelf: "center",
@@ -55,7 +55,7 @@ const Avatar = ({
           </View>
         ) : (
           <FastImage
-            // source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}
+            source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}
             resizeMode={FastImage.resizeMode.cover}
             style={{
               borderRadius: 10,

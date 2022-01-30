@@ -48,6 +48,7 @@ const ProfileInfo = ({ navigation, userData }) => {
           />
         </View>
       </LinearGradient>
+      <Text>{userData.numberOfFriends} friends</Text>
     </View>
   );
 };

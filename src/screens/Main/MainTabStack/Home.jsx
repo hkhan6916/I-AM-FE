@@ -69,14 +69,15 @@ const HomeScreen = () => {
   };
 
   const getUserFeed = async () => {
-    if (!allPostsLoaded && !refreshing && !loading) {
+    if (allPostsLoaded && !refreshing && !loading) {
       const offsets = await calculateOffsets();
       setLoading(true);
-      const { success, response } = await apiCall(
+      const { success, response, message } = await apiCall(
         "POST",
         "/user/feed",
         offsets
       );
+      console.log(response, message);
       setLoading(false);
       if (success) {
         if (!response.feed?.length) {

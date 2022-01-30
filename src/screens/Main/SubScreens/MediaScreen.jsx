@@ -90,6 +90,7 @@ const MediaScreen = (props) => {
               mediaHeaders={post.mediaHeaders}
               mediaUrl={post.mediaUrl}
               aspectRatio={1 / 1}
+              removeBorderRadius
             />
           </View>
         ) : null}

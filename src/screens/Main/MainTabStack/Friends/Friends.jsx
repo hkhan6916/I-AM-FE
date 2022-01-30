@@ -5,6 +5,7 @@ import {
   Button,
   RefreshControl,
   ScrollView,
+  Text,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import apiCall from "../../../../helpers/apiCall";
@@ -47,12 +48,15 @@ const FriendsScreen = () => {
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
       >
+        {console.log(friends)}
         {friends.length ? (
           friends.map((friend) => (
             <UserThumbnail key={friend._id} user={friend} avatarSize={50} />
           ))
         ) : (
-          <View />
+          <View>
+            <Text></Text>
+          </View>
         )}
       </ScrollView>
     </View>

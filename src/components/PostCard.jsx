@@ -199,7 +199,8 @@ const PostCard = ({
           {post.body ? (
             <View
               style={{
-                padding: 5,
+                paddingHorizontal: 10,
+                paddingVertical: 20,
               }}
             >
               <Text
@@ -243,12 +244,11 @@ const PostCard = ({
                   height: 40,
                   justifyContent: "center",
                   alignItems: "center",
-                  marginHorizontal: 5,
                 }}
               >
                 <MaterialCommunityIcons
                   name={post.liked ? "thumb-up" : "thumb-up-outline"}
-                  size={24}
+                  size={20}
                   color={
                     post.liked
                       ? themeStyle.colors.secondary.default
@@ -272,7 +272,7 @@ const PostCard = ({
               >
                 <FontAwesome
                   name="comment-o"
-                  size={24}
+                  size={20}
                   color={themeStyle.colors.grayscale.black}
                 />
               </TouchableOpacity>
@@ -295,7 +295,7 @@ const PostCard = ({
             >
               <Ionicons
                 name="arrow-redo-outline"
-                size={26}
+                size={22}
                 color={themeStyle.colors.grayscale.black}
               />
             </TouchableOpacity>
@@ -307,28 +307,39 @@ const PostCard = ({
               flexDirection: "row",
             }}
           >
-            <Text style={{ marginHorizontal: 10, marginVertical: 5 }}>
-              {post.likes} likes
-            </Text>
-            {post.likedBy && (
-              <TouchableOpacity
-                style={{ padding: 10 }}
-                onPress={() =>
-                  navigation.navigate("UserProfileScreen", {
-                    userId: post.likedBy._id,
-                  })
-                }
+            {post.likedBy ? (
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.mediumGray,
+                  fontSize: 12,
+                  marginHorizontal: 10,
+                  marginVertical: 5,
+                }}
               >
+                Liked by{" "}
                 <Text
-                  style={{
-                    fontWeight: "700",
-                    color: themeStyle.colors.grayscale.mediumGray,
-                    fontSize: 12,
-                  }}
+                  style={{ fontWeight: "700" }}
+                  onPress={() =>
+                    navigation.navigate("UserProfileScreen", {
+                      userId: post.likedBy._id,
+                    })
+                  }
                 >
-                  Liked by {post.likedBy.firstName} {post.likedBy.lastName}
+                  {post.likedBy.firstName} {post.likedBy.lastName}{" "}
                 </Text>
-              </TouchableOpacity>
+                {post.likes > 1 ? `and ${post.likes - 1} others` : ""}
+              </Text>
+            ) : (
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.mediumGray,
+                  fontSize: 12,
+                  marginHorizontal: 10,
+                  marginVertical: 5,
+                }}
+              >
+                {post.likes} likes
+              </Text>
             )}
           </View>
           <PostAge />

@@ -1,11 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigation } from "@react-navigation/native";
 import {
-  ScrollView, Text, View, StyleSheet, TouchableOpacity, FlatList,
-} from 'react-native';
-import apiCall from '../../../helpers/apiCall';
-import UserThumbnail from '../../../components/UserThumbnail';
-import themeStyle from '../../../theme.style';
+  ScrollView,
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
+import apiCall from "../../../helpers/apiCall";
+import UserThumbnail from "../../../components/UserThumbnail";
 
 const CreateChatScreen = () => {
   const isMounted = useRef(null);
@@ -16,7 +20,10 @@ const CreateChatScreen = () => {
   const navigation = useNavigation();
 
   const getUserFriends = async () => {
-    const { success, response } = await apiCall('GET', `/user/friend/fetch/all/${friends.length}`);
+    const { success, response } = await apiCall(
+      "GET",
+      `/user/friend/fetch/all/${friends.length}`
+    );
     if (isMounted.current) {
       if (success) {
         setFriends(response);
@@ -28,22 +35,30 @@ const CreateChatScreen = () => {
 
   const handleChatNavigation = async (chatUserId) => {
     setError(false);
-    const { response, success } = await apiCall('POST', '/chat/exists', { participants: [chatUserId] });
+    const { response, success } = await apiCall("POST", "/chat/exists", {
+      participants: [chatUserId],
+    });
     if (success) {
       if (response === null) {
-        navigation.navigate('ChatScreen', { chatUserId });
+        navigation.navigate("ChatScreen", { chatUserId });
       } else {
-        navigation.navigate('ChatScreen', { existingChat: response });
+        navigation.navigate("ChatScreen", { existingChat: response });
       }
     } else {
       setError(true);
     }
   };
 
-  const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+  const isCloseToBottom = ({
+    layoutMeasurement,
+    contentOffset,
+    contentSize,
+  }) => {
     const paddingToBottom = 20;
-    return layoutMeasurement.height + contentOffset.y
-      >= contentSize.height - paddingToBottom;
+    return (
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom
+    );
   };
 
   useEffect(() => {
@@ -51,38 +66,40 @@ const CreateChatScreen = () => {
     (async () => {
       await getUserFriends();
     })();
-    return () => { isMounted.current = false; };
+    return () => {
+      isMounted.current = false;
+    };
   }, []);
   return (
     <View style={styles.container}>
-      {!error
-        ? (
-          <ScrollView onScroll={({ nativeEvent }) => {
+      {!error ? (
+        <ScrollView
+          onScroll={({ nativeEvent }) => {
             if (isCloseToBottom(nativeEvent)) {
               getUserFriends();
             }
           }}
-          >
-            {friends.map((friend) => (
-              <TouchableOpacity
-                key={friend._id}
-                onPress={() => handleChatNavigation(friend._id)}
-              >
-                <View style={{
+        >
+          {friends.map((friend) => (
+            <TouchableOpacity
+              key={friend._id}
+              onPress={() => handleChatNavigation(friend._id)}
+            >
+              <View
+                style={{
                   padding: 20,
                 }}
-                >
-                  <UserThumbnail preventClicks user={friend} avatarSize={50} />
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        )
-        : (
-          <View>
-            <Text>Oops, something went wrong</Text>
-          </View>
-        )}
+              >
+                <UserThumbnail preventClicks user={friend} avatarSize={50} />
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      ) : (
+        <View>
+          <Text>Oops, something went wrong</Text>
+        </View>
+      )}
     </View>
   );
 };
