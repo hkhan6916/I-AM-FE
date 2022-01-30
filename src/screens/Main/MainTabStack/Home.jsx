@@ -69,7 +69,7 @@ const HomeScreen = () => {
   };
 
   const getUserFeed = async () => {
-    if (allPostsLoaded && !refreshing && !loading) {
+    if (!allPostsLoaded && !refreshing && !loading) {
       const offsets = await calculateOffsets();
       setLoading(true);
       const { success, response, message } = await apiCall(

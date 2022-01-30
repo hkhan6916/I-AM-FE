@@ -117,10 +117,11 @@ const UserProfileScreen = (props) => {
 
   const getUserPosts = async () => {
     if (!allPostsLoaded) {
-      const { success, response } = await apiCall(
+      const { success, response, message } = await apiCall(
         "GET",
-        `/user/posts/${userPosts.length}`
+        `/user/${userId}/posts/${userPosts.length}`
       );
+      console.log(message);
       if (success) {
         if (!response.length && userPosts.length) {
           setAllPostsLoaded(true);

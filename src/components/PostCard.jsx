@@ -74,7 +74,6 @@ const PostCard = ({
   useEffect(() => {
     setPost(initialPost);
   }, [initialPost]);
-
   return (
     <View style={[styles.container, isPreview && styles.preview]}>
       {post.postAuthor && (
@@ -237,25 +236,27 @@ const PostCard = ({
             }}
           >
             <View style={{ flexDirection: "row" }}>
-              <TouchableOpacity
-                onPress={() => handleReaction()}
-                style={{
-                  width: 40,
-                  height: 40,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <MaterialCommunityIcons
-                  name={post.liked ? "thumb-up" : "thumb-up-outline"}
-                  size={20}
-                  color={
-                    post.liked
-                      ? themeStyle.colors.secondary.default
-                      : themeStyle.colors.grayscale.black
-                  }
-                />
-              </TouchableOpacity>
+              {!post.belongsToUser ? (
+                <TouchableOpacity
+                  onPress={() => handleReaction()}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <MaterialCommunityIcons
+                    name={post.liked ? "thumb-up" : "thumb-up-outline"}
+                    size={20}
+                    color={
+                      post.liked
+                        ? themeStyle.colors.secondary.default
+                        : themeStyle.colors.grayscale.black
+                    }
+                  />
+                </TouchableOpacity>
+              ) : null}
               <TouchableOpacity
                 onPress={() =>
                   navigation.navigate("CommentsScreen", {
