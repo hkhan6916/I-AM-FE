@@ -19,7 +19,6 @@ const SearchScreen = () => {
     const { response } = await apiCall("POST", `/user/search/0`, {
       searchTerm,
     });
-    console.log(searchTerm, response);
     if (response.length) {
       setResults(response);
     } else {

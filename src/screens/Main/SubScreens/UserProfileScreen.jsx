@@ -23,6 +23,7 @@ const UserProfileScreen = (props) => {
   const [user, setUser] = useState({});
   const [userPosts, setUserPosts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [accepted, setAccepted] = useState(false);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [visibleItems, setVisibleItems] = useState([]);
@@ -92,6 +93,7 @@ const UserProfileScreen = (props) => {
 
       setUser(userIsNotFriend);
     }
+    setAccepted(true);
   };
 
   const rejectFriendRequest = async () => {
@@ -119,11 +121,10 @@ const UserProfileScreen = (props) => {
 
     setUser(userIsNotFriend);
 
-    const { success, error, message, response } = await apiCall(
+    const { success, error } = await apiCall(
       "GET",
       `/user/friend/remove/${userId}`
     );
-    console.log(message, response);
     if (!success || error === "CONNECTION_FAILED") {
       const userIsFriend = { ...user, isFriend: true, requestReceived: false };
 
@@ -185,7 +186,10 @@ const UserProfileScreen = (props) => {
           navigation.setOptions({
             title: `${response.otherUser.firstName} ${response.otherUser.lastName}`,
           });
-          if (!response.otherUser?.private) {
+          if (
+            !response.otherUser?.private ||
+            (response.otherUser?.private && response.otherUser.isFriend)
+          ) {
             await getUserPosts();
           }
         }
@@ -197,6 +201,20 @@ const UserProfileScreen = (props) => {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (isMounted) {
+      (async () => {
+        if (accepted) {
+          await getUserPosts();
+        }
+      })();
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [accepted]);
 
   if (user && user._id) {
     return (
