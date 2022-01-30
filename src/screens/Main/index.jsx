@@ -39,6 +39,7 @@ const MainStack = () => (
         headerTitleStyle: {
           fontWeight: "bold",
         },
+        title: "",
       }}
       name="UserProfileScreen"
       component={UserProfileScreen}
@@ -87,7 +88,7 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
-        title: "ChatScreen",
+        title: "",
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {

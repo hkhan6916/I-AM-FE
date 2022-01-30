@@ -107,7 +107,7 @@ const PostCommentCard = ({
   if (!deleted) {
     return (
       <View style={styles.container}>
-        <View style={styles.profileInfoConatiner}>
+        <View style={styles.headerContainer}>
           <Avatar
             hasBorder
             userId={comment.userId}
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
     marginLeft: 70,
     padding: 20,
   },
-  profileInfoConatiner: {
+  headerContainer: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",

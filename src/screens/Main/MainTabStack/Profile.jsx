@@ -12,7 +12,7 @@ import { useNavigation } from "@react-navigation/native";
 import apiCall from "../../../helpers/apiCall";
 import PostCard from "../../../components/PostCard";
 import themeStyle from "../../../theme.style";
-import ProfileInfo from "../../../components/ProfileInfo";
+import ProfileScreenHeader from "../../../components/ProfileScreenHeader";
 import { useScrollToTop } from "@react-navigation/native";
 
 const ProfileScreen = () => {
@@ -128,7 +128,7 @@ const ProfileScreen = () => {
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }
           ListHeaderComponent={() => (
-            <ProfileInfo userData={userData} navigation={navigation} />
+            <ProfileScreenHeader userData={userData} navigation={navigation} />
           )}
           ListFooterComponent={() => (
             <ActivityIndicator

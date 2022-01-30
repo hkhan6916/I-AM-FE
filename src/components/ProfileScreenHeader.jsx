@@ -3,27 +3,27 @@ import themeStyle from "../theme.style";
 import { TouchableOpacity, View, Text } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import VideoPlayer from "../components/VideoPlayer";
+import VideoPlayer from "./VideoPlayer";
 
-const ProfileInfo = ({ navigation, userData }) => {
+const ProfileScreenHeader = ({ navigation, userData }) => {
   return (
     <View>
-      <TouchableOpacity onPress={() => navigation.navigate("SettingsScreen")}>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            paddingVertical: 10,
-            paddingHorizontal: 15,
-            borderBottomWidth: 1,
-          }}
-        >
-          <Text style={{ fontSize: 20 }} numberOfLines={1}>
-            {userData.username}
-          </Text>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          paddingVertical: 10,
+          paddingHorizontal: 15,
+          borderBottomWidth: 1,
+        }}
+      >
+        <Text style={{ fontSize: 20 }} numberOfLines={1}>
+          {userData.username}
+        </Text>
+        <TouchableOpacity onPress={() => navigation.navigate("SettingsScreen")}>
           <MaterialCommunityIcons name="cog-outline" size={24} color="black" />
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </View>
       <LinearGradient
         start={[0, 0.5]}
         end={[1, 0.5]}
@@ -53,6 +53,6 @@ const ProfileInfo = ({ navigation, userData }) => {
   );
 };
 export default React.memo(
-  ProfileInfo,
+  ProfileScreenHeader,
   (prevProps, nextProps) => prevProps === nextProps
 );

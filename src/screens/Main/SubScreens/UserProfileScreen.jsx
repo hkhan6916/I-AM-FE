@@ -11,9 +11,8 @@ import {
 
 import apiCall from "../../../helpers/apiCall";
 import VideoPlayer from "../../../components/VideoPlayer";
-import { useNavigation, useScrollToTop } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../../../theme.style";
-import ProfileInfo from "../../../components/ProfileInfo";
 import PostCard from "../../../components/PostCard";
 
 const UserProfileScreen = (props) => {
@@ -50,11 +49,10 @@ const UserProfileScreen = (props) => {
     const userRequestSent = { ...user, requestSent: false };
 
     setUser(userRequestSent);
-    const { success, error, message } = await apiCall(
+    const { success, error } = await apiCall(
       "GET",
       `/user/friend/request/recall/${userId}`
     );
-    console.log(message);
     if (!success || error === "CONNECTION_FAILED") {
       const userRequestRemoved = { ...user, requestSent: true };
       setUser(userRequestRemoved);
@@ -153,7 +151,7 @@ const UserProfileScreen = (props) => {
     setRefreshing(true);
     const { success, response } = await apiCall(
       "GET",
-      `/user/posts/${userPosts.length}`
+      `/user/${userId}/posts/${userPosts.length}`
     );
     setRefreshing(false);
     if (success) {
@@ -162,12 +160,14 @@ const UserProfileScreen = (props) => {
   }, []);
   useEffect(() => {
     let isMounted = true;
-
     (async () => {
       if (isMounted) {
         const { success, response } = await apiCall("GET", `/user/${userId}`);
         if (success) {
           setUser(response.otherUser);
+          navigation.setOptions({
+            title: `${response.otherUser.firstName} ${response.otherUser.lastName}`,
+          });
         }
         await getUserPosts();
       }

@@ -244,8 +244,10 @@ const ChatScreen = (props) => {
           await getChatMessages();
         }
 
-        if (socket && chat?.users?.length) {
-          navigation.setOptions({ title: chat.users[0].firstName });
+        if (chat?.users?.length) {
+          navigation.setOptions({
+            title: chat.users[0].firstName,
+          });
         }
       })();
     }
