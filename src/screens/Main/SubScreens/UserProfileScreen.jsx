@@ -1,10 +1,18 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, RefreshControl, FlatList, SafeAreaView } from "react-native";
+import {
+  View,
+  RefreshControl,
+  FlatList,
+  SafeAreaView,
+  Dimensions,
+  ActivityIndicator,
+} from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../../../theme.style";
 import PostCard from "../../../components/PostCard";
 import ProfileInfo from "../../../components/ProfileInfo";
+import ContentLoader from "../../../components/ContentLoader";
 
 const UserProfileScreen = (props) => {
   const { userId } = props.route.params;
@@ -14,6 +22,9 @@ const UserProfileScreen = (props) => {
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [visibleItems, setVisibleItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const { width: screenWidth } = Dimensions.get("window");
 
   const navigation = useNavigation();
 
@@ -112,6 +123,9 @@ const UserProfileScreen = (props) => {
       "GET",
       `/user/friend/remove/${userId}`
     );
+    if (success) {
+      setUserPosts([]);
+    }
     if (!success || error === "CONNECTION_FAILED") {
       const userIsFriend = { ...user, isFriend: true, requestReceived: false };
 
@@ -121,10 +135,12 @@ const UserProfileScreen = (props) => {
 
   const getUserPosts = async () => {
     if (!allPostsLoaded) {
+      setLoading(true);
       const { success, response } = await apiCall(
         "GET",
         `/user/${userId}/posts/${userPosts.length}`
       );
+      setLoading(false);
       if (success) {
         if (!response.length && userPosts.length) {
           setAllPostsLoaded(true);
@@ -233,6 +249,13 @@ const UserProfileScreen = (props) => {
               />
             </View>
           )}
+          ListFooterComponent={() => (
+            <ActivityIndicator
+              size="large"
+              animating={loading}
+              color={themeStyle.colors.grayscale.lightGray}
+            />
+          )}
           contentContainerStyle={{ flexGrow: 1 }}
           onEndReached={() => getUserPosts()}
           onEndReachedThreshold={0.5}
@@ -243,7 +266,18 @@ const UserProfileScreen = (props) => {
       </SafeAreaView>
     );
   }
-  return <View />;
+  return (
+    <View>
+      <View style={{ width: screenWidth, height: screenWidth }}>
+        <ContentLoader active isProfileVideo />
+      </View>
+      <ContentLoader active listSize={1} />
+      <View style={{ width: screenWidth, height: screenWidth }}>
+        <ContentLoader active isProfileVideo />
+      </View>
+      <ContentLoader active listSize={1} />
+    </View>
+  );
 };
 
 export default UserProfileScreen;

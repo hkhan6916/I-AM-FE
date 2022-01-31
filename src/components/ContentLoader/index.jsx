@@ -8,12 +8,6 @@ import {
   paragraphInitialStyles,
 } from "./helpers";
 
-const AVATAR_SIZE = {
-  default: 70,
-  large: 30,
-  small: 25,
-};
-
 const ContentLoader = ({
   active,
   showAvatar,

@@ -69,7 +69,7 @@ const SearchScreen = () => {
           style={styles.searchBar}
           placeholderTextColor="#b8b894"
           autoCorrect={false}
-          placeholder="Search for someone..."
+          placeholder="name, username or job title..."
           onChangeText={(v) => searchUsers(v)}
           returnKeyType="search"
           onFocus={() => {

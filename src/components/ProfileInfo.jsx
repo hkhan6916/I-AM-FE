@@ -39,30 +39,17 @@ const ProfileInfo = ({
             alignItems: "center",
           }}
         >
-          <Text style={{ fontWeight: "700" }}>{user.username}</Text>
-          {user.private && !user.isFriend ? (
-            <View
-              style={{
-                borderWidth: 1,
-                alignSelf: "flex-start",
-                paddingVertical: 2,
-                paddingHorizontal: 5,
-                borderRadius: 5,
-                marginLeft: 20,
-                borderColor: themeStyle.colors.secondary.default,
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "row",
-              }}
-            >
+          <Text style={{ fontWeight: "700" }}>
+            {user.username}{" "}
+            {user.private && !user.isFriend ? (
               <AntDesign
                 name="lock"
-                size={20}
+                size={16}
                 color={themeStyle.colors.grayscale.darkGray}
               />
-              <Text>private</Text>
-            </View>
-          ) : null}
+            ) : null}
+          </Text>
+          {user.jobTitle ? <Text>{user.jobTitle}</Text> : null}
         </View>
         <View
           style={{
