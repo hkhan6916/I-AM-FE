@@ -1,28 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  Button,
-  ActivityIndicator,
-  RefreshControl,
-  FlatList,
-  SafeAreaView,
-  TouchableOpacity,
-} from "react-native";
-import { AntDesign } from "@expo/vector-icons";
+import { View, RefreshControl, FlatList, SafeAreaView } from "react-native";
 import apiCall from "../../../helpers/apiCall";
-import VideoPlayer from "../../../components/VideoPlayer";
 import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../../../theme.style";
 import PostCard from "../../../components/PostCard";
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import ProfileInfo from "../../../components/ProfileInfo";
 
 const UserProfileScreen = (props) => {
   const { userId } = props.route.params;
   const [user, setUser] = useState({});
   const [userPosts, setUserPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -184,7 +171,9 @@ const UserProfileScreen = (props) => {
         if (success) {
           setUser(response.otherUser);
           navigation.setOptions({
-            title: `${response.otherUser.firstName} ${response.otherUser.lastName}`,
+            title: response.otherUser.isSameUser
+              ? "Me"
+              : `${response.otherUser.firstName} ${response.otherUser.lastName}`,
           });
           if (
             !response.otherUser?.private ||
@@ -234,160 +223,15 @@ const UserProfileScreen = (props) => {
           }
           ListHeaderComponent={() => (
             <View style={{ marginBottom: 10 }}>
-              <LinearGradient
-                start={[0, 0.5]}
-                end={[1, 0.5]}
-                style={{ padding: 4 }}
-                colors={[
-                  themeStyle.colors.grayscale.white,
-                  themeStyle.colors.primary.light,
-                ]}
-              >
-                <VideoPlayer
-                  // url={user.profileVideoUrl}
-                  // mediaHeaders={user.profileVideoHeaders}
-                  mediaIsSelfie
-                  showToggle
-                />
-              </LinearGradient>
-              <View style={{ padding: 5 }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text>
-                    {user.firstName} {user.lastName}
-                  </Text>
-                  {user.private && !user.isFriend ? (
-                    <View
-                      style={{
-                        borderWidth: 1,
-                        alignSelf: "flex-start",
-                        paddingVertical: 2,
-                        paddingHorizontal: 5,
-                        borderRadius: 5,
-                        marginLeft: 20,
-                        borderColor: themeStyle.colors.secondary.default,
-                      }}
-                    >
-                      <Text>private</Text>
-                    </View>
-                  ) : null}
-                </View>
-                <Text style={{ marginVertical: 20 }}>
-                  {user.numberOfFriends} contacts
-                </Text>
-                {!user.isSameUser ? (
-                  <View style={{ alignItems: "center" }}>
-                    {user.isFriend ? (
-                      <TouchableOpacity onPress={() => removeConnection()}>
-                        <View
-                          style={{
-                            borderColor: themeStyle.colors.primary.default,
-                            borderWidth: 1,
-                            padding: 10,
-                            borderRadius: 5,
-                          }}
-                        >
-                          <Text style={{ fontWeight: "700" }}>
-                            Remove Contact
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-                    ) : user.requestReceived ? (
-                      <View style={{ flexDirection: "row" }}>
-                        <TouchableOpacity
-                          style={{ marginHorizontal: 10 }}
-                          onPress={() => acceptFriendRequest()}
-                        >
-                          <View
-                            style={{
-                              borderColor: themeStyle.colors.success.default,
-                              borderWidth: 1,
-                              padding: 10,
-                              borderRadius: 5,
-                              alignItems: "center",
-                              justifyContent: "center",
-                              marginHorizontal: 10,
-                              flexDirection: "row",
-                            }}
-                          >
-                            <AntDesign name="check" size={20} color="black" />
-                            <Text style={{ fontWeight: "700" }}>Accept</Text>
-                          </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={{ marginHorizontal: 10 }}
-                          onPress={() => rejectFriendRequest()}
-                        >
-                          <View
-                            style={{
-                              borderColor: themeStyle.colors.grayscale.black,
-                              borderWidth: 1,
-                              padding: 10,
-                              borderRadius: 5,
-                              alignItems: "center",
-                              justifyContent: "center",
-                              marginHorizontal: 10,
-                              flexDirection: "row",
-                            }}
-                          >
-                            <AntDesign name="close" size={20} color="black" />
-                            <Text style={{ fontWeight: "700" }}>Delete</Text>
-                          </View>
-                        </TouchableOpacity>
-                      </View>
-                    ) : user.requestSent ? (
-                      <TouchableOpacity onPress={() => recallFriendRequest()}>
-                        <View
-                          style={{
-                            borderColor: themeStyle.colors.primary.default,
-                            borderWidth: 1,
-                            padding: 10,
-                            borderRadius: 5,
-                          }}
-                        >
-                          <Text
-                            style={{ fontWeight: "700", textAlign: "center" }}
-                          >
-                            Request sent
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-                    ) : (
-                      <TouchableOpacity onPress={() => sendFriendRequest()}>
-                        <View
-                          style={{
-                            borderColor: themeStyle.colors.primary.default,
-                            borderWidth: 1,
-                            padding: 10,
-                            borderRadius: 5,
-                            flexDirection: "row",
-                          }}
-                        >
-                          <Text
-                            style={{
-                              fontWeight: "700",
-                            }}
-                          >
-                            Add User
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                ) : null}
-              </View>
+              <ProfileInfo
+                user={user}
+                recallFriendRequest={recallFriendRequest}
+                acceptFriendRequest={acceptFriendRequest}
+                rejectFriendRequest={rejectFriendRequest}
+                sendFriendRequest={sendFriendRequest}
+                removeConnection={removeConnection}
+              />
             </View>
-          )}
-          ListFooterComponent={() => (
-            <ActivityIndicator
-              size="large"
-              animating={loading}
-              color={themeStyle.colors.grayscale.lightGray}
-            />
           )}
           contentContainerStyle={{ flexGrow: 1 }}
           onEndReached={() => getUserPosts()}

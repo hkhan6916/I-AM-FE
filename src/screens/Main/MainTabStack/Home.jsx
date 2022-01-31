@@ -16,6 +16,7 @@ import {
   ActivityIndicator,
   Button,
 } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import Constants from "expo-constants";
@@ -122,18 +123,8 @@ const HomeScreen = () => {
     }
   }, []);
 
-  useEffect(() => {
-    if (newPostCreated.state) {
-      setTimeout(() => {
-        dispatch({ type: "SET_POST_CREATED", payload: false });
-      }, 3000);
-    }
-  }, [newPostCreated, feed]);
-  return (
-    <View style={styles.container}>
-      {newPostCreated.state ? (
-        <Text style={styles.newPostPill}>Post {newPostCreated.state.type}</Text>
-      ) : null}
+  const HomeHeading = () => (
+    <View>
       <StatusBar
         backgroundColor={themeStyle.colors.grayscale.black}
         barStyle="light-content"
@@ -164,35 +155,111 @@ const HomeScreen = () => {
           />
         </TouchableOpacity>
       </View>
-      <FlatList
-        ref={flatlistRef}
-        viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs.current}
-        data={feed}
-        renderItem={({ item, index }) => (
-          <PostCard
-            loadingMore={loading && index === feed.length - 1}
-            isVisible={visibleItems.includes(item._id)}
-            post={item}
-          />
-        )}
-        keyExtractor={(item, index) => `${item._id}-${index}`}
-        refreshControl={
-          <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-        }
-        ListFooterComponent={() => (
-          <ActivityIndicator
-            size="large"
-            animating={loading}
-            color={themeStyle.colors.grayscale.lightGray}
-          />
-        )}
-        contentContainerStyle={{ flexGrow: 1 }}
-        onEndReached={() => getUserFeed()}
-        onEndReachedThreshold={0.5}
-        initialNumToRender={10}
-        maxToRenderPerBatch={5}
-        // windowSize={5}
-      />
+    </View>
+  );
+
+  useEffect(() => {
+    if (newPostCreated.state) {
+      setTimeout(() => {
+        dispatch({ type: "SET_POST_CREATED", payload: false });
+      }, 3000);
+    }
+  }, [newPostCreated, feed]);
+  if (feed.length) {
+    return (
+      <View style={styles.container}>
+        {newPostCreated.state ? (
+          <Text style={styles.newPostPill}>
+            Post {newPostCreated.state.type}
+          </Text>
+        ) : null}
+        <HomeHeading />
+        <FlatList
+          ref={flatlistRef}
+          viewabilityConfigCallbackPairs={
+            viewabilityConfigCallbackPairs.current
+          }
+          data={feed}
+          renderItem={({ item, index }) => (
+            <PostCard
+              loadingMore={loading && index === feed.length - 1}
+              isVisible={visibleItems.includes(item._id)}
+              post={item}
+            />
+          )}
+          keyExtractor={(item, index) => `${item._id}-${index}`}
+          refreshControl={
+            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+          }
+          ListFooterComponent={() => (
+            <View
+              style={{
+                margin: 20,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <ActivityIndicator
+                size="large"
+                animating={loading}
+                color={themeStyle.colors.grayscale.lightGray}
+              />
+              {allPostsLoaded ? <View>You&apos;ve caught up!</View> : null}
+            </View>
+          )}
+          contentContainerStyle={{ flexGrow: 1 }}
+          onEndReached={() => getUserFeed()}
+          onEndReachedThreshold={0.5}
+          initialNumToRender={10}
+          maxToRenderPerBatch={5}
+          // windowSize={5}
+        />
+      </View>
+    );
+  }
+  return (
+    <View style={styles.container}>
+      <HomeHeading />
+      <View
+        style={{
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >
+        <Feather
+          name="coffee"
+          size={100}
+          color={themeStyle.colors.grayscale.mediumGray}
+        />
+        <View
+          style={{
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 20,
+          }}
+        >
+          <Text style={{ fontWeight: "700" }}>It&apos;s quiet here...</Text>
+          <Text style={{ marginBottom: 20, fontWeight: "700" }}>
+            Try adding some people.
+          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate("Search")}>
+            <View
+              style={{
+                paddingVertical: 5,
+                paddingHorizontal: 10,
+                borderWidth: 1,
+                borderColor: themeStyle.colors.secondary.default,
+                borderRadius: 5,
+              }}
+            >
+              <Text style={{ fontWeight: "700" }}>Search</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 };
