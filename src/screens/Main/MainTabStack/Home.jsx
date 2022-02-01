@@ -224,10 +224,10 @@ const HomeScreen = () => {
   }
   return (
     <ScrollView
+      contentContainerStyle={{ flex: 1 }}
       refreshControl={
         <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
       }
-      style={styles.container}
     >
       <HomeHeading />
       <View

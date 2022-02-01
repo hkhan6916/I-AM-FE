@@ -8,7 +8,9 @@ import {
   ScrollView,
   ActivityIndicator,
   StyleSheet,
+  Button,
 } from "react-native";
+import { object, string } from "yup";
 import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,6 +20,8 @@ import themeStyle from "../../theme.style";
 import apiCall from "../../helpers/apiCall";
 import ProfileVideoCamera from "../../components/ProfileVideoCamera";
 import Input from "../../components/Input";
+import validateEmail from "../../helpers/validateEmail";
+import validatePassword from "../../helpers/validatePassword";
 
 const RegisterationScreen = () => {
   const [loading, setLoading] = useState(false);
@@ -49,7 +53,7 @@ const RegisterationScreen = () => {
   const [registerationError, setRegisterationError] = useState("");
   const navigation = useNavigation();
 
-  const validateUserInformation = () => {
+  const checkAllDetailsProvided = () => {
     if (
       firstName &&
       lastName &&
@@ -87,6 +91,31 @@ const RegisterationScreen = () => {
     }
   };
 
+  const validateInfo = async () => {
+    const emailMessage = !email
+      ? "Please enter your email"
+      : !validateEmail(email)
+      ? "Email is invalid"
+      : null;
+    const passwordMessage = !password
+      ? "Please choose a password"
+      : !validatePassword(password)
+      ? "Password is not secure enough."
+      : null;
+
+    const validationResult = Object.assign(
+      {},
+      !firstName && { firstName: "Please enter your first name" },
+      !lastName && { lastName: "Please enter your last name" },
+      !username && { username: "Please choose a username" },
+      emailMessage && { email: emailMessage },
+      passwordMessage && { password: passwordMessage }
+    );
+
+    setValidationErrors(validationResult);
+    return validationResult;
+  };
+
   const registerUser = async () => {
     const payload = {
       firstName,
@@ -107,13 +136,17 @@ const RegisterationScreen = () => {
     Object.keys(payload).forEach((key) => {
       formData.append(key, payload[key]);
     });
+    const validationResults = await validateInfo();
+    if (Object.keys(validationResults).length > 0) {
+      return;
+    }
     setLoading(true);
-    const { success, message, other } = await apiCall(
+    const { success, other } = await apiCall(
       "POST",
       "/user/register",
       formData
     );
-    console.log(message);
+    setLoading(false);
     if (success) {
       navigation.navigate("Login");
     } else if (other) {
@@ -121,7 +154,6 @@ const RegisterationScreen = () => {
     } else {
       setRegisterationError("Error, maybe network error.");
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -180,22 +212,48 @@ const RegisterationScreen = () => {
           <Input
             label="First Name"
             value={firstName}
-            onChangeText={(v) => setFirstName(v)}
+            onChangeText={(v) => {
+              setFirstName(v);
+              if (validationErrors.firstName) {
+                setValidationErrors({
+                  ...validationErrors,
+                  firstName: null,
+                });
+              }
+            }}
+            error={validationErrors?.firstName}
           />
           <Input
             label="Last Name"
             value={lastName}
-            onChangeText={(v) => setLastName(v)}
+            onChangeText={(v) => {
+              setLastName(v);
+              if (validationErrors.lastName) {
+                setValidationErrors({
+                  ...validationErrors,
+                  lastName: null,
+                });
+              }
+            }}
+            error={validationErrors?.lastName}
           />
           <Input
             error={
               validationErrors.username?.exists
                 ? "A user with this username already exists."
-                : null
+                : validationErrors?.username
             }
             label="Username"
             value={username}
-            onChangeText={(v) => setUsername(v)}
+            onChangeText={(v) => {
+              setUsername(v);
+              if (validationErrors.username) {
+                setValidationErrors({
+                  ...validationErrors,
+                  username: null,
+                });
+              }
+            }}
             onEndEditing={(e) =>
               checkUserExists("username", e.nativeEvent.text)
             }
@@ -204,23 +262,46 @@ const RegisterationScreen = () => {
             error={
               validationErrors.email?.exists
                 ? "A user with this email already exists."
-                : null
+                : validationErrors?.email
             }
             label="Email"
             value={email}
-            onChangeText={(v) => setEmail(v)}
+            onChangeText={(v) => {
+              setEmail(v);
+              if (validationErrors.email) {
+                setValidationErrors({
+                  ...validationErrors,
+                  email: null,
+                });
+              }
+            }}
             onEndEditing={(e) => checkUserExists("email", e.nativeEvent.text)}
           />
           <View style={styles.textInputContainer}>
             <Text style={styles.label}>Password</Text>
-            <View style={styles.passwordInputContainer}>
+            <View
+              style={[
+                styles.passwordInputContainer,
+                validationErrors?.password && {
+                  borderColor: themeStyle.colors.error.default,
+                },
+              ]}
+            >
               <TextInput
                 style={styles.passwordInput}
                 placeholderTextColor={themeStyle.colors.grayscale.lightGray}
                 secureTextEntry={!showPassword}
                 autoCorrect={false}
                 value={password}
-                onChangeText={(v) => setPassword(v)}
+                onChangeText={(v) => {
+                  setPassword(v);
+                  if (validationErrors.password) {
+                    setValidationErrors({
+                      ...validationErrors,
+                      password: null,
+                    });
+                  }
+                }}
               />
               <TouchableOpacity
                 style={styles.eyeIcon}
@@ -232,6 +313,23 @@ const RegisterationScreen = () => {
                 />
               </TouchableOpacity>
             </View>
+            {validationErrors?.password ? (
+              <Text style={styles.errorText}>{validationErrors?.password}</Text>
+            ) : null}
+            {validationErrors?.password && password ? (
+              <View style={styles.passwordGuide}>
+                <Text style={styles.errorText}>
+                  - Must be at least 8 characters
+                </Text>
+                <Text style={styles.errorText}>
+                  - Must container an uppercase character
+                </Text>
+                <Text style={styles.errorText}>
+                  - Must container an lowercase character
+                </Text>
+                <Text style={styles.errorText}>- Must container a number</Text>
+              </View>
+            ) : null}
           </View>
           {profileVideo && faceDectected ? (
             <TouchableOpacity
@@ -316,11 +414,11 @@ const RegisterationScreen = () => {
             style={[
               styles.registerationButton,
               {
-                opacity: !validateUserInformation() ? 0.5 : 1,
+                opacity: !checkAllDetailsProvided() ? 0.5 : 1,
               },
             ]}
             onPress={() => registerUser()}
-            disabled={!validateUserInformation()}
+            disabled={!checkAllDetailsProvided()}
           >
             <Text style={styles.registerationButtonText}>
               Sign Up <Ionicons name="paper-plane-outline" size={14} />
@@ -421,11 +519,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     height: 45,
     borderRadius: 5,
-    marginBottom: 20,
     padding: 5,
     paddingHorizontal: 8,
     borderWidth: 2,
     borderColor: themeStyle.colors.primary.default,
+  },
+  passwordGuide: {
+    marginTop: 10,
   },
   eyeIcon: {
     justifyContent: "center",

@@ -1,23 +1,35 @@
 import React from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import themeStyle from "../theme.style";
-const Input = ({ label, value, onChangeText, error, onEndEditing }) => {
+const Input = ({
+  label,
+  value,
+  onChangeText,
+  error,
+  onEndEditing,
+  placeholder,
+  name,
+}) => {
   return (
     <View style={styles.textInputContainer}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
+        name={name}
         style={[
           styles.visibleTextInputs,
-          error && {
-            borderColor: themeStyle.colors.error.default,
-          },
+          error &&
+            typeof error === "string" && {
+              borderColor: themeStyle.colors.error.default,
+            },
         ]}
+        placeholder={placeholder || ""}
         value={value}
         onChangeText={onChangeText ? (v) => onChangeText(v) : null}
         onEndEditing={onEndEditing ? (e) => onEndEditing(e) : null}
       />
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
-      {console.log("hey")}
+      {error && typeof error === "string" ? (
+        <Text style={styles.errorText}>{error}</Text>
+      ) : null}
     </View>
   );
 };

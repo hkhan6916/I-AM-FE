@@ -1,6 +1,13 @@
 import React from "react";
 import { useState } from "react";
-import { View, Text, SafeAreaView, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  ActivityIndicator,
+  ScrollView,
+} from "react-native";
 import Input from "../../components/Input";
 import apiCall from "../../helpers/apiCall";
 import { string, object } from "yup";
@@ -11,7 +18,7 @@ const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
   const [emailError, setEmailError] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const schema = object().shape({
     email: string()
       .email("Please enter a valid email address")
@@ -25,11 +32,13 @@ const ForgotPasswordScreen = () => {
         email,
       })
       .then(async () => {
+        setLoading(true);
         const { success, response } = await apiCall(
           "POST",
           "/user/password/reset",
           { email }
         );
+        setLoading(false);
         if (success) {
           setEmailSent(true);
         }
@@ -47,31 +56,68 @@ const ForgotPasswordScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       {!emailSent ? (
-        <View style={{ padding: 20 }}>
+        <ScrollView
+          contentContainerStyle={{
+            alignItems: "center",
+            padding: 30,
+            width: "100%",
+            justifyContent: "center",
+          }}
+        >
           <Text
-            style={{ textAlign: "center", marginBottom: 20, fontWeight: "700" }}
+            style={{
+              textAlign: "center",
+              marginBottom: 20,
+              fontWeight: "700",
+              fontSize: 24,
+            }}
           >
-            Please enter the email address you used to sign up.
+            Reset Password
+          </Text>
+          <Text
+            style={{
+              textAlign: "center",
+              fontWeight: "700",
+              fontSize: 16,
+              color: themeStyle.colors.grayscale.darkGray,
+              marginHorizontal: 40,
+              marginBottom: 50,
+            }}
+          >
+            Enter the email address you used to register.
           </Text>
           <Input
-            label="Email Address"
             value={email}
             error={emailError}
+            placeholder="Email Address"
             onChangeText={(v) => setEmail(v)}
           />
-          <View style={{ alignItems: "center" }}>
+          <View
+            style={{
+              alignItems: "center",
+              marginTop: 20,
+            }}
+          >
             <TouchableOpacity onPress={() => createPasswordReset()}>
-              <Text
-                style={{
-                  color: themeStyle.colors.secondary.default,
-                  fontWeight: "700",
-                }}
-              >
-                Send Email
-              </Text>
+              {loading ? (
+                <ActivityIndicator
+                  animating
+                  size="small"
+                  color={themeStyle.colors.secondary.default}
+                />
+              ) : (
+                <Text
+                  style={{
+                    color: themeStyle.colors.secondary.default,
+                    fontWeight: "700",
+                  }}
+                >
+                  Send Email
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
-        </View>
+        </ScrollView>
       ) : (
         <View
           style={{
