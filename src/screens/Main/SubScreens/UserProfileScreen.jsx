@@ -123,7 +123,7 @@ const UserProfileScreen = (props) => {
       "GET",
       `/user/friend/remove/${userId}`
     );
-    if (success) {
+    if (success && user.private) {
       setUserPosts([]);
     }
     if (!success || error === "CONNECTION_FAILED") {

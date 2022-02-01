@@ -52,7 +52,4 @@ const ProfileScreenHeader = ({ navigation, userData }) => {
     </View>
   );
 };
-export default React.memo(
-  ProfileScreenHeader,
-  (prevProps, nextProps) => prevProps === nextProps
-);
+export default React.memo(ProfileScreenHeader);

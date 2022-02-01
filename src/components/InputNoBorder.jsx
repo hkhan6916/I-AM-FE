@@ -1,10 +1,11 @@
 import React from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import themeStyle from "../theme.style";
-const Input = ({ label, value, onChangeText, error, onEndEditing }) => {
+const InputNoBorder = ({ label, value, onChangeText, error, onEndEditing }) => {
   return (
     <View style={styles.textInputContainer}>
       <Text style={styles.label}>{label}</Text>
+      {console.log(value)}
       <TextInput
         style={[
           styles.visibleTextInputs,
@@ -17,7 +18,6 @@ const Input = ({ label, value, onChangeText, error, onEndEditing }) => {
         onEndEditing={onEndEditing ? (e) => onEndEditing(e) : null}
       />
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
-      {console.log("hey")}
     </View>
   );
 };
@@ -32,14 +32,12 @@ const styles = StyleSheet.create({
   visibleTextInputs: {
     fontSize: 15,
     height: 45,
-    borderRadius: 5,
     paddingHorizontal: 10,
-    borderWidth: 2,
-    borderColor: themeStyle.colors.primary.default,
+    backgroundColor: themeStyle.colors.grayscale.superLightGray,
   },
   textInputContainer: {
     alignSelf: "stretch",
     marginBottom: 20,
   },
 });
-export default React.memo(Input);
+export default React.memo(InputNoBorder);

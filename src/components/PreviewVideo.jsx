@@ -76,8 +76,9 @@ const PreviewVideo = ({
           </View>
         ) : null}
       </TouchableOpacity>
+      {console.log("profile video re rendered")}
     </View>
   );
 };
 
-export default PreviewVideo;
+export default React.memo(PreviewVideo);

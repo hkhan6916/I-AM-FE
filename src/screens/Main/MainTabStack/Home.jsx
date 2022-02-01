@@ -15,6 +15,7 @@ import {
   FlatList,
   ActivityIndicator,
   Button,
+  ScrollView,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -204,7 +205,11 @@ const HomeScreen = () => {
                 animating={loading}
                 color={themeStyle.colors.grayscale.lightGray}
               />
-              {allPostsLoaded ? <View>You&apos;ve caught up!</View> : null}
+              {allPostsLoaded ? (
+                <View>
+                  <Text>You&apos;ve caught up!</Text>
+                </View>
+              ) : null}
             </View>
           )}
           contentContainerStyle={{ flexGrow: 1 }}
@@ -218,7 +223,12 @@ const HomeScreen = () => {
     );
   }
   return (
-    <View style={styles.container}>
+    <ScrollView
+      refreshControl={
+        <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+      }
+      style={styles.container}
+    >
       <HomeHeading />
       <View
         style={{
@@ -260,7 +270,7 @@ const HomeScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

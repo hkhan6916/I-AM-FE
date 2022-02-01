@@ -10,7 +10,7 @@ import PostScreen from "./SubScreens/PostScreen";
 import ChatScreen from "./SubScreens/ChatScreen";
 import ChatListScreen from "./SubScreens/ChatListScreen";
 import CreateChatScreen from "./SubScreens/CreateChatScreen";
-import ProfileEditScreen from "./SubScreens/ProfileEditScreen";
+import EditUserDetailsScreen from "./SubScreens/EditUserDetailsScreen";
 import SettingsScreen from "./SubScreens/SettingsScreen";
 import PrivacyPolicyScreen from "./SubScreens/PrivacyPolicyScreen";
 import TermsOfUseScreen from "./SubScreens/TermsOfUseScreen";
@@ -124,15 +124,15 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
-        title: "Edit Profile",
+        title: "Edit Details",
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
           fontWeight: "bold",
         },
       }}
-      name="ProfileEditScreen"
-      component={ProfileEditScreen}
+      name="EditUserDetailsScreen"
+      component={EditUserDetailsScreen}
     />
     <Stack.Screen
       options={{

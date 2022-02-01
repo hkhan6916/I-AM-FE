@@ -19,9 +19,10 @@ import apiCall from "../../../helpers/apiCall";
 import ProfileVideoCamera from "../../../components/ProfileVideoCamera";
 import PreviewVideo from "../../../components/PreviewVideo";
 import ContentLoader from "../../../components/ContentLoader";
+import InputNoBorder from "../../../components/InputNoBorder";
 
 const { statusBarHeight } = Constants;
-const ProfileEditScreen = () => {
+const EditUserDetailsScreen = () => {
   const { width: screenWidth } = Dimensions.get("window");
   const [loading, setLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -258,70 +259,47 @@ const ProfileEditScreen = () => {
               <Ionicons name="videocam" size={14} /> Retake profile video
             </Text>
           </TouchableOpacity>
-          <View style={styles.textInputContainer}>
-            <Text style={styles.label}>Job Title or Education </Text>
-            <TextInput
-              style={styles.visibleTextInputs}
-              value={jobTitle !== null ? jobTitle : initialProfileData.jobTitle}
-              onChangeText={(v) => setJobTitle(v)}
-            />
-          </View>
-          <View style={styles.textInputContainer}>
-            <Text style={styles.label}>Firstname</Text>
-            <TextInput
-              style={styles.visibleTextInputs}
-              value={
-                firstName !== null ? firstName : initialProfileData.firstName
-              }
-              onChangeText={(v) => setFirstName(v)}
-            />
-          </View>
-          <View style={styles.textInputContainer}>
-            <Text style={styles.label}>Lastname</Text>
-            <TextInput
-              style={styles.visibleTextInputs}
-              value={lastName !== null ? lastName : initialProfileData.lastName}
-              onChangeText={(v) => setLastName(v)}
-            />
-          </View>
-          <View style={styles.textInputContainer}>
-            <Text style={styles.label}>Username</Text>
-            <TextInput
-              style={[
-                styles.visibleTextInputs,
-                validationErrors?.username?.exists && {
-                  borderColor: themeStyle.colors.error.default,
-                  borderWidth: 2,
-                },
-              ]}
-              value={username !== null ? username : initialProfileData.username}
-              onChangeText={(v) => setUsername(v)}
-              onEndEditing={(e) =>
-                checkUserExists("username", e.nativeEvent.text)
-              }
-            />
-            {validationErrors?.username?.exists ? (
-              <Text style={styles.errorText}>This username already exists</Text>
-            ) : null}
-          </View>
-          <View style={styles.textInputContainer}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={[
-                styles.visibleTextInputs,
-                validationErrors?.email?.exists && {
-                  borderColor: themeStyle.colors.error.default,
-                  borderWidth: 2,
-                },
-              ]}
-              value={email !== null ? email : initialProfileData.email}
-              onChangeText={(v) => setEmail(v)}
-              onEndEditing={(e) => checkUserExists("email", e.nativeEvent.text)}
-            />
-            {validationErrors?.email?.exists ? (
-              <Text style={styles.errorText}>This email already exists</Text>
-            ) : null}
-          </View>
+          <InputNoBorder
+            label="Job title"
+            value={jobTitle !== null ? jobTitle : initialProfileData.jobTitle}
+            onChangeText={(v) => setJobTitle(v)}
+          />
+          <InputNoBorder
+            label="First Name"
+            value={
+              firstName !== null ? firstName : initialProfileData.firstName
+            }
+            onChangeText={(v) => setFirstName(v)}
+          />
+          <InputNoBorder
+            label="Last Name"
+            value={lastName !== null ? lastName : initialProfileData.lastName}
+            onChangeText={(v) => setLastName(v)}
+          />
+          <InputNoBorder
+            error={
+              validationErrors?.username?.exists
+                ? "This username already exists"
+                : null
+            }
+            label="Username"
+            value={username !== null ? username : initialProfileData.username}
+            onChangeText={(v) => setUsername(v)}
+            onEndEditing={(e) =>
+              checkUserExists("username", e.nativeEvent.text)
+            }
+          />
+          <InputNoBorder
+            error={
+              validationErrors?.email?.exists
+                ? "This email already exists"
+                : null
+            }
+            label="Email"
+            value={email !== null ? email : initialProfileData.email}
+            onChangeText={(v) => setEmail(v)}
+            onEndEditing={(e) => checkUserExists("email", e.nativeEvent.text)}
+          />
           <View style={styles.textInputContainer}>
             <Text style={styles.label}>Password</Text>
             <View style={styles.passwordInputContainer}>
@@ -333,6 +311,7 @@ const ProfileEditScreen = () => {
                 value={password}
                 onChangeText={(v) => setPassword(v)}
               />
+              {/* {console.log("hey")} */}
               <TouchableOpacity
                 style={styles.eyeIcon}
                 onPress={() => setShowPassword(!showPassword)}
@@ -512,4 +491,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileEditScreen;
+export default EditUserDetailsScreen;

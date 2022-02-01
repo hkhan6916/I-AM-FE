@@ -168,7 +168,4 @@ const ProfileInfo = ({
   );
 };
 
-export default React.memo(
-  ProfileInfo,
-  (prevProps, nextProps) => prevProps === nextProps
-);
+export default React.memo(ProfileInfo);

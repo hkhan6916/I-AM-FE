@@ -25,7 +25,7 @@ const SettingScreen = () => {
       <View style={styles.basicOptions}>
         <View style={styles.option}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("ProfileEditScreen")}
+            onPress={() => navigation.navigate("EditUserDetailsScreen")}
           >
             <View style={styles.optionContent}>
               <Ionicons name="person-outline" size={14} color="black" />
@@ -35,7 +35,7 @@ const SettingScreen = () => {
         </View>
         <View style={styles.option}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("ProfileEditScreen")}
+            onPress={() => navigation.navigate("EditUserDetailsScreen")}
           >
             <View style={styles.optionContent}>
               <Ionicons name="person-outline" size={14} color="black" />
