@@ -1,4 +1,4 @@
-const validateEmail = (email) => {
+const validateEmail = async (email) => {
   return String(email)
     .toLowerCase()
     .match(

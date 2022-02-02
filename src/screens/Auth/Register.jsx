@@ -8,9 +8,7 @@ import {
   ScrollView,
   ActivityIndicator,
   StyleSheet,
-  Button,
 } from "react-native";
-import { object, string } from "yup";
 import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
@@ -92,14 +90,16 @@ const RegisterationScreen = () => {
   };
 
   const validateInfo = async () => {
+    const emailValid = await validateEmail(email);
+    const passwordValid = await validatePassword(password);
     const emailMessage = !email
       ? "Please enter your email"
-      : !validateEmail(email)
-      ? "Email is invalid"
+      : !emailValid
+      ? "This email is not valid"
       : null;
     const passwordMessage = !password
       ? "Please choose a password"
-      : !validatePassword(password)
+      : !passwordValid
       ? "Password is not secure enough."
       : null;
 
@@ -137,7 +137,7 @@ const RegisterationScreen = () => {
       formData.append(key, payload[key]);
     });
     const validationResults = await validateInfo();
-    if (Object.keys(validationResults).length > 0) {
+    if (Object.keys(validationResults).length) {
       return;
     }
     setLoading(true);
@@ -210,6 +210,7 @@ const RegisterationScreen = () => {
         <View style={styles.formContainer}>
           <Text style={styles.signupText}>SIGN UP</Text>
           <Input
+            error={validationErrors?.firstName}
             label="First Name"
             value={firstName}
             onChangeText={(v) => {
@@ -221,9 +222,9 @@ const RegisterationScreen = () => {
                 });
               }
             }}
-            error={validationErrors?.firstName}
           />
           <Input
+            error={validationErrors?.lastName}
             label="Last Name"
             value={lastName}
             onChangeText={(v) => {
@@ -235,7 +236,6 @@ const RegisterationScreen = () => {
                 });
               }
             }}
-            error={validationErrors?.lastName}
           />
           <Input
             error={

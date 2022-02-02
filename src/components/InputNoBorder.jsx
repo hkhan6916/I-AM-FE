@@ -5,7 +5,6 @@ const InputNoBorder = ({ label, value, onChangeText, error, onEndEditing }) => {
   return (
     <View style={styles.textInputContainer}>
       <Text style={styles.label}>{label}</Text>
-      {console.log(value)}
       <TextInput
         style={[
           styles.visibleTextInputs,

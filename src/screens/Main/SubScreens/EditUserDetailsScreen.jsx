@@ -20,6 +20,8 @@ import ProfileVideoCamera from "../../../components/ProfileVideoCamera";
 import PreviewVideo from "../../../components/PreviewVideo";
 import ContentLoader from "../../../components/ContentLoader";
 import InputNoBorder from "../../../components/InputNoBorder";
+import validateEmail from "../../../helpers/validateEmail";
+import validatePassword from "../../../helpers/validatePassword";
 
 const { statusBarHeight } = Constants;
 const EditUserDetailsScreen = () => {
@@ -34,7 +36,7 @@ const EditUserDetailsScreen = () => {
   const [firstName, setFirstName] = useState(null);
   const [lastName, setLastName] = useState(null);
   const [jobTitle, setJobTitle] = useState(null);
-  const [validationErrors, setValidationErrors] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
   const [initialProfileData, setInitialProfileData] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
@@ -56,6 +58,14 @@ const EditUserDetailsScreen = () => {
 
   const navigation = useNavigation();
 
+  const requiredFields = [
+    "firstName",
+    "lastName",
+    "username",
+    "email",
+    "password",
+  ];
+
   const handleFacesDetected = (obj) => {
     try {
       if (recording && obj.faces.length !== 0 && !faceDetected) {
@@ -66,10 +76,49 @@ const EditUserDetailsScreen = () => {
     }
   };
 
-  const updateProfile = async () => {
-    setIsUpdating(true);
-    setupdateError("");
+  const resetFields = async () => {
+    setEmail(null);
+    setUsername(null);
+    setFirstName(null);
+    setLastName(null);
+    setJobTitle(null);
+    setProfileVideo("");
+  };
 
+  const validateInfo = async () => {
+    const emailValid = email ? await validateEmail(email) : true;
+    const passwordValid = password ? await validatePassword(password) : true;
+    const emailMessage =
+      email === ""
+        ? "Your email cannot be empty"
+        : !emailValid
+        ? "This email not valid"
+        : null;
+    const passwordMessage = !passwordValid
+      ? "Your new password is not secure enough."
+      : null;
+
+    const validationResult = Object.assign(
+      {},
+      username === "" && { username: "Your username cannot be empty" },
+      username &&
+        username.length < 3 && { username: "Please choose a longer username" },
+      emailMessage && { email: emailMessage },
+      firstName === "" && { firstName: "Your first name cannot be empty" },
+      lastName === "" && { lastName: "Your last name cannot be empty" },
+      passwordMessage && { password: passwordMessage }
+    );
+
+    setValidationErrors(validationResult);
+    return validationResult;
+  };
+
+  const updateProfile = async () => {
+    setupdateError("");
+    const validationResults = await validateInfo();
+    if (Object.keys(validationResults).length) {
+      return;
+    }
     const payload = {
       firstName,
       lastName,
@@ -85,22 +134,32 @@ const EditUserDetailsScreen = () => {
           }
         : null,
     };
-
     const formData = new FormData();
     const validValues = Object.keys(payload).filter((key) => {
-      // check if value is not null. Don't want to send null data to BE
-      if (payload[key]) {
-        formData.append(key, payload[key]);
+      if (payload[key] === initialProfileData[key]) {
+        return false;
       }
-      return payload[key];
+      if (!requiredFields.includes(key) && payload[key] === "") {
+        // if the field is not required and it's empty, add as valid\
+        formData.append(key, payload[key]);
+        return true;
+      }
+      // check if value is not null. Don't want to send null data to BE
+      if (payload[key] !== null) {
+        formData.append(key, payload[key]);
+        return true;
+      }
     });
-
     if (validValues.length) {
-      const { success, other, response } = await apiCall(
+      setIsUpdating(true);
+      const { success, other, response, message } = await apiCall(
         "POST",
         "/user/update/details",
         formData
       );
+      console.log(message);
+      setIsUpdating(false);
+
       if (success) {
         setShowUpdatedPill(true);
 
@@ -120,7 +179,6 @@ const EditUserDetailsScreen = () => {
         }
       }
     }
-    setIsUpdating(false);
   };
 
   const checkUserExists = async (type, identifier) => {
@@ -137,7 +195,11 @@ const EditUserDetailsScreen = () => {
       });
     }
 
-    if (success && !response[type]?.exists && validationErrors) {
+    if (
+      success &&
+      !response[type]?.exists &&
+      Object.keys(validationErrors).length
+    ) {
       const updatedValidationErrors = validationErrors;
       delete updatedValidationErrors[type];
       if (!Object.keys(updatedValidationErrors).length) {
@@ -263,8 +325,10 @@ const EditUserDetailsScreen = () => {
             label="Job title"
             value={jobTitle !== null ? jobTitle : initialProfileData.jobTitle}
             onChangeText={(v) => setJobTitle(v)}
+            error={validationErrors?.jobTitle}
           />
           <InputNoBorder
+            error={validationErrors?.firstName}
             label="First Name"
             value={
               firstName !== null ? firstName : initialProfileData.firstName
@@ -272,6 +336,7 @@ const EditUserDetailsScreen = () => {
             onChangeText={(v) => setFirstName(v)}
           />
           <InputNoBorder
+            error={validationErrors?.lastName}
             label="Last Name"
             value={lastName !== null ? lastName : initialProfileData.lastName}
             onChangeText={(v) => setLastName(v)}
@@ -279,8 +344,8 @@ const EditUserDetailsScreen = () => {
           <InputNoBorder
             error={
               validationErrors?.username?.exists
-                ? "This username already exists"
-                : null
+                ? "A user with this username already exists."
+                : validationErrors?.username
             }
             label="Username"
             value={username !== null ? username : initialProfileData.username}
@@ -292,8 +357,8 @@ const EditUserDetailsScreen = () => {
           <InputNoBorder
             error={
               validationErrors?.email?.exists
-                ? "This email already exists"
-                : null
+                ? "A user with this email already exists."
+                : validationErrors?.email
             }
             label="Email"
             value={email !== null ? email : initialProfileData.email}
@@ -302,7 +367,14 @@ const EditUserDetailsScreen = () => {
           />
           <View style={styles.textInputContainer}>
             <Text style={styles.label}>Password</Text>
-            <View style={styles.passwordInputContainer}>
+            <View
+              style={[
+                styles.passwordInputContainer,
+                validationErrors?.password && {
+                  borderColor: themeStyle.colors.error.default,
+                },
+              ]}
+            >
               <TextInput
                 style={styles.passwordInput}
                 placeholderTextColor={themeStyle.colors.grayscale.lightGray}
@@ -322,6 +394,23 @@ const EditUserDetailsScreen = () => {
                 />
               </TouchableOpacity>
             </View>
+            {validationErrors?.password ? (
+              <Text style={styles.errorText}>{validationErrors?.password}</Text>
+            ) : null}
+            {validationErrors?.password && password ? (
+              <View style={styles.passwordGuide}>
+                <Text style={styles.errorText}>
+                  - Must be at least 8 characters
+                </Text>
+                <Text style={styles.errorText}>
+                  - Must container an uppercase character
+                </Text>
+                <Text style={styles.errorText}>
+                  - Must container an lowercase character
+                </Text>
+                <Text style={styles.errorText}>- Must container a number</Text>
+              </View>
+            ) : null}
           </View>
           {updateError ? (
             <Text style={styles.updateError}>{updateError}</Text>

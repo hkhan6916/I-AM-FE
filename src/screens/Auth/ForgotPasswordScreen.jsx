@@ -10,47 +10,43 @@ import {
 } from "react-native";
 import Input from "../../components/Input";
 import apiCall from "../../helpers/apiCall";
-import { string, object } from "yup";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import themeStyle from "../../theme.style";
+import validateEmail from "../../helpers/validateEmail";
 
 const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [loading, setLoading] = useState(false);
-  const schema = object().shape({
-    email: string()
-      .email("Please enter a valid email address")
-      .required("Please enter an email address"),
-  });
 
   const createPasswordReset = async () => {
     setEmailError("");
-    await schema
-      .validate({
-        email,
-      })
-      .then(async () => {
-        setLoading(true);
-        const { success, response } = await apiCall(
-          "POST",
-          "/user/password/reset",
-          { email }
-        );
-        setLoading(false);
-        if (success) {
-          setEmailSent(true);
-        }
-        if (!success && response?.found === false) {
-          setEmailError("A user does not exist with that email.");
-        }
-      })
-      .catch((err) => {
-        if (err.errors?.length) {
-          setEmailError(err.errors[0]);
-        }
-      });
+
+    if (!email) {
+      setEmailError("Please enter an email address");
+    }
+
+    const emailValid = await validateEmail();
+
+    if (!emailValid) {
+      setEmailError("Please enter a valid email address");
+    }
+    if (emailValid) {
+      setLoading(true);
+      const { success, response } = await apiCall(
+        "POST",
+        "/user/password/reset",
+        { email }
+      );
+      setLoading(false);
+      if (success) {
+        setEmailSent(true);
+      }
+      if (!success && response?.found === false) {
+        setEmailError("A user does not exist with that email.");
+      }
+    }
   };
 
   return (
