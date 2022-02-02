@@ -173,7 +173,7 @@ const CommentsScreen = (props) => {
             ))
           : null}
       </ScrollView>
-      <View style={styles.inputBoxContainer}>
+      <View>
         <CommentTextInput
           ref={textInputRef}
           submitAction={postComment}

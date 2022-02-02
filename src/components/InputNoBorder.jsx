@@ -10,6 +10,7 @@ const InputNoBorder = ({ label, value, onChangeText, error, onEndEditing }) => {
           styles.visibleTextInputs,
           error && {
             borderColor: themeStyle.colors.error.default,
+            borderWidth: 1,
           },
         ]}
         value={value}

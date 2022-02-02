@@ -58,14 +58,6 @@ const EditUserDetailsScreen = () => {
 
   const navigation = useNavigation();
 
-  const requiredFields = [
-    "firstName",
-    "lastName",
-    "username",
-    "email",
-    "password",
-  ];
-
   const handleFacesDetected = (obj) => {
     try {
       if (recording && obj.faces.length !== 0 && !faceDetected) {
@@ -74,15 +66,6 @@ const EditUserDetailsScreen = () => {
     } catch (error) {
       console.log(error);
     }
-  };
-
-  const resetFields = async () => {
-    setEmail(null);
-    setUsername(null);
-    setFirstName(null);
-    setLastName(null);
-    setJobTitle(null);
-    setProfileVideo("");
   };
 
   const validateInfo = async () => {
@@ -106,6 +89,7 @@ const EditUserDetailsScreen = () => {
       emailMessage && { email: emailMessage },
       firstName === "" && { firstName: "Your first name cannot be empty" },
       lastName === "" && { lastName: "Your last name cannot be empty" },
+      jobTitle === "" && { jobTitle: "Your job title cannot be empty" },
       passwordMessage && { password: passwordMessage }
     );
 
@@ -139,11 +123,6 @@ const EditUserDetailsScreen = () => {
       if (payload[key] === initialProfileData[key]) {
         return false;
       }
-      if (!requiredFields.includes(key) && payload[key] === "") {
-        // if the field is not required and it's empty, add as valid\
-        formData.append(key, payload[key]);
-        return true;
-      }
       // check if value is not null. Don't want to send null data to BE
       if (payload[key] !== null) {
         formData.append(key, payload[key]);
@@ -152,12 +131,11 @@ const EditUserDetailsScreen = () => {
     });
     if (validValues.length) {
       setIsUpdating(true);
-      const { success, other, response, message } = await apiCall(
+      const { success, other, response } = await apiCall(
         "POST",
         "/user/update/details",
         formData
       );
-      console.log(message);
       setIsUpdating(false);
 
       if (success) {
@@ -324,7 +302,12 @@ const EditUserDetailsScreen = () => {
           <InputNoBorder
             label="Job title"
             value={jobTitle !== null ? jobTitle : initialProfileData.jobTitle}
-            onChangeText={(v) => setJobTitle(v)}
+            onChangeText={(v) => {
+              setJobTitle(v);
+              if (validationErrors.jobTitle) {
+                setValidationErrors({ ...validationErrors, jobTitle: null });
+              }
+            }}
             error={validationErrors?.jobTitle}
           />
           <InputNoBorder
@@ -333,13 +316,23 @@ const EditUserDetailsScreen = () => {
             value={
               firstName !== null ? firstName : initialProfileData.firstName
             }
-            onChangeText={(v) => setFirstName(v)}
+            onChangeText={(v) => {
+              setFirstName(v);
+              if (validationErrors.firstName) {
+                setValidationErrors({ ...validationErrors, firstName: null });
+              }
+            }}
           />
           <InputNoBorder
             error={validationErrors?.lastName}
             label="Last Name"
             value={lastName !== null ? lastName : initialProfileData.lastName}
-            onChangeText={(v) => setLastName(v)}
+            onChangeText={(v) => {
+              setLastName(v);
+              if (validationErrors.lastName) {
+                setValidationErrors({ ...validationErrors, lastName: null });
+              }
+            }}
           />
           <InputNoBorder
             error={
@@ -349,7 +342,12 @@ const EditUserDetailsScreen = () => {
             }
             label="Username"
             value={username !== null ? username : initialProfileData.username}
-            onChangeText={(v) => setUsername(v)}
+            onChangeText={(v) => {
+              setUsername(v);
+              if (validationErrors.username) {
+                setValidationErrors({ ...validationErrors, username: null });
+              }
+            }}
             onEndEditing={(e) =>
               checkUserExists("username", e.nativeEvent.text)
             }
@@ -362,7 +360,12 @@ const EditUserDetailsScreen = () => {
             }
             label="Email"
             value={email !== null ? email : initialProfileData.email}
-            onChangeText={(v) => setEmail(v)}
+            onChangeText={(v) => {
+              setEmail(v);
+              if (validationErrors.email) {
+                setValidationErrors({ ...validationErrors, email: null });
+              }
+            }}
             onEndEditing={(e) => checkUserExists("email", e.nativeEvent.text)}
           />
           <View style={styles.textInputContainer}>
@@ -381,7 +384,15 @@ const EditUserDetailsScreen = () => {
                 secureTextEntry={!showPassword}
                 autoCorrect={false}
                 value={password}
-                onChangeText={(v) => setPassword(v)}
+                onChangeText={(v) => {
+                  setPassword(v);
+                  if (validationErrors.password) {
+                    setValidationErrors({
+                      ...validationErrors,
+                      password: null,
+                    });
+                  }
+                }}
               />
               {/* {console.log("hey")} */}
               <TouchableOpacity

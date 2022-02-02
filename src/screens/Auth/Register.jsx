@@ -29,6 +29,8 @@ const RegisterationScreen = () => {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
+
   const [showPassword, setShowPassword] = useState(false);
 
   const [validationErrors, setValidationErrors] = useState({});
@@ -108,6 +110,7 @@ const RegisterationScreen = () => {
       !firstName && { firstName: "Please enter your first name" },
       !lastName && { lastName: "Please enter your last name" },
       !username && { username: "Please choose a username" },
+      !jobTitle && { username: "Please enter your job title" },
       emailMessage && { email: emailMessage },
       passwordMessage && { password: passwordMessage }
     );
@@ -228,11 +231,25 @@ const RegisterationScreen = () => {
             label="Last Name"
             value={lastName}
             onChangeText={(v) => {
-              setLastName(v);
-              if (validationErrors.lastName) {
+              setJobTitle(v);
+              if (validationErrors.jobTitle) {
                 setValidationErrors({
                   ...validationErrors,
-                  lastName: null,
+                  jobTitle: null,
+                });
+              }
+            }}
+          />
+          <Input
+            error={validationErrors?.jobTitle}
+            label="Job Title"
+            value={lastName}
+            onChangeText={(v) => {
+              setLastName(v);
+              if (validationErrors.jobTitle) {
+                setValidationErrors({
+                  ...validationErrors,
+                  jobTitle: null,
                 });
               }
             }}
