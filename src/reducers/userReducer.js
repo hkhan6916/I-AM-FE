@@ -1,6 +1,6 @@
 export const loggedInReducer = (state = false, action) => {
   switch (action.type) {
-    case 'SET_USER_LOGGED_IN':
+    case "SET_USER_LOGGED_IN":
       return {
         ...state,
         state: action.payload,
@@ -10,9 +10,9 @@ export const loggedInReducer = (state = false, action) => {
   }
 };
 
-export const userDataReducer = (state = null, action) => {
+export const userDataReducer = (state = {}, action) => {
   switch (action.type) {
-    case 'SET_USER_DATA':
+    case "SET_USER_DATA":
       return {
         ...state,
         state: action.payload,
