@@ -78,6 +78,9 @@ const Step2Screen = () => {
         !existingInfo.state?.username && {
           username: "Please choose a username",
         },
+      username.length < 3 && {
+        username: "Username must be atleast 3 characters",
+      },
       emailMessage && { email: emailMessage },
       passwordMessage && { password: passwordMessage }
     );

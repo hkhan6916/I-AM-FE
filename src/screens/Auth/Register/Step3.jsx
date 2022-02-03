@@ -40,7 +40,7 @@ const Step1Screen = () => {
   const navigation = useNavigation();
 
   const existingInfo = useSelector((state) => state.userData);
-  console.log(existingInfo);
+
   const checkAllDetailsProvided = () => {
     if (profileVideo && faceDectected) {
       return true;
@@ -60,6 +60,7 @@ const Step1Screen = () => {
 
   const registerUser = async () => {
     const payload = {
+      ...existingInfo.state,
       notificationToken: await getExpoPushTokenAsync({
         experienceId: "@hkhan6916/I-Am-FE",
       }).data,
@@ -74,7 +75,12 @@ const Step1Screen = () => {
       formData.append(key, payload[key]);
     });
     setLoading(true);
-    const { success } = await apiCall("POST", "/user/register", formData);
+    const { success, message } = await apiCall(
+      "POST",
+      "/user/register",
+      formData
+    );
+
     setLoading(false);
     if (success) {
       navigation.navigate("Login");
@@ -161,9 +167,9 @@ const Step1Screen = () => {
                   setProfileVideoPlaying(() => status)
                 }
                 ref={profileVideoRef}
-                // source={{
-                //   uri: profileVideo,
-                // }}
+                source={{
+                  uri: profileVideo,
+                }}
                 isLooping
                 resizeMode="cover"
               />
