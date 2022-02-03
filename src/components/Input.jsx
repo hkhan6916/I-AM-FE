@@ -8,15 +8,20 @@ const Input = ({
   error,
   onEndEditing,
   placeholder,
-  name,
+  isOutlined,
 }) => {
   return (
     <View style={styles.textInputContainer}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
-        name={name}
         style={[
-          styles.visibleTextInputs,
+          styles.textInput,
+          isOutlined && {
+            borderWidth: 0,
+            borderBottomWidth: 2,
+            borderRadius: 0,
+            paddingLeft: 5,
+          },
           error &&
             typeof error === "string" && {
               borderColor: themeStyle.colors.error.default,
@@ -39,9 +44,10 @@ const styles = StyleSheet.create({
     color: themeStyle.colors.error.default,
   },
   label: {
-    fontWeight: "700",
+    fontWeight: "400",
+    fontSize: 12,
   },
-  visibleTextInputs: {
+  textInput: {
     fontSize: 15,
     height: 45,
     borderRadius: 5,

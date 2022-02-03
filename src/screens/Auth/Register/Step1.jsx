@@ -42,6 +42,7 @@ const Step1Screen = () => {
         <View style={styles.formContainer}>
           <Text style={styles.titleText}>A bit about you</Text>
           <Input
+            isOutlined
             error={validationErrors?.firstName}
             label="First Name"
             value={firstName}
@@ -56,6 +57,7 @@ const Step1Screen = () => {
             }}
           />
           <Input
+            isOutlined
             error={validationErrors?.lastName}
             label="Last Name"
             value={lastName}
@@ -70,6 +72,7 @@ const Step1Screen = () => {
             }}
           />
           <Input
+            isOutlined
             error={validationErrors?.jobTitle}
             label="Job Title"
             value={jobTitle}
@@ -93,7 +96,7 @@ const Step1Screen = () => {
             onPress={() => handleNext()}
             disabled={!checkAllDetailsProvided()}
           >
-            <Text style={styles.nextButton}>Next</Text>
+            <Text style={styles.nextButtonText}>Next</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -118,11 +121,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     margin: 20,
-    borderRadius: 50,
+    borderRadius: 5,
     backgroundColor: themeStyle.colors.primary.default,
+    width: 100,
   },
-  nextButton: {
+  nextButtonText: {
     color: themeStyle.colors.grayscale.white,
+    textAlign: "center",
   },
   label: {
     fontWeight: "700",

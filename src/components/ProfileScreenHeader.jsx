@@ -41,8 +41,8 @@ const ProfileScreenHeader = ({ navigation, userData }) => {
           }}
         >
           <VideoPlayer
-            // url={userData.profileVideoUrl}
-            // mediaHeaders={userData.profileVideoHeaders}
+            url={userData.profileVideoUrl}
+            mediaHeaders={userData.profileVideoHeaders}
             mediaIsSelfie
             showToggle
           />

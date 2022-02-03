@@ -7,6 +7,7 @@ import {
   ScrollView,
   ActivityIndicator,
   StyleSheet,
+  Modal,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera";
@@ -16,7 +17,7 @@ import { getExpoPushTokenAsync } from "expo-notifications";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import ProfileVideoCamera from "../../../components/ProfileVideoCamera";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
@@ -28,6 +29,7 @@ const Step1Screen = () => {
 
   const [recording, setRecording] = useState(false);
   const [recordingLength, setRecordingLength] = useState(15);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   const { width: screenWidth } = Dimensions.get("window");
   const [faceDectected, setFaceDetected] = useState(false);
@@ -38,7 +40,7 @@ const Step1Screen = () => {
 
   const [registerationError, setRegisterationError] = useState("");
   const navigation = useNavigation();
-
+  const dispatch = useDispatch();
   const existingInfo = useSelector((state) => state.userData);
 
   const checkAllDetailsProvided = () => {
@@ -83,6 +85,10 @@ const Step1Screen = () => {
 
     setLoading(false);
     if (success) {
+      dispatch({
+        type: "SET_USER_DATA",
+        payload: {},
+      });
       navigation.navigate("Login");
     } else {
       setRegisterationError("Error, maybe network error.");
@@ -142,6 +148,46 @@ const Step1Screen = () => {
       <ScrollView style={{ marginBottom: 48 }}>
         <View style={styles.formContainer}>
           <Text style={styles.signupText}>Your Profile Video</Text>
+          <Text style={{ textAlign: "center", fontSize: 16, marginBottom: 20 }}>
+            A profile video let&apos;s others know you better as well as your
+            career and accomplishments.
+          </Text>
+          <Modal visible={showHelpModal}>
+            <View style={{ alignSelf: "flex-end", margin: 20 }}>
+              <TouchableOpacity onPress={() => setShowHelpModal(false)}>
+                <Ionicons name="close" size={24} />
+              </TouchableOpacity>
+            </View>
+            <View style={{ padding: 20, justifyContent: "center" }}>
+              <Text
+                style={{
+                  fontWeight: "700",
+                  fontSize: 16,
+                  alignSelf: "flex-start",
+                  marginBottom: 10,
+                }}
+              >
+                Some things you could mention about yourself:
+              </Text>
+              <Text style={styles.helpModalListItem}>
+                - Your job title and role
+              </Text>
+              <Text style={styles.helpModalListItem}>
+                - Your current or past education
+              </Text>
+              <Text style={styles.helpModalListItem}>
+                - The company you work for
+              </Text>
+              <Text style={styles.helpModalListItem}>
+                - The university you attend/attended
+              </Text>
+              <Text style={styles.helpModalListItem}>
+                - Your accomplishments
+              </Text>
+              <Text style={styles.helpModalListItem}>- Your goals</Text>
+              <Text style={styles.helpModalListItem}>- Your hobbies</Text>
+            </View>
+          </Modal>
           {profileVideo && faceDectected ? (
             <TouchableOpacity
               style={{
@@ -233,6 +279,19 @@ const Step1Screen = () => {
           >
             <Text style={styles.registerationButtonText}>
               Sign Up <Ionicons name="paper-plane-outline" size={14} />
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ marginVertical: 20 }}
+            onPress={() => setShowHelpModal(true)}
+          >
+            <Text
+              style={{
+                color: themeStyle.colors.secondary.default,
+                fontWeight: "700",
+              }}
+            >
+              Need ideas?
             </Text>
           </TouchableOpacity>
           {registerationError ? (
@@ -347,6 +406,10 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: themeStyle.colors.primary.default,
     fontWeight: "700",
+  },
+  helpModalListItem: {
+    fontWeight: "700",
+    fontSize: 14,
   },
 });
 export default React.memo(Step1Screen);

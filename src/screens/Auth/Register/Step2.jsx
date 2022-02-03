@@ -15,13 +15,12 @@ import Input from "../../../components/Input";
 import validateEmail from "../../../helpers/validateEmail";
 import validatePassword from "../../../helpers/validatePassword";
 import { useSelector, useDispatch } from "react-redux";
+import PasswordInput from "../../../components/PasswordInput";
 
 const Step2Screen = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
-  const [showPassword, setShowPassword] = useState(false);
 
   const [validationErrors, setValidationErrors] = useState({});
   const navigation = useNavigation();
@@ -90,26 +89,20 @@ const Step2Screen = () => {
   };
 
   const handleNext = async () => {
-    const nullCheckedUsername = username || existingInfo.state?.username;
-    const nullCheckedEmail = email || existingInfo.state?.email;
-    const nullCheckedPassword = password || existingInfo.state?.password;
     const validationResult = await validateInfo();
     if (!Object.keys(validationResult).length) {
-      const usernameCheck = await checkUserExists(
-        "username",
-        nullCheckedUsername
-      );
+      const usernameCheck = await checkUserExists("username", username);
       const emailCheck = usernameCheck?.exists
         ? null
-        : await checkUserExists("email", nullCheckedEmail);
+        : await checkUserExists("email", email);
       if (usernameCheck?.exists === false && emailCheck?.exists === false) {
         dispatch({
           type: "SET_USER_DATA",
           payload: {
             ...existingInfo.state,
-            username: nullCheckedUsername,
-            email: nullCheckedEmail,
-            password: nullCheckedPassword,
+            username: username,
+            email: email,
+            password: password,
           },
         });
         navigation.navigate("Step3");
@@ -119,9 +112,8 @@ const Step2Screen = () => {
 
   useEffect(() => {
     if (existingInfo) {
-      setUsername(existingInfo?.state.username || "");
-      setEmail(existingInfo?.state.email || "");
-      setPassword(existingInfo?.state.password || "");
+      setUsername(existingInfo?.state?.username || "");
+      setEmail(existingInfo?.state?.email || "");
     }
   }, [existingInfo]);
 
@@ -131,6 +123,7 @@ const Step2Screen = () => {
         <View style={styles.formContainer}>
           <Text style={styles.titleText}>Your login info</Text>
           <Input
+            isOutlined
             error={
               validationErrors.username?.exists
                 ? "A user with this username already exists."
@@ -152,6 +145,7 @@ const Step2Screen = () => {
             }
           />
           <Input
+            isOutlined
             error={
               validationErrors.email?.exists
                 ? "A user with this email already exists."
@@ -168,47 +162,23 @@ const Step2Screen = () => {
                 });
               }
             }}
-            // onEndEditing={(e) => checkUserExists("email", e.nativeEvent.text)}
+            onEndEditing={(e) => checkUserExists("email", e.nativeEvent.text)}
           />
           <View style={styles.textInputContainer}>
-            <Text style={styles.label}>Password</Text>
-            <View
-              style={[
-                styles.passwordInputContainer,
-                validationErrors?.password && {
-                  borderColor: themeStyle.colors.error.default,
-                },
-              ]}
-            >
-              <TextInput
-                style={styles.passwordInput}
-                placeholderTextColor={themeStyle.colors.grayscale.lightGray}
-                secureTextEntry={!showPassword}
-                autoCorrect={false}
-                value={password}
-                onChangeText={(v) => {
-                  setPassword(v);
-                  if (validationErrors.password) {
-                    setValidationErrors({
-                      ...validationErrors,
-                      password: null,
-                    });
-                  }
-                }}
-              />
-              <TouchableOpacity
-                style={styles.eyeIcon}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <Ionicons
-                  name={showPassword ? "eye-outline" : "eye-off-outline"}
-                  size={19}
-                />
-              </TouchableOpacity>
-            </View>
-            {validationErrors?.password ? (
-              <Text style={styles.errorText}>{validationErrors?.password}</Text>
-            ) : null}
+            <PasswordInput
+              isOutlined
+              label={"Password"}
+              error={validationErrors?.password}
+              onChangeText={(v) => {
+                setPassword(v);
+                if (validationErrors.password) {
+                  setValidationErrors({
+                    ...validationErrors,
+                    password: null,
+                  });
+                }
+              }}
+            />
             {validationErrors?.password && password ? (
               <View style={styles.passwordGuide}>
                 <Text style={styles.errorText}>
@@ -258,11 +228,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     margin: 20,
-    borderRadius: 50,
+    borderRadius: 5,
     backgroundColor: themeStyle.colors.primary.default,
+    width: 100,
   },
   nextButtonText: {
     color: themeStyle.colors.grayscale.white,
+    textAlign: "center",
   },
   errorText: {
     fontSize: 12,
@@ -275,26 +247,8 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
     marginBottom: 20,
   },
-  passwordInput: {
-    flex: 1,
-    fontSize: 15,
-    color: themeStyle.colors.grayscale.black,
-  },
-  passwordInputContainer: {
-    flexDirection: "row",
-    height: 45,
-    borderRadius: 5,
-    padding: 5,
-    paddingHorizontal: 8,
-    borderWidth: 2,
-    borderColor: themeStyle.colors.primary.default,
-  },
   passwordGuide: {
     marginTop: 10,
-  },
-  eyeIcon: {
-    justifyContent: "center",
-    paddingHorizontal: 5,
   },
   titleText: {
     padding: 20,

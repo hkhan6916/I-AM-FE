@@ -1,7 +1,5 @@
 const validatePassword = async (password) => {
-  return String(password).match(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/
-  );
+  return String(password).match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/);
 };
 
 export default validatePassword;
