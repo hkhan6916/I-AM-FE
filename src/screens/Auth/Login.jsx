@@ -48,6 +48,11 @@ const LoginScreen = () => {
     setLoading(false);
   };
 
+  const goToSignUpScreen = () => {
+    dispatch({ type: "SET_USER_DATA", payload: {} });
+    navigation.navigate("Register");
+  };
+
   useEffect(() => {
     const unsubscribe = navigation.addListener("blur", () => {
       setLoginError("");
@@ -120,7 +125,7 @@ const LoginScreen = () => {
         <Text style={styles.signupText}>
           Haven&apos;t signed up yet?{" "}
           <Text
-            onPress={() => navigation.navigate("Register")}
+            onPress={() => goToSignUpScreen()}
             style={{ fontWeight: "700" }}
           >
             Sign Up

@@ -72,16 +72,13 @@ const Step1Screen = () => {
         type: "video/mp4",
       },
     };
+    console.log(payload);
     const formData = new FormData();
     Object.keys(payload).forEach((key) => {
       formData.append(key, payload[key]);
     });
     setLoading(true);
-    const { success, message } = await apiCall(
-      "POST",
-      "/user/register",
-      formData
-    );
+    const { success } = await apiCall("POST", "/user/register", formData);
 
     setLoading(false);
     if (success) {

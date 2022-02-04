@@ -27,7 +27,7 @@ const ForgotPasswordScreen = () => {
       setEmailError("Please enter an email address");
     }
 
-    const emailValid = await validateEmail();
+    const emailValid = await validateEmail(email);
 
     if (!emailValid) {
       setEmailError("Please enter a valid email address");

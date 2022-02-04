@@ -7,6 +7,7 @@ import {
   Dimensions,
   ScrollView,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 import { Video } from "expo-av";
 import Slider from "@react-native-community/slider";
@@ -34,7 +35,8 @@ const VideoPlayer = ({
   const [controlsTimeout, setControlsTimeout] = useState(null);
   const [videoDimensions, setVideoDimensions] = useState({});
   const [readyForDisplay, setReadyForDisplay] = useState(false);
-
+  const [autoHideControls, setAutoHideControls] = useState(false);
+  console.log(url);
   const navigation = useNavigation();
   const progressBarWidth = screenWidth - 170;
 
@@ -45,13 +47,7 @@ const VideoPlayer = ({
       videoStatus.positionMillis &&
       videoStatus.durationMillis &&
       videoStatus.positionMillis === videoStatus.durationMillis;
-    if (controlsTimeout) {
-      clearTimeout(controlsTimeout);
-    }
-    const timeout = setTimeout(() => {
-      setShowControls(false);
-    }, 3000);
-    setControlsTimeout(timeout);
+    setAutoHideControls(true);
 
     if (videoStatus.isPlaying) {
       await video.current.pauseAsync();
@@ -85,19 +81,6 @@ const VideoPlayer = ({
     }
   };
 
-  useEffect(() => {
-    let isMounted = true;
-    if (isMounted) {
-      const unsubscribe = navigation.addListener("blur", async () => {
-        if (video) {
-          await video.current?.pauseAsync();
-        }
-      });
-      isMounted = false;
-      return unsubscribe;
-    }
-  }, [navigation]);
-
   const handleVideoAspectRatio = () => {
     if (!isFullScreen) {
       return 1;
@@ -115,6 +98,46 @@ const VideoPlayer = ({
     return videoDimensions.width / videoDimensions.height;
   };
 
+  const aspectRatio = handleVideoAspectRatio();
+
+  useEffect(() => {
+    let isMounted = true;
+    if (isMounted) {
+      const unsubscribe = navigation.addListener("blur", async () => {
+        if (video) {
+          await video.current?.pauseAsync();
+        }
+      });
+      isMounted = false;
+      return unsubscribe;
+    }
+  }, [navigation]);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (isMounted) {
+      console.log(autoHideControls);
+      if (autoHideControls) {
+        setAutoHideControls(false);
+
+        if (controlsTimeout) {
+          clearTimeout(controlsTimeout);
+        }
+        if (!controlsTimeout) {
+          const timeout = setTimeout(() => {
+            setShowControls(false);
+          }, 500);
+          setControlsTimeout(timeout);
+        }
+      }
+      return () => {
+        isMounted = false;
+        if (controlsTimeout) {
+          clearTimeout(controlsTimeout);
+        }
+      };
+    }
+  }, [autoHideControls]);
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View>
@@ -143,12 +166,13 @@ const VideoPlayer = ({
                 <Video
                   onReadyForDisplay={(params) => {
                     setVideoDimensions(params.naturalSize);
+                    setReadyForDisplay(true);
                   }}
                   volume={1}
                   ref={video}
                   isLooping={false}
                   style={{
-                    aspectRatio: handleVideoAspectRatio() || 1,
+                    aspectRatio: aspectRatio || 1,
                     width:
                       ScreenOrientation === "PORTRAIT"
                         ? screenWidth
@@ -163,6 +187,21 @@ const VideoPlayer = ({
                   onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
                 />
               </View>
+              {!readyForDisplay ? (
+                <View
+                  style={{
+                    alignSelf: "center",
+                    position: "absolute",
+                    top: "50%",
+                  }}
+                >
+                  <ActivityIndicator
+                    size={"large"}
+                    color={themeStyle.colors.secondary.bright}
+                    animating
+                  />
+                </View>
+              ) : null}
             </View>
           </TouchableWithoutFeedback>
         ) : (
@@ -195,7 +234,7 @@ const VideoPlayer = ({
                 ref={video}
                 isLooping={true}
                 style={{
-                  aspectRatio: handleVideoAspectRatio() || 1,
+                  aspectRatio: aspectRatio || 1,
                   width:
                     ScreenOrientation === "PORTRAIT"
                       ? screenWidth
@@ -206,15 +245,17 @@ const VideoPlayer = ({
                   //     : screenHeight
                   //   : 0,
                 }}
-                // source={{
-                //   uri: url,
-                //   headers: mediaHeaders,
-                // }}
+                source={{
+                  uri: url,
+                  headers: mediaHeaders,
+                }}
                 useNativeControls={false}
                 resizeMode="cover"
                 onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
               />
-              {(!readyForDisplay || showToggle) && !isLocalMedia ? (
+              {(!readyForDisplay || showToggle) &&
+              !videoStatus.isPlaying &&
+              !isLocalMedia ? (
                 <View
                   style={{
                     position: "absolute",
@@ -340,4 +381,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default VideoPlayer;
+export default React.memo(
+  VideoPlayer,
+  (prevProps, nextProps) => prevProps.url === nextProps.url
+);

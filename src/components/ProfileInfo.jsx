@@ -5,6 +5,7 @@ import themeStyle from "../theme.style";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { View, Text, TouchableOpacity } from "react-native";
+import { Video } from "expo-av";
 
 const ProfileInfo = ({
   user,
@@ -26,11 +27,19 @@ const ProfileInfo = ({
         ]}
       >
         <VideoPlayer
-          // url={user.profileVideoUrl}
-          // mediaHeaders={user.profileVideoHeaders}
+          url={user.profileVideoUrl}
+          mediaHeaders={user.profileVideoHeaders}
           mediaIsSelfie
           showToggle
         />
+        {/* <Video
+          style={{ height: 400, width: 400 }}
+          useNativeControls={true}
+          source={{
+            uri: user.profileVideoUrl,
+            headers: user.profileVideoHeaders,
+          }}
+        /> */}
       </LinearGradient>
       <View style={{ padding: 5 }}>
         <View

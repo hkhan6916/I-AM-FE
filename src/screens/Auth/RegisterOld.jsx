@@ -373,9 +373,9 @@ const RegisterationScreen = () => {
                   setProfileVideoPlaying(() => status)
                 }
                 ref={profileVideoRef}
-                // source={{
-                //   uri: profileVideo,
-                // }}
+                source={{
+                  uri: profileVideo,
+                }}
                 isLooping
                 resizeMode="cover"
               />

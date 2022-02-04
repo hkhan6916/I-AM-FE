@@ -68,8 +68,8 @@ const MediaScreen = (props) => {
       <View>
         {post?.mediaType === "video" ? (
           <VideoPlayer
-            // url={post.mediaUrl}
-            // mediaHeaders={post.mediaHeaders}
+            url={post.mediaUrl}
+            mediaHeaders={post.mediaHeaders}
             mediaOrientation={post.mediaOrientation}
             mediaIsSelfie={post.mediaIsSelfie}
             isFullScreen

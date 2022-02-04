@@ -22,6 +22,7 @@ import ContentLoader from "../../../components/ContentLoader";
 import InputNoBorder from "../../../components/InputNoBorder";
 import validateEmail from "../../../helpers/validateEmail";
 import validatePassword from "../../../helpers/validatePassword";
+import PasswordInputNoBorder from "../../../components/PasswordInputNoBorder";
 
 const { statusBarHeight } = Constants;
 const EditUserDetailsScreen = () => {
@@ -181,7 +182,7 @@ const EditUserDetailsScreen = () => {
       const updatedValidationErrors = validationErrors;
       delete updatedValidationErrors[type];
       if (!Object.keys(updatedValidationErrors).length) {
-        setValidationErrors(null);
+        setValidationErrors({});
       } else {
         setValidationErrors(updatedValidationErrors);
       }
@@ -369,45 +370,19 @@ const EditUserDetailsScreen = () => {
             onEndEditing={(e) => checkUserExists("email", e.nativeEvent.text)}
           />
           <View style={styles.textInputContainer}>
-            <Text style={styles.label}>Password</Text>
-            <View
-              style={[
-                styles.passwordInputContainer,
-                validationErrors?.password && {
-                  borderColor: themeStyle.colors.error.default,
-                },
-              ]}
-            >
-              <TextInput
-                style={styles.passwordInput}
-                placeholderTextColor={themeStyle.colors.grayscale.lightGray}
-                secureTextEntry={!showPassword}
-                autoCorrect={false}
-                value={password}
-                onChangeText={(v) => {
-                  setPassword(v);
-                  if (validationErrors.password) {
-                    setValidationErrors({
-                      ...validationErrors,
-                      password: null,
-                    });
-                  }
-                }}
-              />
-              {/* {console.log("hey")} */}
-              <TouchableOpacity
-                style={styles.eyeIcon}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <Ionicons
-                  name={showPassword ? "eye-outline" : "eye-off-outline"}
-                  size={19}
-                />
-              </TouchableOpacity>
-            </View>
-            {validationErrors?.password ? (
-              <Text style={styles.errorText}>{validationErrors?.password}</Text>
-            ) : null}
+            <PasswordInputNoBorder
+              label={"Password"}
+              error={validationErrors?.password}
+              onChangeText={(v) => {
+                setPassword(v);
+                if (validationErrors?.password) {
+                  setValidationErrors({
+                    ...validationErrors,
+                    password: null,
+                  });
+                }
+              }}
+            />
             {validationErrors?.password && password ? (
               <View style={styles.passwordGuide}>
                 <Text style={styles.errorText}>
@@ -557,23 +532,6 @@ const styles = StyleSheet.create({
     height: 45,
     paddingHorizontal: 10,
     backgroundColor: themeStyle.colors.grayscale.superLightGray,
-  },
-  passwordInput: {
-    flex: 1,
-    fontSize: 15,
-    color: themeStyle.colors.grayscale.black,
-  },
-  passwordInputContainer: {
-    flexDirection: "row",
-    height: 45,
-    marginBottom: 20,
-    padding: 5,
-    paddingHorizontal: 8,
-    backgroundColor: themeStyle.colors.grayscale.superLightGray,
-  },
-  eyeIcon: {
-    justifyContent: "center",
-    paddingHorizontal: 5,
   },
   searchBar: {
     flex: 1,
