@@ -24,7 +24,7 @@ const VideoPlayer = ({
   setShowActions,
   mediaOrientation,
   mediaIsSelfie,
-  mediaHeaders,
+  // mediaHeaders,
   shouldPlay,
   showToggle,
   isLocalMedia,
@@ -180,7 +180,7 @@ const VideoPlayer = ({
                   }}
                   source={{
                     uri: url,
-                    headers: mediaHeaders,
+                    // headers: mediaHeaders,
                   }}
                   useNativeControls={false}
                   resizeMode="contain"
@@ -247,7 +247,7 @@ const VideoPlayer = ({
                 }}
                 source={{
                   uri: url,
-                  headers: mediaHeaders,
+                  // headers: mediaHeaders,
                 }}
                 useNativeControls={false}
                 resizeMode="cover"
@@ -268,7 +268,7 @@ const VideoPlayer = ({
                     removeBorderRadius
                     resizeMode="cover"
                     mediaUrl={url}
-                    mediaHeaders={mediaHeaders}
+                    // mediaHeaders={mediaHeaders}
                     aspectRatio={1 / 1}
                   />
                 </View>

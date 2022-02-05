@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   ScrollView,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
@@ -65,6 +66,7 @@ const AddScreen = () => {
   const createPost = async () => {
     setLoading(true);
     const postData = await createPostData();
+
     const { success } = await apiCall("POST", "/posts/new", postData);
     if (success) {
       setPostBody("");
@@ -131,6 +133,16 @@ const AddScreen = () => {
       }
     }
   };
+
+  if (loading) {
+    return (
+      <ActivityIndicator
+        animating
+        color={themeStyle.colors.primary.default}
+        size={"large"}
+      />
+    );
+  }
 
   if (cameraActive && isFocused) {
     return (

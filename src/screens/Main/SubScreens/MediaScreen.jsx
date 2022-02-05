@@ -95,7 +95,7 @@ const MediaScreen = (props) => {
           </View>
         ) : null}
         <TouchableOpacity
-          onPress={() => navigation.navigate("Home")}
+          onPress={() => navigation.goBack()}
           style={{
             position: "absolute",
             left: 10,
@@ -119,7 +119,7 @@ const MediaScreen = (props) => {
             <Text
               style={{ color: themeStyle.colors.grayscale.white, fontSize: 16 }}
             >
-              Home
+              Back
             </Text>
           </View>
         </TouchableOpacity>

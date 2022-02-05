@@ -230,6 +230,9 @@ const HomeScreen = () => {
       }
     >
       <HomeHeading />
+      {newPostCreated.state ? (
+        <Text style={styles.newPostPill}>Post {newPostCreated.state.type}</Text>
+      ) : null}
       <View
         style={{
           flexDirection: "column",
@@ -281,7 +284,7 @@ const styles = StyleSheet.create({
   newPostPill: {
     zIndex: 3, // works on ios
     elevation: 3, // works on android
-    backgroundColor: themeStyle.colors.secondary.bright,
+    backgroundColor: themeStyle.colors.primary.default,
     color: themeStyle.colors.grayscale.white,
     paddingVertical: 5,
     paddingHorizontal: 10,
