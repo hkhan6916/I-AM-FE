@@ -87,7 +87,8 @@ const ImageWithCache = ({
         />
       )}
     </View>
+    {console.log("image")}
   </View>
 );
 
-export default ImageWithCache;
+export default React.memo(ImageWithCache);

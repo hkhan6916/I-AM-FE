@@ -16,6 +16,7 @@ import themeStyle from "../theme.style";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
 import ImageWithCache from "./ImageWithCache";
 import { Feather } from "@expo/vector-icons";
+import FullScreenVideo from "./FullScreenVideo";
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 const VideoPlayer = ({
@@ -36,7 +37,6 @@ const VideoPlayer = ({
   const [videoDimensions, setVideoDimensions] = useState({});
   const [readyForDisplay, setReadyForDisplay] = useState(false);
   const [autoHideControls, setAutoHideControls] = useState(false);
-  console.log(url);
   const navigation = useNavigation();
   const progressBarWidth = screenWidth - 170;
 
@@ -116,7 +116,6 @@ const VideoPlayer = ({
   useEffect(() => {
     let isMounted = true;
     if (isMounted) {
-      console.log(autoHideControls);
       if (autoHideControls) {
         setAutoHideControls(false);
 
@@ -143,67 +142,12 @@ const VideoPlayer = ({
       <View>
         <StatusBar animated hidden={isFullScreen} />
         {isFullScreen ? (
-          <TouchableWithoutFeedback onPress={() => handleShowControls()}>
-            <View
-              style={{
-                transform: [{ scaleX: mediaIsSelfie ? -1 : 1 }],
-              }}
-            >
-              <View
-                style={{
-                  transform: [
-                    {
-                      rotate:
-                        mediaOrientation === "landscape-left"
-                          ? "-90deg"
-                          : mediaOrientation === "landscape-right"
-                          ? "90deg"
-                          : "0deg",
-                    },
-                  ],
-                }}
-              >
-                <Video
-                  onReadyForDisplay={(params) => {
-                    setVideoDimensions(params.naturalSize);
-                    setReadyForDisplay(true);
-                  }}
-                  volume={1}
-                  ref={video}
-                  isLooping={false}
-                  style={{
-                    aspectRatio: aspectRatio || 1,
-                    width:
-                      ScreenOrientation === "PORTRAIT"
-                        ? screenWidth
-                        : screenHeight,
-                  }}
-                  source={{
-                    uri: url,
-                    // headers: mediaHeaders,
-                  }}
-                  useNativeControls={false}
-                  resizeMode="contain"
-                  onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
-                />
-              </View>
-              {!readyForDisplay ? (
-                <View
-                  style={{
-                    alignSelf: "center",
-                    position: "absolute",
-                    top: "50%",
-                  }}
-                >
-                  <ActivityIndicator
-                    size={"large"}
-                    color={themeStyle.colors.secondary.bright}
-                    animating
-                  />
-                </View>
-              ) : null}
-            </View>
-          </TouchableWithoutFeedback>
+          <FullScreenVideo
+            url={url}
+            setShowActions={setShowActions}
+            mediaOrientation={mediaOrientation}
+            mediaIsSelfie={mediaIsSelfie}
+          />
         ) : (
           <View
             style={{
@@ -239,11 +183,6 @@ const VideoPlayer = ({
                     ScreenOrientation === "PORTRAIT"
                       ? screenWidth
                       : screenHeight,
-                  // width: videoStatus.isPlaying
-                  //   ? ScreenOrientation === "PORTRAIT"
-                  //     ? screenWidth
-                  //     : screenHeight
-                  //   : 0,
                 }}
                 source={{
                   uri: url,
@@ -255,7 +194,8 @@ const VideoPlayer = ({
               />
               {(!readyForDisplay || showToggle) &&
               !videoStatus.isPlaying &&
-              !isLocalMedia ? (
+              !isLocalMedia &&
+              !isFullScreen ? (
                 <View
                   style={{
                     position: "absolute",

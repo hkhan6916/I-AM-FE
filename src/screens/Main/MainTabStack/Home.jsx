@@ -17,6 +17,7 @@ import {
   Button,
   ScrollView,
 } from "react-native";
+import ImageWithCache from "../../../components/ImageWithCache";
 import { Feather } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
@@ -74,12 +75,11 @@ const HomeScreen = () => {
     if (!allPostsLoaded && !refreshing && !loading) {
       const offsets = await calculateOffsets();
       setLoading(true);
-      const { success, response, message } = await apiCall(
+      const { success, response } = await apiCall(
         "POST",
         "/user/feed",
         offsets
       );
-      console.log(response, message);
       setLoading(false);
       if (success) {
         if (!response.feed?.length) {

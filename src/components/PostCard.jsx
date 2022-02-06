@@ -352,7 +352,6 @@ const PostCard = ({
           color={themeStyle.colors.grayscale.lightGray}
         />
       ) : null}
-      {console.log("rendering")}
     </View>
   );
 };
