@@ -36,7 +36,7 @@ const PostCard = ({
   const onTextLayout = (e) => {
     setIsCollapsible(e.nativeEvent.lines.length >= 3);
   };
-
+  console.log(isVisible);
   const handleReaction = async () => {
     if (post.liked) {
       const newPost = { ...post, liked: false };
@@ -167,6 +167,7 @@ const PostCard = ({
                     flexDirection: "column",
                   }}
                 >
+                  {console.log({ isVisible })}
                   <VideoPlayer
                     shouldPlay={isVisible}
                     mediaOrientation={post.mediaOrientation}

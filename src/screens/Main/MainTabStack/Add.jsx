@@ -10,6 +10,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
@@ -27,6 +28,8 @@ import {
 import VideoPlayer from "../../../components/VideoPlayer";
 import { LinearGradient } from "expo-linear-gradient";
 import { backgroundUpload } from "react-native-compressor";
+import { AntDesign } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -115,6 +118,7 @@ const AddScreen = () => {
     if (status === "granted") {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
+        // mediaTypes: ImagePicker.MediaTypeOptions.Images, // if we only allow images
         quality: 0.3,
       });
       if (!result.cancelled) {
@@ -157,86 +161,155 @@ const AddScreen = () => {
   }
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView keyboardVerticalOffset={200}>
-        <Button title="Done" onPress={() => Keyboard.dismiss()} />
-        {postBody.length >= 1000 - 25 ? (
-          <Text style={styles.postLimitMessage}>
-            {1000 - postBody.length} Characters Remaining
-          </Text>
-        ) : null}
-        {showMediaSizeError ? <Text>This file is too big</Text> : null}
-        <ScrollView>
-          <TextInput
-            style={{ minHeight: 100, textAlignVertical: "top" }}
-            value={postBody}
-            placeholder="What's on your mind?"
-            placeholderTextColor={themeStyle.colors.grayscale.lightGray}
-            multiline
-            maxLength={1000}
-            onChangeText={(v) => setPostBody(v)}
-          />
-          {file.type?.split("/")[0] === "video" ? (
-            // <VideoPlayer
-            //   style={{
-            //     alignSelf: "center",
-            //     width: 320,
-            //     height: 200,
-            //     backgroundColor: themeStyle.colors.grayscale.black,
-            //   }}
-            //   source={{
-            //     uri: file.uri,
-            //   }}
-            //   useNativeControls
-            //   resizeMode="contain"
-            //   isLooping
-            // />
-            <LinearGradient
-              start={[0, 0.5]}
-              end={[1, 0.5]}
-              style={{ padding: 4 }}
-              colors={[
-                themeStyle.colors.secondary.bright,
-                themeStyle.colors.primary.default,
-              ]}
+      <Text
+        style={{
+          fontSize: 24,
+          color: themeStyle.colors.primary.default,
+          marginBottom: 20,
+        }}
+      >
+        New Post
+      </Text>
+      {postBody.length >= 1000 - 25 ? (
+        <Text style={styles.postLimitMessage}>
+          {2000 - postBody.length} Characters Remaining
+        </Text>
+      ) : null}
+      <ScrollView>
+        <TextInput
+          style={{ minHeight: 100, textAlignVertical: "top", fontSize: 16 }}
+          value={postBody}
+          placeholder="What's on your mind?"
+          placeholderTextColor={themeStyle.colors.grayscale.lightGray}
+          multiline
+          maxLength={2000}
+          onChangeText={(v) => setPostBody(v)}
+        />
+        {file.uri ? (
+          <View
+            style={{
+              borderWidth: !showMediaSizeError ? 1 : 2,
+              borderRadius: 5,
+              borderColor: !showMediaSizeError
+                ? themeStyle.colors.primary.default
+                : themeStyle.colors.error.default,
+            }}
+          >
+            <TouchableOpacity
+              style={{ alignSelf: "flex-end" }}
+              onPress={() => setFile({})}
             >
+              <AntDesign
+                name="close"
+                size={24}
+                color={themeStyle.colors.grayscale.black}
+              />
+            </TouchableOpacity>
+            {showMediaSizeError ? (
+              <Text
+                style={{
+                  color: themeStyle.colors.error.default,
+                  marginHorizontal: 5,
+                }}
+              >
+                Choose a file smaller than 50MB
+              </Text>
+            ) : null}
+            {file.type?.split("/")[0] === "video" ? (
               <VideoPlayer
                 url={file.uri}
                 mediaHeaders={null}
                 showToggle
                 isLocalMedia
               />
-            </LinearGradient>
-          ) : file.type?.split("/")[0] === "image" ? (
-            <ImageWithCache
-              mediaOrientation={file.mediaOrientation}
-              mediaIsSelfie={file.isSelfie}
-              resizeMode="cover"
-              mediaUrl={file.uri}
-              aspectRatio={1 / 1}
-            />
-          ) : null}
-        </ScrollView>
-        <Button title="Camera" onPress={() => setCameraActive(true)} />
-        <Button title="Pick Media" onPress={() => pickImage()} />
-        <Button
-          disabled={(!postBody && !file) || loading || postBody.length >= 1000}
-          title="Make Post"
-          onPress={() => createPost()}
-        />
-        {error ? (
-          <View>
-            <Text style={styles.errorTitle}>{error.title}</Text>
-            <Text style={styles.errorMessage}>{error.message}</Text>
+            ) : file.type?.split("/")[0] === "image" ? (
+              <ImageWithCache
+                mediaOrientation={file.mediaOrientation}
+                mediaIsSelfie={file.isSelfie}
+                resizeMode="cover"
+                mediaUrl={file.uri}
+                aspectRatio={1 / 1}
+                removeBorderRadius
+              />
+            ) : null}
           </View>
         ) : null}
-      </KeyboardAvoidingView>
+      </ScrollView>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginVertical: 10,
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginHorizontal: 10,
+            }}
+          >
+            <TouchableOpacity onPress={() => setCameraActive(true)}>
+              <FontAwesome
+                name="camera"
+                size={24}
+                color={themeStyle.colors.grayscale.black}
+              />
+            </TouchableOpacity>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginHorizontal: 10,
+            }}
+          >
+            <TouchableOpacity onPress={() => pickImage()}>
+              <FontAwesome
+                name="image"
+                size={24}
+                color={themeStyle.colors.grayscale.black}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View
+          style={{
+            justifyContent: "center",
+            flexDirection: "row",
+            backgroundColor: themeStyle.colors.primary.default,
+            padding: 5,
+            borderRadius: 20,
+            width: 70,
+          }}
+        >
+          <TouchableOpacity onPress={() => createPost()}>
+            <Text
+              style={{
+                fontSize: 16,
+                color: themeStyle.colors.grayscale.white,
+              }}
+            >
+              Post
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      {error ? (
+        <View>
+          <Text style={styles.errorTitle}>{error.title}</Text>
+          <Text style={styles.errorMessage}>{error.message}</Text>
+        </View>
+      ) : null}
     </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    paddingHorizontal: 10,
   },
   postLimitMessage: {
     alignSelf: "flex-end",

@@ -5,18 +5,22 @@ import {
   View,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import themeStyle from "../theme.style";
 
 const CommentTextInput = forwardRef((props, ref) => {
   const [commentBody, setCommentBody] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const undoReply = () => {
     props.setReplyingTo(null);
     setCommentBody("");
   };
   const handleSubmit = async () => {
+    setLoading(true);
     const success = await props.submitAction(commentBody);
-
+    setLoading(false);
     if (success) {
       props.setReplyingTo(null);
       setCommentBody("");
@@ -49,9 +53,24 @@ const CommentTextInput = forwardRef((props, ref) => {
           onChangeText={(v) => setCommentBody(v)}
           returnKeyType="go"
         />
-        <TouchableOpacity onPress={() => handleSubmit()}>
-          <Text style={styles.postTrigger}>Post</Text>
-        </TouchableOpacity>
+        {!loading ? (
+          <TouchableOpacity
+            disabled={!commentBody}
+            onPress={() => handleSubmit()}
+          >
+            <Text
+              style={[styles.postTrigger, !commentBody && { opacity: 0.5 }]}
+            >
+              Post
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <ActivityIndicator
+            animating
+            size="small"
+            color={themeStyle.colors.secondary.default}
+          />
+        )}
       </View>
     </View>
   );

@@ -65,20 +65,26 @@ const ProfileVideoCamera = ({
   };
 
   useEffect(() => {
-    let length = recordingLength;
-    const interval = setInterval(() => {
-      if (recording && length > 0) {
-        length -= 1;
-        setRecordingLength(length);
-      }
+    let isMounted = true;
+    if (isMounted) {
+      let length = recordingLength;
+      const interval = setInterval(() => {
+        if (recording && length > 0) {
+          length -= 1;
+          setRecordingLength(length);
+        }
 
-      if (recording && length === 0) {
-        setRecording(false);
-        cameraRef.stopRecording();
-        setCameraActivated(false);
-      }
-    }, 1000);
-    return () => clearInterval(interval);
+        if (recording && length === 0) {
+          setRecording(false);
+          cameraRef.stopRecording();
+          setCameraActivated(false);
+        }
+      }, 1000);
+      return () => {
+        isMounted = false;
+        clearInterval(interval);
+      };
+    }
   }, [recording]);
   const deactivateCamera = () => {
     setCameraActivated(false);
@@ -219,6 +225,16 @@ const ProfileVideoCamera = ({
               tracking: true,
             }}
           >
+            <View style={styles.counter}>
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.white,
+                  fontSize: 14,
+                }}
+              >
+                {recordingLength} seconds
+              </Text>
+            </View>
             <View style={styles.cameraBottomSection}>
               <Text>{recordingLength}</Text>
               <View style={styles.controlsContainer}>
@@ -351,6 +367,14 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-evenly",
+  },
+  counter: {
+    backgroundColor: themeStyle.colors.grayscale.mediumGray,
+    alignSelf: "flex-end",
+    margin: 10,
+    paddingVertical: 2,
+    paddingHorizontal: 10,
+    borderRadius: 50,
   },
 });
 

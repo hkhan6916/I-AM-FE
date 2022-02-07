@@ -264,18 +264,15 @@ const EditUserDetailsScreen = () => {
       <ScrollView style={{ marginBottom: 48 }}>
         <View style={styles.formContainer}>
           {(profileVideo && faceDetected) ||
-          (!profileVideo &&
-            initialProfileData.profileVideoHeaders &&
-            initialProfileData.profileVideoUrl) ? (
+          (!profileVideo && initialProfileData.profileVideoUrl) ? (
             <PreviewVideo
-              removeBorder
               isFullWidth
               uri={profileVideo || initialProfileData?.profileVideoUrl}
               headers={initialProfileData?.profileVideoHeaders}
             />
           ) : profileVideo ? (
             <View>
-              <PreviewVideo removeBorder isFullWidth uri={profileVideo} />
+              <PreviewVideo isFullWidth uri={profileVideo} />
               <View style={styles.faceDetectionError}>
                 <Text style={styles.faceDetectionErrorText}>
                   No face detected. Make sure your face is shown at the start
@@ -405,9 +402,13 @@ const EditUserDetailsScreen = () => {
       </ScrollView>
       <View style={styles.submitButtonContainer}>
         <TouchableOpacity
-          style={[styles.submitButton]}
+          style={[
+            styles.submitButton,
+            (profileVideo && !faceDetected) ||
+              (validationErrors && { opacity: 0.3 }),
+          ]}
           onPress={() => updateProfile()}
-          // disabled={(profileVideo && !faceDetected) || validationErrors}
+          disabled={(profileVideo && !faceDetected) || validationErrors}
         >
           {isUpdating ? (
             <ActivityIndicator

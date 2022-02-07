@@ -18,6 +18,7 @@ import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import ProfileVideoCamera from "../../../components/ProfileVideoCamera";
 import { useSelector, useDispatch } from "react-redux";
+import PreviewVideo from "../../../components/PreviewVideo";
 
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
@@ -186,66 +187,7 @@ const Step1Screen = () => {
             </View>
           </Modal>
           {profileVideo && faceDectected ? (
-            <TouchableOpacity
-              style={{
-                alignSelf: "center",
-              }}
-              onPress={() =>
-                profileVideoPlaying.isPlaying
-                  ? profileVideoRef.current.pauseAsync()
-                  : profileVideoRef.current.playAsync()
-              }
-            >
-              <Video
-                style={{
-                  transform: [{ scaleX: -1 }],
-                  alignSelf: "center",
-                  width: screenWidth / 1.5,
-                  height: (screenWidth * 1.33) / 1.5,
-                  borderWidth: 2,
-                  borderColor: themeStyle.colors.primary.default,
-                  borderRadius: 10,
-                }}
-                onPlaybackStatusUpdate={(status) =>
-                  setProfileVideoPlaying(() => status)
-                }
-                ref={profileVideoRef}
-                source={{
-                  uri: profileVideo,
-                }}
-                isLooping
-                resizeMode="cover"
-              />
-              {!profileVideoPlaying.isPlaying ? (
-                <View
-                  style={{
-                    position: "absolute",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: screenWidth / 1.5,
-                    height: (screenWidth * 1.33) / 1.5,
-                    borderWidth: 2,
-                    borderColor: themeStyle.colors.primary.default,
-                    borderRadius: 10,
-                    backgroundColor: themeStyle.colors.grayscale.black,
-                    opacity: 0.5,
-                  }}
-                >
-                  <Text
-                    style={{
-                      flex: 1,
-                      position: "absolute",
-                      fontSize: 20,
-                      textAlign: "center",
-                      width: screenWidth / 1.5,
-                      color: themeStyle.colors.grayscale.white,
-                    }}
-                  >
-                    Tap to preview
-                  </Text>
-                </View>
-              ) : null}
-            </TouchableOpacity>
+            <PreviewVideo uri={profileVideo} isFullWidth />
           ) : profileVideo ? (
             <Text style={styles.faceDetectionError}>
               No face detected. Make sure your face is shown at the start and

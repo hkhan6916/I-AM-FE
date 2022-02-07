@@ -4,6 +4,7 @@ import { TouchableOpacity, View, Text } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import VideoPlayer from "./VideoPlayer";
+import PreviewVideo from "./PreviewVideo";
 
 const ProfileScreenHeader = ({ navigation, userData }) => {
   return (
@@ -24,30 +25,7 @@ const ProfileScreenHeader = ({ navigation, userData }) => {
           <MaterialCommunityIcons name="cog-outline" size={24} color="black" />
         </TouchableOpacity>
       </View>
-      <LinearGradient
-        start={[0, 0.5]}
-        end={[1, 0.5]}
-        style={{ padding: 4 }}
-        colors={[
-          themeStyle.colors.grayscale.white,
-          themeStyle.colors.primary.light,
-        ]}
-      >
-        <View
-          style={{
-            width: "100%",
-            borderColor: themeStyle.colors.primary.default,
-            backgroundColor: "white",
-          }}
-        >
-          <VideoPlayer
-            url={userData.profileVideoUrl}
-            mediaHeaders={userData.profileVideoHeaders}
-            mediaIsSelfie
-            showToggle
-          />
-        </View>
-      </LinearGradient>
+      <PreviewVideo uri={userData.profileVideoUrl} isFullWidth />
       <Text>{userData.numberOfFriends} friends</Text>
     </View>
   );

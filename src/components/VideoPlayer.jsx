@@ -29,6 +29,7 @@ const VideoPlayer = ({
   showToggle,
   isLocalMedia,
 }) => {
+  console.log({ shouldPlay });
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
   const [showControls, setShowControls] = useState(false);
@@ -377,5 +378,7 @@ const styles = StyleSheet.create({
 
 export default React.memo(
   VideoPlayer,
-  (prevProps, nextProps) => prevProps.url === nextProps.url
+  (prevProps, nextProps) =>
+    prevProps.url === nextProps.url ||
+    prevProps.shouldPlay === nextProps.shouldPlay
 );
