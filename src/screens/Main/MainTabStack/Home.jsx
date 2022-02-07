@@ -29,6 +29,7 @@ import PostCard from "../../../components/PostCard";
 import apiCall from "../../../helpers/apiCall";
 import Logo from "../../../Logo";
 import { useScrollToTop } from "@react-navigation/native";
+import VideoPlayer from "react-native-video-controls";
 
 const { statusBarHeight } = Constants;
 
@@ -130,7 +131,10 @@ const HomeScreen = () => {
         backgroundColor={themeStyle.colors.grayscale.black}
         barStyle="light-content"
       />
-      <Button title="test" onPress={() => navigation.navigate("AdScreen")} />
+      <Button
+        title="test"
+        onPress={() => navigation.navigate("VideoTestScreen")}
+      />
       <View
         style={{
           display: "flex",

@@ -16,7 +16,6 @@ import themeStyle from "../theme.style";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
 import ImageWithCache from "./ImageWithCache";
 import { Feather } from "@expo/vector-icons";
-import FullScreenVideo from "./FullScreenVideo";
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 const VideoPlayer = ({
@@ -142,12 +141,67 @@ const VideoPlayer = ({
       <View>
         <StatusBar animated hidden={isFullScreen} />
         {isFullScreen ? (
-          <FullScreenVideo
-            url={url}
-            setShowActions={setShowActions}
-            mediaOrientation={mediaOrientation}
-            mediaIsSelfie={mediaIsSelfie}
-          />
+          <TouchableWithoutFeedback onPress={() => handleShowControls()}>
+            <View
+              style={{
+                transform: [{ scaleX: mediaIsSelfie ? -1 : 1 }],
+              }}
+            >
+              <View
+                style={{
+                  transform: [
+                    {
+                      rotate:
+                        mediaOrientation === "landscape-left"
+                          ? "-90deg"
+                          : mediaOrientation === "landscape-right"
+                          ? "90deg"
+                          : "0deg",
+                    },
+                  ],
+                }}
+              >
+                <Video
+                  onReadyForDisplay={(params) => {
+                    setVideoDimensions(params.naturalSize);
+                    setReadyForDisplay(true);
+                  }}
+                  volume={1}
+                  ref={video}
+                  isLooping={false}
+                  style={{
+                    aspectRatio: aspectRatio || 1,
+                    width:
+                      ScreenOrientation === "PORTRAIT"
+                        ? screenWidth
+                        : screenHeight,
+                  }}
+                  source={{
+                    uri: url,
+                    // headers: mediaHeaders,
+                  }}
+                  useNativeControls={false}
+                  resizeMode="contain"
+                  onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
+                />
+              </View>
+              {!readyForDisplay ? (
+                <View
+                  style={{
+                    alignSelf: "center",
+                    position: "absolute",
+                    top: "50%",
+                  }}
+                >
+                  <ActivityIndicator
+                    size={"large"}
+                    color={themeStyle.colors.secondary.bright}
+                    animating
+                  />
+                </View>
+              ) : null}
+            </View>
+          </TouchableWithoutFeedback>
         ) : (
           <View
             style={{

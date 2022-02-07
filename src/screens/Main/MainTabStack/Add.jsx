@@ -26,6 +26,7 @@ import {
 } from "react-native-compressor";
 import VideoPlayer from "../../../components/VideoPlayer";
 import { LinearGradient } from "expo-linear-gradient";
+import { backgroundUpload } from "react-native-compressor";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();

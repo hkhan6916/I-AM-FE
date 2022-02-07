@@ -15,6 +15,8 @@ import SettingsScreen from "./SubScreens/SettingsScreen";
 import PrivacyPolicyScreen from "./SubScreens/PrivacyPolicyScreen";
 import TermsOfUseScreen from "./SubScreens/TermsOfUseScreen";
 import AdScreen from "./SubScreens/AdTest";
+import VideoTestScreen from "./SubScreens/VideoTestScreen";
+
 const Stack = createNativeStackNavigator();
 
 const MainStack = () => (
@@ -181,6 +183,18 @@ const MainStack = () => (
       }}
       name="AdScreen"
       component={AdScreen}
+    />
+    <Stack.Screen
+      options={{
+        title: "Video Screen",
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+      }}
+      name="VideoTestScreen"
+      component={VideoTestScreen}
     />
   </Stack.Navigator>
 );
