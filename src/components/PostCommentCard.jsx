@@ -30,6 +30,7 @@ const PostCommentCard = ({
   const [deleted, setDeleted] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [updated, setUpdated] = useState(false);
 
   const { width: screenWidth } = Dimensions.get("window");
 
@@ -88,10 +89,9 @@ const PostCommentCard = ({
       body, // todo set comment as edited in backend
     });
     if (success) {
-      setIsEditing(false);
       const newComment = { ...comment, body };
       setComment(newComment);
-      setShowOptions(false);
+      setUpdated(true);
     }
   };
 
@@ -149,44 +149,29 @@ const PostCommentCard = ({
                 padding: 20,
               }}
             >
-              <View
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "100%",
-                  backgroundColor: themeStyle.colors.grayscale.white,
-                  borderWidth: 1,
-                  borderColor: themeStyle.colors.grayscale.superLightGray,
-                  borderRadius: 10,
-                  padding: 5,
-                }}
-              >
-                <View style={{ alignSelf: "flex-end" }}>
-                  <TouchableOpacity onPress={() => setShowOptions(false)}>
-                    <AntDesign
-                      name="close"
-                      size={24}
-                      color={themeStyle.colors.grayscale.black}
-                    />
-                  </TouchableOpacity>
-                </View>
-                {!comment.belongsToUser ? (
-                  <View style={{ marginVertical: 10 }}>
-                    <TouchableOpacity onPress={() => setIsEditing(true)}>
-                      <Text
-                        style={{
-                          color: themeStyle.colors.secondary.default,
-                          marginHorizontal: 10,
-                          textAlign: "center",
-                        }}
-                      >
-                        Report Comment
-                      </Text>
+              <TouchableWithoutFeedback>
+                <View
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "100%",
+                    backgroundColor: themeStyle.colors.grayscale.white,
+                    borderWidth: 1,
+                    borderColor: themeStyle.colors.grayscale.superLightGray,
+                    borderRadius: 10,
+                    padding: 5,
+                  }}
+                >
+                  <View style={{ alignSelf: "flex-end" }}>
+                    <TouchableOpacity onPress={() => setShowOptions(false)}>
+                      <AntDesign
+                        name="close"
+                        size={24}
+                        color={themeStyle.colors.grayscale.black}
+                      />
                     </TouchableOpacity>
                   </View>
-                ) : null}
-                {comment.belongsToUser && !isEditing ? (
-                  <View>
+                  {!comment.belongsToUser ? (
                     <View style={{ marginVertical: 10 }}>
                       <TouchableOpacity onPress={() => setIsEditing(true)}>
                         <Text
@@ -196,52 +181,81 @@ const PostCommentCard = ({
                             textAlign: "center",
                           }}
                         >
-                          Edit
+                          Report Comment
                         </Text>
                       </TouchableOpacity>
                     </View>
-                    <View style={{ marginVertical: 10 }}>
-                      <TouchableOpacity onPress={() => deleteComment()}>
+                  ) : null}
+                  {comment.belongsToUser && !isEditing ? (
+                    <View>
+                      <View style={{ marginVertical: 10 }}>
+                        <TouchableOpacity onPress={() => setIsEditing(true)}>
+                          <Text
+                            style={{
+                              color: themeStyle.colors.secondary.default,
+                              marginHorizontal: 10,
+                              textAlign: "center",
+                            }}
+                          >
+                            Edit
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                      <View style={{ marginVertical: 10 }}>
+                        <TouchableOpacity onPress={() => deleteComment()}>
+                          <Text
+                            style={{
+                              color: themeStyle.colors.error.default,
+                              marginHorizontal: 10,
+                              textAlign: "center",
+                            }}
+                          >
+                            Delete
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ) : isEditing ? (
+                    <View
+                      style={{
+                        marginVertical: 40,
+                        height: 200,
+                        width: screenWidth / 1.2,
+                        justifyContent: "center",
+                      }}
+                    >
+                      {updated ? (
                         <Text
                           style={{
-                            color: themeStyle.colors.error.default,
-                            marginHorizontal: 10,
-                            textAlign: "center",
+                            alignSelf: "flex-end",
+                            fontSize: 12,
+                            color: themeStyle.colors.grayscale.mediumGray,
                           }}
                         >
-                          Delete
+                          Comment updated
+                        </Text>
+                      ) : null}
+                      <CommentTextInput
+                        submitAction={updateComment}
+                        isFullWidth={false}
+                        initialCommentBody={comment.body}
+                      />
+                      <TouchableOpacity
+                        style={{ alignSelf: "flex-end", marginVertical: 5 }}
+                        onPress={() => setIsEditing(false)}
+                      >
+                        <Text
+                          style={{
+                            color: themeStyle.colors.grayscale.mediumGray,
+                          }}
+                        >
+                          Cancel
                         </Text>
                       </TouchableOpacity>
                     </View>
-                  </View>
-                ) : isEditing ? (
-                  <View
-                    style={{
-                      marginVertical: 40,
-                      height: 200,
-                      width: screenWidth / 1.2,
-                    }}
-                  >
-                    <CommentTextInput
-                      submitAction={updateComment}
-                      isFullWidth={false}
-                      initialCommentBody={comment.body}
-                    />
-                    <TouchableOpacity
-                      style={{ alignSelf: "flex-end", marginVertical: 5 }}
-                      onPress={() => setIsEditing(false)}
-                    >
-                      <Text
-                        style={{
-                          color: themeStyle.colors.grayscale.mediumGray,
-                        }}
-                      >
-                        Cancel
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                ) : null}
-              </View>
+                  ) : null}
+                </View>
+              </TouchableWithoutFeedback>
             </View>
           </TouchableWithoutFeedback>
         </Modal>
@@ -273,7 +287,7 @@ const PostCommentCard = ({
             </TouchableOpacity>
           </View>
           <TouchableOpacity
-            style={{ alignSelf: "center", marginHorizontal: 5 }}
+            style={{ alignSelf: "center", marginRight: 20 }}
             onPress={() => setShowOptions(!showOptions)}
           >
             <Entypo name="dots-three-vertical" size={16} color="black" />
