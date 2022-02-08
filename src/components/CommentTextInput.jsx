@@ -16,6 +16,7 @@ const CommentTextInput = forwardRef(
       setReplyingTo,
       submitAction,
       replyingTo,
+      hasBorderRadius,
       initialCommentBody = "",
       isFullWidth = true,
     },
@@ -52,7 +53,12 @@ const CommentTextInput = forwardRef(
             </TouchableOpacity>
           </View>
         ) : null}
-        <View style={styles.inputBoxContainer}>
+        <View
+          style={[
+            styles.inputBoxContainer,
+            hasBorderRadius && { borderRadius: 5 },
+          ]}
+        >
           <ScrollView>
             <TextInput
               maxLength={2000}
@@ -60,7 +66,9 @@ const CommentTextInput = forwardRef(
               multiline
               style={[
                 styles.inputBox,
-                { height: Math.max(48, height) },
+                {
+                  height: Math.max(48, height),
+                },
                 isFullWidth && { flex: 1 },
               ]}
               placeholder={
