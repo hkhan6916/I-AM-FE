@@ -15,7 +15,7 @@ import SettingsScreen from "./SubScreens/SettingsScreen";
 import PrivacyPolicyScreen from "./SubScreens/PrivacyPolicyScreen";
 import TermsOfUseScreen from "./SubScreens/TermsOfUseScreen";
 import AdScreen from "./SubScreens/AdTest";
-import VideoTestScreen from "./SubScreens/VideoTestScreen";
+import Test from "./SubScreens/Test";
 
 const Stack = createNativeStackNavigator();
 
@@ -193,8 +193,8 @@ const MainStack = () => (
           fontWeight: "bold",
         },
       }}
-      name="VideoTestScreen"
-      component={VideoTestScreen}
+      name="Test"
+      component={Test}
     />
   </Stack.Navigator>
 );

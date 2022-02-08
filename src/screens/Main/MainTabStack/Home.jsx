@@ -14,10 +14,8 @@ import {
   StatusBar,
   FlatList,
   ActivityIndicator,
-  Button,
   ScrollView,
 } from "react-native";
-import ImageWithCache from "../../../components/ImageWithCache";
 import { Feather } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
@@ -29,7 +27,6 @@ import PostCard from "../../../components/PostCard";
 import apiCall from "../../../helpers/apiCall";
 import Logo from "../../../Logo";
 import { useScrollToTop } from "@react-navigation/native";
-import VideoPlayer from "react-native-video-controls";
 
 const { statusBarHeight } = Constants;
 
@@ -105,8 +102,8 @@ const HomeScreen = () => {
   };
   const viewabilityConfig = {
     waitForInteraction: true,
-    viewAreaCoveragePercentThreshold: 50,
-    minimumViewTime: 1500,
+    viewAreaCoveragePercentThreshold: 100,
+    minimumViewTime: 1000,
   };
 
   const viewabilityConfigCallbackPairs = useRef([
@@ -130,10 +127,6 @@ const HomeScreen = () => {
       <StatusBar
         backgroundColor={themeStyle.colors.grayscale.black}
         barStyle="light-content"
-      />
-      <Button
-        title="test"
-        onPress={() => navigation.navigate("VideoTestScreen")}
       />
       <View
         style={{
@@ -179,6 +172,7 @@ const HomeScreen = () => {
           </Text>
         ) : null}
         <HomeHeading />
+        {console.log(visibleItems)}
         <FlatList
           ref={flatlistRef}
           viewabilityConfigCallbackPairs={

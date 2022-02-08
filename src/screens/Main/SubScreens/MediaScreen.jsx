@@ -78,7 +78,6 @@ const MediaScreen = (props) => {
         ) : post?.mediaType === "image" ? (
           <View
             style={{
-              height: "100%",
               alignItems: "center",
               justifyContent: "center",
             }}
@@ -89,7 +88,6 @@ const MediaScreen = (props) => {
               resizeMode="cover"
               mediaHeaders={post.mediaHeaders}
               mediaUrl={post.mediaUrl}
-              aspectRatio={1 / 1}
               removeBorderRadius
             />
           </View>

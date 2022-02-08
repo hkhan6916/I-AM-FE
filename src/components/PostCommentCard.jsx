@@ -31,6 +31,7 @@ const PostCommentCard = ({
   const [showOptions, setShowOptions] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [updated, setUpdated] = useState(false);
+  const [error, setError] = useState("");
 
   const { width: screenWidth } = Dimensions.get("window");
 
@@ -92,6 +93,8 @@ const PostCommentCard = ({
       const newComment = { ...comment, body };
       setComment(newComment);
       setUpdated(true);
+    } else {
+      setError("An error occurred.");
     }
   };
 
@@ -125,6 +128,145 @@ const PostCommentCard = ({
     });
   };
 
+  const OptionsModal = () => (
+    <Modal visible={showOptions} transparent>
+      <TouchableWithoutFeedback
+        onPress={() => {
+          setShowOptions(false);
+          setIsEditing(false);
+        }}
+      >
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            flex: 1,
+            padding: 20,
+          }}
+        >
+          <TouchableWithoutFeedback>
+            <View
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                width: "100%",
+                backgroundColor: themeStyle.colors.grayscale.white,
+                borderWidth: 1,
+                borderColor: themeStyle.colors.grayscale.superLightGray,
+                borderRadius: 10,
+                padding: 5,
+              }}
+            >
+              <View style={{ alignSelf: "flex-end" }}>
+                <TouchableOpacity onPress={() => setShowOptions(false)}>
+                  <AntDesign
+                    name="close"
+                    size={24}
+                    color={themeStyle.colors.grayscale.black}
+                  />
+                </TouchableOpacity>
+              </View>
+              {!comment.belongsToUser ? (
+                <View style={{ marginVertical: 10 }}>
+                  <TouchableOpacity onPress={() => setIsEditing(true)}>
+                    <Text
+                      style={{
+                        color: themeStyle.colors.secondary.default,
+                        marginHorizontal: 10,
+                        textAlign: "center",
+                      }}
+                    >
+                      Report Comment
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : null}
+              {comment.belongsToUser && !isEditing ? (
+                <View>
+                  <View style={{ marginVertical: 10 }}>
+                    <TouchableOpacity onPress={() => setIsEditing(true)}>
+                      <Text
+                        style={{
+                          color: themeStyle.colors.secondary.default,
+                          marginHorizontal: 10,
+                          textAlign: "center",
+                        }}
+                      >
+                        Edit
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={{ marginVertical: 10 }}>
+                    <TouchableOpacity onPress={() => deleteComment()}>
+                      <Text
+                        style={{
+                          color: themeStyle.colors.error.default,
+                          marginHorizontal: 10,
+                          textAlign: "center",
+                        }}
+                      >
+                        Delete
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ) : isEditing ? (
+                <View
+                  style={{
+                    marginVertical: 40,
+                    height: 200,
+                    width: screenWidth / 1.2,
+                    justifyContent: "center",
+                  }}
+                >
+                  {updated ? (
+                    <Text
+                      style={{
+                        alignSelf: "flex-end",
+                        fontSize: 12,
+                        color: themeStyle.colors.grayscale.mediumGray,
+                      }}
+                    >
+                      Comment updated
+                    </Text>
+                  ) : null}
+                  {error ? (
+                    <Text
+                      style={{
+                        alignSelf: "flex-end",
+                        fontSize: 12,
+                        color: themeStyle.colors.grayscale.mediumGray,
+                      }}
+                    >
+                      {error}
+                    </Text>
+                  ) : null}
+                  <CommentTextInput
+                    submitAction={updateComment}
+                    isFullWidth={false}
+                    initialCommentBody={comment.body}
+                  />
+                  <TouchableOpacity
+                    style={{ alignSelf: "flex-end", marginVertical: 5 }}
+                    onPress={() => setIsEditing(false)}
+                  >
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.mediumGray,
+                      }}
+                    >
+                      Cancel
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : null}
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
+  );
+
   useEffect(() => {
     if (newReply) {
       setReplies([...replies, newReply]);
@@ -134,131 +276,7 @@ const PostCommentCard = ({
   if (!deleted) {
     return (
       <View style={styles.container}>
-        <Modal visible={showOptions} transparent>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              setShowOptions(false);
-              setIsEditing(false);
-            }}
-          >
-            <View
-              style={{
-                alignItems: "center",
-                justifyContent: "center",
-                flex: 1,
-                padding: 20,
-              }}
-            >
-              <TouchableWithoutFeedback>
-                <View
-                  style={{
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: "100%",
-                    backgroundColor: themeStyle.colors.grayscale.white,
-                    borderWidth: 1,
-                    borderColor: themeStyle.colors.grayscale.superLightGray,
-                    borderRadius: 10,
-                    padding: 5,
-                  }}
-                >
-                  <View style={{ alignSelf: "flex-end" }}>
-                    <TouchableOpacity onPress={() => setShowOptions(false)}>
-                      <AntDesign
-                        name="close"
-                        size={24}
-                        color={themeStyle.colors.grayscale.black}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                  {!comment.belongsToUser ? (
-                    <View style={{ marginVertical: 10 }}>
-                      <TouchableOpacity onPress={() => setIsEditing(true)}>
-                        <Text
-                          style={{
-                            color: themeStyle.colors.secondary.default,
-                            marginHorizontal: 10,
-                            textAlign: "center",
-                          }}
-                        >
-                          Report Comment
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : null}
-                  {comment.belongsToUser && !isEditing ? (
-                    <View>
-                      <View style={{ marginVertical: 10 }}>
-                        <TouchableOpacity onPress={() => setIsEditing(true)}>
-                          <Text
-                            style={{
-                              color: themeStyle.colors.secondary.default,
-                              marginHorizontal: 10,
-                              textAlign: "center",
-                            }}
-                          >
-                            Edit
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                      <View style={{ marginVertical: 10 }}>
-                        <TouchableOpacity onPress={() => deleteComment()}>
-                          <Text
-                            style={{
-                              color: themeStyle.colors.error.default,
-                              marginHorizontal: 10,
-                              textAlign: "center",
-                            }}
-                          >
-                            Delete
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  ) : isEditing ? (
-                    <View
-                      style={{
-                        marginVertical: 40,
-                        height: 200,
-                        width: screenWidth / 1.2,
-                        justifyContent: "center",
-                      }}
-                    >
-                      {updated ? (
-                        <Text
-                          style={{
-                            alignSelf: "flex-end",
-                            fontSize: 12,
-                            color: themeStyle.colors.grayscale.mediumGray,
-                          }}
-                        >
-                          Comment updated
-                        </Text>
-                      ) : null}
-                      <CommentTextInput
-                        submitAction={updateComment}
-                        isFullWidth={false}
-                        initialCommentBody={comment.body}
-                      />
-                      <TouchableOpacity
-                        style={{ alignSelf: "flex-end", marginVertical: 5 }}
-                        onPress={() => setIsEditing(false)}
-                      >
-                        <Text
-                          style={{
-                            color: themeStyle.colors.grayscale.mediumGray,
-                          }}
-                        >
-                          Cancel
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : null}
-                </View>
-              </TouchableWithoutFeedback>
-            </View>
-          </TouchableWithoutFeedback>
-        </Modal>
+        <OptionsModal />
         <View
           style={{
             flexDirection: "row",

@@ -29,7 +29,6 @@ const VideoPlayer = ({
   showToggle,
   isLocalMedia,
 }) => {
-  console.log({ shouldPlay });
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
   const [showControls, setShowControls] = useState(false);
@@ -136,7 +135,7 @@ const VideoPlayer = ({
         }
       };
     }
-  }, [autoHideControls]);
+  }, [autoHideControls, shouldPlay]);
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View>
@@ -379,6 +378,6 @@ const styles = StyleSheet.create({
 export default React.memo(
   VideoPlayer,
   (prevProps, nextProps) =>
-    prevProps.url === nextProps.url ||
+    prevProps.url === nextProps.url &&
     prevProps.shouldPlay === nextProps.shouldPlay
 );

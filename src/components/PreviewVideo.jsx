@@ -1,14 +1,17 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { View, Text, TouchableOpacity, Dimensions } from "react-native";
 import { Video } from "expo-av";
 import themeStyle from "../theme.style";
 import { LinearGradient } from "expo-linear-gradient";
+import { useNavigation } from "@react-navigation/native";
 
 const PreviewVideo = ({ uri, headers, isFullWidth, previewText }) => {
   const { width: screenWidth } = Dimensions.get("window");
   const [videoStatus, setVideoStatus] = useState({});
+  const [ready, setReady] = useState(false);
 
   const profileVideoRef = useRef(null);
+  const navigation = useNavigation();
 
   const handleVideoDuration = (duration) => {
     if (!duration) {
@@ -24,6 +27,19 @@ const PreviewVideo = ({ uri, headers, isFullWidth, previewText }) => {
 
     return `${hours > 0 ? `${hours}:` : ""}${minutes}:${seconds}`;
   };
+  useEffect(() => {
+    let isMounted = true;
+    if (isMounted) {
+      const unsubscribe = navigation.addListener("blur", async () => {
+        if (profileVideoRef) {
+          await profileVideoRef.current?.pauseAsync();
+        }
+      });
+      isMounted = false;
+      return unsubscribe;
+    }
+  }, [navigation]);
+
   return (
     <View>
       <LinearGradient
@@ -39,11 +55,13 @@ const PreviewVideo = ({ uri, headers, isFullWidth, previewText }) => {
           style={{
             alignSelf: "center",
           }}
-          onPress={() =>
-            videoStatus.isPlaying
-              ? profileVideoRef.current.pauseAsync()
-              : profileVideoRef.current.playAsync()
-          }
+          onPress={() => {
+            if (profileVideoRef) {
+              videoStatus.isPlaying
+                ? profileVideoRef.current.pauseAsync()
+                : profileVideoRef.current.playAsync();
+            }
+          }}
         >
           <Video
             style={{
@@ -54,6 +72,7 @@ const PreviewVideo = ({ uri, headers, isFullWidth, previewText }) => {
               borderColor: themeStyle.colors.primary.default,
               borderRadius: isFullWidth ? 0 : 10,
             }}
+            onReadyForDisplay={() => setReady(true)}
             onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
             ref={profileVideoRef}
             source={{
@@ -77,18 +96,20 @@ const PreviewVideo = ({ uri, headers, isFullWidth, previewText }) => {
                 opacity: 0.5,
               }}
             >
-              <Text
-                style={{
-                  flex: 1,
-                  position: "absolute",
-                  fontSize: 20,
-                  textAlign: "center",
-                  width: screenWidth,
-                  color: themeStyle.colors.grayscale.white,
-                }}
-              >
-                {previewText || "Tap to preview"}
-              </Text>
+              {ready ? (
+                <Text
+                  style={{
+                    flex: 1,
+                    position: "absolute",
+                    fontSize: 20,
+                    textAlign: "center",
+                    width: screenWidth,
+                    color: themeStyle.colors.grayscale.white,
+                  }}
+                >
+                  {previewText || "Tap to preview"}
+                </Text>
+              ) : null}
             </View>
           ) : null}
           {videoStatus?.durationMillis && videoStatus?.positionMillis ? (

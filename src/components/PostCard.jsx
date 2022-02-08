@@ -1,11 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
   MaterialCommunityIcons,
@@ -25,7 +19,6 @@ const PostCard = ({
   hideActions = false,
   isPreview = false,
   isVisible,
-  loadingMore,
 }) => {
   const [post, setPost] = useState(initialPost);
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
@@ -36,7 +29,6 @@ const PostCard = ({
   const onTextLayout = (e) => {
     setIsCollapsible(e.nativeEvent.lines.length >= 3);
   };
-  console.log(isVisible);
   const handleReaction = async () => {
     if (post.liked) {
       const newPost = { ...post, liked: false };
@@ -347,12 +339,6 @@ const PostCard = ({
           <PostAge />
         </View>
       )}
-      {loadingMore ? (
-        <ActivityIndicator
-          size="large"
-          color={themeStyle.colors.grayscale.lightGray}
-        />
-      ) : null}
     </View>
   );
 };
