@@ -6,88 +6,118 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import themeStyle from "../theme.style";
 
-const CommentTextInput = forwardRef((props, ref) => {
-  const [commentBody, setCommentBody] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const undoReply = () => {
-    props.setReplyingTo(null);
-    setCommentBody("");
-  };
-  const handleSubmit = async () => {
-    setLoading(true);
-    const success = await props.submitAction(commentBody);
-    setLoading(false);
-    if (success) {
-      props.setReplyingTo(null);
+const CommentTextInput = forwardRef(
+  (
+    {
+      setReplyingTo,
+      submitAction,
+      replyingTo,
+      initialCommentBody = "",
+      isFullWidth = true,
+    },
+    ref
+  ) => {
+    const [commentBody, setCommentBody] = useState(initialCommentBody);
+    const [loading, setLoading] = useState(false);
+    const [height, setHeight] = useState(1);
+    const undoReply = () => {
+      setReplyingTo(null);
       setCommentBody("");
-    }
-  };
-  const replyingToFieldsExists =
-    props.replyingTo && props.replyingTo.firstName && props.replyingTo.lastName;
-  return (
-    <View>
-      {replyingToFieldsExists ? (
-        <View style={styles.replyingToBanner}>
-          <Text style={styles.replyingToBannerText}>
-            Replying to {props.replyingTo.firstName} {props.replyingTo.lastName}
-          </Text>
-          <TouchableOpacity onPress={() => undoReply()}>
-            <Text>Undo</Text>
-          </TouchableOpacity>
-        </View>
-      ) : null}
-      <View style={styles.inputBoxContainer}>
-        <TextInput
-          ref={ref}
-          style={styles.inputBox}
-          placeholder={
-            replyingToFieldsExists
-              ? "Type a reply here..."
-              : "Type a comment here..."
-          }
-          value={commentBody}
-          onChangeText={(v) => setCommentBody(v)}
-          returnKeyType="go"
-        />
-        {!loading ? (
-          <TouchableOpacity
-            disabled={!commentBody}
-            onPress={() => handleSubmit()}
-          >
-            <Text
-              style={[styles.postTrigger, !commentBody && { opacity: 0.5 }]}
-            >
-              Post
+    };
+    const handleSubmit = async () => {
+      setLoading(true);
+      const success = await submitAction(commentBody);
+      setLoading(false);
+      if (success) {
+        setReplyingTo(null);
+        setCommentBody("");
+        setHeight(0);
+      }
+    };
+    const replyingToFieldsExists =
+      replyingTo && replyingTo.firstName && replyingTo.lastName;
+    return (
+      <View>
+        {replyingToFieldsExists ? (
+          <View style={styles.replyingToBanner}>
+            <Text style={styles.replyingToBannerText}>
+              Replying to {replyingTo.firstName} {replyingTo.lastName}
             </Text>
-          </TouchableOpacity>
-        ) : (
-          <ActivityIndicator
-            animating
-            size="small"
-            color={themeStyle.colors.secondary.default}
-          />
-        )}
+            <TouchableOpacity onPress={() => undoReply()}>
+              <Text>Undo</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+        <View style={styles.inputBoxContainer}>
+          <ScrollView>
+            <TextInput
+              maxLength={2000}
+              ref={ref}
+              multiline
+              style={[
+                styles.inputBox,
+                { height: Math.max(48, height) },
+                isFullWidth && { flex: 1 },
+              ]}
+              placeholder={
+                replyingToFieldsExists
+                  ? "Type a reply here..."
+                  : "Type a comment here..."
+              }
+              returnKeyType="go"
+              value={commentBody}
+              onChangeText={(v) => setCommentBody(v)}
+              onContentSizeChange={(event) => {
+                setHeight(
+                  event.nativeEvent.contentSize.height < 150
+                    ? event.nativeEvent.contentSize.height
+                    : 150
+                );
+              }}
+            />
+          </ScrollView>
+          <View
+            style={{ alignSelf: "flex-end", marginVertical: 16, marginLeft: 5 }}
+          >
+            {!loading ? (
+              <TouchableOpacity
+                disabled={!commentBody}
+                onPress={() => handleSubmit()}
+              >
+                <Text
+                  style={[styles.postTrigger, !commentBody && { opacity: 0.5 }]}
+                >
+                  Post
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <ActivityIndicator
+                animating
+                size="small"
+                color={themeStyle.colors.secondary.default}
+              />
+            )}
+          </View>
+        </View>
       </View>
-    </View>
-  );
-});
+    );
+  }
+);
 
 CommentTextInput.displayName = "CommentTextInput";
 const styles = StyleSheet.create({
   inputBox: {
-    height: 48,
-    flex: 1,
+    paddingVertical: 10,
   },
   inputBoxContainer: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    width: "100%",
     paddingHorizontal: 10,
     borderWidth: 0.5,
     borderColor: themeStyle.colors.grayscale.lightGray,

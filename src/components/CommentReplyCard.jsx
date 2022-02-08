@@ -123,25 +123,26 @@ const CommentReplyCard = ({ reply: initialReply, handleReplyToReply }) => {
                 Reply
               </Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => handleReaction()}
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                marginHorizontal: 5,
-              }}
-            >
-              <MaterialCommunityIcons
-                name={reply.liked ? "thumb-up" : "thumb-up-outline"}
-                size={20}
-                color={
-                  reply.liked
-                    ? themeStyle.colors.secondary.default
-                    : themeStyle.colors.grayscale.mediumGray
-                }
-              />
-            </TouchableOpacity>
+            {!reply.belongsToUser ? (
+              <TouchableOpacity
+                onPress={() => handleReaction()}
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginHorizontal: 5,
+                }}
+              >
+                <MaterialCommunityIcons
+                  name={reply.liked ? "thumb-up" : "thumb-up-outline"}
+                  size={20}
+                  color={
+                    reply.liked
+                      ? themeStyle.colors.secondary.default
+                      : themeStyle.colors.grayscale.mediumGray
+                  }
+                />
+              </TouchableOpacity>
+            ) : null}
 
             {reply.likes > 0 ? (
               <Text

@@ -17,7 +17,11 @@ const ProfileInfo = ({
 }) => {
   return (
     <View>
-      <PreviewVideo uri={user.profileVideoUrl} isFullWidth />
+      <PreviewVideo
+        uri={user.profileVideoUrl}
+        isFullWidth
+        previewText={"Tap to play"}
+      />
       <View style={{ padding: 5 }}>
         <View
           style={{

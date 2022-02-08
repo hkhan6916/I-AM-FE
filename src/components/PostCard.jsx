@@ -158,6 +158,7 @@ const PostCard = ({
           <TouchableOpacity
             onPress={() => navigation.navigate("MediaScreen", { post })}
             underlayColor={themeStyle.colors.grayscale.mediumGray}
+            delayPressIn={150}
           >
             <View>
               {post.mediaType === "video" ? (
@@ -167,7 +168,6 @@ const PostCard = ({
                     flexDirection: "column",
                   }}
                 >
-                  {console.log({ isVisible })}
                   <VideoPlayer
                     shouldPlay={isVisible}
                     mediaOrientation={post.mediaOrientation}

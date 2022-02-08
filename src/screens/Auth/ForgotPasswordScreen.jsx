@@ -7,10 +7,10 @@ import {
   StyleSheet,
   ActivityIndicator,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import Input from "../../components/Input";
 import apiCall from "../../helpers/apiCall";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import themeStyle from "../../theme.style";
 import validateEmail from "../../helpers/validateEmail";
 

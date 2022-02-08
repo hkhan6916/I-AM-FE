@@ -45,7 +45,6 @@ const CommentsScreen = (props) => {
         }
       );
       if (success) {
-        console.log(message);
         response.age = { minutes: 1 };
         setNewReply({
           replyingToObj:
@@ -151,7 +150,7 @@ const CommentsScreen = (props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
+      <ScrollView // change to FLATLIST
         scrollEventThrottle={0}
         contentContainerStyle={styles.commentsContainer}
         onScroll={({ nativeEvent }) => {
