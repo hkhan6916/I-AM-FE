@@ -1,10 +1,19 @@
-import React, { useEffect, useState, useRef } from "react";
-import { View, StyleSheet, ScrollView, SafeAreaView } from "react-native";
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  FlatList,
+  RefreshControl,
+  ActivityIndicator,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import PostCommentCard from "../../../components/PostCommentCard";
 import apiCall from "../../../helpers/apiCall";
 import CommentTextInput from "../../../components/CommentTextInput";
 import ContentLoader from "../../../components/ContentLoader";
+import themeStyle from "../../../theme.style";
 
 const CommentsScreen = (props) => {
   const { postId } = props.route.params;
@@ -14,17 +23,25 @@ const CommentsScreen = (props) => {
   const [allCommentsLoaded, setAllCommentsLoaded] = useState(false);
   const [newReply, setNewReply] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [allPostsLoaded, setAllPostsLoaded] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const navigation = useNavigation();
   const textInputRef = useRef();
 
-  const getComments = async () => {
+  const getComments = async (refresh = false) => {
     if (!allCommentsLoaded) {
+      setLoadingMore(true);
       const { response, success } = await apiCall(
         "GET",
         `/posts/comments/${postId}/${comments.length}`
       );
+      setLoadingMore(false);
       if (success) {
+        if (refresh) {
+          setComments(response);
+        }
         if (!response.length) {
           setAllCommentsLoaded(true);
         } else {
@@ -36,7 +53,7 @@ const CommentsScreen = (props) => {
 
   const postComment = async (commentBody) => {
     if (replyingTo && replyingTo.commentId) {
-      const { response, success, message } = await apiCall(
+      const { response, success } = await apiCall(
         "POST",
         "/posts/comments/replies/add",
         {
@@ -44,6 +61,7 @@ const CommentsScreen = (props) => {
           body: commentBody,
         }
       );
+      console.log({ response });
       if (success) {
         response.age = { minutes: 1 };
         setNewReply({
@@ -98,17 +116,11 @@ const CommentsScreen = (props) => {
     }
   };
 
-  const isCloseToBottom = ({
-    layoutMeasurement,
-    contentOffset,
-    contentSize,
-  }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await getComments(true);
+    setRefreshing(false);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -150,28 +162,33 @@ const CommentsScreen = (props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView // change to FLATLIST
-        scrollEventThrottle={0}
-        contentContainerStyle={styles.commentsContainer}
-        onScroll={({ nativeEvent }) => {
-          if (isCloseToBottom(nativeEvent)) {
-            getComments();
-          }
-        }}
-      >
-        {comments.length
-          ? comments.map((comment, i) => (
-              <PostCommentCard
-                newReply={
-                  newReply?.parentCommentId === comment._id ? newReply : null
-                }
-                replyToUser={replyToUser}
-                key={comment._id || `comment-${i}`}
-                comment={comment}
-              />
-            ))
-          : null}
-      </ScrollView>
+      <FlatList
+        data={comments}
+        renderItem={({ item, i }) => (
+          <PostCommentCard
+            newReply={newReply?.parentCommentId === item._id ? newReply : null}
+            replyToUser={replyToUser}
+            key={item._id || `comment-${i}`}
+            comment={item}
+          />
+        )}
+        keyExtractor={(item, index) => `${item._id}-${index}`}
+        refreshControl={
+          <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+        }
+        contentContainerStyle={{ flexGrow: 1 }}
+        onEndReached={() => getComments()}
+        onEndReachedThreshold={0.5}
+        initialNumToRender={10}
+        maxToRenderPerBatch={5}
+        ListFooterComponent={() => (
+          <ActivityIndicator
+            size={"large"}
+            animating={loadingMore}
+            color={themeStyle.colors.grayscale.lightGray}
+          />
+        )}
+      />
       <View>
         <CommentTextInput
           ref={textInputRef}

@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Text,
   View,
@@ -8,6 +8,9 @@ import {
   Modal,
   TouchableWithoutFeedback,
   Dimensions,
+  FlatList,
+  RefreshControl,
+  ActivityIndicator,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import themeStyle from "../theme.style";
@@ -15,7 +18,7 @@ import Avatar from "./Avatar";
 import apiCall from "../helpers/apiCall";
 import CommentReplyCard from "./CommentReplyCard";
 import formatAge from "../helpers/formatAge";
-import { Entypo, AntDesign } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 import CommentTextInput from "./CommentTextInput";
 
 const PostCommentCard = ({
@@ -32,6 +35,9 @@ const PostCommentCard = ({
   const [isEditing, setIsEditing] = useState(false);
   const [updated, setUpdated] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [allPostsLoaded, setAllPostsLoaded] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const { width: screenWidth } = Dimensions.get("window");
 
@@ -61,14 +67,19 @@ const PostCommentCard = ({
     }
   };
 
-  const getCommentReplies = async () => {
+  const getCommentReplies = async (refresh = false) => {
     setShowReplies(true);
-
+    setLoading(true);
     const { response, success } = await apiCall(
       "GET",
       `/posts/comments/replies/${comment._id}/${replies.length}`
     );
+    setLoading(false);
     if (success) {
+      if (refresh) {
+        setReplies([response]);
+        return;
+      }
       setReplies([...replies, ...response]);
     }
   };
@@ -90,7 +101,7 @@ const PostCommentCard = ({
       body, // todo set comment as edited in backend
     });
     if (success) {
-      const newComment = { ...comment, body };
+      const newComment = { ...comment, body, edited: true };
       setComment(newComment);
       setUpdated(true);
     } else {
@@ -128,6 +139,12 @@ const PostCommentCard = ({
     });
   };
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await getCommentReplies(true);
+    setRefreshing(false);
+  }, []);
+
   useEffect(() => {
     if (newReply) {
       setReplies([...replies, newReply]);
@@ -137,249 +154,294 @@ const PostCommentCard = ({
   if (!deleted) {
     return (
       <View style={styles.container}>
-        <Modal visible={showOptions} transparent>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              setShowOptions(false);
-              setIsEditing(false);
-            }}
-          >
-            <View
-              style={{
-                alignItems: "center",
-                justifyContent: "flex-end",
-                flex: 1,
-                backgroundColor: "rgba(0,0,0,0.5)",
-              }}
-            >
-              <TouchableWithoutFeedback>
-                <View
-                  style={{
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: "100%",
-                    backgroundColor: themeStyle.colors.grayscale.white,
-                    borderWidth: 1,
-                    borderColor: themeStyle.colors.grayscale.lightGray,
-                    padding: 5,
+        <FlatList
+          data={replies}
+          renderItem={({ item }) => (
+            <CommentReplyCard
+              handleReplyToReply={handleReplyToReply}
+              key={item._id}
+              reply={item}
+            />
+          )}
+          keyExtractor={(item, index) => `${item._id}-${index}`}
+          refreshControl={
+            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+          }
+          ListHeaderComponent={() => (
+            <View>
+              <Modal visible={showOptions} transparent>
+                <TouchableWithoutFeedback
+                  onPress={() => {
+                    setShowOptions(false);
+                    setIsEditing(false);
                   }}
                 >
-                  {!comment.belongsToUser ? (
-                    <View style={{ marginVertical: 10 }}>
-                      <TouchableOpacity onPress={() => setIsEditing(true)}>
-                        <Text
-                          style={{
-                            color: themeStyle.colors.secondary.default,
-                            marginHorizontal: 10,
-                            textAlign: "center",
-                          }}
-                        >
-                          Report Comment
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : null}
-                  {comment.belongsToUser && !isEditing ? (
-                    <View>
-                      <View style={{ marginVertical: 10 }}>
-                        <TouchableOpacity onPress={() => setIsEditing(true)}>
-                          <Text
-                            style={{
-                              color: themeStyle.colors.secondary.default,
-                              marginHorizontal: 10,
-                              textAlign: "center",
-                            }}
-                          >
-                            Edit
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                      <View style={{ marginVertical: 10 }}>
-                        <TouchableOpacity onPress={() => deleteComment()}>
-                          <Text
-                            style={{
-                              color: themeStyle.colors.error.default,
-                              marginHorizontal: 10,
-                              textAlign: "center",
-                            }}
-                          >
-                            Delete
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  ) : isEditing ? (
-                    <View
-                      style={{
-                        marginVertical: 40,
-                        height: 200,
-                        width: screenWidth / 1.2,
-                        justifyContent: "center",
-                      }}
-                    >
-                      {updated ? (
-                        <Text
-                          style={{
-                            alignSelf: "flex-end",
-                            fontSize: 12,
-                            color: themeStyle.colors.grayscale.mediumGray,
-                          }}
-                        >
-                          Comment updated
-                        </Text>
-                      ) : null}
-                      {error ? (
-                        <Text
-                          style={{
-                            alignSelf: "flex-end",
-                            fontSize: 12,
-                            color: themeStyle.colors.grayscale.mediumGray,
-                          }}
-                        >
-                          {error}
-                        </Text>
-                      ) : null}
-                      <CommentTextInput
-                        submitAction={updateComment}
-                        isFullWidth={false}
-                        initialCommentBody={comment.body}
-                        hasBorderRadius
-                      />
-                      <TouchableOpacity
-                        style={{ alignSelf: "flex-end", marginVertical: 5 }}
-                        onPress={() => setIsEditing(false)}
+                  <View
+                    style={{
+                      alignItems: "center",
+                      justifyContent: "flex-end",
+                      flex: 1,
+                      backgroundColor: "rgba(0,0,0,0.5)",
+                    }}
+                  >
+                    <TouchableWithoutFeedback>
+                      <View
+                        style={{
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: "100%",
+                          backgroundColor: themeStyle.colors.grayscale.white,
+                          borderWidth: 1,
+                          borderColor: themeStyle.colors.grayscale.lightGray,
+                          padding: 5,
+                        }}
                       >
-                        <Text
-                          style={{
-                            color: themeStyle.colors.grayscale.mediumGray,
-                          }}
-                        >
-                          Cancel
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : null}
-                </View>
-              </TouchableWithoutFeedback>
-            </View>
-          </TouchableWithoutFeedback>
-        </Modal>
-        <View
-          style={{
-            flexDirection: "row",
-          }}
-        >
-          <View style={styles.headerContainer}>
-            <Avatar
-              hasBorder
-              userId={comment.userId}
-              navigation={navigation}
-              avatarUrl={comment.commentAuthor.profileGifUrl}
-              profileGifHeaders={comment.commentAuthor.profileGifHeaders}
-              size={40}
-            />
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("UserProfileScreen", {
-                  userId: comment.userId,
-                })
-              }
-            >
-              <Text style={styles.commentAuthorName} numberOfLines={1}>
-                {comment.commentAuthor?.firstName}{" "}
-                {comment.commentAuthor?.lastName}
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <TouchableOpacity
-            style={{ alignSelf: "center", marginRight: 20 }}
-            onPress={() => setShowOptions(!showOptions)}
-          >
-            <Entypo name="dots-three-vertical" size={16} color="black" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.commentBodyContainer}>
-          <Text>{comment.body}</Text>
-        </View>
-        <View style={styles.actionsContainer}>
-          <View style={styles.actions}>
-            <TouchableOpacity
-              onPress={() => handleReplyToComment()}
-              style={styles.replyTrigger}
-            >
-              <Text
+                        {!comment.belongsToUser ? (
+                          <View style={{ marginVertical: 10 }}>
+                            <TouchableOpacity
+                              onPress={() => setIsEditing(true)}
+                            >
+                              <Text
+                                style={{
+                                  color: themeStyle.colors.secondary.default,
+                                  marginHorizontal: 10,
+                                  textAlign: "center",
+                                }}
+                              >
+                                Report Comment
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                        ) : null}
+                        {comment.belongsToUser && !isEditing ? (
+                          <View>
+                            <View style={{ marginVertical: 10 }}>
+                              <TouchableOpacity
+                                onPress={() => setIsEditing(true)}
+                              >
+                                <Text
+                                  style={{
+                                    color: themeStyle.colors.secondary.default,
+                                    marginHorizontal: 10,
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  Edit
+                                </Text>
+                              </TouchableOpacity>
+                            </View>
+                            <View style={{ marginVertical: 10 }}>
+                              <TouchableOpacity onPress={() => deleteComment()}>
+                                <Text
+                                  style={{
+                                    color: themeStyle.colors.error.default,
+                                    marginHorizontal: 10,
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  Delete
+                                </Text>
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                        ) : isEditing ? (
+                          <View
+                            style={{
+                              marginVertical: 40,
+                              height: 200,
+                              width: screenWidth / 1.2,
+                              justifyContent: "center",
+                            }}
+                          >
+                            {updated ? (
+                              <Text
+                                style={{
+                                  alignSelf: "flex-end",
+                                  fontSize: 12,
+                                  color: themeStyle.colors.grayscale.mediumGray,
+                                }}
+                              >
+                                Reply updated
+                              </Text>
+                            ) : null}
+                            {error ? (
+                              <Text
+                                style={{
+                                  alignSelf: "flex-end",
+                                  fontSize: 12,
+                                  color: themeStyle.colors.grayscale.mediumGray,
+                                }}
+                              >
+                                {error}
+                              </Text>
+                            ) : null}
+                            <CommentTextInput
+                              submitAction={updateComment}
+                              isFullWidth={false}
+                              initialCommentBody={comment.body}
+                              hasBorderRadius
+                            />
+                            <TouchableOpacity
+                              style={{
+                                alignSelf: "flex-end",
+                                marginVertical: 5,
+                              }}
+                              onPress={() => setIsEditing(false)}
+                            >
+                              <Text
+                                style={{
+                                  color: themeStyle.colors.grayscale.mediumGray,
+                                }}
+                              >
+                                Cancel
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                        ) : null}
+                      </View>
+                    </TouchableWithoutFeedback>
+                  </View>
+                </TouchableWithoutFeedback>
+              </Modal>
+              <View
                 style={{
-                  color: themeStyle.colors.grayscale.mediumGray,
-                  fontWeight: "700",
+                  flexDirection: "row",
                 }}
               >
-                Reply
-              </Text>
-            </TouchableOpacity>
-            <View style={{ flexDirection: "row" }}>
-              {!comment.belongsToUser ? (
-                <TouchableOpacity
-                  onPress={() => handleReaction()}
-                  style={{
-                    justifyContent: "center",
-                    alignItems: "center",
-                    marginHorizontal: 5,
-                  }}
-                >
-                  <MaterialCommunityIcons
-                    name={comment.liked ? "thumb-up" : "thumb-up-outline"}
-                    size={20}
-                    color={
-                      comment.liked
-                        ? themeStyle.colors.secondary.default
-                        : themeStyle.colors.grayscale.mediumGray
-                    }
+                <View style={styles.headerContainer}>
+                  <Avatar
+                    hasBorder
+                    userId={comment.userId}
+                    navigation={navigation}
+                    avatarUrl={comment.commentAuthor.profileGifUrl}
+                    profileGifHeaders={comment.commentAuthor.profileGifHeaders}
+                    size={40}
                   />
-                </TouchableOpacity>
-              ) : null}
-              {comment.likes > 0 ? (
-                <Text
-                  style={{
-                    color: themeStyle.colors.grayscale.black,
-                    marginHorizontal: 10,
-                  }}
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate("UserProfileScreen", {
+                        userId: comment.userId,
+                      })
+                    }
+                  >
+                    <Text style={styles.commentAuthorName} numberOfLines={1}>
+                      {comment.commentAuthor?.firstName}{" "}
+                      {comment.commentAuthor?.lastName}
+                    </Text>
+                  </TouchableOpacity>
+                  {comment.edited ? (
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        marginHorizontal: 10,
+                        color: themeStyle.colors.grayscale.lightGray,
+                      }}
+                    >
+                      (edited)
+                    </Text>
+                  ) : null}
+                </View>
+                <TouchableOpacity
+                  style={{ alignSelf: "center", marginRight: 20 }}
+                  onPress={() => setShowOptions(!showOptions)}
                 >
-                  {comment.likes} {comment.likes > 1 ? "likes" : "like"}
-                </Text>
+                  <Entypo name="dots-three-vertical" size={16} color="black" />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.commentBodyContainer}>
+                <Text>{comment.body}</Text>
+              </View>
+              <View style={styles.actionsContainer}>
+                <View style={styles.actions}>
+                  <TouchableOpacity
+                    onPress={() => handleReplyToComment()}
+                    style={styles.replyTrigger}
+                  >
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.mediumGray,
+                        fontWeight: "700",
+                      }}
+                    >
+                      Reply
+                    </Text>
+                  </TouchableOpacity>
+                  <View style={{ flexDirection: "row" }}>
+                    {!comment.belongsToUser ? (
+                      <TouchableOpacity
+                        onPress={() => handleReaction()}
+                        style={{
+                          justifyContent: "center",
+                          alignItems: "center",
+                          marginHorizontal: 5,
+                        }}
+                      >
+                        <MaterialCommunityIcons
+                          name={comment.liked ? "thumb-up" : "thumb-up-outline"}
+                          size={20}
+                          color={
+                            comment.liked
+                              ? themeStyle.colors.secondary.default
+                              : themeStyle.colors.grayscale.mediumGray
+                          }
+                        />
+                      </TouchableOpacity>
+                    ) : null}
+                    {comment.likes > 0 ? (
+                      <Text
+                        style={{
+                          color: themeStyle.colors.grayscale.black,
+                          marginHorizontal: 10,
+                        }}
+                      >
+                        {comment.likes} {comment.likes > 1 ? "likes" : "like"}
+                      </Text>
+                    ) : null}
+                  </View>
+                </View>
+                <CommentAge />
+              </View>
+              {comment.replyCount && !replies.length ? (
+                <View style={{ flex: 1, alignItems: "center", padding: 10 }}>
+                  <TouchableOpacity onPress={() => getCommentReplies()}>
+                    <Text
+                      style={{ color: themeStyle.colors.grayscale.darkGray }}
+                    >
+                      View {comment.replyCount}{" "}
+                      {comment.replyCount > 1 ? "replies" : "reply"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : null}
+              {replies.length ? (
+                <View style={{ flex: 1, alignItems: "center", padding: 10 }}>
+                  <TouchableOpacity
+                    onPress={() => setShowReplies(!showReplies)}
+                  >
+                    <Text
+                      style={{ color: themeStyle.colors.grayscale.darkGray }}
+                    >
+                      {showReplies ? "Hide replies" : "Show replies"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               ) : null}
             </View>
-          </View>
-          <CommentAge />
-        </View>
-        {comment.replyCount && !replies.length ? (
-          <View style={{ flex: 1, alignItems: "center", padding: 10 }}>
-            <TouchableOpacity onPress={() => getCommentReplies()}>
-              <Text style={{ color: themeStyle.colors.grayscale.darkGray }}>
-                View {comment.replyCount}{" "}
-                {comment.replyCount > 1 ? "replies" : "reply"}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
-        {replies.length ? (
-          <View style={{ flex: 1, alignItems: "center", padding: 10 }}>
-            <TouchableOpacity onPress={() => setShowReplies(!showReplies)}>
-              <Text style={{ color: themeStyle.colors.grayscale.darkGray }}>
-                {showReplies ? "Hide replies" : "Show replies"}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
-        {showReplies && replies.length
-          ? replies.map((reply) => (
-              <CommentReplyCard
-                handleReplyToReply={handleReplyToReply}
-                key={reply._id}
-                reply={reply}
-              />
-            ))
-          : null}
-
+          )}
+          ListFooterComponent={() => (
+            <ActivityIndicator
+              size="large"
+              animating={loading}
+              color={themeStyle.colors.grayscale.lightGray}
+            />
+          )}
+          contentContainerStyle={{ flexGrow: 1 }}
+          onEndReached={() => getCommentReplies()}
+          onEndReachedThreshold={0.5}
+          initialNumToRender={10}
+          maxToRenderPerBatch={5}
+          // windowSize={5}
+        />
         {replies.length &&
         comment.replyCount > replies.length &&
         showReplies ? (
@@ -391,16 +453,6 @@ const PostCommentCard = ({
             </TouchableOpacity>
           </View>
         ) : null}
-        {/* <View
-          style={{
-            flex: 1,
-            justifyContent: "space-between",
-            flexDirection: "row",
-            marginTop: 20,
-          }}
-        >
-
-        </View> */}
       </View>
     );
   }

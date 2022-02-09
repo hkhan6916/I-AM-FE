@@ -172,7 +172,6 @@ const HomeScreen = () => {
           </Text>
         ) : null}
         <HomeHeading />
-        {console.log(visibleItems)}
         <FlatList
           ref={flatlistRef}
           viewabilityConfigCallbackPairs={
