@@ -65,14 +65,10 @@ const CommentReplyCard = ({ reply: initialReply, handleReplyToReply }) => {
   };
 
   const updateReply = async (body) => {
-    const { success, message, response } = await apiCall(
-      "POST",
-      "/posts/comments/update",
-      {
-        commentId: reply._id,
-        body,
-      }
-    );
+    const { success } = await apiCall("POST", "/posts/comments/update", {
+      commentId: reply._id,
+      body,
+    });
     if (success) {
       const newComment = { ...reply, body, edited: true };
       setReply(newComment);

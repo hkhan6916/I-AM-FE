@@ -24,7 +24,6 @@ const CommentsScreen = (props) => {
   const [newReply, setNewReply] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const navigation = useNavigation();
@@ -32,7 +31,7 @@ const CommentsScreen = (props) => {
 
   const getComments = async (refresh = false) => {
     if (!allCommentsLoaded) {
-      setLoadingMore(true);
+      setLoadingMore(!refresh);
       const { response, success } = await apiCall(
         "GET",
         `/posts/comments/${postId}/${comments.length}`
@@ -40,6 +39,7 @@ const CommentsScreen = (props) => {
       setLoadingMore(false);
       if (success) {
         if (refresh) {
+          setAllCommentsLoaded(false);
           setComments(response);
         }
         if (!response.length) {
@@ -182,11 +182,15 @@ const CommentsScreen = (props) => {
         initialNumToRender={10}
         maxToRenderPerBatch={5}
         ListFooterComponent={() => (
-          <ActivityIndicator
-            size={"large"}
-            animating={loadingMore}
-            color={themeStyle.colors.grayscale.lightGray}
-          />
+          <View>
+            {loadingMore ? (
+              <ActivityIndicator
+                size={"large"}
+                animating={true}
+                color={themeStyle.colors.grayscale.lightGray}
+              />
+            ) : null}
+          </View>
         )}
       />
       <View>

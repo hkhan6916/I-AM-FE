@@ -178,7 +178,6 @@ const VideoPlayer = ({
                   }}
                   source={{
                     uri: url,
-                    // headers: mediaHeaders,
                   }}
                   useNativeControls={false}
                   resizeMode="contain"
@@ -240,7 +239,6 @@ const VideoPlayer = ({
                 }}
                 source={{
                   uri: url,
-                  // headers: mediaHeaders,
                 }}
                 useNativeControls={false}
                 resizeMode="cover"

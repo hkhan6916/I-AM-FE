@@ -15,6 +15,7 @@ import {
   FlatList,
   ActivityIndicator,
   ScrollView,
+  Button,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -166,6 +167,7 @@ const HomeScreen = () => {
   if (feed.length) {
     return (
       <View style={styles.container}>
+        <Button title="test" onPress={() => navigation.navigate("Test")} />
         {newPostCreated.state ? (
           <Text style={styles.newPostPill}>
             Post {newPostCreated.state.type}

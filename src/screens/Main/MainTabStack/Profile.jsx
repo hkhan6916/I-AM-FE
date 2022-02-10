@@ -7,6 +7,7 @@ import {
   View,
   ActivityIndicator,
   FlatList,
+  TouchableOpacity,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import apiCall from "../../../helpers/apiCall";
@@ -14,6 +15,7 @@ import PostCard from "../../../components/PostCard";
 import themeStyle from "../../../theme.style";
 import ProfileScreenHeader from "../../../components/ProfileScreenHeader";
 import { useScrollToTop } from "@react-navigation/native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -102,6 +104,22 @@ const ProfileScreen = () => {
   }, []);
   return (
     <SafeAreaView style={styles.container}>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          paddingVertical: 10,
+          paddingHorizontal: 15,
+          borderBottomWidth: 1,
+        }}
+      >
+        <Text style={{ fontSize: 20 }} numberOfLines={1}>
+          {userData.username}
+        </Text>
+        <TouchableOpacity onPress={() => navigation.navigate("SettingsScreen")}>
+          <MaterialCommunityIcons name="cog-outline" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
       {userData ? (
         <FlatList
           ref={flatlistRef}

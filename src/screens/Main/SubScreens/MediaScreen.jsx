@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   SafeAreaView,
+  Dimensions,
 } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
 import {
@@ -15,17 +16,25 @@ import {
   Ionicons,
 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import VideoPlayer from "../../../components/VideoPlayer";
+import VideoPlayer from "expo-video-player";
+import { Video } from "expo-av";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import ImageWithCache from "../../../components/ImageWithCache";
-
+import ExpoVideoPlayer from "../../../components/ExpoVideoPlayer";
+import Constants from "expo-constants";
 const MediaScreen = (props) => {
   const [showActions, setShowActions] = useState(false);
   const { post } = props.route.params;
   const [liked, setLked] = useState(post.liked);
   const [likes, setLikes] = useState(post.likes);
   const navigation = useNavigation();
+
+  const { width, height } = Dimensions.get("window");
+  const videoHeightOffset = 12;
+
+  const playerHeight = (width < height ? width : height) - videoHeightOffset;
+  const playerWidth = width > height ? width : height;
 
   const handleReaction = async () => {
     if (liked) {
@@ -67,13 +76,17 @@ const MediaScreen = (props) => {
     <SafeAreaView style={styles.container}>
       <View>
         {post?.mediaType === "video" ? (
-          <VideoPlayer
-            url={post.mediaUrl}
-            mediaHeaders={post.mediaHeaders}
+          // <VideoPlayer
+          //   url={post.mediaUrl}
+          //   mediaHeaders={post.mediaHeaders}
+          //   mediaOrientation={post.mediaOrientation}
+          //   mediaIsSelfie={post.mediaIsSelfie}
+          //   isFullScreen
+          //   setShowActions={setShowActions}
+          // />
+          <ExpoVideoPlayer
+            uri={post.mediaUrl}
             mediaOrientation={post.mediaOrientation}
-            mediaIsSelfie={post.mediaIsSelfie}
-            isFullScreen
-            setShowActions={setShowActions}
           />
         ) : post?.mediaType === "image" ? (
           <View
@@ -106,7 +119,7 @@ const MediaScreen = (props) => {
               flexDirection: "row",
               alignItems: "center",
               justifyContent: "center",
-              opacity: showActions ? 1 : 0.5,
+              opacity: showActions || !post.mediaType === "video" ? 1 : 0.5,
             }}
           >
             <Ionicons
@@ -115,7 +128,10 @@ const MediaScreen = (props) => {
               color={themeStyle.colors.grayscale.white}
             />
             <Text
-              style={{ color: themeStyle.colors.grayscale.white, fontSize: 16 }}
+              style={{
+                color: themeStyle.colors.grayscale.white,
+                fontSize: 16,
+              }}
             >
               Back
             </Text>
