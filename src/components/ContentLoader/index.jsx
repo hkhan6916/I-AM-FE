@@ -13,6 +13,7 @@ const ContentLoader = ({
   showAvatar,
   isProfileVideo,
   isInput,
+  isSquare,
   pHeight,
   pWidth,
   pRows,
@@ -79,7 +80,7 @@ const ContentLoader = ({
     marginRight: reverse ? 0 : 10,
     marginLeft: reverse ? 10 : 0,
   };
-  const profileVideoInitialStyles = {
+  const fullWidthStyles = {
     height: "100%",
     width: "100%",
   };
@@ -102,11 +103,19 @@ const ContentLoader = ({
     );
   }
 
+  if (isSquare) {
+    return (
+      <Animated.View
+        style={[fullWidthStyles, { backgroundColor: interpolatedBackground }]}
+      />
+    );
+  }
+
   if (isProfileVideo) {
     return (
       <Animated.View
         style={[
-          profileVideoInitialStyles,
+          fullWidthStyles,
           avatarStyles,
           { backgroundColor: interpolatedBackground },
         ]}

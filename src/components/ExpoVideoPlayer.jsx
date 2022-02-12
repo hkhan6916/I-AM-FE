@@ -1,27 +1,20 @@
-import * as ScreenOrientation from "expo-screen-orientation";
-import {
-  Dimensions,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Dimensions, StatusBar, StyleSheet, View } from "react-native";
 import { Video } from "expo-av";
-import { setStatusBarHidden } from "expo-status-bar";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import VideoPlayer from "expo-video-player";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
 
 const App = ({ uri }) => {
-  const [inFullscreen, setInFullsreen] = useState(false);
-  const [inFullscreen2, setInFullsreen2] = useState(false);
-  const refVideo = useRef(null);
-  const refVideo2 = useRef(null);
-  const refScrollView = useRef(null);
+  const videoRef = useRef(null);
   const ScreenOrientation = useScreenOrientation(true);
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
-  console.log(ScreenOrientation);
+  //   useEffect(() => {
+  //     (async () => {
+  //       if (videoRef) {
+  //         videoRef?.current?.setRateAsync(0, true);
+  //       }
+  //     })();
+  //   }, [videoRef]);
   return (
     <View>
       <StatusBar hidden />
@@ -33,7 +26,7 @@ const App = ({ uri }) => {
           source: {
             uri: uri,
           },
-          ref: refVideo2,
+          ref: videoRef,
         }}
         fullscreen={true}
         style={{

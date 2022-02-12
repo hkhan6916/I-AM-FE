@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   View,
   StyleSheet,
-  ScrollView,
   SafeAreaView,
   FlatList,
   RefreshControl,

@@ -69,12 +69,7 @@ const PostCard = ({
   return (
     <View style={[styles.container, isPreview && styles.preview]}>
       {post.postAuthor && (
-        <View
-          style={[
-            styles.postAuthorContainer,
-            !isPreview && { borderTopWidth: 0.5 },
-          ]}
-        >
+        <View style={[styles.postAuthorContainer]}>
           <Avatar
             navigation={navigation}
             userId={post.postAuthor._id}
@@ -349,6 +344,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 0,
     borderColor: themeStyle.colors.grayscale.lightGray,
     marginBottom: 10,
+    backgroundColor: themeStyle.colors.grayscale.white,
   },
   postAge: {
     color: themeStyle.colors.grayscale.mediumGray,

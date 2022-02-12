@@ -167,7 +167,6 @@ const HomeScreen = () => {
   if (feed.length) {
     return (
       <View style={styles.container}>
-        <Button title="test" onPress={() => navigation.navigate("Test")} />
         {newPostCreated.state ? (
           <Text style={styles.newPostPill}>
             Post {newPostCreated.state.type}
