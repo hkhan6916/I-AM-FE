@@ -1,4 +1,4 @@
-import { Dimensions, StatusBar, StyleSheet, View } from "react-native";
+import { Dimensions, StatusBar, View } from "react-native";
 import { Video } from "expo-av";
 import React, { useEffect, useRef } from "react";
 import VideoPlayer from "expo-video-player";
@@ -18,7 +18,6 @@ const App = ({ uri }) => {
   return (
     <View>
       <StatusBar hidden />
-
       <VideoPlayer
         videoProps={{
           shouldPlay: true,
@@ -30,22 +29,12 @@ const App = ({ uri }) => {
         }}
         fullscreen={true}
         style={{
-          width: ScreenOrientation === "PORTRAIT" ? screenWidth : screenWidth,
-          height:
-            ScreenOrientation === "PORTRAIT" ? screenHeight : screenHeight,
+          width: screenWidth,
+          height: screenHeight,
         }}
       />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#FFF",
-    flex: 1,
-  },
-  contentContainer: {},
-  text: {},
-});
 
 export default App;

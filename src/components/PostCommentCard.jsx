@@ -19,7 +19,7 @@ import apiCall from "../helpers/apiCall";
 import CommentReplyCard from "./CommentReplyCard";
 import formatAge from "../helpers/formatAge";
 import { Entypo } from "@expo/vector-icons";
-import CommentTextInput from "./CommentTextInput";
+import CommentOptionsModal from "./CommentOptionsModal";
 
 const PostCommentCard = ({
   comment: initialComment,
@@ -34,12 +34,19 @@ const PostCommentCard = ({
   const [showOptions, setShowOptions] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [updated, setUpdated] = useState(false);
+  const [reported, setReported] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-
+  const [showReportOptions, setShowReportOptions] = useState(false);
   const { width: screenWidth } = Dimensions.get("window");
+
+  const reportOptions = [
+    "It's spam",
+    "It does not belong on Magnet",
+    "It's inappropriate",
+  ];
 
   const handleReaction = async () => {
     if (comment.liked) {
@@ -68,20 +75,28 @@ const PostCommentCard = ({
   };
 
   const getCommentReplies = async (refresh = false) => {
-    setShowReplies(true);
-    setLoading(true);
-    const { response, success } = await apiCall(
-      "GET",
-      `/posts/comments/replies/${comment._id}/${replies.length}`
-    );
-    setLoading(false);
-    if (success) {
-      if (refresh) {
-        setReplies([response]);
-        return;
+    let isCancelled = false;
+    if (!isCancelled) {
+      setShowReplies(true);
+      setLoading(true);
+      const { response, success } = await apiCall(
+        "GET",
+        `/posts/comments/replies/${comment._id}/${replies.length}`
+      );
+      setLoading(false);
+      if (success) {
+        if (refresh) {
+          setReplies([response]);
+          return;
+        }
+        setReplies([...replies, ...response]);
       }
-      setReplies([...replies, ...response]);
     }
+    return {
+      cancel() {
+        isCancelled = true;
+      },
+    };
   };
 
   const deleteComment = async () => {
@@ -95,15 +110,27 @@ const PostCommentCard = ({
     }
   };
 
-  const updateComment = async (body) => {
-    const { success } = await apiCall("POST", "/posts/comments/update", {
+  // const updateComment = async (body) => {
+  //   const { success } = await apiCall("POST", "/posts/comments/update", {
+  //     commentId: comment._id,
+  //     body,
+  //   });
+  //   if (success) {
+  //     const newComment = { ...comment, body, edited: true };
+  //     setComment(newComment);
+  //     setUpdated(true);
+  //   } else {
+  //     setError("An error occurred.");
+  //   }
+  // };
+
+  const reportComment = async (reasonIndex) => {
+    const { success } = await apiCall("POST", "/posts/comment/report", {
       commentId: comment._id,
-      body, // todo set comment as edited in backend
+      reason: reasonIndex,
     });
     if (success) {
-      const newComment = { ...comment, body, edited: true };
-      setComment(newComment);
-      setUpdated(true);
+      setReported(true);
     } else {
       setError("An error occurred.");
     }
@@ -145,10 +172,28 @@ const PostCommentCard = ({
     setRefreshing(false);
   }, []);
 
+  const updateComment = async (body) => {
+    setLoading(true);
+    const { success } = await apiCall("POST", "/posts/comments/update", {
+      commentId: comment._id,
+      body,
+    });
+    setLoading(false);
+    if (success) {
+      setShowOptions(false);
+      const newComment = { ...comment, body: body, edited: true };
+      setComment(newComment);
+      setUpdated(true);
+    } else {
+      setError("An error occurred.");
+    }
+  };
+
   useEffect(() => {
     if (newReply) {
       setReplies([...replies, newReply]);
     }
+    return async () => (await getCommentReplies()).cancel();
   }, [newReply]);
 
   if (!deleted) {
@@ -156,153 +201,23 @@ const PostCommentCard = ({
       <View style={styles.container}>
         <FlatList
           data={replies}
-          renderItem={({ item }) => (
-            <CommentReplyCard
-              handleReplyToReply={handleReplyToReply}
-              key={item._id}
-              reply={item}
-            />
-          )}
+          renderItem={({ item }) => {
+            if (showReplies) {
+              return (
+                <CommentReplyCard
+                  handleReplyToReply={handleReplyToReply}
+                  key={item._id}
+                  reply={item}
+                />
+              );
+            }
+          }}
           keyExtractor={(item, index) => `${item._id}-${index}`}
           refreshControl={
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }
           ListHeaderComponent={() => (
             <View>
-              <Modal visible={showOptions} transparent>
-                <TouchableWithoutFeedback
-                  onPress={() => {
-                    setShowOptions(false);
-                    setIsEditing(false);
-                  }}
-                >
-                  <View
-                    style={{
-                      alignItems: "center",
-                      justifyContent: "flex-end",
-                      flex: 1,
-                      backgroundColor: "rgba(0,0,0,0.5)",
-                    }}
-                  >
-                    <TouchableWithoutFeedback>
-                      <View
-                        style={{
-                          alignItems: "center",
-                          justifyContent: "center",
-                          width: "100%",
-                          backgroundColor: themeStyle.colors.grayscale.white,
-                          borderWidth: 1,
-                          borderColor: themeStyle.colors.grayscale.lightGray,
-                          padding: 5,
-                        }}
-                      >
-                        {!comment.belongsToUser ? (
-                          <View style={{ marginVertical: 10 }}>
-                            <TouchableOpacity
-                              onPress={() => setIsEditing(true)}
-                            >
-                              <Text
-                                style={{
-                                  color: themeStyle.colors.secondary.default,
-                                  marginHorizontal: 10,
-                                  textAlign: "center",
-                                }}
-                              >
-                                Report Comment
-                              </Text>
-                            </TouchableOpacity>
-                          </View>
-                        ) : null}
-                        {comment.belongsToUser && !isEditing ? (
-                          <View>
-                            <View style={{ marginVertical: 10 }}>
-                              <TouchableOpacity
-                                onPress={() => setIsEditing(true)}
-                              >
-                                <Text
-                                  style={{
-                                    color: themeStyle.colors.secondary.default,
-                                    marginHorizontal: 10,
-                                    textAlign: "center",
-                                  }}
-                                >
-                                  Edit
-                                </Text>
-                              </TouchableOpacity>
-                            </View>
-                            <View style={{ marginVertical: 10 }}>
-                              <TouchableOpacity onPress={() => deleteComment()}>
-                                <Text
-                                  style={{
-                                    color: themeStyle.colors.error.default,
-                                    marginHorizontal: 10,
-                                    textAlign: "center",
-                                  }}
-                                >
-                                  Delete
-                                </Text>
-                              </TouchableOpacity>
-                            </View>
-                          </View>
-                        ) : isEditing ? (
-                          <View
-                            style={{
-                              marginVertical: 40,
-                              height: 200,
-                              width: screenWidth / 1.2,
-                              justifyContent: "center",
-                            }}
-                          >
-                            {updated ? (
-                              <Text
-                                style={{
-                                  alignSelf: "flex-end",
-                                  fontSize: 12,
-                                  color: themeStyle.colors.grayscale.mediumGray,
-                                }}
-                              >
-                                Reply updated
-                              </Text>
-                            ) : null}
-                            {error ? (
-                              <Text
-                                style={{
-                                  alignSelf: "flex-end",
-                                  fontSize: 12,
-                                  color: themeStyle.colors.grayscale.mediumGray,
-                                }}
-                              >
-                                {error}
-                              </Text>
-                            ) : null}
-                            <CommentTextInput
-                              submitAction={updateComment}
-                              isFullWidth={false}
-                              initialCommentBody={comment.body}
-                              hasBorderRadius
-                            />
-                            <TouchableOpacity
-                              style={{
-                                alignSelf: "flex-end",
-                                marginVertical: 5,
-                              }}
-                              onPress={() => setIsEditing(false)}
-                            >
-                              <Text
-                                style={{
-                                  color: themeStyle.colors.grayscale.mediumGray,
-                                }}
-                              >
-                                Cancel
-                              </Text>
-                            </TouchableOpacity>
-                          </View>
-                        ) : null}
-                      </View>
-                    </TouchableWithoutFeedback>
-                  </View>
-                </TouchableWithoutFeedback>
-              </Modal>
               <View
                 style={{
                   flexDirection: "row",
@@ -342,7 +257,13 @@ const PostCommentCard = ({
                   ) : null}
                 </View>
                 <TouchableOpacity
-                  style={{ alignSelf: "center", marginRight: 20 }}
+                  style={{
+                    alignSelf: "center",
+                    width: 48,
+                    height: 48,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
                   onPress={() => setShowOptions(!showOptions)}
                 >
                   <Entypo name="dots-three-vertical" size={16} color="black" />
@@ -429,15 +350,24 @@ const PostCommentCard = ({
             </View>
           )}
           ListFooterComponent={() => (
-            <ActivityIndicator
-              size="large"
-              animating={loading}
-              color={themeStyle.colors.grayscale.lightGray}
-            />
+            <View>
+              <CommentOptionsModal
+                comment={comment}
+                updateComment={updateComment}
+                setDeleted={setDeleted}
+                showOptions={showOptions}
+                setShowOptions={setShowOptions}
+              />
+              {loading ? (
+                <ActivityIndicator
+                  size="large"
+                  animating={loading}
+                  color={themeStyle.colors.grayscale.lightGray}
+                />
+              ) : null}
+            </View>
           )}
           contentContainerStyle={{ flexGrow: 1 }}
-          onEndReached={() => getCommentReplies()}
-          onEndReachedThreshold={0.5}
           initialNumToRender={10}
           maxToRenderPerBatch={5}
           // windowSize={5}

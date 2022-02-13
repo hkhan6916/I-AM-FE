@@ -24,30 +24,41 @@ const CommentsScreen = (props) => {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [scrollStarted, setScrollStarted] = useState(false);
 
   const navigation = useNavigation();
   const textInputRef = useRef();
 
-  const getComments = async (refresh = false) => {
-    if (!allCommentsLoaded) {
-      setLoadingMore(!refresh);
-      const { response, success } = await apiCall(
-        "GET",
-        `/posts/comments/${postId}/${comments.length}`
-      );
-      setLoadingMore(false);
-      if (success) {
-        if (refresh) {
-          setAllCommentsLoaded(false);
-          setComments(response);
-        }
-        if (!response.length) {
-          setAllCommentsLoaded(true);
-        } else {
-          setComments([...comments, ...response]);
+  const getComments = async (refresh = false, onScroll = false) => {
+    if (onScroll && !scrollStarted) return;
+    let isCancelled = false;
+    if (!isCancelled) {
+      if (!allCommentsLoaded) {
+        setScrollStarted(false);
+        setLoadingMore(!refresh);
+        const { response, success } = await apiCall(
+          "GET",
+          `/posts/comments/${postId}/${comments.length}`
+        );
+        setLoadingMore(false);
+        if (success) {
+          if (refresh) {
+            setAllCommentsLoaded(false);
+            setComments(response);
+          }
+          if (!response.length) {
+            setAllCommentsLoaded(true);
+          } else {
+            setComments([...comments, ...response]);
+          }
         }
       }
     }
+    return {
+      cancel() {
+        isCancelled = true;
+      },
+    };
   };
 
   const postComment = async (commentBody) => {
@@ -60,7 +71,6 @@ const CommentsScreen = (props) => {
           body: commentBody,
         }
       );
-      console.log({ response });
       if (success) {
         response.age = { minutes: 1 };
         setNewReply({
@@ -140,8 +150,9 @@ const CommentsScreen = (props) => {
         }
       );
     });
-    return () => {
+    return async () => {
       isMounted = false;
+      (await getComments()).cancel();
     };
   }, [navigation]);
 
@@ -176,7 +187,8 @@ const CommentsScreen = (props) => {
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
         contentContainerStyle={{ flexGrow: 1 }}
-        onEndReached={() => getComments()}
+        onEndReached={() => getComments(false, true)}
+        onMomentumScrollBegin={() => setScrollStarted(true)}
         onEndReachedThreshold={0.5}
         initialNumToRender={10}
         maxToRenderPerBatch={5}

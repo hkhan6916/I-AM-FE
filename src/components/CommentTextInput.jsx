@@ -34,7 +34,9 @@ const CommentTextInput = forwardRef(
       const success = await submitAction(commentBody);
       setLoading(false);
       if (success) {
-        setReplyingTo(null);
+        if (setReplyingTo) {
+          setReplyingTo(null);
+        }
         setCommentBody("");
         setHeight(0);
       }
@@ -145,4 +147,4 @@ const styles = StyleSheet.create({
     color: themeStyle.colors.grayscale.white,
   },
 });
-export default CommentTextInput;
+export default React.memo(CommentTextInput);

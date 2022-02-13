@@ -6,7 +6,7 @@ import themeStyle from "../theme.style";
 import ImageWithCache from "./ImageWithCache";
 import { Feather } from "@expo/vector-icons";
 
-const { width: screenWidth } = Dimensions.get("window");
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const VideoPlayer = ({
   url,
   isFullScreen,
@@ -105,11 +105,11 @@ const VideoPlayer = ({
               isLooping={true}
               style={{
                 aspectRatio: aspectRatio || 1,
-                width: screenWidth,
+                width: Math.min(screenWidth, screenHeight), // math.min needed for when user switches back from landscape
               }}
-              source={{
-                uri: url,
-              }}
+              // source={{
+              //   uri: url,
+              // }}
               useNativeControls={false}
               resizeMode="cover"
               onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
