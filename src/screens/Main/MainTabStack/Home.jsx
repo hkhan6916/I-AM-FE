@@ -101,15 +101,15 @@ const HomeScreen = () => {
       }
     });
   };
-  const viewabilityConfig = {
-    waitForInteraction: true,
-    viewAreaCoveragePercentThreshold: 100,
-    minimumViewTime: 1000,
-  };
+  // const viewabilityConfig = {
+  //   waitForInteraction: true,
+  //   viewAreaCoveragePercentThreshold: 100,
+  //   minimumViewTime: 1000,
+  // };
 
-  const viewabilityConfigCallbackPairs = useRef([
-    { onViewableItemsChanged, viewabilityConfig },
-  ]);
+  // const viewabilityConfigCallbackPairs = useRef([
+  //   { onViewableItemsChanged, viewabilityConfig },
+  // ]);
 
   const onRefresh = useCallback(async () => {
     setAllPostsLoaded(false);
@@ -157,6 +157,17 @@ const HomeScreen = () => {
     </View>
   );
 
+  const renderItem = useCallback(
+    ({ item, index }) => (
+      <PostCard
+        loadingMore={loading && index === feed.length - 1}
+        isVisible={visibleItems.includes(item._id)}
+        post={item}
+      />
+    ),
+    []
+  );
+
   useEffect(() => {
     if (newPostCreated.state) {
       setTimeout(() => {
@@ -175,18 +186,12 @@ const HomeScreen = () => {
         <HomeHeading />
         <FlatList
           ref={flatlistRef}
-          viewabilityConfigCallbackPairs={
-            viewabilityConfigCallbackPairs.current
-          }
+          // viewabilityConfigCallbackPairs={
+          //   viewabilityConfigCallbackPairs.current
+          // }
           data={feed}
-          renderItem={({ item, index }) => (
-            <PostCard
-              loadingMore={loading && index === feed.length - 1}
-              isVisible={visibleItems.includes(item._id)}
-              post={item}
-            />
-          )}
-          keyExtractor={(item, index) => `${item._id}-${index}`}
+          renderItem={renderItem}
+          keyExtractor={(item) => `${item._id}`}
           refreshControl={
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }
@@ -215,7 +220,6 @@ const HomeScreen = () => {
           onEndReachedThreshold={0.5}
           initialNumToRender={10}
           maxToRenderPerBatch={5}
-          // windowSize={5}
         />
       </View>
     );

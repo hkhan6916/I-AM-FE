@@ -72,7 +72,6 @@ const PostCommentCard = ({
       }
     }
   };
-
   const getCommentReplies = async () => {
     let isCancelled = false;
     if (!isCancelled) {
@@ -130,7 +129,7 @@ const PostCommentCard = ({
       setError("An error occurred.");
     }
   };
-
+  console.log(comment._id);
   const CommentAge = () => {
     const { age } = comment;
     const ageObject = formatAge(age);
@@ -180,9 +179,7 @@ const PostCommentCard = ({
 
   useEffect(() => {
     if (newReply) {
-      console.log(comment);
       setComment({ ...comment, replyCount: comment.replyCount + 1 });
-      console.log(comment.replyCount);
       setReplies([...replies, newReply]);
     }
     return async () => (await getCommentReplies()).cancel();
@@ -204,7 +201,7 @@ const PostCommentCard = ({
               );
             }
           }}
-          keyExtractor={(item, index) => `${item._id}-${index}`}
+          keyExtractor={(item) => item._id}
           ListHeaderComponent={() => (
             <View>
               <View
@@ -359,7 +356,7 @@ const PostCommentCard = ({
           contentContainerStyle={{ flexGrow: 1 }}
           initialNumToRender={10}
           maxToRenderPerBatch={5}
-          // windowSize={5}
+          windowSize={5}
         />
         {replies.length &&
         comment.replyCount > replies.length &&
@@ -432,4 +429,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
-export default PostCommentCard;
+export default React.memo(PostCommentCard);

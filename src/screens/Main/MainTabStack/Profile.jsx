@@ -89,6 +89,13 @@ const ProfileScreen = () => {
     { onViewableItemsChanged, viewabilityConfig },
   ]);
 
+  const renderItem = useCallback(
+    ({ item }) => (
+      <PostCard isVisible={visibleItems.includes(item._id)} post={item} />
+    ),
+    []
+  );
+
   useEffect(() => {
     let isMounted = true;
     (async () => {
@@ -127,10 +134,8 @@ const ProfileScreen = () => {
             viewabilityConfigCallbackPairs.current
           }
           data={userPosts}
-          renderItem={({ item }) => (
-            <PostCard isVisible={visibleItems.includes(item._id)} post={item} />
-          )}
-          keyExtractor={(item, index) => `${item._id}-${index}`}
+          renderItem={renderItem}
+          keyExtractor={(item) => `${item._id}`}
           refreshControl={
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }

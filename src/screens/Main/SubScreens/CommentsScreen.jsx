@@ -88,8 +88,12 @@ const CommentsScreen = (props) => {
       body: commentBody,
     });
     if (success) {
-      response.age = { minutes: 1 };
-      const updatedComments = [response, ...comments];
+      const tweakedResponse = {
+        ...response,
+        _id: `${response._id}-new`,
+        age: { minutes: 1 },
+      };
+      const updatedComments = [tweakedResponse, ...comments];
 
       setComments(updatedComments);
     }
@@ -130,6 +134,20 @@ const CommentsScreen = (props) => {
     await getComments(true);
     setRefreshing(false);
   }, []);
+
+  const renderItem = useCallback(
+    ({ item }) => (
+      <PostCommentCard
+        newReply={newReply?.parentCommentId === item._id ? newReply : null}
+        replyToUser={replyToUser}
+        key={item._id}
+        comment={item}
+      />
+    ),
+    []
+  );
+
+  const keyExtractor = useCallback((item) => item._id, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -174,44 +192,36 @@ const CommentsScreen = (props) => {
     <SafeAreaView style={styles.container}>
       <FlatList
         data={comments}
-        renderItem={({ item, i }) => (
-          <PostCommentCard
-            newReply={newReply?.parentCommentId === item._id ? newReply : null}
-            replyToUser={replyToUser}
-            key={item._id || `comment-${i}`}
-            comment={item}
-          />
-        )}
-        keyExtractor={(item) => `${item._id}`}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
         refreshControl={
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
         contentContainerStyle={{ flexGrow: 1 }}
         onEndReached={() => getComments(false, true)}
-        onMomentumScrollBegin={() => setScrollStarted(true)}
+        onMomentumScrollBegin={() => !scrollStarted && setScrollStarted(true)}
         onEndReachedThreshold={0.5}
-        initialNumToRender={10}
-        maxToRenderPerBatch={2}
-        ListFooterComponent={() => (
-          <View>
-            {loadingMore ? (
-              <ActivityIndicator
-                size={"large"}
-                animating={true}
-                color={themeStyle.colors.grayscale.lightGray}
-              />
-            ) : null}
-          </View>
-        )}
+        initialNumToRender={1}
+        maxToRenderPerBatch={8}
+        windowSize={10}
+        // ListFooterComponent={() => (
+        //   <View>
+        //     {loadingMore ? (
+        //       <ActivityIndicator
+        //         size={"large"}
+        //         animating
+        //         color={themeStyle.colors.grayscale.lightGray}
+        //       />
+        //     ) : null}
+        //   </View>
+        // )}
       />
-      <View>
-        <CommentTextInput
-          ref={textInputRef}
-          submitAction={postComment}
-          replyingTo={replyingTo}
-          setReplyingTo={setReplyingTo}
-        />
-      </View>
+      <CommentTextInput
+        ref={textInputRef}
+        submitAction={postComment}
+        replyingTo={replyingTo}
+        setReplyingTo={setReplyingTo}
+      />
     </SafeAreaView>
   );
 };
@@ -225,4 +235,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CommentsScreen;
+export default React.memo(
+  CommentsScreen,
+  (prev, next) => prev.route.params === next.route.params
+);

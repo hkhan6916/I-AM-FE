@@ -63,9 +63,10 @@ const PostCard = ({
     );
   };
 
-  useEffect(() => {
-    setPost(initialPost);
-  }, [initialPost]);
+  // useEffect(() => {
+  //   setPost(initialPost);
+  // }, [initialPost]);
+
   return (
     <View style={[styles.container, isPreview && styles.preview]}>
       {post.postAuthor && (
