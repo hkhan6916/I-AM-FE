@@ -182,7 +182,7 @@ const CommentsScreen = (props) => {
             comment={item}
           />
         )}
-        keyExtractor={(item, index) => `${item._id}-${index}`}
+        keyExtractor={(item) => `${item._id}`}
         refreshControl={
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
@@ -191,7 +191,7 @@ const CommentsScreen = (props) => {
         onMomentumScrollBegin={() => setScrollStarted(true)}
         onEndReachedThreshold={0.5}
         initialNumToRender={10}
-        maxToRenderPerBatch={5}
+        maxToRenderPerBatch={2}
         ListFooterComponent={() => (
           <View>
             {loadingMore ? (

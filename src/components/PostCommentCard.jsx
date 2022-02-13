@@ -47,7 +47,6 @@ const PostCommentCard = ({
     "It does not belong on Magnet",
     "It's inappropriate",
   ];
-
   const handleReaction = async () => {
     if (comment.liked) {
       const newComment = { ...comment, liked: false };
@@ -74,7 +73,7 @@ const PostCommentCard = ({
     }
   };
 
-  const getCommentReplies = async (refresh = false) => {
+  const getCommentReplies = async () => {
     let isCancelled = false;
     if (!isCancelled) {
       setShowReplies(true);
@@ -85,10 +84,6 @@ const PostCommentCard = ({
       );
       setLoading(false);
       if (success) {
-        if (refresh) {
-          setReplies([response]);
-          return;
-        }
         setReplies([...replies, ...response]);
       }
     }
@@ -166,12 +161,6 @@ const PostCommentCard = ({
     });
   };
 
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await getCommentReplies(true);
-    setRefreshing(false);
-  }, []);
-
   const updateComment = async (body) => {
     setLoading(true);
     const { success } = await apiCall("POST", "/posts/comments/update", {
@@ -191,6 +180,9 @@ const PostCommentCard = ({
 
   useEffect(() => {
     if (newReply) {
+      console.log(comment);
+      setComment({ ...comment, replyCount: comment.replyCount + 1 });
+      console.log(comment.replyCount);
       setReplies([...replies, newReply]);
     }
     return async () => (await getCommentReplies()).cancel();
@@ -213,9 +205,6 @@ const PostCommentCard = ({
             }
           }}
           keyExtractor={(item, index) => `${item._id}-${index}`}
-          refreshControl={
-            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-          }
           ListHeaderComponent={() => (
             <View>
               <View
@@ -443,4 +432,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
-export default React.memo(PostCommentCard);
+export default PostCommentCard;
