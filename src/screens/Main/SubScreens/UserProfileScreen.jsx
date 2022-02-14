@@ -179,6 +179,27 @@ const UserProfileScreen = (props) => {
       setUserPosts(response);
     }
   }, []);
+
+  const renderItem = useCallback(
+    ({ item }) => (
+      <PostCard isVisible={visibleItems.includes(item._id)} post={item} />
+    ),
+    []
+  );
+
+  function renderHeader() {
+    return (
+      <ProfileInfo
+        user={user}
+        recallFriendRequest={recallFriendRequest}
+        acceptFriendRequest={acceptFriendRequest}
+        rejectFriendRequest={rejectFriendRequest}
+        sendFriendRequest={sendFriendRequest}
+        removeConnection={removeConnection}
+      />
+    );
+  }
+
   useEffect(() => {
     let isMounted = true;
     (async () => {
@@ -230,25 +251,12 @@ const UserProfileScreen = (props) => {
             viewabilityConfigCallbackPairs.current
           }
           data={userPosts}
-          renderItem={({ item }) => (
-            <PostCard isVisible={visibleItems.includes(item._id)} post={item} />
-          )}
+          renderItem={renderItem}
           keyExtractor={(item, index) => `${item._id}-${index}`}
           refreshControl={
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }
-          ListHeaderComponent={() => (
-            <View style={{ marginBottom: 10 }}>
-              <ProfileInfo
-                user={user}
-                recallFriendRequest={recallFriendRequest}
-                acceptFriendRequest={acceptFriendRequest}
-                rejectFriendRequest={rejectFriendRequest}
-                sendFriendRequest={sendFriendRequest}
-                removeConnection={removeConnection}
-              />
-            </View>
-          )}
+          ListHeaderComponent={renderHeader()}
           ListFooterComponent={() => (
             <ActivityIndicator
               size="large"

@@ -24,7 +24,7 @@ import CommentOptionsModal from "./CommentOptionsModal";
 const PostCommentCard = ({
   comment: initialComment,
   replyToUser,
-  newReply,
+  isNestedInList = true,
 }) => {
   const navigation = useNavigation();
   const [comment, setComment] = useState(initialComment);
@@ -72,26 +72,6 @@ const PostCommentCard = ({
       }
     }
   };
-  const getCommentReplies = async () => {
-    let isCancelled = false;
-    if (!isCancelled) {
-      setShowReplies(true);
-      setLoading(true);
-      const { response, success } = await apiCall(
-        "GET",
-        `/posts/comments/replies/${comment._id}/${replies.length}`
-      );
-      setLoading(false);
-      if (success) {
-        setReplies([...replies, ...response]);
-      }
-    }
-    return {
-      cancel() {
-        isCancelled = true;
-      },
-    };
-  };
 
   const deleteComment = async () => {
     const { success } = await apiCall(
@@ -118,17 +98,6 @@ const PostCommentCard = ({
   //   }
   // };
 
-  const reportComment = async (reasonIndex) => {
-    const { success } = await apiCall("POST", "/posts/comment/report", {
-      commentId: comment._id,
-      reason: reasonIndex,
-    });
-    if (success) {
-      setReported(true);
-    } else {
-      setError("An error occurred.");
-    }
-  };
   console.log(comment._id);
   const CommentAge = () => {
     const { age } = comment;
@@ -151,13 +120,6 @@ const PostCommentCard = ({
   };
 
   const handleReplyToComment = async () => {
-    setShowReplies(true);
-    // await replyToUser({
-    //   commentId: comment._id,
-    //   firstName: comment.commentAuthor?.firstName,
-    //   lastName: comment.commentAuthor?.lastName,
-    //   replyingToType: "comment",
-    // });
     navigation.navigate("CommentRepliesScreen", { comment: comment });
   };
 
@@ -177,14 +139,6 @@ const PostCommentCard = ({
       setError("An error occurred.");
     }
   };
-
-  useEffect(() => {
-    if (newReply) {
-      setComment({ ...comment, replyCount: comment.replyCount + 1 });
-      setReplies([...replies, newReply]);
-    }
-    return async () => (await getCommentReplies()).cancel();
-  }, [newReply]);
 
   if (!deleted) {
     return (
@@ -261,19 +215,21 @@ const PostCommentCard = ({
               </View>
               <View style={styles.actionsContainer}>
                 <View style={styles.actions}>
-                  <TouchableOpacity
-                    onPress={() => handleReplyToComment()}
-                    style={styles.replyTrigger}
-                  >
-                    <Text
-                      style={{
-                        color: themeStyle.colors.grayscale.mediumGray,
-                        fontWeight: "700",
-                      }}
+                  {isNestedInList ? (
+                    <TouchableOpacity
+                      onPress={() => handleReplyToComment()}
+                      style={styles.replyTrigger}
                     >
-                      Reply
-                    </Text>
-                  </TouchableOpacity>
+                      <Text
+                        style={{
+                          color: themeStyle.colors.grayscale.mediumGray,
+                          fontWeight: "700",
+                        }}
+                      >
+                        Reply
+                      </Text>
+                    </TouchableOpacity>
+                  ) : null}
                   <View style={{ flexDirection: "row" }}>
                     {!comment.belongsToUser ? (
                       <TouchableOpacity
@@ -309,27 +265,20 @@ const PostCommentCard = ({
                 </View>
                 <CommentAge />
               </View>
-              {comment.replyCount && !replies.length ? (
+              {comment.replyCount && isNestedInList ? (
                 <View style={{ flex: 1, alignItems: "center", padding: 10 }}>
-                  <TouchableOpacity onPress={() => getCommentReplies()}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate("CommentRepliesScreen", {
+                        comment: comment,
+                      })
+                    }
+                  >
                     <Text
                       style={{ color: themeStyle.colors.grayscale.darkGray }}
                     >
                       View {comment.replyCount}{" "}
                       {comment.replyCount > 1 ? "replies" : "reply"}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              ) : null}
-              {replies.length ? (
-                <View style={{ flex: 1, alignItems: "center", padding: 10 }}>
-                  <TouchableOpacity
-                    onPress={() => setShowReplies(!showReplies)}
-                  >
-                    <Text
-                      style={{ color: themeStyle.colors.grayscale.darkGray }}
-                    >
-                      {showReplies ? "Hide replies" : "Show replies"}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -359,17 +308,6 @@ const PostCommentCard = ({
           maxToRenderPerBatch={5}
           windowSize={5}
         />
-        {replies.length &&
-        comment.replyCount > replies.length &&
-        showReplies ? (
-          <View style={{ flex: 1, alignItems: "center", padding: 10 }}>
-            <TouchableOpacity onPress={() => getCommentReplies()}>
-              <Text style={{ color: themeStyle.colors.grayscale.darkGray }}>
-                Load more replies
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
       </View>
     );
   }

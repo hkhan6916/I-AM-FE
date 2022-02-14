@@ -5,7 +5,7 @@ import themeStyle from "../theme.style";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 
-const PreviewVideo = ({ uri, headers, isFullWidth, previewText }) => {
+const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
   const { width: screenWidth } = Dimensions.get("window");
   const [videoStatus, setVideoStatus] = useState({});
   const [ready, setReady] = useState(false);
@@ -27,6 +27,7 @@ const PreviewVideo = ({ uri, headers, isFullWidth, previewText }) => {
 
     return `${hours > 0 ? `${hours}:` : ""}${minutes}:${seconds}`;
   };
+
   useEffect(() => {
     let isMounted = true;
     if (isMounted) {
@@ -77,7 +78,6 @@ const PreviewVideo = ({ uri, headers, isFullWidth, previewText }) => {
             ref={profileVideoRef}
             source={{
               uri,
-              headers,
             }}
             isLooping
             resizeMode="cover"

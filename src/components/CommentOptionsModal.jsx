@@ -77,6 +77,7 @@ const CommentOptionsModal = ({
 
   const reportComment = async (reasonIndex) => {
     setLoading(true);
+    console.log(reasonIndex);
     const { success } = await apiCall("POST", "/posts/comment/report", {
       commentId: comment._id,
       reason: reasonIndex,
@@ -151,7 +152,7 @@ const CommentOptionsModal = ({
                   {reportOptions.map((option, i) => (
                     <TouchableOpacity
                       key={`report-option-${i}`}
-                      onPress={() => reportComment()}
+                      onPress={() => reportComment(i)}
                     >
                       <View
                         style={{

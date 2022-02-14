@@ -54,13 +54,6 @@ const CommentReplyCard = ({ reply: initialReply, handleReplyToReply }) => {
   if (!deleted) {
     return (
       <View style={styles.replyContainer}>
-        <CommentOptionsModal
-          comment={reply}
-          setComment={setReply}
-          setDeleted={setDeleted}
-          showOptions={showOptions}
-          setShowOptions={setShowOptions}
-        />
         <View
           style={{
             alignItems: "center",
@@ -192,6 +185,13 @@ const CommentReplyCard = ({ reply: initialReply, handleReplyToReply }) => {
             <CommentAge />
           </View>
         </View>
+        <CommentOptionsModal
+          comment={reply}
+          setComment={setReply}
+          setDeleted={setDeleted}
+          showOptions={showOptions}
+          setShowOptions={setShowOptions}
+        />
       </View>
     );
   }

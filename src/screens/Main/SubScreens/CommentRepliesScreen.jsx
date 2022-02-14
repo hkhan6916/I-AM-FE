@@ -18,18 +18,11 @@ import CommentReplyCard from "../../../components/CommentReplyCard";
 const CommentRepliesScreen = (props) => {
   const { comment } = props.route.params;
 
-  const [comments, setComments] = useState([]);
+  const [replies, setReplies] = useState([]);
   // just a set of reply IDs so we don't render newly fetched replys if they've just been added by the user
-  const [newCommentsIds, setNewCommentsIds] = useState([]);
-  const [replyingTo, setReplyingTo] = useState({
-    lastName: comment.lastName,
-    firstName: comment,
-    commentId: comment._id,
-    replyingToType: "comment",
-  });
-  const [allCommentsLoaded, setAllCommentsLoaded] = useState(false);
-  const [newReply, setNewReply] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [newRepliesIds, setNewRepliesIds] = useState([]);
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [allRepliessLoaded, setAllRepliesLoaded] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [scrollStarted, setScrollStarted] = useState(false);
@@ -40,24 +33,24 @@ const CommentRepliesScreen = (props) => {
   const getCommentReplies = async (refresh = false, onScroll = false) => {
     let isCancelled = false;
     if (!isCancelled) {
-      if (!allCommentsLoaded) {
+      if (!allRepliessLoaded) {
         setScrollStarted(false);
         setLoadingMore(!refresh);
         const { response, success } = await apiCall(
           "GET",
-          `/posts/comments/replies/${comment._id}/${comments.length}`
+          `/posts/comments/replies/${comment._id}/${replies.length}`
         );
         setLoadingMore(false);
         if (success) {
           if (refresh) {
-            setAllCommentsLoaded(false);
-            setComments(response);
+            setAllRepliesLoaded(false);
+            setReplies(response);
             return;
           }
           if (!response.length) {
-            setAllCommentsLoaded(true);
+            setAllRepliesLoaded(true);
           } else {
-            setComments([...comments, ...response]);
+            setReplies([...replies, ...response]);
           }
         }
       }
@@ -69,41 +62,17 @@ const CommentRepliesScreen = (props) => {
     };
   };
 
-  const handleReplyingTo = async ({
-    commentId,
-    firstName,
-    lastName,
-    replyingToType,
-  }) => {
-    if (firstName && lastName && comment._id && replyingToType) {
-      if (replyingToType === "reply") {
-        textInputRef.current.focus();
-        setReplyingTo({
-          lastName,
-          firstName,
-          commentId,
-          replyingToType,
-        });
-        return;
-      }
-
-      textInputRef.current.focus();
-      setReplyingTo({
-        lastName,
-        firstName,
-        commentId,
-        replyingToType,
-      });
-    }
-  };
+  // passed into reply cards. To be called when replying to a reply.
   const handleReplyToReply = async ({ commentId, firstName, lastName }) => {
-    await handleReplyingTo({
-      commentId,
-      firstName,
+    textInputRef.current.focus();
+    setReplyingTo({
       lastName,
+      firstName,
+      commentId,
       replyingToType: "reply",
     });
   };
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await getCommentReplies(true);
@@ -112,14 +81,14 @@ const CommentRepliesScreen = (props) => {
 
   const renderItem = useCallback(
     ({ item }) =>
-      // we don't want to render a duplicate of a newly added reply, so we check if it's newly add before render
-      newCommentsIds.indexOf(item._id) === -1 ? (
+      // we don't want to render a duplicate of a newly added reply, so we check if it's newly added before render. Below checks if reply is not in the list of new replies the user has just created or if it's a new comment just added then render.
+      newRepliesIds.indexOf(item._id) === -1 || item.new ? (
         <CommentReplyCard
           handleReplyToReply={handleReplyToReply}
           reply={item}
         />
       ) : null,
-    [newCommentsIds]
+    [newRepliesIds]
   );
 
   const postComment = async (commentBody) => {
@@ -133,21 +102,26 @@ const CommentRepliesScreen = (props) => {
     );
     if (success) {
       response.age = { minutes: 1 };
-      console.log({ newCommentsIds, thenewONe: response._id });
-      setNewCommentsIds([...newCommentsIds, response._id]);
+      console.log({ newRepliesIds, thenewONe: response._id });
+      setNewRepliesIds([...newRepliesIds, response._id]);
       const newReply = {
         ...response,
         replyingToObj:
           replyingTo?.replyingToType === "reply" ? replyingTo : null,
         belongsToUser: true,
-        _id: `${response._id}-new`,
+        _id: response._id,
+        new: true,
       };
-      setComments([newReply, ...comments]);
+      setReplies([newReply, ...replies]);
     }
     return success;
   };
 
-  const keyExtractor = useCallback((item) => item._id, []);
+  // even though renderitem never double renders newly created replies, the "Encountered two children with the same key" warning still shows so need to append "-new" to any new replies by checking the reply's "new" key so that the same key is never found
+  const keyExtractor = useCallback(
+    (item) => (item.new ? `${item._id}-new` : item._id),
+    []
+  );
 
   useEffect(() => {
     (async () => {
@@ -161,12 +135,19 @@ const CommentRepliesScreen = (props) => {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        data={comments}
+        data={replies}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         refreshControl={
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
+        ListHeaderComponent={() => (
+          <PostCommentCard
+            isNestedInList={false}
+            newReply={null}
+            comment={comment}
+          />
+        )}
         contentContainerStyle={{ flexGrow: 1 }}
         onEndReached={() => getCommentReplies(false, true)}
         onMomentumScrollBegin={() => !scrollStarted && setScrollStarted(true)}
@@ -200,7 +181,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  commentsContainer: {
+  repliesContainer: {
     flexGrow: 1,
   },
 });
