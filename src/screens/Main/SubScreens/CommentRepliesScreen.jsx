@@ -19,9 +19,11 @@ const CommentRepliesScreen = (props) => {
   const { comment } = props.route.params;
 
   const [comments, setComments] = useState([]);
+  // just a set of reply IDs so we don't render newly fetched replys if they've just been added by the user
+  const [newCommentsIds, setNewCommentsIds] = useState([]);
   const [replyingTo, setReplyingTo] = useState({
     lastName: comment.lastName,
-    firstName: comment.firstName,
+    firstName: comment,
     commentId: comment._id,
     replyingToType: "comment",
   });
@@ -36,7 +38,6 @@ const CommentRepliesScreen = (props) => {
   const textInputRef = useRef();
 
   const getCommentReplies = async (refresh = false, onScroll = false) => {
-    if (onScroll && !scrollStarted) return;
     let isCancelled = false;
     if (!isCancelled) {
       if (!allCommentsLoaded) {
@@ -51,6 +52,7 @@ const CommentRepliesScreen = (props) => {
           if (refresh) {
             setAllCommentsLoaded(false);
             setComments(response);
+            return;
           }
           if (!response.length) {
             setAllCommentsLoaded(true);
@@ -67,7 +69,7 @@ const CommentRepliesScreen = (props) => {
     };
   };
 
-  const replyToUser = async ({
+  const handleReplyingTo = async ({
     commentId,
     firstName,
     lastName,
@@ -95,7 +97,7 @@ const CommentRepliesScreen = (props) => {
     }
   };
   const handleReplyToReply = async ({ commentId, firstName, lastName }) => {
-    await replyToUser({
+    await handleReplyingTo({
       commentId,
       firstName,
       lastName,
@@ -109,10 +111,15 @@ const CommentRepliesScreen = (props) => {
   }, []);
 
   const renderItem = useCallback(
-    ({ item }) => (
-      <CommentReplyCard handleReplyToReply={handleReplyToReply} reply={item} />
-    ),
-    []
+    ({ item }) =>
+      // we don't want to render a duplicate of a newly added reply, so we check if it's newly add before render
+      newCommentsIds.indexOf(item._id) === -1 ? (
+        <CommentReplyCard
+          handleReplyToReply={handleReplyToReply}
+          reply={item}
+        />
+      ) : null,
+    [newCommentsIds]
   );
 
   const postComment = async (commentBody) => {
@@ -126,9 +133,14 @@ const CommentRepliesScreen = (props) => {
     );
     if (success) {
       response.age = { minutes: 1 };
+      console.log({ newCommentsIds, thenewONe: response._id });
+      setNewCommentsIds([...newCommentsIds, response._id]);
       const newReply = {
-        belongsToUser: true,
         ...response,
+        replyingToObj:
+          replyingTo?.replyingToType === "reply" ? replyingTo : null,
+        belongsToUser: true,
+        _id: `${response._id}-new`,
       };
       setComments([newReply, ...comments]);
     }
@@ -145,45 +157,43 @@ const CommentRepliesScreen = (props) => {
       (await getCommentReplies()).cancel();
     };
   }, [navigation]);
-  if (comments.length) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <FlatList
-          data={comments}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          refreshControl={
-            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-          }
-          contentContainerStyle={{ flexGrow: 1 }}
-          onEndReached={() => getCommentReplies(false, true)}
-          onMomentumScrollBegin={() => !scrollStarted && setScrollStarted(true)}
-          onEndReachedThreshold={0.5}
-          initialNumToRender={1}
-          maxToRenderPerBatch={8}
-          windowSize={10}
-          ListFooterComponent={() => (
-            <View>
-              {loadingMore ? (
-                <ActivityIndicator
-                  size={"large"}
-                  animating
-                  color={themeStyle.colors.grayscale.lightGray}
-                />
-              ) : null}
-            </View>
-          )}
-        />
-        <CommentTextInput
-          ref={textInputRef}
-          submitAction={postComment}
-          replyingTo={replyingTo}
-          setReplyingTo={setReplyingTo}
-        />
-      </SafeAreaView>
-    );
-  }
-  return <View />;
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={comments}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        refreshControl={
+          <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+        }
+        contentContainerStyle={{ flexGrow: 1 }}
+        onEndReached={() => getCommentReplies(false, true)}
+        onMomentumScrollBegin={() => !scrollStarted && setScrollStarted(true)}
+        onEndReachedThreshold={0.5}
+        initialNumToRender={1}
+        maxToRenderPerBatch={8}
+        windowSize={10}
+        ListFooterComponent={() => (
+          <View>
+            {loadingMore ? (
+              <ActivityIndicator
+                size={"large"}
+                animating
+                color={themeStyle.colors.grayscale.lightGray}
+              />
+            ) : null}
+          </View>
+        )}
+      />
+      <CommentTextInput
+        ref={textInputRef}
+        submitAction={postComment}
+        replyingTo={replyingTo}
+        setReplyingTo={setReplyingTo}
+      />
+    </SafeAreaView>
+  );
 };
 
 const styles = StyleSheet.create({

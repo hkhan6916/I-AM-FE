@@ -151,12 +151,11 @@ const CommentsScreen = (props) => {
 
   useEffect(() => {
     let isMounted = true;
-    navigation.addListener("focus", async () => {
-      setLoading(true);
+    // navigation.addListener("focus", async () => {
+    (async () => {
       await apiCall("GET", `/posts/comments/${postId}/${comments.length}`).then(
         ({ success, response }) => {
           if (isMounted) {
-            setLoading(false);
             if (success) {
               if (!response.length) {
                 setAllCommentsLoaded(true);
@@ -167,12 +166,13 @@ const CommentsScreen = (props) => {
           }
         }
       );
-    });
+    })();
+    // });
     return async () => {
       isMounted = false;
       (await getComments()).cancel();
     };
-  }, [navigation]);
+  }, []);
 
   if (loading) {
     return (
