@@ -5,6 +5,7 @@ import UserProfileScreen from "./SubScreens/UserProfileScreen";
 import MediaScreen from "./SubScreens/MediaScreen";
 import RepostScreen from "./SubScreens/RepostScreen";
 import CommentsScreen from "./SubScreens/CommentsScreen";
+import CommentsRepliesScreen from "./SubScreens/CommentRepliesScreen";
 import themeStyle from "../../theme.style";
 import PostScreen from "./SubScreens/PostScreen";
 import ChatScreen from "./SubScreens/ChatScreen";
@@ -75,6 +76,18 @@ const MainStack = () => (
       }}
       name="CommentsScreen"
       component={CommentsScreen}
+    />
+    <Stack.Screen
+      options={{
+        title: "Replies",
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+      }}
+      name="CommentRepliesScreen"
+      component={CommentsRepliesScreen}
     />
     <Stack.Screen
       options={{

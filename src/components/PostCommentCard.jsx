@@ -152,12 +152,13 @@ const PostCommentCard = ({
 
   const handleReplyToComment = async () => {
     setShowReplies(true);
-    await replyToUser({
-      commentId: comment._id,
-      firstName: comment.commentAuthor?.firstName,
-      lastName: comment.commentAuthor?.lastName,
-      replyingToType: "comment",
-    });
+    // await replyToUser({
+    //   commentId: comment._id,
+    //   firstName: comment.commentAuthor?.firstName,
+    //   lastName: comment.commentAuthor?.lastName,
+    //   replyingToType: "comment",
+    // });
+    navigation.navigate("CommentRepliesScreen", { comment: comment });
   };
 
   const updateComment = async (body) => {

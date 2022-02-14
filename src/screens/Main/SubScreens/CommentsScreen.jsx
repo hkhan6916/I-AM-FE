@@ -204,17 +204,17 @@ const CommentsScreen = (props) => {
         initialNumToRender={1}
         maxToRenderPerBatch={8}
         windowSize={10}
-        // ListFooterComponent={() => (
-        //   <View>
-        //     {loadingMore ? (
-        //       <ActivityIndicator
-        //         size={"large"}
-        //         animating
-        //         color={themeStyle.colors.grayscale.lightGray}
-        //       />
-        //     ) : null}
-        //   </View>
-        // )}
+        ListFooterComponent={() => (
+          <View>
+            {loadingMore ? (
+              <ActivityIndicator
+                size={"large"}
+                animating
+                color={themeStyle.colors.grayscale.lightGray}
+              />
+            ) : null}
+          </View>
+        )}
       />
       <CommentTextInput
         ref={textInputRef}
