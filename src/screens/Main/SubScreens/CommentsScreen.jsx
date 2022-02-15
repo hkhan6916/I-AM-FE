@@ -25,6 +25,7 @@ const CommentsScreen = (props) => {
   const [allCommentsLoaded, setAllCommentsLoaded] = useState(false);
   const [newReply, setNewReply] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [intialLoading, setInitialLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [scrollStarted, setScrollStarted] = useState(false);
@@ -66,7 +67,31 @@ const CommentsScreen = (props) => {
     };
   };
 
+  const deleteComment = async () => {
+    setLoading(true);
+    const { success } = await apiCall(
+      "DELETE",
+      `/posts/comments/remove/${showOptionsForComment._id}`
+    );
+    setLoading(false);
+    if (success) {
+      const newComments = comments.map((comment) => {
+        if (comment._id === showOptionsForComment._id) {
+          return {
+            ...comment,
+            deleted: true,
+            customKey: `${comment._id}-deleted}`,
+          };
+        }
+        return comment;
+      });
+      setComments(newComments);
+      setShowOptionsForComment(null);
+    }
+  };
+
   const postComment = async (commentBody) => {
+    // spinner to be added in modal text input while this is loading
     const { response, success } = await apiCall("POST", "/posts/comments/add", {
       postId,
       body: commentBody,
@@ -116,15 +141,15 @@ const CommentsScreen = (props) => {
   };
 
   const updateComment = async (body) => {
-    // setLoading(true);
+    setLoading(true);
     if (showOptionsForComment) {
       const { success } = await apiCall("POST", "/posts/comments/update", {
         commentId: showOptionsForComment._id,
         body,
       });
-      // setLoading(false);
+      setLoading(false);
       if (success) {
-        const newReplies = comments.map((comment) => {
+        const newComments = comments.map((comment) => {
           if (comment._id === showOptionsForComment._id) {
             return {
               ...showOptionsForComment,
@@ -137,7 +162,7 @@ const CommentsScreen = (props) => {
           }
           return comment;
         });
-        setComments(newReplies);
+        setComments(newComments);
         // setUpdated(true);
         setShowOptionsForComment(null);
       } else {
@@ -154,7 +179,7 @@ const CommentsScreen = (props) => {
 
   const renderItem = useCallback(
     ({ item }) =>
-      newCommentsIds.indexOf(item._id) === -1 || item.new ? (
+      newCommentsIds.indexOf(item._id) === -1 || item.new ? ( // prevent newly created comments from rendering again since they'll be fetch from the backend as the user scrolls
         <PostCommentCard
           replyToUser={replyToUser}
           key={item._id}
@@ -174,9 +199,11 @@ const CommentsScreen = (props) => {
     let isMounted = true;
     // navigation.addListener("focus", async () => {
     (async () => {
+      setInitialLoading(true);
       await apiCall("GET", `/posts/comments/${postId}/${comments.length}`).then(
         ({ success, response }) => {
           if (isMounted) {
+            setInitialLoading(false);
             if (success) {
               if (!response.length) {
                 setAllCommentsLoaded(true);
@@ -195,7 +222,7 @@ const CommentsScreen = (props) => {
     };
   }, []);
 
-  if (loading) {
+  if (intialLoading) {
     return (
       <View>
         <ContentLoader active showAvatar avatarSize={50} />
@@ -241,9 +268,10 @@ const CommentsScreen = (props) => {
         <CommentOptionsModal
           comment={showOptionsForComment}
           updateComment={updateComment}
-          setDeleted={() => null}
+          deleteComment={deleteComment}
           showOptions={!!showOptionsForComment}
           setShowOptionsForComment={setShowOptionsForComment}
+          loading={loading}
         />
       ) : null}
       <CommentTextInput
@@ -265,7 +293,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo(
-  CommentsScreen,
-  (prev, next) => prev.route.params === next.route.params
-);
+export default React.memo(CommentsScreen);

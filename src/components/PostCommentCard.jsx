@@ -1,53 +1,28 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Text,
   View,
   StyleSheet,
   TouchableOpacity,
-  Modal,
-  TouchableWithoutFeedback,
   Dimensions,
-  FlatList,
-  RefreshControl,
-  ActivityIndicator,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import themeStyle from "../theme.style";
 import Avatar from "./Avatar";
 import apiCall from "../helpers/apiCall";
-import CommentReplyCard from "./CommentReplyCard";
 import formatAge from "../helpers/formatAge";
 import { Entypo } from "@expo/vector-icons";
-import CommentOptionsModal from "./CommentOptionsModal";
 
 const PostCommentCard = ({
   comment: initialComment,
-  replyToUser,
   isNestedInList = true,
   setShowOptionsForComment,
+  deleted,
 }) => {
   const navigation = useNavigation();
   const [comment, setComment] = useState(initialComment);
-  const [replies, setReplies] = useState([]);
-  const [showReplies, setShowReplies] = useState(false);
-  const [deleted, setDeleted] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [updated, setUpdated] = useState(false);
-  const [reported, setReported] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [allPostsLoaded, setAllPostsLoaded] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [showReportOptions, setShowReportOptions] = useState(false);
-  const { width: screenWidth } = Dimensions.get("window");
 
-  const reportOptions = [
-    "It's spam",
-    "It does not belong on Magnet",
-    "It's inappropriate",
-  ];
   const handleReaction = async () => {
     if (comment.liked) {
       const newComment = { ...comment, liked: false };
@@ -74,31 +49,6 @@ const PostCommentCard = ({
     }
   };
 
-  const deleteComment = async () => {
-    const { success } = await apiCall(
-      "DELETE",
-      `/posts/comments/remove/${comment._id}`
-    );
-    if (success) {
-      setDeleted(true);
-      setReplies([]);
-    }
-  };
-
-  // const updateComment = async (body) => {
-  //   const { success } = await apiCall("POST", "/posts/comments/update", {
-  //     commentId: comment._id,
-  //     body,
-  //   });
-  //   if (success) {
-  //     const newComment = { ...comment, body, edited: true };
-  //     setComment(newComment);
-  //     setUpdated(true);
-  //   } else {
-  //     setError("An error occurred.");
-  //   }
-  // };
-
   const CommentAge = () => {
     const { age } = comment;
     const ageObject = formatAge(age);
@@ -110,46 +60,13 @@ const PostCommentCard = ({
     );
   };
 
-  const handleReplyToReply = async ({ commentId, firstName, lastName }) => {
-    await replyToUser({
-      commentId,
-      firstName,
-      lastName,
-      replyingToType: "reply",
-    });
-  };
-
   const handleReplyToComment = async () => {
     navigation.navigate("CommentRepliesScreen", { comment: comment });
   };
 
-  const updateComment = async (body) => {
-    setLoading(true);
-    const { success } = await apiCall("POST", "/posts/comments/update", {
-      commentId: comment._id,
-      body,
-    });
-    setLoading(false);
-    if (success) {
-      setShowOptions(false);
-      const newComment = { ...comment, body: body, edited: true };
-      setComment(newComment);
-      setUpdated(true);
-    } else {
-      setError("An error occurred.");
-    }
-  };
-
-  if (!deleted) {
+  if (!comment.deleted) {
     return (
       <View style={styles.container}>
-        {/* <CommentOptionsModal
-          comment={comment}
-          updateComment={updateComment}
-          setDeleted={setDeleted}
-          showOptions={showOptions}
-          setShowOptions={setShowOptions}
-        /> */}
         <View
           style={{
             flexDirection: "row",

@@ -18,7 +18,6 @@ const CommentReplyCard = ({
   const [reply, setReply] = useState(initialReply);
   const [deleted, setDeleted] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
-  console.log(reply.body);
   const handleReaction = async () => {
     if (reply.liked) {
       const newComment = { ...reply, liked: false };
@@ -55,7 +54,7 @@ const CommentReplyCard = ({
       </Text>
     );
   };
-  if (!deleted) {
+  if (!reply.deleted) {
     return (
       <View style={styles.replyContainer}>
         <View

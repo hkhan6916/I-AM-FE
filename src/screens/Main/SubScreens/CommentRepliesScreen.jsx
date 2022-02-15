@@ -11,7 +11,6 @@ import { useNavigation } from "@react-navigation/native";
 import PostCommentCard from "../../../components/PostCommentCard";
 import apiCall from "../../../helpers/apiCall";
 import CommentTextInput from "../../../components/CommentTextInput";
-import ContentLoader from "../../../components/ContentLoader";
 import themeStyle from "../../../theme.style";
 import CommentReplyCard from "../../../components/CommentReplyCard";
 import CommentOptionsModal from "../../../components/CommentOptionsModal";
@@ -26,6 +25,7 @@ const CommentRepliesScreen = (props) => {
   const [replyingTo, setReplyingTo] = useState(null);
   const [allRepliessLoaded, setAllRepliesLoaded] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [scrollStarted, setScrollStarted] = useState(false);
   const [showOptionsForComment, setShowOptionsForComment] = useState(null);
@@ -66,13 +66,13 @@ const CommentRepliesScreen = (props) => {
   };
 
   const updateComment = async (body) => {
-    // setLoading(true);
     if (showOptionsForComment) {
+      setLoading(true);
       const { success } = await apiCall("POST", "/posts/comments/update", {
         commentId: showOptionsForComment._id,
         body,
       });
-      // setLoading(false);
+      setLoading(false);
       if (success) {
         if (showOptionsForComment._id === comment._id) {
           setComment({ ...comment, body });
@@ -116,7 +116,31 @@ const CommentRepliesScreen = (props) => {
     setRefreshing(false);
   }, []);
 
+  const deleteComment = async () => {
+    setLoading(true);
+    const { success } = await apiCall(
+      "DELETE",
+      `/posts/comments/remove/${showOptionsForComment._id}`
+    );
+    setLoading(false);
+    if (success) {
+      const newReplies = replies.map((reply) => {
+        if (reply._id === showOptionsForComment._id) {
+          return {
+            ...reply,
+            deleted: true,
+            customKey: `${reply._id}-deleted}`,
+          };
+        }
+        return reply;
+      });
+      setReplies(newReplies);
+      setShowOptionsForComment(null);
+    }
+  };
+
   const postComment = async (commentBody) => {
+    // spinner to be added in the text input when this is loading
     const { response, success } = await apiCall(
       "POST",
       "/posts/comments/replies/add",
@@ -178,7 +202,6 @@ const CommentRepliesScreen = (props) => {
         refreshControl={
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
-        extraData={replies}
         ListHeaderComponent={() => (
           <PostCommentCard
             isNestedInList={false}
@@ -210,9 +233,10 @@ const CommentRepliesScreen = (props) => {
         <CommentOptionsModal
           comment={showOptionsForComment}
           updateComment={updateComment}
-          setDeleted={() => null}
+          deleteComment={deleteComment}
           showOptions={!!showOptionsForComment}
           setShowOptionsForComment={setShowOptionsForComment}
+          loading={loading}
         />
       ) : null}
       <CommentTextInput
