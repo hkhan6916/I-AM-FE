@@ -25,6 +25,7 @@ const PostCommentCard = ({
   comment: initialComment,
   replyToUser,
   isNestedInList = true,
+  setShowOptionsForComment,
 }) => {
   const navigation = useNavigation();
   const [comment, setComment] = useState(initialComment);
@@ -98,7 +99,6 @@ const PostCommentCard = ({
   //   }
   // };
 
-  console.log(comment._id);
   const CommentAge = () => {
     const { age } = comment;
     const ageObject = formatAge(age);
@@ -143,171 +143,135 @@ const PostCommentCard = ({
   if (!deleted) {
     return (
       <View style={styles.container}>
-        <FlatList
-          data={replies}
-          renderItem={({ item }) => {
-            if (showReplies) {
-              return (
-                <CommentReplyCard
-                  handleReplyToReply={handleReplyToReply}
-                  key={item._id}
-                  reply={item}
-                />
-              );
-            }
+        {/* <CommentOptionsModal
+          comment={comment}
+          updateComment={updateComment}
+          setDeleted={setDeleted}
+          showOptions={showOptions}
+          setShowOptions={setShowOptions}
+        /> */}
+        <View
+          style={{
+            flexDirection: "row",
           }}
-          keyExtractor={(item) => item._id}
-          ListHeaderComponent={() => (
-            <View>
-              <View
+        >
+          <View style={styles.headerContainer}>
+            <Avatar
+              hasBorder
+              userId={comment.userId}
+              navigation={navigation}
+              avatarUrl={comment.commentAuthor.profileGifUrl}
+              profileGifHeaders={comment.commentAuthor.profileGifHeaders}
+              size={40}
+            />
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("UserProfileScreen", {
+                  userId: comment.userId,
+                })
+              }
+            >
+              <Text style={styles.commentAuthorName} numberOfLines={1}>
+                {comment.commentAuthor?.firstName}{" "}
+                {comment.commentAuthor?.lastName}
+              </Text>
+            </TouchableOpacity>
+            {comment.edited ? (
+              <Text
                 style={{
-                  flexDirection: "row",
+                  fontSize: 12,
+                  marginHorizontal: 10,
+                  color: themeStyle.colors.grayscale.lightGray,
                 }}
               >
-                <View style={styles.headerContainer}>
-                  <Avatar
-                    hasBorder
-                    userId={comment.userId}
-                    navigation={navigation}
-                    avatarUrl={comment.commentAuthor.profileGifUrl}
-                    profileGifHeaders={comment.commentAuthor.profileGifHeaders}
-                    size={40}
-                  />
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate("UserProfileScreen", {
-                        userId: comment.userId,
-                      })
-                    }
-                  >
-                    <Text style={styles.commentAuthorName} numberOfLines={1}>
-                      {comment.commentAuthor?.firstName}{" "}
-                      {comment.commentAuthor?.lastName}
-                    </Text>
-                  </TouchableOpacity>
-                  {comment.edited ? (
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        marginHorizontal: 10,
-                        color: themeStyle.colors.grayscale.lightGray,
-                      }}
-                    >
-                      (edited)
-                    </Text>
-                  ) : null}
-                </View>
-                <TouchableOpacity
+                (edited)
+              </Text>
+            ) : null}
+          </View>
+          <TouchableOpacity
+            style={{
+              alignSelf: "center",
+              width: 48,
+              height: 48,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={() => setShowOptionsForComment(comment)}
+          >
+            <Entypo name="dots-three-vertical" size={16} color="black" />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.commentBodyContainer}>
+          <Text>{comment.body}</Text>
+        </View>
+        <View style={styles.actionsContainer}>
+          <View style={styles.actions}>
+            {isNestedInList ? (
+              <TouchableOpacity
+                onPress={() => handleReplyToComment()}
+                style={styles.replyTrigger}
+              >
+                <Text
                   style={{
-                    alignSelf: "center",
-                    width: 48,
-                    height: 48,
+                    color: themeStyle.colors.grayscale.mediumGray,
+                    fontWeight: "700",
+                  }}
+                >
+                  Reply
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+            <View style={{ flexDirection: "row" }}>
+              {!comment.belongsToUser ? (
+                <TouchableOpacity
+                  onPress={() => handleReaction()}
+                  style={{
                     justifyContent: "center",
                     alignItems: "center",
+                    marginHorizontal: 5,
                   }}
-                  onPress={() => setShowOptions(!showOptions)}
                 >
-                  <Entypo name="dots-three-vertical" size={16} color="black" />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.commentBodyContainer}>
-                <Text>{comment.body}</Text>
-              </View>
-              <View style={styles.actionsContainer}>
-                <View style={styles.actions}>
-                  {isNestedInList ? (
-                    <TouchableOpacity
-                      onPress={() => handleReplyToComment()}
-                      style={styles.replyTrigger}
-                    >
-                      <Text
-                        style={{
-                          color: themeStyle.colors.grayscale.mediumGray,
-                          fontWeight: "700",
-                        }}
-                      >
-                        Reply
-                      </Text>
-                    </TouchableOpacity>
-                  ) : null}
-                  <View style={{ flexDirection: "row" }}>
-                    {!comment.belongsToUser ? (
-                      <TouchableOpacity
-                        onPress={() => handleReaction()}
-                        style={{
-                          justifyContent: "center",
-                          alignItems: "center",
-                          marginHorizontal: 5,
-                        }}
-                      >
-                        <MaterialCommunityIcons
-                          name={comment.liked ? "thumb-up" : "thumb-up-outline"}
-                          size={20}
-                          color={
-                            comment.liked
-                              ? themeStyle.colors.secondary.default
-                              : themeStyle.colors.grayscale.mediumGray
-                          }
-                        />
-                      </TouchableOpacity>
-                    ) : null}
-                    {comment.likes > 0 ? (
-                      <Text
-                        style={{
-                          color: themeStyle.colors.grayscale.black,
-                          marginHorizontal: 10,
-                        }}
-                      >
-                        {comment.likes} {comment.likes > 1 ? "likes" : "like"}
-                      </Text>
-                    ) : null}
-                  </View>
-                </View>
-                <CommentAge />
-              </View>
-              {comment.replyCount && isNestedInList ? (
-                <View style={{ flex: 1, alignItems: "center", padding: 10 }}>
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate("CommentRepliesScreen", {
-                        comment: comment,
-                      })
+                  <MaterialCommunityIcons
+                    name={comment.liked ? "thumb-up" : "thumb-up-outline"}
+                    size={20}
+                    color={
+                      comment.liked
+                        ? themeStyle.colors.secondary.default
+                        : themeStyle.colors.grayscale.mediumGray
                     }
-                  >
-                    <Text
-                      style={{ color: themeStyle.colors.grayscale.darkGray }}
-                    >
-                      View {comment.replyCount}{" "}
-                      {comment.replyCount > 1 ? "replies" : "reply"}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                  />
+                </TouchableOpacity>
+              ) : null}
+              {comment.likes > 0 ? (
+                <Text
+                  style={{
+                    color: themeStyle.colors.grayscale.black,
+                    marginHorizontal: 10,
+                  }}
+                >
+                  {comment.likes} {comment.likes > 1 ? "likes" : "like"}
+                </Text>
               ) : null}
             </View>
-          )}
-          ListFooterComponent={() => (
-            <View>
-              <CommentOptionsModal
-                comment={comment}
-                updateComment={updateComment}
-                setDeleted={setDeleted}
-                showOptions={showOptions}
-                setShowOptions={setShowOptions}
-              />
-              {loading ? (
-                <ActivityIndicator
-                  size="large"
-                  animating={loading}
-                  color={themeStyle.colors.grayscale.lightGray}
-                />
-              ) : null}
-            </View>
-          )}
-          contentContainerStyle={{ flexGrow: 1 }}
-          initialNumToRender={10}
-          maxToRenderPerBatch={5}
-          windowSize={5}
-        />
+          </View>
+          <CommentAge />
+        </View>
+        {comment.replyCount && isNestedInList ? (
+          <View style={{ flex: 1, alignItems: "center", padding: 10 }}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("CommentRepliesScreen", {
+                  comment: comment,
+                })
+              }
+            >
+              <Text style={{ color: themeStyle.colors.grayscale.darkGray }}>
+                View {comment.replyCount}{" "}
+                {comment.replyCount > 1 ? "replies" : "reply"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
       </View>
     );
   }

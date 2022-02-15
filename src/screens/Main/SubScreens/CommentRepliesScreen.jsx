@@ -14,11 +14,13 @@ import CommentTextInput from "../../../components/CommentTextInput";
 import ContentLoader from "../../../components/ContentLoader";
 import themeStyle from "../../../theme.style";
 import CommentReplyCard from "../../../components/CommentReplyCard";
+import CommentOptionsModal from "../../../components/CommentOptionsModal";
 
 const CommentRepliesScreen = (props) => {
-  const { comment } = props.route.params;
+  const { comment: initialComment } = props.route.params;
 
   const [replies, setReplies] = useState([]);
+  const [comment, setComment] = useState(initialComment);
   // just a set of reply IDs so we don't render newly fetched replys if they've just been added by the user
   const [newRepliesIds, setNewRepliesIds] = useState([]);
   const [replyingTo, setReplyingTo] = useState(null);
@@ -26,7 +28,8 @@ const CommentRepliesScreen = (props) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [scrollStarted, setScrollStarted] = useState(false);
-
+  const [showOptionsForComment, setShowOptionsForComment] = useState(null);
+  const [error, setError] = useState("");
   const navigation = useNavigation();
   const textInputRef = useRef();
 
@@ -62,6 +65,40 @@ const CommentRepliesScreen = (props) => {
     };
   };
 
+  const updateComment = async (body) => {
+    // setLoading(true);
+    if (showOptionsForComment) {
+      const { success } = await apiCall("POST", "/posts/comments/update", {
+        commentId: showOptionsForComment._id,
+        body,
+      });
+      // setLoading(false);
+      if (success) {
+        if (showOptionsForComment._id === comment._id) {
+          setComment({ ...comment, body });
+        }
+        const newReplies = replies.map((reply) => {
+          if (reply._id === showOptionsForComment._id) {
+            return {
+              ...showOptionsForComment,
+              body,
+              _id: reply._id,
+              edited: true,
+              updated: true,
+              customKey: `${reply._id}-${body.replace(" ", "-")}`,
+            };
+          }
+          return reply;
+        });
+        setReplies(newReplies);
+        // setUpdated(true);
+        setShowOptionsForComment(null);
+      } else {
+        setError("An error occurred.");
+      }
+    }
+  };
+
   // passed into reply cards. To be called when replying to a reply.
   const handleReplyToReply = async ({ commentId, firstName, lastName }) => {
     textInputRef.current.focus();
@@ -79,18 +116,6 @@ const CommentRepliesScreen = (props) => {
     setRefreshing(false);
   }, []);
 
-  const renderItem = useCallback(
-    ({ item }) =>
-      // we don't want to render a duplicate of a newly added reply, so we check if it's newly added before render. Below checks if reply is not in the list of new replies the user has just created or if it's a new comment just added then render.
-      newRepliesIds.indexOf(item._id) === -1 || item.new ? (
-        <CommentReplyCard
-          handleReplyToReply={handleReplyToReply}
-          reply={item}
-        />
-      ) : null,
-    [newRepliesIds]
-  );
-
   const postComment = async (commentBody) => {
     const { response, success } = await apiCall(
       "POST",
@@ -101,26 +126,38 @@ const CommentRepliesScreen = (props) => {
       }
     );
     if (success) {
-      response.age = { minutes: 1 };
-      console.log({ newRepliesIds, thenewONe: response._id });
       setNewRepliesIds([...newRepliesIds, response._id]);
       const newReply = {
         ...response,
+        age: { minutes: 1 },
         replyingToObj:
           replyingTo?.replyingToType === "reply" ? replyingTo : null,
         belongsToUser: true,
         _id: response._id,
         new: true,
+        customKey: `${response._id}-new`,
       };
       setReplies([newReply, ...replies]);
     }
     return success;
   };
 
-  // even though renderitem never double renders newly created replies, the "Encountered two children with the same key" warning still shows so need to append "-new" to any new replies by checking the reply's "new" key so that the same key is never found
+  const renderItem = useCallback(
+    ({ item }) =>
+      // we don't want to render a duplicate of a newly added reply, so we check if it's newly added before render. Below checks if reply is not in the list of new replies the user has just created or if it's a new comment just added then render.
+      newRepliesIds.indexOf(item._id) === -1 || item.new ? (
+        <CommentReplyCard
+          handleReplyToReply={handleReplyToReply}
+          reply={item}
+          setShowOptionsForComment={setShowOptionsForComment}
+        />
+      ) : null,
+    [newRepliesIds, replies]
+  );
+
   const keyExtractor = useCallback(
-    (item) => (item.new ? `${item._id}-new` : item._id),
-    []
+    (item) => item.customKey || item._id,
+    [replies]
   );
 
   useEffect(() => {
@@ -141,11 +178,13 @@ const CommentRepliesScreen = (props) => {
         refreshControl={
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
+        extraData={replies}
         ListHeaderComponent={() => (
           <PostCommentCard
             isNestedInList={false}
             newReply={null}
             comment={comment}
+            setShowOptionsForComment={setShowOptionsForComment}
           />
         )}
         contentContainerStyle={{ flexGrow: 1 }}
@@ -167,6 +206,15 @@ const CommentRepliesScreen = (props) => {
           </View>
         )}
       />
+      {showOptionsForComment ? (
+        <CommentOptionsModal
+          comment={showOptionsForComment}
+          updateComment={updateComment}
+          setDeleted={() => null}
+          showOptions={!!showOptionsForComment}
+          setShowOptionsForComment={setShowOptionsForComment}
+        />
+      ) : null}
       <CommentTextInput
         ref={textInputRef}
         submitAction={postComment}

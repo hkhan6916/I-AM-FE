@@ -9,19 +9,17 @@ import {
   ActivityIndicator,
   TextInput,
   ScrollView,
-  Keyboard,
 } from "react-native";
 import themeStyle from "../theme.style";
 import apiCall from "../helpers/apiCall";
-import CommentTextInput from "./CommentTextInput";
 
 const CommentOptionsModal = ({
   comment,
   updateComment,
   setDeleted,
   setReplies,
-  showOptions,
-  setShowOptions,
+  showOptions = false,
+  setShowOptionsForComment,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [updated, setUpdated] = useState(false);
@@ -56,7 +54,7 @@ const CommentOptionsModal = ({
   };
 
   //   const hideOptions = async () => {
-  //     setShowOptions(false);
+  //     setShowOptionsForComment(false);
   //   };
   //   const updateComment = async (body) => {
   //     setLoading(true);
@@ -91,7 +89,7 @@ const CommentOptionsModal = ({
   };
 
   const resetOptions = () => {
-    setShowOptions(false);
+    setShowOptionsForComment(null);
     setIsEditing(false);
     setShowReportOptions(false);
   };
@@ -103,8 +101,8 @@ const CommentOptionsModal = ({
       onRequestClose={() => resetOptions()}
     >
       <TouchableWithoutFeedback onPress={() => resetOptions()}>
-        <ScrollView
-          contentContainerStyle={{
+        <View
+          style={{
             alignItems: "center",
             justifyContent: "flex-end",
             flex: 1,
@@ -234,12 +232,6 @@ const CommentOptionsModal = ({
                       {error}
                     </Text>
                   ) : null}
-                  {/* <CommentTextInput
-                    submitAction={(v) => updateComment(v)}
-                    isFullWidth={false}
-                    initialCommentBody={comment.body}
-                    hasBorderRadius
-                  /> */}
                   <View
                     style={[
                       {
@@ -338,7 +330,7 @@ const CommentOptionsModal = ({
               ) : null}
             </View>
           </TouchableWithoutFeedback>
-        </ScrollView>
+        </View>
       </TouchableWithoutFeedback>
     </Modal>
   );

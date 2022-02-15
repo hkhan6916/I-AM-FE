@@ -13,18 +13,23 @@ import apiCall from "../../../helpers/apiCall";
 import CommentTextInput from "../../../components/CommentTextInput";
 import ContentLoader from "../../../components/ContentLoader";
 import themeStyle from "../../../theme.style";
+import CommentOptionsModal from "../../../components/CommentOptionsModal";
 
 const CommentsScreen = (props) => {
   const { postId } = props.route.params;
 
   const [comments, setComments] = useState([]);
   const [replyingTo, setReplyingTo] = useState(null);
+  // just a set of comment IDs so we don't render newly fetched comments if they've just been added by the user
+  const [newCommentsIds, setNewCommentsIds] = useState([]);
   const [allCommentsLoaded, setAllCommentsLoaded] = useState(false);
   const [newReply, setNewReply] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [scrollStarted, setScrollStarted] = useState(false);
+  const [showOptionsForComment, setShowOptionsForComment] = useState(null);
+  const [error, setError] = useState("");
 
   const navigation = useNavigation();
   const textInputRef = useRef();
@@ -62,36 +67,17 @@ const CommentsScreen = (props) => {
   };
 
   const postComment = async (commentBody) => {
-    if (replyingTo && replyingTo.commentId) {
-      const { response, success } = await apiCall(
-        "POST",
-        "/posts/comments/replies/add",
-        {
-          commentId: replyingTo.commentId,
-          body: commentBody,
-        }
-      );
-      if (success) {
-        response.age = { minutes: 1 };
-        setNewReply({
-          replyingToObj:
-            replyingTo.replyingToType === "reply" ? replyingTo : null,
-          replyingToId: replyingTo.commentId,
-          belongsToUser: true,
-          ...response,
-        });
-      }
-      return success;
-    }
     const { response, success } = await apiCall("POST", "/posts/comments/add", {
       postId,
       body: commentBody,
     });
     if (success) {
+      setNewCommentsIds([...newCommentsIds, response._id]);
       const tweakedResponse = {
         ...response,
-        _id: `${response._id}-new`,
         age: { minutes: 1 },
+        new: true,
+        customKey: `${response._id}-new`,
       };
       const updatedComments = [tweakedResponse, ...comments];
 
@@ -129,6 +115,37 @@ const CommentsScreen = (props) => {
     }
   };
 
+  const updateComment = async (body) => {
+    // setLoading(true);
+    if (showOptionsForComment) {
+      const { success } = await apiCall("POST", "/posts/comments/update", {
+        commentId: showOptionsForComment._id,
+        body,
+      });
+      // setLoading(false);
+      if (success) {
+        const newReplies = comments.map((comment) => {
+          if (comment._id === showOptionsForComment._id) {
+            return {
+              ...showOptionsForComment,
+              body,
+              _id: comment._id,
+              edited: true,
+              updated: true,
+              customKey: `${comment._id}-${body.replace(" ", "-")}`,
+            };
+          }
+          return comment;
+        });
+        setComments(newReplies);
+        // setUpdated(true);
+        setShowOptionsForComment(null);
+      } else {
+        setError("An error occurred.");
+      }
+    }
+  };
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await getComments(true);
@@ -136,18 +153,22 @@ const CommentsScreen = (props) => {
   }, []);
 
   const renderItem = useCallback(
-    ({ item }) => (
-      <PostCommentCard
-        newReply={newReply?.parentCommentId === item._id ? newReply : null}
-        replyToUser={replyToUser}
-        key={item._id}
-        comment={item}
-      />
-    ),
-    []
+    ({ item }) =>
+      newCommentsIds.indexOf(item._id) === -1 || item.new ? (
+        <PostCommentCard
+          replyToUser={replyToUser}
+          key={item._id}
+          comment={item}
+          setShowOptionsForComment={setShowOptionsForComment}
+        />
+      ) : null,
+    [newCommentsIds, comments]
   );
 
-  const keyExtractor = useCallback((item) => item._id, []);
+  const keyExtractor = useCallback(
+    (item) => item.customKey || item._id,
+    [comments]
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -216,6 +237,15 @@ const CommentsScreen = (props) => {
           </View>
         )}
       />
+      {showOptionsForComment ? (
+        <CommentOptionsModal
+          comment={showOptionsForComment}
+          updateComment={updateComment}
+          setDeleted={() => null}
+          showOptions={!!showOptionsForComment}
+          setShowOptionsForComment={setShowOptionsForComment}
+        />
+      ) : null}
       <CommentTextInput
         ref={textInputRef}
         submitAction={postComment}

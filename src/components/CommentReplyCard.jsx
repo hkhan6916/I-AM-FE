@@ -9,12 +9,16 @@ import formatAge from "../helpers/formatAge";
 import { Entypo } from "@expo/vector-icons";
 import CommentOptionsModal from "./CommentOptionsModal";
 
-const CommentReplyCard = ({ reply: initialReply, handleReplyToReply }) => {
+const CommentReplyCard = ({
+  reply: initialReply,
+  handleReplyToReply,
+  setShowOptionsForComment,
+}) => {
   const navigation = useNavigation();
   const [reply, setReply] = useState(initialReply);
   const [deleted, setDeleted] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
-
+  console.log(reply.body);
   const handleReaction = async () => {
     if (reply.liked) {
       const newComment = { ...reply, liked: false };
@@ -95,7 +99,7 @@ const CommentReplyCard = ({ reply: initialReply, handleReplyToReply }) => {
           </View>
           <TouchableOpacity
             style={{ marginRight: 20 }}
-            onPress={() => setShowOptions(!showOptions)}
+            onPress={() => setShowOptionsForComment(reply)}
           >
             <Entypo name="dots-three-vertical" size={16} color="black" />
           </TouchableOpacity>
@@ -185,13 +189,13 @@ const CommentReplyCard = ({ reply: initialReply, handleReplyToReply }) => {
             <CommentAge />
           </View>
         </View>
-        <CommentOptionsModal
+        {/* <CommentOptionsModal
           comment={reply}
           setComment={setReply}
           setDeleted={setDeleted}
           showOptions={showOptions}
           setShowOptions={setShowOptions}
-        />
+        /> */}
       </View>
     );
   }
