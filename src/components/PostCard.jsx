@@ -161,7 +161,8 @@ const PostCard = ({
                     mediaOrientation={post.mediaOrientation}
                     mediaIsSelfie={post.mediaIsSelfie}
                     url={post.mediaUrl}
-                    mediaHeaders={post.mediaHeaders}
+                    thumbnailUrl={post.thumbnailUrl}
+                    thumbnailHeaders={post.thumbnailHeaders}
                   />
                 </View>
               ) : post.mediaType === "image" ? (

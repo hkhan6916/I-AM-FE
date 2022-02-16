@@ -37,6 +37,7 @@ const ProfileScreen = () => {
         "GET",
         `/user/posts/${userPosts.length}`
       );
+
       if (success) {
         if (!response.length && userPosts.length) {
           setAllPostsLoaded(true);

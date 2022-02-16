@@ -25,11 +25,14 @@ import {
   Video as VideoCompress,
   Image as ImageCompress,
 } from "react-native-compressor";
-import VideoPlayer from "../../../components/VideoPlayer";
+// import ExpoVideoPlayer from "../../../components/ExpoVideoPlayer";
+// import VideoPlayer from "../../../components/VideoPlayer";
+import VideoPlayer from "expo-video-player";
 import { LinearGradient } from "expo-linear-gradient";
 import { backgroundUpload } from "react-native-compressor";
 import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
+import * as VideoThumbnails from "expo-video-thumbnails";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -50,8 +53,18 @@ const AddScreen = () => {
 
     if (file.uri) {
       const { type, name, uri, orientation, isSelfie } = file;
+      if (type.split("/")[0] === "video") {
+        const thumbnailUri = await generateThumbnail(uri);
+        const thumbnailFormat = thumbnailUri.split(".").pop();
+        console.log(thumbnailFormat);
+        postData.append("files", {
+          type: `image/${thumbnailFormat}`,
+          name: `mediaThumbnail.${thumbnailFormat}`,
+          uri: thumbnailUri,
+        });
+      }
       const format = uri.split(".").pop();
-      postData.append("file", {
+      postData.append("files", {
         type: type.split("/").length > 1 ? type : `${type}/${format}`,
         name: name || `media.${format}`,
         uri,
@@ -67,11 +80,23 @@ const AddScreen = () => {
     return postData;
   };
 
+  const generateThumbnail = async () => {
+    try {
+      const { uri } = await VideoThumbnails.getThumbnailAsync(file.uri, {
+        time: 0,
+      });
+      return uri;
+    } catch (e) {
+      console.warn(e);
+    }
+  };
+
   const createPost = async () => {
     setLoading(true);
     const postData = await createPostData();
 
-    const { success } = await apiCall("POST", "/posts/new", postData);
+    const { success, message } = await apiCall("POST", "/posts/new", postData);
+    console.log(message);
     if (success) {
       setPostBody("");
       setFile("");
@@ -216,12 +241,23 @@ const AddScreen = () => {
               </Text>
             ) : null}
             {file.type?.split("/")[0] === "video" ? (
-              <VideoPlayer
-                url={file.uri}
-                mediaHeaders={null}
-                showToggle
-                isLocalMedia
-              />
+              <View
+                style={{
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <VideoPlayer
+                  videoProps={{
+                    resizeMode: Video.RESIZE_MODE_CONTAIN,
+                    source: {
+                      uri: file.uri,
+                    },
+                    style: { width: "100%", height: "100%" },
+                  }}
+                  // fullscreen={true}
+                />
+              </View>
             ) : file.type?.split("/")[0] === "image" ? (
               <ImageWithCache
                 mediaOrientation={file.mediaOrientation}

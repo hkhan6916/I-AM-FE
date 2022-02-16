@@ -17,6 +17,8 @@ const VideoPlayer = ({
   shouldPlay,
   showToggle,
   isLocalMedia,
+  thumbnailUrl,
+  thumbnailHeaders,
 }) => {
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
@@ -86,12 +88,14 @@ const VideoPlayer = ({
                   height: "100%",
                 }}
               >
-                {/* <ImageWithCache
+                {console.log(thumbnailHeaders)}
+                <ImageWithCache
                   removeBorderRadius
                   resizeMode="cover"
-                  mediaUrl={url}  //needs to be thumbnail url
+                  mediaUrl={thumbnailUrl}
+                  mediaHeaders={thumbnailHeaders}
                   aspectRatio={1 / 1}
-                /> */}
+                />
               </View>
             ) : null}
             <Video
