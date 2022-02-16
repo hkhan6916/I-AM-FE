@@ -113,7 +113,6 @@ const CommentsScreen = (props) => {
 
   const reportComment = async (reasonIndex) => {
     setLoading(true);
-    console.log(reasonIndex);
     const { success } = await apiCall("POST", "/posts/comment/report", {
       commentId: showOptionsForComment?._id,
       reason: reasonIndex,

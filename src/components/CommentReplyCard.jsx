@@ -7,7 +7,6 @@ import Avatar from "./Avatar";
 import apiCall from "../helpers/apiCall";
 import formatAge from "../helpers/formatAge";
 import { Entypo } from "@expo/vector-icons";
-import CommentOptionsModal from "./CommentOptionsModal";
 
 const CommentReplyCard = ({
   reply: initialReply,
@@ -16,8 +15,7 @@ const CommentReplyCard = ({
 }) => {
   const navigation = useNavigation();
   const [reply, setReply] = useState(initialReply);
-  const [deleted, setDeleted] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
+
   const handleReaction = async () => {
     if (reply.liked) {
       const newComment = { ...reply, liked: false };
@@ -188,13 +186,6 @@ const CommentReplyCard = ({
             <CommentAge />
           </View>
         </View>
-        {/* <CommentOptionsModal
-          comment={reply}
-          setComment={setReply}
-          setDeleted={setDeleted}
-          showOptions={showOptions}
-          setShowOptions={setShowOptions}
-        /> */}
       </View>
     );
   }

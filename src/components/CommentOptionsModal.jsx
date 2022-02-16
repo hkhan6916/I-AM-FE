@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Text,
   View,
@@ -11,13 +11,11 @@ import {
   ScrollView,
 } from "react-native";
 import themeStyle from "../theme.style";
-import apiCall from "../helpers/apiCall";
 
 const CommentOptionsModal = ({
   comment,
   updateComment,
   deleteComment,
-  setReplies,
   showOptions = false,
   setShowOptionsForComment,
   loading: parentLoading,
@@ -25,14 +23,12 @@ const CommentOptionsModal = ({
   reportComment,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [updated, setUpdated] = useState(false);
-  const [reported, setReported] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [commentBody, setCommentBody] = useState(comment.body);
   const [height, setHeight] = useState(0);
   const [showReportOptions, setShowReportOptions] = useState(false);
   const { width: screenWidth } = Dimensions.get("window");
   const inputRef = useRef(null);
+
   const reportOptions = [
     "It's spam",
     "It does not belong on Magnet",
@@ -107,16 +103,6 @@ const CommentOptionsModal = ({
                       </Text>
                     </TouchableOpacity>
                   </View>
-                ) : reported ? (
-                  <View style={{ padding: 20 }}>
-                    <Text
-                      style={{
-                        color: themeStyle.colors.success.default,
-                      }}
-                    >
-                      Comment Reported
-                    </Text>
-                  </View>
                 ) : showReportOptions ? (
                   <View>
                     {reportOptions.map((option, i) => (
@@ -182,17 +168,6 @@ const CommentOptionsModal = ({
                       justifyContent: "center",
                     }}
                   >
-                    {updated ? (
-                      <Text
-                        style={{
-                          alignSelf: "flex-end",
-                          fontSize: 12,
-                          color: themeStyle.colors.grayscale.mediumGray,
-                        }}
-                      >
-                        Reply updated
-                      </Text>
-                    ) : null}
                     {error ? (
                       <Text
                         style={{
@@ -221,7 +196,6 @@ const CommentOptionsModal = ({
                       <ScrollView pointerEvents="none">
                         <TextInput
                           ref={inputRef}
-                          autoFocus
                           maxLength={2000}
                           multiline
                           style={[
@@ -249,38 +223,30 @@ const CommentOptionsModal = ({
                           marginLeft: 5,
                         }}
                       >
-                        {!loading ? (
-                          <TouchableOpacity
-                            disabled={!commentBody}
-                            onPress={() => updateComment(commentBody)}
+                        <TouchableOpacity
+                          disabled={!commentBody}
+                          onPress={() => updateComment(commentBody)}
+                        >
+                          <View
+                            style={{
+                              height: 48,
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
                           >
-                            <View
-                              style={{
-                                height: 48,
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
+                            <Text
+                              style={[
+                                {
+                                  color: themeStyle.colors.secondary.default,
+                                  fontWeight: "700",
+                                },
+                                !commentBody && { opacity: 0.5 },
+                              ]}
                             >
-                              <Text
-                                style={[
-                                  {
-                                    color: themeStyle.colors.secondary.default,
-                                    fontWeight: "700",
-                                  },
-                                  !commentBody && { opacity: 0.5 },
-                                ]}
-                              >
-                                Post
-                              </Text>
-                            </View>
-                          </TouchableOpacity>
-                        ) : (
-                          <ActivityIndicator
-                            animating
-                            size="small"
-                            color={themeStyle.colors.secondary.default}
-                          />
-                        )}
+                              Post
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
                       </View>
                     </View>
                     <TouchableOpacity

@@ -33,7 +33,7 @@ const CommentRepliesScreen = (props) => {
   const navigation = useNavigation();
   const textInputRef = useRef();
 
-  const getCommentReplies = async (refresh = false, onScroll = false) => {
+  const getCommentReplies = async (refresh = false) => {
     let isCancelled = false;
     if (!isCancelled) {
       if (!allRepliessLoaded) {
