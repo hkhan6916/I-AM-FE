@@ -65,20 +65,34 @@ const CommentRepliesScreen = (props) => {
     };
   };
 
+  const reportComment = async (reasonIndex) => {
+    setLoading(true);
+    const { success } = await apiCall("POST", "/posts/comment/report", {
+      commentId: showOptionsForComment._id,
+      reason: reasonIndex,
+    });
+    setLoading(false);
+    if (!success) {
+      setError("An error occurred.");
+    } else {
+      setShowOptionsForComment(null);
+    }
+  };
+
   const updateComment = async (body) => {
     if (showOptionsForComment) {
       setLoading(true);
       const { success } = await apiCall("POST", "/posts/comments/update", {
-        commentId: showOptionsForComment._id,
+        commentId: showOptionsForComment?._id,
         body,
       });
       setLoading(false);
       if (success) {
-        if (showOptionsForComment._id === comment._id) {
+        if (showOptionsForComment?._id === comment._id) {
           setComment({ ...comment, body });
         }
         const newReplies = replies.map((reply) => {
-          if (reply._id === showOptionsForComment._id) {
+          if (reply._id === showOptionsForComment?._id) {
             return {
               ...showOptionsForComment,
               body,
@@ -91,7 +105,6 @@ const CommentRepliesScreen = (props) => {
           return reply;
         });
         setReplies(newReplies);
-        // setUpdated(true);
         setShowOptionsForComment(null);
       } else {
         setError("An error occurred.");
@@ -120,12 +133,12 @@ const CommentRepliesScreen = (props) => {
     setLoading(true);
     const { success } = await apiCall(
       "DELETE",
-      `/posts/comments/remove/${showOptionsForComment._id}`
+      `/posts/comments/remove/${showOptionsForComment?._id}`
     );
     setLoading(false);
     if (success) {
       const newReplies = replies.map((reply) => {
-        if (reply._id === showOptionsForComment._id) {
+        if (reply._id === showOptionsForComment?._id) {
           return {
             ...reply,
             deleted: true,
@@ -237,6 +250,8 @@ const CommentRepliesScreen = (props) => {
           showOptions={!!showOptionsForComment}
           setShowOptionsForComment={setShowOptionsForComment}
           loading={loading}
+          error={error}
+          reportComment={reportComment}
         />
       ) : null}
       <CommentTextInput

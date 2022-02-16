@@ -71,12 +71,12 @@ const CommentsScreen = (props) => {
     setLoading(true);
     const { success } = await apiCall(
       "DELETE",
-      `/posts/comments/remove/${showOptionsForComment._id}`
+      `/posts/comments/remove/${showOptionsForComment?._id}`
     );
     setLoading(false);
     if (success) {
       const newComments = comments.map((comment) => {
-        if (comment._id === showOptionsForComment._id) {
+        if (comment._id === showOptionsForComment?._id) {
           return {
             ...comment,
             deleted: true,
@@ -109,6 +109,21 @@ const CommentsScreen = (props) => {
       setComments(updatedComments);
     }
     return success;
+  };
+
+  const reportComment = async (reasonIndex) => {
+    setLoading(true);
+    console.log(reasonIndex);
+    const { success } = await apiCall("POST", "/posts/comment/report", {
+      commentId: showOptionsForComment?._id,
+      reason: reasonIndex,
+    });
+    setLoading(false);
+    if (!success) {
+      setError("An error occurred.");
+    } else {
+      setShowOptionsForComment(null);
+    }
   };
 
   const replyToUser = async ({
@@ -144,13 +159,13 @@ const CommentsScreen = (props) => {
     setLoading(true);
     if (showOptionsForComment) {
       const { success } = await apiCall("POST", "/posts/comments/update", {
-        commentId: showOptionsForComment._id,
+        commentId: showOptionsForComment?._id,
         body,
       });
       setLoading(false);
       if (success) {
         const newComments = comments.map((comment) => {
-          if (comment._id === showOptionsForComment._id) {
+          if (comment._id === showOptionsForComment?._id) {
             return {
               ...showOptionsForComment,
               body,
@@ -272,6 +287,8 @@ const CommentsScreen = (props) => {
           showOptions={!!showOptionsForComment}
           setShowOptionsForComment={setShowOptionsForComment}
           loading={loading}
+          error={error}
+          reportComment={reportComment}
         />
       ) : null}
       <CommentTextInput

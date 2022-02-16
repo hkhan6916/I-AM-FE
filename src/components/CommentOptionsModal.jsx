@@ -21,11 +21,12 @@ const CommentOptionsModal = ({
   showOptions = false,
   setShowOptionsForComment,
   loading: parentLoading,
+  error,
+  reportComment,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [updated, setUpdated] = useState(false);
   const [reported, setReported] = useState(false);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [commentBody, setCommentBody] = useState(comment.body);
   const [height, setHeight] = useState(0);
@@ -37,21 +38,6 @@ const CommentOptionsModal = ({
     "It does not belong on Magnet",
     "It's inappropriate",
   ];
-
-  const reportComment = async (reasonIndex) => {
-    setLoading(true);
-    console.log(reasonIndex);
-    const { success } = await apiCall("POST", "/posts/comment/report", {
-      commentId: comment._id,
-      reason: reasonIndex,
-    });
-    setLoading(false);
-    if (success) {
-      setReported(true);
-    } else {
-      setError("An error occurred.");
-    }
-  };
 
   const resetOptions = () => {
     setShowOptionsForComment(null);
