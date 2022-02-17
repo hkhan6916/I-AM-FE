@@ -88,7 +88,6 @@ const VideoPlayer = ({
                   height: "100%",
                 }}
               >
-                {console.log(thumbnailHeaders)}
                 <ImageWithCache
                   removeBorderRadius
                   resizeMode="cover"

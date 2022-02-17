@@ -4,6 +4,7 @@ import { Button, ScrollView, TextInput } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import PostCard from "../../../components/PostCard";
 import { useDispatch } from "react-redux";
+import RepostCard from "../../../components/RepostCard";
 
 const RepostScreen = (props) => {
   const { prevScreen, post } = props.route.params;

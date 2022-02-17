@@ -64,20 +64,13 @@ const RepostCard = ({ postContent, isPreview }) => {
               flexDirection: "column",
             }}
           >
-            {/* <VideoPlayer
-              shouldPlay={false}
-              mediaOrientation={postContent.mediaOrientation}
-              mediaIsSelfie={postContent.mediaIsSelfie}
-              url={postContent.mediaUrl}
-              mediaHeaders={postContent.mediaHeaders}
-            /> */}
             <ImageWithCache
               removeBorderRadius
-              mediaHeaders={postContent.mediaHeaders}
+              mediaHeaders={postContent.thumbnailHeaders}
               mediaOrientation={postContent.mediaOrientation}
               mediaIsSelfie={postContent.mediaIsSelfie}
               resizeMode="cover"
-              mediaUrl={postContent.mediaUrl}
+              mediaUrl={postContent.thumbnailUrl}
               aspectRatio={1 / 1}
             />
             <View

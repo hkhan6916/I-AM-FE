@@ -11,6 +11,8 @@ import {
   KeyboardAvoidingView,
   ActivityIndicator,
   TouchableOpacity,
+  NativeModules,
+  Platform,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
@@ -33,6 +35,25 @@ import { backgroundUpload } from "react-native-compressor";
 import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import * as VideoThumbnails from "expo-video-thumbnails";
+import * as BackgroundFetch from "expo-background-fetch";
+import * as TaskManager from "expo-task-manager";
+import Upload from "react-native-background-upload";
+
+const BACKGROUND_FETCH_TASK = "background-fetch";
+
+// 1. Define the task by providing a name and the function that should be executed
+// Note: This needs to be called in the global scope (e.g outside of your React components)
+TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
+  const now = Date.now();
+
+  console.log(
+    `Got background fetch call at date: ${new Date(now).toISOString()}`
+  );
+  await apiCall("GET", "/user/test/test");
+
+  // Be sure to return the successful result type!
+  return BackgroundFetch.BackgroundFetchResult.NewData;
+});
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -43,7 +64,6 @@ const AddScreen = () => {
   const [cameraActive, setCameraActive] = useState(false);
   const [recording, setRecording] = useState(false);
   const [showMediaSizeError, setShowMediaSizeError] = useState(false);
-
   const navigation = useNavigation();
 
   const dispatch = useDispatch();
@@ -56,7 +76,6 @@ const AddScreen = () => {
       if (type.split("/")[0] === "video") {
         const thumbnailUri = await generateThumbnail(uri);
         const thumbnailFormat = thumbnailUri.split(".").pop();
-        console.log(thumbnailFormat);
         postData.append("files", {
           type: `image/${thumbnailFormat}`,
           name: `mediaThumbnail.${thumbnailFormat}`,
@@ -92,37 +111,96 @@ const AddScreen = () => {
   };
 
   const createPost = async () => {
-    setLoading(true);
-    const postData = await createPostData();
-
-    const { success, message } = await apiCall("POST", "/posts/new", postData);
-    console.log(message);
-    if (success) {
-      setPostBody("");
-      setFile("");
-      dispatch({
-        type: "SET_POST_CREATED",
-        payload: { posted: true, type: "created" },
-      });
-      navigation.navigate("Home");
-    } else {
-      setError({
-        title: "Well... that wasn't supposed to happen!",
-        message: "An error occured creating your post.",
-      });
-    }
-    setLoading(false);
+    // setLoading(true);
+    // const postData = await createPostData();
+    // const { success, message } = await apiCall("POST", "/posts/new", postData);
+    // if (success) {
+    //   setPostBody("");
+    //   setFile("");
+    //   dispatch({
+    //     type: "SET_POST_CREATED",
+    //     payload: { posted: true, type: "created" },
+    //   });
+    //   navigation.navigate("Home");
+    // } else {
+    //   setError({
+    //     title: "Well... that wasn't supposed to happen!",
+    //     message: "An error occured creating your post.",
+    //   });
+    // }
+    // setLoading(false);
   };
 
+  const registerBackgroundFetchAsync = async () => {
+    return BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
+      minimumInterval: 2,
+      stopOnTerminate: false,
+      startOnBoot: false,
+    });
+  };
+  async function unregisterBackgroundFetchAsync() {
+    return BackgroundFetch.unregisterTaskAsync(BACKGROUND_FETCH_TASK);
+  }
   const handleCompression = async (media) => {
+    const postData = await createPostData();
+    console.log(file);
+    const options = {
+      url: "http://192.168.5.101:5000/user/test/test",
+      path:
+        Platform.OS == "android"
+          ? file?.uri?.replace("file://", "")
+          : file?.uri,
+      method: "POST",
+      type: "multipart",
+      maxRetries: 2, // set retry count (Android only). Default 2
+      headers: {
+        "content-type": "multipart/form-data", // Customize content-type
+      },
+      field: "file",
+      // Below are options only supported on Android
+      notification: {
+        enabled: true,
+      },
+      useUtf8Charset: true,
+      // ...postData,
+    };
+    if (file.uri) {
+      Upload.startUpload(options)
+        .then((uploadId) => {
+          console.log("Upload started");
+          Upload.addListener("progress", uploadId, (data) => {
+            console.log(`Progress: ${data.progress}%`);
+          });
+          Upload.addListener("error", uploadId, (data) => {
+            console.log(`Error: ${data.error}%`);
+          });
+          Upload.addListener("cancelled", uploadId, (data) => {
+            console.log(`Cancelled!`);
+          });
+          Upload.addListener("completed", uploadId, (data) => {
+            // data includes responseCode: number and responseBody: Object
+            console.log("Completed!");
+          });
+        })
+        .catch((err) => {
+          console.log("Upload error!", err);
+        });
+    }
+
     if (media?.type === "video") {
       const url = await VideoCompress.compress(
         media.uri,
         {
           compressionMethod: "auto",
         },
-        (progress) => console.log(progress)
-      );
+        (progress) => {
+          // console.log(progress);
+        }
+      ).then(async (result) => {
+        console.log(result);
+        // await apiCall("GET", "/user/test/test");
+        return result;
+      });
       return url;
     }
 
@@ -149,7 +227,7 @@ const AddScreen = () => {
       if (!result.cancelled) {
         const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
-        if (mediaSizeInMb > 50) {
+        if (mediaSizeInMb > 500) {
           setShowMediaSizeError(true);
           setFile({ ...result, ...mediaInfo });
           return;

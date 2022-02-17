@@ -289,7 +289,6 @@ const CameraStandard = ({
                 if (cameraRef) {
                   const photo = await cameraRef.takePictureAsync({
                     quality: 0,
-                    onpointercancel,
                   });
                   const re = /(?:\.([^.]+))?$/;
                   const fileExtension = re.exec(photo.uri)[1];
