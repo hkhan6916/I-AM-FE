@@ -27,6 +27,12 @@ import {
   Video as VideoCompress,
   Image as ImageCompress,
 } from "react-native-compressor";
+import {
+  uploadAsync,
+  FileSystemHttpMethods,
+  FileSystemSessionType,
+  FileSystemUploadType,
+} from "expo-file-system";
 // import ExpoVideoPlayer from "../../../components/ExpoVideoPlayer";
 // import VideoPlayer from "../../../components/VideoPlayer";
 import VideoPlayer from "expo-video-player";
@@ -38,6 +44,7 @@ import * as VideoThumbnails from "expo-video-thumbnails";
 import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
 import Upload from "react-native-background-upload";
+import { getItemAsync } from "expo-secure-store";
 
 const BACKGROUND_FETCH_TASK = "background-fetch";
 
@@ -64,34 +71,35 @@ const AddScreen = () => {
   const [cameraActive, setCameraActive] = useState(false);
   const [recording, setRecording] = useState(false);
   const [showMediaSizeError, setShowMediaSizeError] = useState(false);
+  const [post, setPost] = useState(null);
   const navigation = useNavigation();
 
   const dispatch = useDispatch();
 
   const createPostData = async () => {
     const postData = new FormData();
-
     if (file.uri) {
       const { type, name, uri, orientation, isSelfie } = file;
       if (type.split("/")[0] === "video") {
+        // just add thumbnail for videos. We'll add the rest of the media later.
         const thumbnailUri = await generateThumbnail(uri);
         const thumbnailFormat = thumbnailUri.split(".").pop();
-        postData.append("files", {
+        postData.append("file", {
           type: `image/${thumbnailFormat}`,
           name: `mediaThumbnail.${thumbnailFormat}`,
           uri: thumbnailUri,
         });
+      } else {
+        const format = uri.split(".").pop();
+        postData.append("file", {
+          type: type.split("/").length > 1 ? type : `${type}/${format}`,
+          name: name || `media.${format}`,
+          uri,
+        });
+        postData.append("mediaOrientation", orientation || "");
+        postData.append("mediaIsSelfie", isSelfie || false);
       }
-      const format = uri.split(".").pop();
-      postData.append("files", {
-        type: type.split("/").length > 1 ? type : `${type}/${format}`,
-        name: name || `media.${format}`,
-        uri,
-      });
-      postData.append("mediaOrientation", orientation || "");
-      postData.append("mediaIsSelfie", isSelfie || false);
     }
-
     if (postBody) {
       postData.append("postBody", postBody);
     }
@@ -110,42 +118,38 @@ const AddScreen = () => {
     }
   };
 
-  const createPost = async () => {
-    // setLoading(true);
-    // const postData = await createPostData();
-    // const { success, message } = await apiCall("POST", "/posts/new", postData);
-    // if (success) {
-    //   setPostBody("");
-    //   setFile("");
-    //   dispatch({
-    //     type: "SET_POST_CREATED",
-    //     payload: { posted: true, type: "created" },
-    //   });
-    //   navigation.navigate("Home");
-    // } else {
-    //   setError({
-    //     title: "Well... that wasn't supposed to happen!",
-    //     message: "An error occured creating your post.",
-    //   });
-    // }
-    // setLoading(false);
+  const handlePostCreation = async () => {
+    const postData = await createPostData();
+    const { success, message, response } = await apiCall(
+      "POST",
+      "/posts/new",
+      postData
+    );
+    console.log(message);
+    if (success) {
+      // // This needs to be the last step!
+      // setPostBody("");
+      // setFile("");
+      // dispatch({
+      //   type: "SET_POST_CREATED",
+      //   payload: { posted: true, type: "created" },
+      // });
+      // navigation.navigate("Home");
+
+      setPost(response.post);
+      return response.post;
+    } else {
+      setError({
+        title: "Well... that wasn't supposed to happen!",
+        message: "An error occured creating your post.",
+      });
+    }
   };
 
-  const registerBackgroundFetchAsync = async () => {
-    return BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
-      minimumInterval: 2,
-      stopOnTerminate: false,
-      startOnBoot: false,
-    });
-  };
-  async function unregisterBackgroundFetchAsync() {
-    return BackgroundFetch.unregisterTaskAsync(BACKGROUND_FETCH_TASK);
-  }
-  const handleCompression = async (media) => {
-    const postData = await createPostData();
-    console.log(file);
+  const handleUploadVideo = async (post) => {
+    const token = await getItemAsync("authToken");
     const options = {
-      url: "http://192.168.5.101:5000/user/test/test",
+      url: "http://192.168.5.101:5000/posts/new",
       path:
         Platform.OS == "android"
           ? file?.uri?.replace("file://", "")
@@ -155,6 +159,10 @@ const AddScreen = () => {
       maxRetries: 2, // set retry count (Android only). Default 2
       headers: {
         "content-type": "multipart/form-data", // Customize content-type
+        Authorization: `Bearer ${token}`,
+      },
+      parameters: {
+        postId: post._id,
       },
       field: "file",
       // Below are options only supported on Android
@@ -162,14 +170,16 @@ const AddScreen = () => {
         enabled: true,
       },
       useUtf8Charset: true,
-      // ...postData,
     };
-    if (file.uri) {
+    if (file.uri && post?._id) {
+      // compress in background and .then (()=>startupload)
       Upload.startUpload(options)
         .then((uploadId) => {
+          setPost(null);
           console.log("Upload started");
           Upload.addListener("progress", uploadId, (data) => {
             console.log(`Progress: ${data.progress}%`);
+            console.log(data);
           });
           Upload.addListener("error", uploadId, (data) => {
             console.log(`Error: ${data.error}%`);
@@ -186,7 +196,19 @@ const AddScreen = () => {
           console.log("Upload error!", err);
         });
     }
+  };
 
+  const createPost = async () => {
+    setLoading(true);
+    if (!post?._id) {
+      await handlePostCreation().then(async (post) => {
+        await handleUploadVideo(post);
+      });
+    }
+    setLoading(false);
+  };
+
+  const handleCompression = async (media) => {
     if (media?.type === "video") {
       const url = await VideoCompress.compress(
         media.uri,
@@ -232,12 +254,13 @@ const AddScreen = () => {
           setFile({ ...result, ...mediaInfo });
           return;
         }
-        const url = await handleCompression(result);
+        setFile({ ...result, ...mediaInfo });
+        // const url = await handleCompression(result);
 
-        if (showMediaSizeError) {
-          setShowMediaSizeError(false);
-        }
-        setFile({ ...result, uri: url, ...mediaInfo });
+        // if (showMediaSizeError) {
+        //   setShowMediaSizeError(false);
+        // }
+        // setFile({ ...result, uri: url, ...mediaInfo });
       }
     }
   };
@@ -264,6 +287,9 @@ const AddScreen = () => {
   }
   return (
     <SafeAreaView style={styles.container}>
+      <TouchableOpacity onPress={() => handleCompression()}>
+        <Text>Test</Text>
+      </TouchableOpacity>
       <Text
         style={{
           fontSize: 24,

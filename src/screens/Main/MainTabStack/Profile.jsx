@@ -31,8 +31,8 @@ const ProfileScreen = () => {
 
   useScrollToTop(flatlistRef);
 
-  const getUserPosts = async () => {
-    if (!allPostsLoaded) {
+  const getUserPosts = async (refreshing) => {
+    if (!allPostsLoaded || (allPostsLoaded && refreshing)) {
       const { success, response } = await apiCall(
         "GET",
         `/user/posts/${userPosts.length}`
@@ -67,6 +67,7 @@ const ProfileScreen = () => {
       `/user/posts/${userPosts.length}`
     );
     await getUserData();
+    await getUserPosts(true);
     setRefreshing(false);
     if (success) {
       setUserPosts(response);

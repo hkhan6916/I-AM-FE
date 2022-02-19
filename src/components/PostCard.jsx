@@ -144,7 +144,9 @@ const PostCard = ({
       ) : (
         <View>
           <TouchableOpacity
-            onPress={() => navigation.navigate("MediaScreen", { post })}
+            onPress={() =>
+              !post.private && navigation.navigate("MediaScreen", { post })
+            }
             underlayColor={themeStyle.colors.grayscale.mediumGray}
             delayPressIn={150}
           >
@@ -165,6 +167,7 @@ const PostCard = ({
                     url={post.mediaUrl}
                     thumbnailUrl={post.thumbnailUrl}
                     thumbnailHeaders={post.thumbnailHeaders}
+                    isPending={post.uploaded === false}
                   />
                 </View>
               ) : post.mediaType === "image" ? (

@@ -19,6 +19,7 @@ const VideoPlayer = ({
   isLocalMedia,
   thumbnailUrl,
   thumbnailHeaders,
+  isPending,
 }) => {
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
@@ -65,6 +66,20 @@ const VideoPlayer = ({
             transform: [{ scaleX: mediaIsSelfie ? -1 : 1 }],
           }}
         >
+          {isPending ? (
+            <Text
+              style={{
+                position: "absolute",
+                fontSize: 20,
+                color: themeStyle.colors.grayscale.lightGray,
+                zIndex: 1,
+                textAlign: "center",
+                margin: 10,
+              }}
+            >
+              Uploading...
+            </Text>
+          ) : null}
           <View
             style={{
               transform: [
@@ -79,7 +94,7 @@ const VideoPlayer = ({
               ],
             }}
           >
-            {!readyForDisplay ? (
+            {!readyForDisplay || isPending ? (
               <View
                 style={{
                   position: "absolute",

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { View, TextInput, StyleSheet, SafeAreaView } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
 import themeStyle from "../../../theme.style";
