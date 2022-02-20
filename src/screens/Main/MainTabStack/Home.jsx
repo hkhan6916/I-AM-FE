@@ -168,6 +168,8 @@ const HomeScreen = () => {
     []
   );
 
+  const keyExtractor = useCallback((item) => item._id, []);
+
   useEffect(() => {
     if (newPostCreated.state) {
       setTimeout(() => {
@@ -191,7 +193,7 @@ const HomeScreen = () => {
           // }
           data={feed}
           renderItem={renderItem}
-          keyExtractor={(item) => `${item._id}`}
+          keyExtractor={keyExtractor}
           refreshControl={
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }

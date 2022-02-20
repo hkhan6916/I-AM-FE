@@ -27,12 +27,6 @@ import {
   Video as VideoCompress,
   Image as ImageCompress,
 } from "react-native-compressor";
-import {
-  uploadAsync,
-  FileSystemHttpMethods,
-  FileSystemSessionType,
-  FileSystemUploadType,
-} from "expo-file-system";
 // import ExpoVideoPlayer from "../../../components/ExpoVideoPlayer";
 // import VideoPlayer from "../../../components/VideoPlayer";
 import VideoPlayer from "expo-video-player";
@@ -46,32 +40,18 @@ import * as TaskManager from "expo-task-manager";
 import Upload from "react-native-background-upload";
 import { getItemAsync } from "expo-secure-store";
 
-const BACKGROUND_FETCH_TASK = "background-fetch";
-
-// 1. Define the task by providing a name and the function that should be executed
-// Note: This needs to be called in the global scope (e.g outside of your React components)
-TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
-  const now = Date.now();
-
-  console.log(
-    `Got background fetch call at date: ${new Date(now).toISOString()}`
-  );
-  await apiCall("GET", "/user/test/test");
-
-  // Be sure to return the successful result type!
-  return BackgroundFetch.BackgroundFetchResult.NewData;
-});
-
 const AddScreen = () => {
   const isFocused = useIsFocused();
   const [postBody, setPostBody] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [file, setFile] = useState({});
+  const [compressedFileUrl, setCompressedFileUrl] = useState(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [compressing, setCompressing] = useState(false);
+  const [compressionProgress, setCompressionProgress] = useState(0);
   const [showMediaSizeError, setShowMediaSizeError] = useState(false);
-  const [post, setPost] = useState(null);
   const navigation = useNavigation();
 
   const dispatch = useDispatch();
@@ -125,18 +105,7 @@ const AddScreen = () => {
       "/posts/new",
       postData
     );
-    console.log(message);
     if (success) {
-      // // This needs to be the last step!
-      // setPostBody("");
-      // setFile("");
-      // dispatch({
-      //   type: "SET_POST_CREATED",
-      //   payload: { posted: true, type: "created" },
-      // });
-      // navigation.navigate("Home");
-
-      setPost(response.post);
       return response.post;
     } else {
       setError({
@@ -152,8 +121,8 @@ const AddScreen = () => {
       url: "http://192.168.5.101:5000/posts/new",
       path:
         Platform.OS == "android"
-          ? file?.uri?.replace("file://", "")
-          : file?.uri,
+          ? compressedFileUrl?.replace("file://", "/")
+          : compressedFileUrl,
       method: "POST",
       type: "multipart",
       maxRetries: 2, // set retry count (Android only). Default 2
@@ -167,15 +136,14 @@ const AddScreen = () => {
       field: "file",
       // Below are options only supported on Android
       notification: {
-        enabled: true,
+        enabled: false,
       },
       useUtf8Charset: true,
     };
-    if (file.uri && post?._id) {
+    if (compressedFileUrl && post?._id) {
       // compress in background and .then (()=>startupload)
       Upload.startUpload(options)
         .then((uploadId) => {
-          setPost(null);
           console.log("Upload started");
           Upload.addListener("progress", uploadId, (data) => {
             console.log(`Progress: ${data.progress}%`);
@@ -188,7 +156,6 @@ const AddScreen = () => {
             console.log(`Cancelled!`);
           });
           Upload.addListener("completed", uploadId, (data) => {
-            // data includes responseCode: number and responseBody: Object
             console.log("Completed!");
           });
         })
@@ -200,41 +167,48 @@ const AddScreen = () => {
 
   const createPost = async () => {
     setLoading(true);
-    if (!post?._id) {
-      await handlePostCreation().then(async (post) => {
+    await handlePostCreation().then(async (post) => {
+      if (file.type?.split("/")[0] === "video") {
         await handleUploadVideo(post);
+      }
+      setPostBody("");
+      setFile("");
+      dispatch({
+        type: "SET_POST_CREATED",
+        payload: { posted: true, type: "created" },
       });
-    }
+      navigation.navigate("Home");
+    });
     setLoading(false);
   };
 
   const handleCompression = async (media) => {
     if (media?.type === "video") {
+      setCompressing(true);
       const url = await VideoCompress.compress(
         media.uri,
         {
           compressionMethod: "auto",
         },
         (progress) => {
-          // console.log(progress);
+          setCompressionProgress(Math.round(progress * 100));
         }
-      ).then(async (result) => {
-        console.log(result);
-        // await apiCall("GET", "/user/test/test");
-        return result;
-      });
+      );
+      setCompressedFileUrl(url);
       return url;
     }
 
     if (media?.type === "image") {
+      setCompressing(true);
       const url = await ImageCompress.compress(media.uri, {
         compressionMethod: "auto",
       });
+      setCompressedFileUrl(url);
       return url;
     }
   };
 
-  const pickImage = async () => {
+  const pickMedia = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       alert("Sorry, we need camera roll permissions to make this work.");
@@ -249,12 +223,16 @@ const AddScreen = () => {
       if (!result.cancelled) {
         const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
-        if (mediaSizeInMb > 500) {
+        if (mediaSizeInMb > 100) {
           setShowMediaSizeError(true);
           setFile({ ...result, ...mediaInfo });
           return;
         }
+        setShowMediaSizeError(false);
+        setCompressing(false);
+        setCompressionProgress(0);
         setFile({ ...result, ...mediaInfo });
+        await handleCompression(result);
         // const url = await handleCompression(result);
 
         // if (showMediaSizeError) {
@@ -287,31 +265,34 @@ const AddScreen = () => {
   }
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity onPress={() => handleCompression()}>
-        <Text>Test</Text>
-      </TouchableOpacity>
-      <Text
+      <View
         style={{
-          fontSize: 24,
-          color: themeStyle.colors.primary.default,
-          marginBottom: 20,
+          padding: 10,
+          backgroundColor: themeStyle.colors.grayscale.white,
         }}
       >
-        New Post
-      </Text>
+        <Text
+          style={{
+            fontSize: 24,
+            color: themeStyle.colors.primary.default,
+          }}
+        >
+          New Post
+        </Text>
+      </View>
       {postBody.length >= 1000 - 25 ? (
         <Text style={styles.postLimitMessage}>
-          {2000 - postBody.length} Characters Remaining
+          {1000 - postBody.length} Characters Remaining
         </Text>
       ) : null}
-      <ScrollView>
+      <ScrollView contentContainerStyle={{ padding: 10 }}>
         <TextInput
           style={{ minHeight: 100, textAlignVertical: "top", fontSize: 16 }}
           value={postBody}
           placeholder="What's on your mind?"
           placeholderTextColor={themeStyle.colors.grayscale.lightGray}
           multiline
-          maxLength={2000}
+          maxLength={1000}
           onChangeText={(v) => setPostBody(v)}
         />
         {file.uri ? (
@@ -341,27 +322,58 @@ const AddScreen = () => {
                   marginHorizontal: 5,
                 }}
               >
-                Choose a file smaller than 50MB
+                Choose a file smaller than 100MB
               </Text>
             ) : null}
-            {file.type?.split("/")[0] === "video" ? (
-              <View
+            {compressing ? (
+              <Text
                 style={{
-                  alignItems: "center",
-                  justifyContent: "center",
+                  marginHorizontal: 5,
+                  marginBottom: 5,
+                  color: themeStyle.colors.secondary.default,
                 }}
               >
-                <VideoPlayer
-                  videoProps={{
-                    resizeMode: Video.RESIZE_MODE_CONTAIN,
-                    source: {
-                      uri: file.uri,
-                    },
-                    style: { width: "100%", height: "100%" },
-                  }}
-                  // fullscreen={true}
-                />
-              </View>
+                {compressionProgress < 100 ? "Processing..." : "Processed"}
+              </Text>
+            ) : null}
+            <View
+              style={{
+                height: 5,
+                width: `${compressionProgress}%`,
+                backgroundColor: themeStyle.colors.secondary.default,
+              }}
+            />
+            {file.type?.split("/")[0] === "video" ? (
+              // <View
+              //   style={{
+              //     alignItems: "center",
+              //     justifyContent: "center",
+              //   }}
+              // >
+              //   <VideoPlayer
+              //     autoHidePlayer={false}
+              //     videoProps={{
+              //       resizeMode: Video.RESIZE_MODE_COVER,
+              //       source: {
+              //         uri: file.uri,
+              //       },
+              //       // style: { width: "100%", height: "100%" },
+              //     }}
+              //     // fullscreen={true}
+              //   />
+              // </View>
+              <VideoPlayer
+                autoHidePlayer={false}
+                fullscreen
+                videoProps={{
+                  shouldPlay: true,
+                  resizeMode: Video.RESIZE_MODE_CONTAIN,
+                  source: {
+                    uri: file.uri,
+                  },
+                }}
+                style={{ height: 300 }}
+              />
             ) : file.type?.split("/")[0] === "image" ? (
               <ImageWithCache
                 mediaOrientation={file.mediaOrientation}
@@ -380,7 +392,8 @@ const AddScreen = () => {
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
-          marginVertical: 10,
+          padding: 10,
+          backgroundColor: themeStyle.colors.grayscale.white,
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
@@ -406,7 +419,7 @@ const AddScreen = () => {
               marginHorizontal: 10,
             }}
           >
-            <TouchableOpacity onPress={() => pickImage()}>
+            <TouchableOpacity onPress={() => pickMedia()}>
               <FontAwesome
                 name="image"
                 size={24}
@@ -449,7 +462,6 @@ const AddScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 10,
   },
   postLimitMessage: {
     alignSelf: "flex-end",

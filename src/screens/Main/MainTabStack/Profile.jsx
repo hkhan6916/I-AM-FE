@@ -98,6 +98,8 @@ const ProfileScreen = () => {
     []
   );
 
+  const keyExtractor = useCallback((item) => item._id, []);
+
   useEffect(() => {
     let isMounted = true;
     (async () => {
@@ -137,7 +139,7 @@ const ProfileScreen = () => {
           }
           data={userPosts}
           renderItem={renderItem}
-          keyExtractor={(item) => `${item._id}`}
+          keyExtractor={keyExtractor}
           refreshControl={
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }

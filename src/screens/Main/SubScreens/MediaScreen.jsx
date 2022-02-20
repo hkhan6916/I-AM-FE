@@ -29,7 +29,6 @@ const MediaScreen = (props) => {
   const [liked, setLked] = useState(post.liked);
   const [likes, setLikes] = useState(post.likes);
   const navigation = useNavigation();
-  console.log(post._id);
   const { width, height } = Dimensions.get("window");
   const videoHeightOffset = 12;
 
