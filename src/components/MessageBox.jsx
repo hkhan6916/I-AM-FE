@@ -41,6 +41,7 @@ const MessageBox = ({ belongsToSender, message }) => {
               onPress={() => videoRef.current.presentFullscreenPlayer()}
             >
               <View style={{ alignItems: "center", justifyContent: "center" }}>
+                {console.log(mediaUrl)}
                 <Video
                   ref={videoRef}
                   style={{

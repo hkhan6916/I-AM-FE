@@ -100,11 +100,7 @@ const AddScreen = () => {
 
   const handlePostCreation = async () => {
     const postData = await createPostData();
-    const { success, message, response } = await apiCall(
-      "POST",
-      "/posts/new",
-      postData
-    );
+    const { success, response } = await apiCall("POST", "/posts/new", postData);
     if (success) {
       return response.post;
     } else {
@@ -217,7 +213,6 @@ const AddScreen = () => {
     if (status === "granted") {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
-        // mediaTypes: ImagePicker.MediaTypeOptions.Images, // if we only allow images
         quality: 0.3,
       });
       if (!result.cancelled) {

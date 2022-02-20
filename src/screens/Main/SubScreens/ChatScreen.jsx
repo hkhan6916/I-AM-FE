@@ -340,7 +340,9 @@ const ChatScreen = (props) => {
       ) : null}
       <FlatList
         data={messages}
-        renderItem={({ item: message, index: i }) => (
+        renderItem={(
+          { item: message, index: i } // change to be more performant like home and profile screen
+        ) => (
           <View key={`message-${i}`}>
             {messages[i - 1] &&
             message.stringDate !== messages[i - 1].stringDate ? (
