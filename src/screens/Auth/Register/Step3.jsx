@@ -12,14 +12,14 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
-import { Video } from "expo-av";
 import { getExpoPushTokenAsync } from "expo-notifications";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import ProfileVideoCamera from "../../../components/ProfileVideoCamera";
 import { useSelector, useDispatch } from "react-redux";
 import PreviewVideo from "../../../components/PreviewVideo";
-
+import { detectFacesAsync } from "expo-face-detector";
+import { getThumbnailAsync } from "expo-video-thumbnails";
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
 
@@ -36,8 +36,6 @@ const Step1Screen = () => {
   const [faceDectected, setFaceDetected] = useState(false);
 
   const [profileVideo, setProfileVideo] = useState("");
-  const [profileVideoPlaying, setProfileVideoPlaying] = useState(false);
-  const profileVideoRef = useRef(null);
 
   const [registerationError, setRegisterationError] = useState("");
   const navigation = useNavigation();
@@ -49,16 +47,6 @@ const Step1Screen = () => {
       return true;
     }
     return false;
-  };
-
-  const handleFacesDetected = (obj) => {
-    try {
-      if (recording && obj.faces.length !== 0 && !faceDectected) {
-        setFaceDetected(true);
-      }
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   const registerUser = async () => {
@@ -87,9 +75,22 @@ const Step1Screen = () => {
         type: "SET_USER_DATA",
         payload: {},
       });
-      navigation.navigate("Login");
+      setTimeout(() => navigation.navigate("Login"), 2000);
     } else {
       setRegisterationError("Error, maybe network error.");
+    }
+  };
+
+  const handleFaceDetection = async () => {
+    const { uri } = await getThumbnailAsync(profileVideo, {
+      time: 500,
+    });
+    const { faces } = await detectFacesAsync(uri);
+    console.log(faces);
+    if (faces?.length) {
+      setFaceDetected(true);
+    } else {
+      setFaceDetected(false);
     }
   };
 
@@ -114,6 +115,13 @@ const Step1Screen = () => {
     }
   }, [cameraActivated]);
 
+  useEffect(() => {
+    if (profileVideo) {
+      (async () => await handleFaceDetection())();
+    }
+    console.log(profileVideo);
+  }, [profileVideo]);
+
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -130,9 +138,8 @@ const Step1Screen = () => {
       <ProfileVideoCamera
         setRecording={setRecording}
         setProfileVideo={setProfileVideo}
-        setCameraActivated={setCameraActivated}
+        setCameraActive={setCameraActivated}
         setRecordingLength={setRecordingLength}
-        handleFacesDetected={handleFacesDetected}
         recording={recording}
         recordingLength={recordingLength}
         hasCameraPermission={hasCameraPermission}

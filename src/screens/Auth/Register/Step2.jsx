@@ -18,9 +18,9 @@ import { useSelector, useDispatch } from "react-redux";
 import PasswordInput from "../../../components/PasswordInput";
 
 const Step2Screen = () => {
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("test@tecdcdsfft.com");
+  const [username, setUsername] = useState("tecdcdst");
+  const [password, setPassword] = useState("Password1");
 
   const [validationErrors, setValidationErrors] = useState({});
   const navigation = useNavigation();
@@ -115,8 +115,8 @@ const Step2Screen = () => {
 
   useEffect(() => {
     if (existingInfo) {
-      setUsername(existingInfo?.state?.username || "");
-      setEmail(existingInfo?.state?.email || "");
+      setUsername(existingInfo?.state?.username || "teshshst");
+      setEmail(existingInfo?.state?.email || "test@t232r44rest.com");
     }
   }, [existingInfo]);
 

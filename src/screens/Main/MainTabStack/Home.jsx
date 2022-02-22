@@ -28,6 +28,7 @@ import PostCard from "../../../components/PostCard";
 import apiCall from "../../../helpers/apiCall";
 import Logo from "../../../Logo";
 import { useScrollToTop } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const { statusBarHeight } = Constants;
 
@@ -179,51 +180,53 @@ const HomeScreen = () => {
   }, [newPostCreated, feed]);
   if (feed.length) {
     return (
-      <View style={styles.container}>
-        {newPostCreated.state ? (
-          <Text style={styles.newPostPill}>
-            Post {newPostCreated.state.type}
-          </Text>
-        ) : null}
-        <HomeHeading />
-        <FlatList
-          ref={flatlistRef}
-          // viewabilityConfigCallbackPairs={
-          //   viewabilityConfigCallbackPairs.current
-          // }
-          data={feed}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          refreshControl={
-            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-          }
-          ListFooterComponent={() => (
-            <View
-              style={{
-                margin: 20,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <ActivityIndicator
-                size="large"
-                animating={loading}
-                color={themeStyle.colors.grayscale.lightGray}
-              />
-              {allPostsLoaded ? (
-                <View>
-                  <Text>You&apos;ve caught up!</Text>
-                </View>
-              ) : null}
-            </View>
-          )}
-          contentContainerStyle={{ flexGrow: 1 }}
-          onEndReached={() => getUserFeed()}
-          onEndReachedThreshold={0.5}
-          initialNumToRender={10}
-          maxToRenderPerBatch={5}
-        />
-      </View>
+      <SafeAreaView style={styles.container}>
+        <View>
+          {newPostCreated.state ? (
+            <Text style={styles.newPostPill}>
+              Post {newPostCreated.state.type}
+            </Text>
+          ) : null}
+          <HomeHeading />
+          <FlatList
+            ref={flatlistRef}
+            // viewabilityConfigCallbackPairs={
+            //   viewabilityConfigCallbackPairs.current
+            // }
+            data={feed}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            refreshControl={
+              <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+            }
+            ListFooterComponent={() => (
+              <View
+                style={{
+                  margin: 20,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <ActivityIndicator
+                  size="large"
+                  animating={loading}
+                  color={themeStyle.colors.grayscale.lightGray}
+                />
+                {allPostsLoaded ? (
+                  <View>
+                    <Text>You&apos;ve caught up!</Text>
+                  </View>
+                ) : null}
+              </View>
+            )}
+            contentContainerStyle={{ flexGrow: 1 }}
+            onEndReached={() => getUserFeed()}
+            onEndReachedThreshold={0.5}
+            initialNumToRender={10}
+            maxToRenderPerBatch={5}
+          />
+        </View>
+      </SafeAreaView>
     );
   }
   return (

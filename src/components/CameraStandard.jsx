@@ -238,7 +238,7 @@ const CameraStandard = ({
         </View>
       </TouchableOpacity>
       <Camera
-        mirror
+        // mirror
         style={{
           width: screenWidth,
           height: screenWidth * 1.33,

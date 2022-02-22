@@ -49,7 +49,8 @@ const MainTabStack = () => {
           {
             display: cameraActivated.state ? "none" : "flex",
             // borderRadius: 20,
-            height: 55,
+            // height: 75,
+            // padding: 10,
             // margin: 5,
             borderTopWidth: 0,
           },

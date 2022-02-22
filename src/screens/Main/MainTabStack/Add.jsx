@@ -187,7 +187,8 @@ const AddScreen = () => {
           compressionMethod: "auto",
         },
         (progress) => {
-          setCompressionProgress(Math.round(progress * 100));
+          console.log({ compression: progress });
+          setCompressionProgress(Math.ceil(progress * 100));
         }
       );
       setCompressedFileUrl(url);
@@ -228,12 +229,6 @@ const AddScreen = () => {
         setCompressionProgress(0);
         setFile({ ...result, ...mediaInfo });
         await handleCompression(result);
-        // const url = await handleCompression(result);
-
-        // if (showMediaSizeError) {
-        //   setShowMediaSizeError(false);
-        // }
-        // setFile({ ...result, uri: url, ...mediaInfo });
       }
     }
   };

@@ -66,7 +66,7 @@ const MediaScreen = (props) => {
     })();
     return async () => {
       await ScreenOrientation.lockAsync(
-        ScreenOrientation.OrientationLock.PORTRAIT
+        ScreenOrientation.OrientationLock.PORTRAIT_UP
       );
     };
   }, []);
