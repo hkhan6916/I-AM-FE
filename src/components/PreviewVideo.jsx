@@ -113,7 +113,7 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
             </View>
           ) : null}
           {videoStatus?.durationMillis && videoStatus?.positionMillis ? (
-            <Text
+            <View
               style={{
                 position: "absolute",
                 bottom: 0,
@@ -124,13 +124,14 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
                 paddingHorizontal: 10,
                 borderRadius: 15,
                 margin: 10,
-                color: themeStyle.colors.grayscale.white,
               }}
             >
-              {handleVideoDuration(
-                videoStatus?.durationMillis - videoStatus?.positionMillis
-              )}
-            </Text>
+              <Text style={{ color: themeStyle.colors.grayscale.white }}>
+                {handleVideoDuration(
+                  videoStatus?.durationMillis - videoStatus?.positionMillis
+                )}
+              </Text>
+            </View>
           ) : null}
         </TouchableOpacity>
       </LinearGradient>

@@ -119,7 +119,6 @@ const Step1Screen = () => {
     if (profileVideo) {
       (async () => await handleFaceDetection())();
     }
-    console.log(profileVideo);
   }, [profileVideo]);
 
   if (loading) {

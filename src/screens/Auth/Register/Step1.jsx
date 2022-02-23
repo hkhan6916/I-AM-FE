@@ -74,7 +74,7 @@ const Step1Screen = () => {
           <Input
             isOutlined
             error={validationErrors?.jobTitle}
-            label="Job Title"
+            label="Job Title/Education"
             value={jobTitle}
             onChangeText={(v) => {
               setJobTitle(v);
