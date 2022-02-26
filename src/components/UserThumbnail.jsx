@@ -37,7 +37,7 @@ const UserThumbnail = ({ user, avatarSize, preventClicks }) => {
           <Text
             numberOfLines={1}
             style={{
-              color: themeStyle.colors.grayscale.mediumGray,
+              color: themeStyle.colors.grayscale.high,
               maxWidth: 200,
             }}
           >

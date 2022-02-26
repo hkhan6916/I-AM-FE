@@ -24,7 +24,7 @@ const Screens = () => {
     ...DefaultTheme,
     colors: {
       ...DefaultTheme.colors,
-      background: themeStyle.colors.grayscale.superLightGray,
+      background: themeStyle.colors.grayscale.lower,
     },
   };
 

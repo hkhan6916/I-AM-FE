@@ -431,11 +431,11 @@ const EditUserDetailsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: themeStyle.colors.grayscale.white,
+    backgroundColor: themeStyle.colors.grayscale.lowest,
   },
   formContainer: {
     paddingHorizontal: 20,
-    backgroundColor: themeStyle.colors.grayscale.white,
+    backgroundColor: themeStyle.colors.grayscale.lowest,
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     zIndex: 3, // works on ios
     elevation: 3, // works on android
     backgroundColor: themeStyle.colors.primary.default,
-    color: themeStyle.colors.grayscale.white,
+    color: themeStyle.colors.grayscale.lowest,
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 20,
@@ -490,7 +490,7 @@ const styles = StyleSheet.create({
   },
   submitButtonContainer: {
     width: "100%",
-    backgroundColor: themeStyle.colors.grayscale.white,
+    backgroundColor: themeStyle.colors.grayscale.lowest,
     position: "absolute",
     bottom: 0,
     alignItems: "center",
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderTopWidth: 2,
-    borderColor: themeStyle.colors.grayscale.superLightGray,
+    borderColor: themeStyle.colors.grayscale.lower,
   },
   takeVideoButton: {
     margin: 10,
@@ -514,12 +514,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   takeVideoButtonText: {
-    color: themeStyle.colors.grayscale.black,
+    color: themeStyle.colors.grayscale.lowest,
     fontWeight: "700",
   },
   text: {
     fontSize: 18,
-    color: "white",
+    color: themeStyle.colors.grayscale.lowest,
   },
   label: {
     fontWeight: "700",
@@ -532,11 +532,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     height: 45,
     paddingHorizontal: 10,
-    backgroundColor: themeStyle.colors.grayscale.superLightGray,
+    backgroundColor: themeStyle.colors.grayscale.lower,
   },
   searchBar: {
     flex: 1,
-    color: themeStyle.colors.grayscale.black,
+    color: themeStyle.colors.grayscale.lowest,
   },
   searchSection: {
     flexDirection: "row",

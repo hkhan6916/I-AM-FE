@@ -87,7 +87,7 @@ const CommentReplyCard = ({
                 style={{
                   fontSize: 12,
                   marginHorizontal: 10,
-                  color: themeStyle.colors.grayscale.lightGray,
+                  color: themeStyle.colors.grayscale.low,
                 }}
               >
                 (edited)
@@ -137,7 +137,7 @@ const CommentReplyCard = ({
             >
               <Text
                 style={{
-                  color: themeStyle.colors.grayscale.mediumGray,
+                  color: themeStyle.colors.grayscale.high,
                   fontWeight: "700",
                 }}
               >
@@ -159,7 +159,7 @@ const CommentReplyCard = ({
                   color={
                     reply.liked
                       ? themeStyle.colors.secondary.default
-                      : themeStyle.colors.grayscale.mediumGray
+                      : themeStyle.colors.grayscale.high
                   }
                 />
               </TouchableOpacity>
@@ -168,7 +168,7 @@ const CommentReplyCard = ({
             {reply.likes > 0 ? (
               <Text
                 style={{
-                  color: themeStyle.colors.grayscale.black,
+                  color: themeStyle.colors.grayscale.lowest,
                   marginLeft: 10,
                 }}
               >
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   commentAge: {
-    color: themeStyle.colors.grayscale.mediumGray,
+    color: themeStyle.colors.grayscale.high,
     marginHorizontal: 10,
     marginVertical: 5,
     fontSize: 12,

@@ -125,7 +125,7 @@ const CameraStandard = ({
       >
         <View
           style={{
-            borderColor: themeStyle.colors.grayscale.white,
+            borderColor: themeStyle.colors.grayscale.lowest,
             borderWidth: 3,
             padding: 20,
             width: 150,
@@ -138,14 +138,14 @@ const CameraStandard = ({
           <EvilIcons
             name="camera"
             size={104}
-            color={themeStyle.colors.grayscale.white}
+            color={themeStyle.colors.grayscale.lowest}
           />
         </View>
         <Text
           style={{
             margin: 20,
             textAlign: "center",
-            color: themeStyle.colors.grayscale.white,
+            color: themeStyle.colors.grayscale.lowest,
           }}
         >
           Well...? No worries, this should be easy. Please enable{" "}
@@ -169,13 +169,13 @@ const CameraStandard = ({
                 padding: 5,
                 borderRadius: 5,
                 borderWidth: 2,
-                borderColor: themeStyle.colors.grayscale.white,
+                borderColor: themeStyle.colors.grayscale.lowest,
               }}
             >
               <Text
                 style={{
                   textAlign: "center",
-                  color: themeStyle.colors.grayscale.white,
+                  color: themeStyle.colors.grayscale.lowest,
                   fontWeight: "700",
                 }}
               >
@@ -193,13 +193,13 @@ const CameraStandard = ({
                 padding: 5,
                 borderRadius: 5,
                 borderWidth: 2,
-                borderColor: themeStyle.colors.grayscale.white,
+                borderColor: themeStyle.colors.grayscale.lowest,
               }}
             >
               <Text
                 style={{
                   textAlign: "center",
-                  color: themeStyle.colors.grayscale.white,
+                  color: themeStyle.colors.grayscale.lowest,
                   fontWeight: "700",
                 }}
               >
@@ -213,7 +213,7 @@ const CameraStandard = ({
   }
   return (
     <View
-      style={{ flex: 1, backgroundColor: themeStyle.colors.grayscale.black }}
+      style={{ flex: 1, backgroundColor: themeStyle.colors.grayscale.lowest }}
     >
       <TouchableOpacity
         onPress={() => setCameraActive(false)}
@@ -227,10 +227,13 @@ const CameraStandard = ({
           <Ionicons
             name="arrow-back"
             size={24}
-            color={themeStyle.colors.grayscale.white}
+            color={themeStyle.colors.grayscale.lowest}
           />
           <Text
-            style={{ color: themeStyle.colors.grayscale.white, marginLeft: 10 }}
+            style={{
+              color: themeStyle.colors.grayscale.lowest,
+              marginLeft: 10,
+            }}
           >
             Back
           </Text>
@@ -280,8 +283,8 @@ const CameraStandard = ({
                 size={40}
                 color={
                   !recording
-                    ? themeStyle.colors.grayscale.white
-                    : themeStyle.colors.grayscale.mediumGray
+                    ? themeStyle.colors.grayscale.lowest
+                    : themeStyle.colors.grayscale.high
                 }
               />
             </TouchableOpacity>
@@ -315,7 +318,7 @@ const CameraStandard = ({
                 style={{
                   borderWidth: 5,
                   borderRadius: 60,
-                  borderColor: themeStyle.colors.grayscale.white,
+                  borderColor: themeStyle.colors.grayscale.lowest,
                   height: 60,
                   width: 60,
                   display: "flex",
@@ -378,7 +381,7 @@ const CameraStandard = ({
                     style={{
                       borderWidth: 5,
                       borderRadius: 60,
-                      borderColor: themeStyle.colors.grayscale.white,
+                      borderColor: themeStyle.colors.grayscale.lowest,
                       height: 60,
                       width: 60,
                       backgroundColor: themeStyle.colors.error.default,

@@ -75,7 +75,7 @@ const ForgotPasswordScreen = () => {
               textAlign: "center",
               fontWeight: "700",
               fontSize: 16,
-              color: themeStyle.colors.grayscale.darkGray,
+              color: themeStyle.colors.grayscale.higher,
               marginHorizontal: 40,
               marginBottom: 50,
             }}

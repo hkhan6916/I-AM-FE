@@ -218,11 +218,11 @@ const Step2Screen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: themeStyle.colors.grayscale.white,
+    backgroundColor: themeStyle.colors.grayscale.highest,
   },
   formContainer: {
     padding: 20,
-    backgroundColor: themeStyle.colors.grayscale.white,
+    backgroundColor: themeStyle.colors.grayscale.highest,
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     width: 100,
   },
   nextButtonText: {
-    color: themeStyle.colors.grayscale.white,
+    color: themeStyle.colors.grayscale.lowest,
     textAlign: "center",
   },
   errorText: {

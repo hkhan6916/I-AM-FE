@@ -15,7 +15,7 @@ const AdCard = (props) => {
       style={{
         elevation: 1,
         zIndex: 1,
-        backgroundColor: themeStyle.colors.grayscale.superLightGray,
+        backgroundColor: themeStyle.colors.grayscale.lower,
         padding: 5,
       }}
     >
@@ -42,7 +42,7 @@ const AdCard = (props) => {
       <View
         style={{
           paddingVertical: 10,
-          backgroundColor: themeStyle.colors.grayscale.superLightGray,
+          backgroundColor: themeStyle.colors.grayscale.lower,
         }}
       >
         <AdMediaView
@@ -52,7 +52,7 @@ const AdCard = (props) => {
           }}
         />
       </View>
-      <Text style={{ color: themeStyle.colors.grayscale.mediumGray }}>
+      <Text style={{ color: themeStyle.colors.grayscale.high }}>
         {props.nativeAd.socialContext}
       </Text>
       <Text>{props.nativeAd.bodyText}</Text>

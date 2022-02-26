@@ -63,21 +63,21 @@ const MessageBox = ({ belongsToSender, message }) => {
                 <View
                   style={{
                     position: "absolute",
-                    backgroundColor: themeStyle.colors.grayscale.black,
+                    backgroundColor: themeStyle.colors.grayscale.lowest,
                     borderRadius: 100,
                   }}
                 >
                   <MaterialCommunityIcons
                     name="play"
                     size={60}
-                    color={themeStyle.colors.grayscale.white}
+                    color={themeStyle.colors.grayscale.lowest}
                   />
                 </View>
               </View>
             </TouchableOpacity>
           ) : null}
           {body ? (
-            <Text style={{ color: themeStyle.colors.grayscale.white }}>
+            <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
               {body}
             </Text>
           ) : null}
@@ -86,7 +86,7 @@ const MessageBox = ({ belongsToSender, message }) => {
               fontSize: 12,
               fontWeight: "700",
               textAlign: "right",
-              color: "white",
+              color: themeStyle.colors.grayscale.lowest,
               alignSelf: belongsToSender ? "flex-end" : "flex-start",
               marginVertical: 5,
             }}
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   senderName: {
-    color: themeStyle.colors.grayscale.white,
+    color: themeStyle.colors.grayscale.lowest,
     fontWeight: "700",
     marginRight: 10,
   },

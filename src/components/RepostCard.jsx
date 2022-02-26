@@ -19,7 +19,7 @@ const RepostCard = ({ postContent, isPreview }) => {
     <TouchableOpacity
       style={styles.repostedPostContent}
       onPress={() => navigation.navigate("PostsScreen", { post: postContent })}
-      underlayColor={themeStyle.colors.grayscale.mediumGray}
+      underlayColor={themeStyle.colors.grayscale.high}
     >
       <View>
         <View
@@ -28,7 +28,7 @@ const RepostCard = ({ postContent, isPreview }) => {
             flexWrap: "wrap",
             padding: 7,
             borderBottomWidth: isPreview ? 0.5 : 0,
-            borderColor: themeStyle.colors.grayscale.lightGray,
+            borderColor: themeStyle.colors.grayscale.low,
           }}
         >
           <Avatar
@@ -83,7 +83,7 @@ const RepostCard = ({ postContent, isPreview }) => {
               <Feather
                 name={"play"}
                 size={48}
-                color={themeStyle.colors.grayscale.white}
+                color={themeStyle.colors.grayscale.lowest}
               />
             </View>
           </View>
@@ -122,7 +122,7 @@ const RepostCard = ({ postContent, isPreview }) => {
               <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
                 <Text
                   style={{
-                    color: themeStyle.colors.grayscale.darkGray,
+                    color: themeStyle.colors.grayscale.higher,
                     marginBottom: 10,
                     marginTop: 5,
                   }}
@@ -141,7 +141,7 @@ const RepostCard = ({ postContent, isPreview }) => {
 const styles = StyleSheet.create({
   repostedPostContent: {
     borderWidth: 1,
-    borderColor: themeStyle.colors.grayscale.lightGray,
+    borderColor: themeStyle.colors.grayscale.low,
     margin: 10,
   },
 });

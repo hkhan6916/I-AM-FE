@@ -40,7 +40,7 @@ const PasswordInputNoBorder = ({
       >
         <TextInput
           style={styles.passwordInput}
-          placeholderTextColor={themeStyle.colors.grayscale.lightGray}
+          placeholderTextColor={themeStyle.colors.grayscale.low}
           secureTextEntry={!showPassword}
           autoCorrect={false}
           placeholder={placeholder || ""}
@@ -88,14 +88,14 @@ const styles = StyleSheet.create({
   passwordInput: {
     flex: 1,
     fontSize: 15,
-    color: themeStyle.colors.grayscale.black,
+    color: themeStyle.colors.grayscale.lowest,
   },
   passwordInputContainer: {
     flexDirection: "row",
     height: 45,
     padding: 5,
     paddingHorizontal: 8,
-    backgroundColor: themeStyle.colors.grayscale.superLightGray,
+    backgroundColor: themeStyle.colors.grayscale.lower,
   },
   eyeIcon: {
     justifyContent: "center",

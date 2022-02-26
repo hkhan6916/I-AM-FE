@@ -43,7 +43,7 @@ const ImageWithCache = ({
           <Modal presentationStyle="pageSheet">
             <View
               style={{
-                backgroundColor: themeStyle.colors.grayscale.black,
+                backgroundColor: themeStyle.colors.grayscale.lowest,
                 flex: 1,
               }}
             >
@@ -59,7 +59,7 @@ const ImageWithCache = ({
                   <AntDesign
                     name="closecircleo"
                     size={24}
-                    color={themeStyle.colors.grayscale.white}
+                    color={themeStyle.colors.grayscale.lowest}
                   />
                 </TouchableOpacity>
               </View>

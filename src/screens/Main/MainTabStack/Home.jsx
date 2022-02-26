@@ -127,7 +127,7 @@ const HomeScreen = () => {
   const HomeHeading = () => (
     <View>
       <StatusBar
-        backgroundColor={themeStyle.colors.grayscale.black}
+        backgroundColor={themeStyle.colors.black}
         barStyle="light-content"
       />
       <View
@@ -136,13 +136,13 @@ const HomeScreen = () => {
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
-          backgroundColor: themeStyle.colors.grayscale.superLightGray,
+          backgroundColor: themeStyle.colors.grayscale.lower,
           borderBottomWidth: 1,
-          borderBottomColor: themeStyle.colors.grayscale.black,
+          borderBottomColor: themeStyle.colors.grayscale.lowest,
         }}
       >
         <View style={{ marginHorizontal: 20 }}>
-          <Logo fill={themeStyle.colors.grayscale.black} />
+          <Logo fill={themeStyle.colors.grayscale.lowest} />
         </View>
         <TouchableOpacity
           style={{ padding: 10, marginRight: 10 }}
@@ -151,7 +151,7 @@ const HomeScreen = () => {
           <Ionicons
             name="paper-plane-outline"
             size={24}
-            color={themeStyle.colors.grayscale.black}
+            color={themeStyle.colors.grayscale.lowest}
           />
         </TouchableOpacity>
       </View>
@@ -210,7 +210,7 @@ const HomeScreen = () => {
                 <ActivityIndicator
                   size="large"
                   animating={loading}
-                  color={themeStyle.colors.grayscale.lightGray}
+                  color={themeStyle.colors.grayscale.low}
                 />
                 {allPostsLoaded ? (
                   <View>
@@ -254,7 +254,7 @@ const HomeScreen = () => {
           <Feather
             name="coffee"
             size={100}
-            color={themeStyle.colors.grayscale.mediumGray}
+            color={themeStyle.colors.grayscale.high}
           />
           <View
             style={{
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     zIndex: 3, // works on ios
     elevation: 3, // works on android
     backgroundColor: themeStyle.colors.primary.default,
-    color: themeStyle.colors.grayscale.white,
+    color: themeStyle.colors.grayscale.lowest,
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 20,

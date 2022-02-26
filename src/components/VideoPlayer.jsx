@@ -69,7 +69,7 @@ const VideoPlayer = ({
             style={{
               position: "absolute",
               fontSize: 20,
-              color: themeStyle.colors.grayscale.lightGray,
+              color: themeStyle.colors.grayscale.low,
               zIndex: 1,
               textAlign: "center",
               margin: 10,
@@ -136,7 +136,7 @@ const VideoPlayer = ({
               <Feather
                 name={videoStatus?.isPlaying ? "pause" : "play"}
                 size={48}
-                color={themeStyle.colors.grayscale.white}
+                color={themeStyle.colors.grayscale.lowest}
               />
             </View>
           ) : null}
@@ -148,13 +148,13 @@ const VideoPlayer = ({
             position: "absolute",
             bottom: 0,
             right: 0,
-            backgroundColor: themeStyle.colors.grayscale.darkGray,
+            backgroundColor: themeStyle.colors.grayscale.higher,
             paddingVertical: 5,
             opacity: 0.8,
             paddingHorizontal: 10,
             borderRadius: 15,
             margin: 10,
-            color: themeStyle.colors.grayscale.white,
+            color: themeStyle.colors.grayscale.lowest,
           }}
         >
           {handleVideoDuration(
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   },
   durationStyles: {
     fontWeight: "500",
-    color: themeStyle.colors.grayscale.white,
+    color: themeStyle.colors.grayscale.lowest,
   },
 });
 

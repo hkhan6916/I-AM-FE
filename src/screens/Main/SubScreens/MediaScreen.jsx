@@ -124,11 +124,11 @@ const MediaScreen = (props) => {
             <Ionicons
               name="arrow-back"
               size={26}
-              color={themeStyle.colors.grayscale.white}
+              color={themeStyle.colors.grayscale.lowest}
             />
             <Text
               style={{
-                color: themeStyle.colors.grayscale.white,
+                color: themeStyle.colors.grayscale.lowest,
                 fontSize: 16,
               }}
             >
@@ -156,12 +156,15 @@ const MediaScreen = (props) => {
               }
             >
               <Text
-                style={{ color: themeStyle.colors.grayscale.white, margin: 20 }}
+                style={{
+                  color: themeStyle.colors.grayscale.lowest,
+                  margin: 20,
+                }}
               >
                 <FontAwesome
                   name="comment-o"
                   size={24}
-                  color={themeStyle.colors.grayscale.white}
+                  color={themeStyle.colors.grayscale.lowest}
                 />
               </Text>
             </TouchableOpacity>
@@ -176,7 +179,7 @@ const MediaScreen = (props) => {
                 >
                   <Text
                     style={{
-                      color: themeStyle.colors.grayscale.white,
+                      color: themeStyle.colors.grayscale.lowest,
                       marginHorizontal: 20,
                     }}
                   >
@@ -186,13 +189,13 @@ const MediaScreen = (props) => {
                       color={
                         liked
                           ? themeStyle.colors.secondary.default
-                          : themeStyle.colors.grayscale.white
+                          : themeStyle.colors.grayscale.lowest
                       }
                     />
                   </Text>
                   <Text
                     style={{
-                      color: themeStyle.colors.grayscale.white,
+                      color: themeStyle.colors.grayscale.lowest,
                       marginHorizontal: 20,
                     }}
                   >
@@ -213,7 +216,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: themeStyle.colors.grayscale.black,
+    backgroundColor: themeStyle.colors.grayscale.lowest,
   },
 });
 

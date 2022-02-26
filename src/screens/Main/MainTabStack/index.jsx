@@ -9,6 +9,7 @@ import SearchStack from "./Search";
 import FriendsScreen from "./Friends";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
+import theme from "../../../theme.style";
 
 const Tab = createBottomTabNavigator();
 
@@ -40,14 +41,15 @@ const MainTabStack = () => {
       initialRouteName="Home"
       screenOptions={({ route }) => ({
         contentStyle: {
-          backgroundColor: themeStyle.colors.grayscale.white,
+          backgroundColor: themeStyle.colors.grayscale.lowest,
         },
         tabBarActiveTintColor: themeStyle.colors.primary.default,
-        tabBarInactiveTintColor: themeStyle.colors.grayscale.black,
+        tabBarInactiveTintColor: themeStyle.colors.grayscale.lowest,
         tabBarShowLabel: false,
         tabBarStyle: [
           {
             display: cameraActivated.state ? "none" : "flex",
+            backgroundColor: themeStyle.colors.grayscale.highest,
             // borderRadius: 20,
             // height: 75,
             // padding: 10,

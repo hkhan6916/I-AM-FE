@@ -17,6 +17,7 @@ const Input = ({
         style={[
           styles.textInput,
           isOutlined && {
+            color: themeStyle.colors.grayscale.lowest,
             borderWidth: 0,
             borderBottomWidth: 2,
             borderRadius: 0,
@@ -27,6 +28,7 @@ const Input = ({
               borderColor: themeStyle.colors.error.default,
             },
         ]}
+        placeholderTextColor={themeStyle.colors.grayscale.lower}
         placeholder={placeholder || ""}
         value={value}
         onChangeText={onChangeText ? (v) => onChangeText(v) : null}

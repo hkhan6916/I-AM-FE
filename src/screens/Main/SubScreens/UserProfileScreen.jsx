@@ -261,7 +261,7 @@ const UserProfileScreen = (props) => {
             <ActivityIndicator
               size="large"
               animating={loading}
-              color={themeStyle.colors.grayscale.lightGray}
+              color={themeStyle.colors.grayscale.low}
             />
           )}
           contentContainerStyle={{ flexGrow: 1 }}

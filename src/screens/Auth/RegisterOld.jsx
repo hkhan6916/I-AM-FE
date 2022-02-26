@@ -306,7 +306,7 @@ const RegisterationScreen = () => {
             >
               <TextInput
                 style={styles.passwordInput}
-                placeholderTextColor={themeStyle.colors.grayscale.lightGray}
+                placeholderTextColor={themeStyle.colors.grayscale.low}
                 secureTextEntry={!showPassword}
                 autoCorrect={false}
                 value={password}
@@ -390,7 +390,7 @@ const RegisterationScreen = () => {
                     borderWidth: 2,
                     borderColor: themeStyle.colors.primary.default,
                     borderRadius: 10,
-                    backgroundColor: themeStyle.colors.grayscale.black,
+                    backgroundColor: themeStyle.colors.grayscale.lowest,
                     opacity: 0.5,
                   }}
                 >
@@ -401,7 +401,7 @@ const RegisterationScreen = () => {
                       fontSize: 20,
                       textAlign: "center",
                       width: screenWidth / 1.5,
-                      color: themeStyle.colors.grayscale.white,
+                      color: themeStyle.colors.grayscale.lowest,
                     }}
                   >
                     Tap to preview
@@ -453,11 +453,11 @@ const RegisterationScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: themeStyle.colors.grayscale.white,
+    backgroundColor: themeStyle.colors.grayscale.lowest,
   },
   formContainer: {
     padding: 20,
-    backgroundColor: themeStyle.colors.grayscale.white,
+    backgroundColor: themeStyle.colors.grayscale.lowest,
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
     backgroundColor: themeStyle.colors.primary.default,
   },
   registerationButtonText: {
-    color: themeStyle.colors.grayscale.white,
+    color: themeStyle.colors.grayscale.lowest,
   },
   takeVideoButton: {
     margin: 10,
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   takeVideoButtonText: {
-    color: themeStyle.colors.grayscale.black,
+    color: themeStyle.colors.grayscale.lowest,
     fontWeight: "700",
   },
   text: {
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   passwordInput: {
     flex: 1,
     fontSize: 15,
-    color: themeStyle.colors.grayscale.black,
+    color: themeStyle.colors.grayscale.lowest,
   },
   passwordInputContainer: {
     flexDirection: "row",

@@ -283,7 +283,7 @@ const AddScreen = () => {
       <View
         style={{
           padding: 10,
-          backgroundColor: themeStyle.colors.grayscale.white,
+          backgroundColor: themeStyle.colors.grayscale.lowest,
         }}
       >
         <Text
@@ -305,7 +305,7 @@ const AddScreen = () => {
           style={{ minHeight: 100, textAlignVertical: "top", fontSize: 16 }}
           value={postBody}
           placeholder="What's on your mind?"
-          placeholderTextColor={themeStyle.colors.grayscale.lightGray}
+          placeholderTextColor={themeStyle.colors.grayscale.low}
           multiline
           maxLength={1000}
           onChangeText={(v) => setPostBody(v)}
@@ -327,7 +327,7 @@ const AddScreen = () => {
               <AntDesign
                 name="close"
                 size={24}
-                color={themeStyle.colors.grayscale.black}
+                color={themeStyle.colors.grayscale.lowest}
               />
             </TouchableOpacity>
             {showMediaSizeError ? (
@@ -407,7 +407,7 @@ const AddScreen = () => {
           justifyContent: "space-between",
           alignItems: "center",
           padding: 10,
-          backgroundColor: themeStyle.colors.grayscale.white,
+          backgroundColor: themeStyle.colors.grayscale.lowest,
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
@@ -422,7 +422,7 @@ const AddScreen = () => {
               <FontAwesome
                 name="camera"
                 size={24}
-                color={themeStyle.colors.grayscale.black}
+                color={themeStyle.colors.grayscale.lowest}
               />
             </TouchableOpacity>
           </View>
@@ -437,7 +437,7 @@ const AddScreen = () => {
               <FontAwesome
                 name="image"
                 size={24}
-                color={themeStyle.colors.grayscale.black}
+                color={themeStyle.colors.grayscale.lowest}
               />
             </TouchableOpacity>
           </View>
@@ -456,7 +456,7 @@ const AddScreen = () => {
             <Text
               style={{
                 fontSize: 16,
-                color: themeStyle.colors.grayscale.white,
+                color: themeStyle.colors.grayscale.lowest,
               }}
             >
               Post

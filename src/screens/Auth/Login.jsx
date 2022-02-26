@@ -65,11 +65,11 @@ const LoginScreen = () => {
     <View style={styles.container}>
       <View style={styles.formContainer}>
         <View style={styles.logoContainer}>
-          <Logo fill={themeStyle.colors.grayscale.black} />
+          <Logo fill={themeStyle.colors.grayscale.lowest} />
         </View>
         <TextInput
           style={styles.usernameInput}
-          placeholderTextColor={themeStyle.colors.grayscale.lightGray}
+          placeholderTextColor={themeStyle.colors.grayscale.low}
           value={identifier}
           placeholder="Username or Email"
           onChangeText={(v) => setIdentifier(v)}
@@ -77,7 +77,7 @@ const LoginScreen = () => {
         <View style={styles.passwordInputContainer}>
           <TextInput
             style={styles.passwordInput}
-            placeholderTextColor={themeStyle.colors.grayscale.lightGray}
+            placeholderTextColor={themeStyle.colors.grayscale.low}
             secureTextEntry={!showPassword}
             value={password}
             autoCorrect={false}
@@ -98,7 +98,9 @@ const LoginScreen = () => {
           style={styles.forgotPassword}
           onPress={() => navigation.navigate("ForgotPasswordScreen")}
         >
-          <Text>Forgot Password</Text>
+          <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+            Forgot Password
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -111,7 +113,7 @@ const LoginScreen = () => {
           {loading ? (
             <ActivityIndicator
               size={"small"}
-              color={themeStyle.colors.grayscale.white}
+              color={themeStyle.colors.grayscale.lowest}
             />
           ) : (
             <Text style={styles.loginButtonText}>Log me in!</Text>
@@ -126,7 +128,10 @@ const LoginScreen = () => {
           Haven&apos;t signed up yet?{" "}
           <Text
             onPress={() => goToSignUpScreen()}
-            style={{ fontWeight: "700" }}
+            style={{
+              fontWeight: "700",
+              color: themeStyle.colors.grayscale.lowest,
+            }}
           >
             Sign Up
           </Text>
@@ -139,11 +144,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: themeStyle.colors.grayscale.white,
+    backgroundColor: themeStyle.colors.grayscale.highest,
   },
   formContainer: {
     padding: 20,
-    backgroundColor: themeStyle.colors.grayscale.white,
+    backgroundColor: themeStyle.colors.grayscale.highest,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -164,7 +169,7 @@ const styles = StyleSheet.create({
     width: 100,
   },
   loginButtonText: {
-    color: themeStyle.colors.grayscale.white,
+    color: themeStyle.colors.grayscale.lowest,
   },
   forgotPassword: {
     alignSelf: "flex-end",
@@ -180,14 +185,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderWidth: 2,
     borderColor: themeStyle.colors.primary.default,
+    color: themeStyle.colors.grayscale.lowest,
   },
   signupText: {
     textAlign: "center",
+    color: themeStyle.colors.grayscale.lowest,
   },
   passwordInput: {
     flex: 1,
     fontSize: 15,
-    color: themeStyle.colors.grayscale.black,
+    color: themeStyle.colors.grayscale.lowest,
   },
   passwordInputContainer: {
     flexDirection: "row",

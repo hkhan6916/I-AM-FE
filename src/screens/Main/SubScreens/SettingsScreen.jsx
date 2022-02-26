@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   basicOptionsText: {
-    color: themeStyle.colors.grayscale.black,
+    color: themeStyle.colors.grayscale.lowest,
     paddingHorizontal: 5,
     fontSize: 16,
     fontWeight: "700",
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   option: {
     width: "100%",
     borderBottomWidth: 0.5,
-    borderColor: themeStyle.colors.grayscale.mediumGray,
+    borderColor: themeStyle.colors.grayscale.high,
   },
   optionContent: {
     flexDirection: "row",
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     borderTopWidth: 1,
-    borderColor: themeStyle.colors.grayscale.black,
+    borderColor: themeStyle.colors.grayscale.lowest,
     width: "100%",
   },
 });

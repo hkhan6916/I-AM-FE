@@ -115,7 +115,7 @@ const CameraStandard = ({
       >
         <View
           style={{
-            borderColor: themeStyle.colors.grayscale.white,
+            borderColor: themeStyle.colors.grayscale.lowest,
             borderWidth: 3,
             padding: 20,
             width: 150,
@@ -128,14 +128,14 @@ const CameraStandard = ({
           <EvilIcons
             name="camera"
             size={104}
-            color={themeStyle.colors.grayscale.white}
+            color={themeStyle.colors.grayscale.lowest}
           />
         </View>
         <Text
           style={{
             margin: 20,
             textAlign: "center",
-            color: themeStyle.colors.grayscale.white,
+            color: themeStyle.colors.grayscale.lowest,
           }}
         >
           Well...? No worries, this should be easy. Please enable{" "}
@@ -159,13 +159,13 @@ const CameraStandard = ({
                 padding: 5,
                 borderRadius: 5,
                 borderWidth: 2,
-                borderColor: themeStyle.colors.grayscale.white,
+                borderColor: themeStyle.colors.grayscale.lowest,
               }}
             >
               <Text
                 style={{
                   textAlign: "center",
-                  color: themeStyle.colors.grayscale.white,
+                  color: themeStyle.colors.grayscale.lowest,
                   fontWeight: "700",
                 }}
               >
@@ -183,13 +183,13 @@ const CameraStandard = ({
                 padding: 5,
                 borderRadius: 5,
                 borderWidth: 2,
-                borderColor: themeStyle.colors.grayscale.white,
+                borderColor: themeStyle.colors.grayscale.lowest,
               }}
             >
               <Text
                 style={{
                   textAlign: "center",
-                  color: themeStyle.colors.grayscale.white,
+                  color: themeStyle.colors.grayscale.lowest,
                   fontWeight: "700",
                 }}
               >
@@ -205,7 +205,7 @@ const CameraStandard = ({
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: themeStyle.colors.grayscale.black,
+        backgroundColor: themeStyle.colors.grayscale.lowest,
         alignItems: "center",
         justifyContent: "center",
       }}
@@ -223,11 +223,11 @@ const CameraStandard = ({
             <Ionicons
               name="arrow-back"
               size={24}
-              color={themeStyle.colors.grayscale.white}
+              color={themeStyle.colors.grayscale.lowest}
             />
             <Text
               style={{
-                color: themeStyle.colors.grayscale.white,
+                color: themeStyle.colors.grayscale.lowest,
                 marginLeft: 10,
               }}
             >
@@ -250,7 +250,7 @@ const CameraStandard = ({
         >
           <View
             style={{
-              backgroundColor: themeStyle.colors.grayscale.mediumGray,
+              backgroundColor: themeStyle.colors.grayscale.high,
               alignSelf: "flex-end",
               margin: 10,
               paddingVertical: 2,
@@ -260,7 +260,7 @@ const CameraStandard = ({
           >
             <Text
               style={{
-                color: themeStyle.colors.grayscale.white,
+                color: themeStyle.colors.grayscale.lowest,
                 fontSize: 14,
               }}
             >
@@ -295,8 +295,8 @@ const CameraStandard = ({
                   borderRadius: 50,
                   borderColor:
                     recordingLength > 15 - 3
-                      ? themeStyle.colors.grayscale.mediumGray
-                      : themeStyle.colors.grayscale.white,
+                      ? themeStyle.colors.grayscale.high
+                      : themeStyle.colors.grayscale.lowest,
                   height: 60,
                   width: 60,
                   display: "flex",
@@ -311,13 +311,13 @@ const CameraStandard = ({
                       borderRadius: 5,
                       borderColor:
                         recordingLength > 15 - 3
-                          ? themeStyle.colors.grayscale.mediumGray
+                          ? themeStyle.colors.grayscale.high
                           : themeStyle.colors.error.default,
                       height: 25,
                       width: 25,
                       backgroundColor:
                         recordingLength > 15 - 3
-                          ? themeStyle.colors.grayscale.mediumGray
+                          ? themeStyle.colors.grayscale.high
                           : themeStyle.colors.error.default,
                     }}
                   />

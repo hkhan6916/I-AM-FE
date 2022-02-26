@@ -279,7 +279,7 @@ const CommentsScreen = (props) => {
                 <ActivityIndicator
                   size={"large"}
                   animating
-                  color={themeStyle.colors.grayscale.lightGray}
+                  color={themeStyle.colors.grayscale.low}
                 />
               ) : null}
             </View>

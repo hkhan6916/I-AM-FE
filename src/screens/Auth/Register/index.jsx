@@ -8,14 +8,21 @@ import themeStyle from "../../../theme.style";
 const Stack = createNativeStackNavigator();
 
 const FriendsStack = () => (
-  <Stack.Navigator initialRouteName="Step1">
+  <Stack.Navigator
+    initialRouteName="Step1"
+    screenOptions={{
+      headerStyle: {
+        elevation: 0,
+        backgroundColor: themeStyle.colors.grayscale.highest,
+      },
+    }}
+  >
     <Stack.Screen
       options={{
         headerShown: true,
-        title: "",
+        title: "About you",
         headerTintColor: themeStyle.colors.primary.default,
       }}
-      title=""
       name="Step1"
       component={Step1}
     />

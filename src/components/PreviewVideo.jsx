@@ -48,7 +48,7 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
         end={[1, 0.5]}
         style={{ padding: 4 }}
         colors={[
-          themeStyle.colors.grayscale.white,
+          themeStyle.colors.grayscale.highest,
           themeStyle.colors.primary.light,
         ]}
       >
@@ -92,7 +92,7 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
                 height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
                 borderColor: themeStyle.colors.primary.default,
                 borderRadius: isFullWidth ? 0 : 10,
-                backgroundColor: themeStyle.colors.grayscale.black,
+                backgroundColor: themeStyle.colors.grayscale.lowest,
                 opacity: 0.5,
               }}
             >
@@ -104,7 +104,7 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
                     fontSize: 20,
                     textAlign: "center",
                     width: screenWidth,
-                    color: themeStyle.colors.grayscale.white,
+                    color: themeStyle.colors.grayscale.lowest,
                   }}
                 >
                   {previewText || "Tap to preview"}
@@ -118,7 +118,7 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
                 position: "absolute",
                 bottom: 0,
                 right: 0,
-                backgroundColor: themeStyle.colors.grayscale.darkGray,
+                backgroundColor: themeStyle.colors.grayscale.higher,
                 paddingVertical: 5,
                 opacity: 0.8,
                 paddingHorizontal: 10,
@@ -126,7 +126,7 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
                 margin: 10,
               }}
             >
-              <Text style={{ color: themeStyle.colors.grayscale.white }}>
+              <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
                 {handleVideoDuration(
                   videoStatus?.durationMillis - videoStatus?.positionMillis
                 )}

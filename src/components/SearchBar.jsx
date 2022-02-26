@@ -42,8 +42,8 @@ const SearchBar = ({ onFocus, onSubmitEditing, setResults }) => {
         size={16}
         color={
           searchInput
-            ? themeStyle.colors.grayscale.black
-            : themeStyle.colors.grayscale.lightGray
+            ? themeStyle.colors.grayscale.lowest
+            : themeStyle.colors.grayscale.low
         }
       />
       <TextInput
@@ -62,13 +62,13 @@ const SearchBar = ({ onFocus, onSubmitEditing, setResults }) => {
 const styles = StyleSheet.create({
   searchBar: {
     flex: 1,
-    color: themeStyle.colors.grayscale.black,
+    color: themeStyle.colors.grayscale.lowest,
   },
   searchSection: {
     flexDirection: "row",
     height: 48,
     alignItems: "center",
-    backgroundColor: themeStyle.colors.grayscale.superLightGray,
+    backgroundColor: themeStyle.colors.grayscale.lower,
   },
   searchIcon: {
     padding: 10,

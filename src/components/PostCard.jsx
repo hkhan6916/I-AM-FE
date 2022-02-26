@@ -87,18 +87,28 @@ const PostCard = ({
           >
             <Text
               numberOfLines={1}
-              style={{ fontWeight: "700", maxWidth: 200 }}
+              style={{
+                fontWeight: "700",
+                maxWidth: 200,
+                color: themeStyle.colors.grayscale.lowest,
+              }}
             >
               {post.postAuthor.username}
             </Text>
-            <Text style={{ maxWidth: 200 }} numberOfLines={1}>
+            <Text
+              style={{
+                maxWidth: 200,
+                color: themeStyle.colors.grayscale.lowest,
+              }}
+              numberOfLines={1}
+            >
               {post.postAuthor.firstName} {post.postAuthor.lastName}
             </Text>
             {post.postAuthor.jobTitle && (
               <Text
                 numberOfLines={1}
                 style={{
-                  color: themeStyle.colors.grayscale.mediumGray,
+                  color: themeStyle.colors.grayscale.high,
                   maxWidth: 200,
                 }}
               >
@@ -121,7 +131,10 @@ const PostCard = ({
               <Text
                 onTextLayout={onTextLayout}
                 numberOfLines={!bodyCollapsed ? 3 : null}
-                style={{ textAlign: "left" }}
+                style={{
+                  textAlign: "left",
+                  color: themeStyle.colors.grayscale.lowest,
+                }}
               >
                 {post.body}
               </Text>
@@ -129,7 +142,7 @@ const PostCard = ({
                 <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
                   <Text
                     style={{
-                      color: themeStyle.colors.grayscale.darkGray,
+                      color: themeStyle.colors.grayscale.higher,
                       marginBottom: 10,
                       marginTop: 5,
                     }}
@@ -147,7 +160,7 @@ const PostCard = ({
             onPress={() =>
               !post.private && navigation.navigate("MediaScreen", { post })
             }
-            underlayColor={themeStyle.colors.grayscale.mediumGray}
+            underlayColor={themeStyle.colors.grayscale.high}
             delayPressIn={150}
           >
             <View>
@@ -201,7 +214,10 @@ const PostCard = ({
               <Text
                 onTextLayout={onTextLayout}
                 numberOfLines={!bodyCollapsed ? 3 : null}
-                style={{ textAlign: "left" }}
+                style={{
+                  textAlign: "left",
+                  color: themeStyle.colors.grayscale.lowest,
+                }}
               >
                 {post.body}
               </Text>
@@ -209,7 +225,7 @@ const PostCard = ({
                 <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
                   <Text
                     style={{
-                      color: themeStyle.colors.grayscale.darkGray,
+                      color: themeStyle.colors.grayscale.higher,
                       marginBottom: 10,
                       marginTop: 5,
                     }}
@@ -248,7 +264,7 @@ const PostCard = ({
                     color={
                       post.liked
                         ? themeStyle.colors.secondary.default
-                        : themeStyle.colors.grayscale.black
+                        : themeStyle.colors.grayscale.lowest
                     }
                   />
                 </TouchableOpacity>
@@ -270,7 +286,7 @@ const PostCard = ({
                 <FontAwesome
                   name="comment-o"
                   size={20}
-                  color={themeStyle.colors.grayscale.black}
+                  color={themeStyle.colors.grayscale.lowest}
                 />
               </TouchableOpacity>
             </View>
@@ -293,7 +309,7 @@ const PostCard = ({
               <Ionicons
                 name="arrow-redo-outline"
                 size={22}
-                color={themeStyle.colors.grayscale.black}
+                color={themeStyle.colors.grayscale.lowest}
               />
             </TouchableOpacity>
           </View>
@@ -307,7 +323,7 @@ const PostCard = ({
             {post.likedBy ? (
               <Text
                 style={{
-                  color: themeStyle.colors.grayscale.mediumGray,
+                  color: themeStyle.colors.grayscale.high,
                   fontSize: 12,
                   marginHorizontal: 10,
                   marginVertical: 5,
@@ -315,7 +331,10 @@ const PostCard = ({
               >
                 Liked by{" "}
                 <Text
-                  style={{ fontWeight: "700" }}
+                  style={{
+                    fontWeight: "700",
+                    color: themeStyle.colors.grayscale.lower,
+                  }}
                   onPress={() =>
                     navigation.navigate("UserProfileScreen", {
                       userId: post.likedBy._id,
@@ -329,7 +348,7 @@ const PostCard = ({
             ) : (
               <Text
                 style={{
-                  color: themeStyle.colors.grayscale.mediumGray,
+                  color: themeStyle.colors.grayscale.high,
                   fontSize: 12,
                   marginHorizontal: 10,
                   marginVertical: 5,
@@ -350,12 +369,12 @@ const styles = StyleSheet.create({
   container: {
     borderRightWidth: 0,
     borderLeftWidth: 0,
-    borderColor: themeStyle.colors.grayscale.lightGray,
-    marginBottom: 10,
-    backgroundColor: themeStyle.colors.grayscale.white,
+    borderColor: themeStyle.colors.grayscale.low,
+    marginBottom: 3,
+    backgroundColor: themeStyle.colors.grayscale.highest,
   },
   postAge: {
-    color: themeStyle.colors.grayscale.mediumGray,
+    color: themeStyle.colors.grayscale.high,
     marginHorizontal: 10,
     marginVertical: 5,
     fontSize: 12,
@@ -372,7 +391,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     padding: 5,
-    borderColor: themeStyle.colors.grayscale.lightGray,
+    borderColor: themeStyle.colors.grayscale.low,
   },
   postAuthorProfilePic: {
     alignSelf: "flex-start",
@@ -389,7 +408,7 @@ const styles = StyleSheet.create({
   },
   repostedPostContent: {
     borderWidth: 1,
-    borderColor: themeStyle.colors.grayscale.lightGray,
+    borderColor: themeStyle.colors.grayscale.low,
     margin: 10,
   },
 });

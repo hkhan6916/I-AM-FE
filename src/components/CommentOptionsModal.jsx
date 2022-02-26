@@ -63,9 +63,9 @@ const CommentOptionsModal = ({
                   alignItems: "center",
                   justifyContent: "center",
                   width: "100%",
-                  backgroundColor: themeStyle.colors.grayscale.white,
+                  backgroundColor: themeStyle.colors.grayscale.lowest,
                   borderWidth: 1,
-                  borderColor: themeStyle.colors.grayscale.lightGray,
+                  borderColor: themeStyle.colors.grayscale.low,
                   padding: 20,
                 }}
               >
@@ -81,9 +81,9 @@ const CommentOptionsModal = ({
                   alignItems: "center",
                   justifyContent: "center",
                   width: "100%",
-                  backgroundColor: themeStyle.colors.grayscale.white,
+                  backgroundColor: themeStyle.colors.grayscale.lowest,
                   borderWidth: 1,
-                  borderColor: themeStyle.colors.grayscale.lightGray,
+                  borderColor: themeStyle.colors.grayscale.low,
                   padding: 5,
                 }}
               >
@@ -114,7 +114,7 @@ const CommentOptionsModal = ({
                           style={{
                             padding: 20,
                             borderBottomWidth: 0.5,
-                            borderColor: themeStyle.colors.grayscale.lightGray,
+                            borderColor: themeStyle.colors.grayscale.low,
                           }}
                         >
                           <Text
@@ -173,7 +173,7 @@ const CommentOptionsModal = ({
                         style={{
                           alignSelf: "flex-end",
                           fontSize: 12,
-                          color: themeStyle.colors.grayscale.mediumGray,
+                          color: themeStyle.colors.grayscale.high,
                         }}
                       >
                         {error}
@@ -188,7 +188,7 @@ const CommentOptionsModal = ({
                           justifyContent: "space-between",
                           paddingHorizontal: 10,
                           borderWidth: 0.5,
-                          borderColor: themeStyle.colors.grayscale.lightGray,
+                          borderColor: themeStyle.colors.grayscale.low,
                           borderRadius: 5,
                         },
                       ]}
@@ -258,7 +258,7 @@ const CommentOptionsModal = ({
                     >
                       <Text
                         style={{
-                          color: themeStyle.colors.grayscale.mediumGray,
+                          color: themeStyle.colors.grayscale.high,
                         }}
                       >
                         Cancel

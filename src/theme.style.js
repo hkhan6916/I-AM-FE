@@ -1,4 +1,4 @@
-import { Appearance, useColorScheme } from "react-native";
+import { Appearance } from "react-native";
 let colorScheme = Appearance.getColorScheme();
 
 const theme =
@@ -24,13 +24,21 @@ const theme =
             default: "#FF0000",
           },
           grayscale: {
-            white: "#000000",
-            black: "#FFFFFF",
-            superLightGray: "#000000",
-            lightGray: "#B8B894",
-            mediumGray: "#848484",
-            darkGray: "#6C6C6C",
+            highest: "#000000",
+            higher: "#D2D2D2",
+            high: "#F1F1F1",
+            low: "#6C6C6C",
+            lower: "#848484",
+            lowest: "#FFFFFF",
           },
+          // grayscale: {
+          //   black: "#000000",
+          //   superLightGray: "#F1F1F1",
+          //   lightGray: "#D2D2D2",
+          //   mediumGray: "#848484",
+          //   darkGray: "#6C6C6C",
+          //   white: "#FFFFFF",
+          // },
         },
       }
     : {
@@ -54,13 +62,23 @@ const theme =
             default: "#FF0000",
           },
           grayscale: {
-            white: "#FFFFFF",
-            black: "#000000",
-            superLightGray: "#F1F1F1",
-            lightGray: "#B8B894",
-            mediumGray: "#848484",
-            darkGray: "#6C6C6C",
+            lowest: "#000000",
+            lower: "#D2D2D2",
+            low: "#F1F1F1",
+            high: "#6C6C6C",
+            higher: "#848484",
+            highest: "#FFFFFF",
           },
+          black: "#000000",
+          white: "#FFFFFF",
+          // grayscale: {
+          //   white: "#FFFFFF",
+          //   black: "#000000",
+          //   superLightGray: "#F1F1F1",
+          //   lightGray: "#B8B894",
+          //   mediumGray: "#848484",
+          //   darkGray: "#6C6C6C",
+          // },
         },
       };
 export default theme;

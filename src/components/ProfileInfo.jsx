@@ -35,7 +35,7 @@ const ProfileInfo = ({
               <AntDesign
                 name="lock"
                 size={16}
-                color={themeStyle.colors.grayscale.darkGray}
+                color={themeStyle.colors.grayscale.higher}
               />
             ) : null}
           </Text>
@@ -51,7 +51,7 @@ const ProfileInfo = ({
           <Ionicons
             name="people"
             size={24}
-            color={themeStyle.colors.grayscale.darkGray}
+            color={themeStyle.colors.grayscale.higher}
           />
           <Text style={{ marginHorizontal: 10 }}>
             {user.numberOfFriends} contacts
@@ -100,7 +100,7 @@ const ProfileInfo = ({
                 >
                   <View
                     style={{
-                      borderColor: themeStyle.colors.grayscale.black,
+                      borderColor: themeStyle.colors.grayscale.lowest,
                       borderWidth: 1,
                       padding: 10,
                       borderRadius: 5,

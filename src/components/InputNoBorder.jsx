@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     height: 45,
     paddingHorizontal: 10,
-    backgroundColor: themeStyle.colors.grayscale.superLightGray,
+    backgroundColor: themeStyle.colors.grayscale.lower,
   },
   textInputContainer: {
     alignSelf: "stretch",

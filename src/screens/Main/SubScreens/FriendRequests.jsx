@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   tabsContainer: {
     flexDirection: "row",
     marginTop: 10,
-    backgroundColor: themeStyle.colors.grayscale.lightGray,
+    backgroundColor: themeStyle.colors.grayscale.low,
   },
   requestsTab: {
     marginHorizontal: 10,

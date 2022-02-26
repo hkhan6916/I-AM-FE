@@ -356,7 +356,7 @@ const ChatScreen = (props) => {
                     style={{
                       textAlign: "center",
                       marginHorizontal: 10,
-                      color: themeStyle.colors.grayscale.mediumGray,
+                      color: themeStyle.colors.grayscale.high,
                     }}
                   >
                     {messages[i - 1].stringDate}
@@ -371,7 +371,7 @@ const ChatScreen = (props) => {
                     style={{
                       textAlign: "center",
                       marginHorizontal: 10,
-                      color: themeStyle.colors.grayscale.mediumGray,
+                      color: themeStyle.colors.grayscale.high,
                     }}
                   >
                     {messages[i].stringDate}
@@ -463,7 +463,7 @@ const ChatScreen = (props) => {
                 <Ionicons
                   name={showActions ? "close" : "add"}
                   size={26}
-                  color={themeStyle.colors.grayscale.white}
+                  color={themeStyle.colors.grayscale.lowest}
                 />
               </TouchableOpacity>
             </View>
@@ -480,7 +480,7 @@ const ChatScreen = (props) => {
             <TextInput
               style={{
                 // minHeight: 48,
-                backgroundColor: themeStyle.colors.grayscale.superLightGray,
+                backgroundColor: themeStyle.colors.grayscale.lower,
                 paddingHorizontal: 10,
               }}
               value={messageBody}
@@ -574,7 +574,7 @@ const styles = StyleSheet.create({
   horizontalLines: {
     flex: 1,
     height: 1,
-    backgroundColor: themeStyle.colors.grayscale.lightGray,
+    backgroundColor: themeStyle.colors.grayscale.low,
   },
 });
 

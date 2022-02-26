@@ -28,7 +28,7 @@ const ProfileScreenHeader = ({ navigation, userData }) => {
               <AntDesign
                 name="lock"
                 size={16}
-                color={themeStyle.colors.grayscale.darkGray}
+                color={themeStyle.colors.grayscale.higher}
               />
             ) : null}
           </Text>
@@ -44,7 +44,7 @@ const ProfileScreenHeader = ({ navigation, userData }) => {
           <Ionicons
             name="people"
             size={24}
-            color={themeStyle.colors.grayscale.darkGray}
+            color={themeStyle.colors.grayscale.higher}
           />
           <Text style={{ marginHorizontal: 10 }}>
             {userData.numberOfFriends} contacts

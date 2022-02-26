@@ -98,7 +98,7 @@ const PostCommentCard = ({
                 style={{
                   fontSize: 12,
                   marginHorizontal: 10,
-                  color: themeStyle.colors.grayscale.lightGray,
+                  color: themeStyle.colors.grayscale.low,
                 }}
               >
                 (edited)
@@ -130,7 +130,7 @@ const PostCommentCard = ({
               >
                 <Text
                   style={{
-                    color: themeStyle.colors.grayscale.mediumGray,
+                    color: themeStyle.colors.grayscale.high,
                     fontWeight: "700",
                   }}
                 >
@@ -154,7 +154,7 @@ const PostCommentCard = ({
                     color={
                       comment.liked
                         ? themeStyle.colors.secondary.default
-                        : themeStyle.colors.grayscale.mediumGray
+                        : themeStyle.colors.grayscale.high
                     }
                   />
                 </TouchableOpacity>
@@ -162,7 +162,7 @@ const PostCommentCard = ({
               {comment.likes > 0 ? (
                 <Text
                   style={{
-                    color: themeStyle.colors.grayscale.black,
+                    color: themeStyle.colors.grayscale.lowest,
                     marginHorizontal: 10,
                   }}
                 >
@@ -182,7 +182,7 @@ const PostCommentCard = ({
                 })
               }
             >
-              <Text style={{ color: themeStyle.colors.grayscale.darkGray }}>
+              <Text style={{ color: themeStyle.colors.grayscale.higher }}>
                 View {comment.replyCount}{" "}
                 {comment.replyCount > 1 ? "replies" : "reply"}
               </Text>
@@ -198,7 +198,7 @@ const PostCommentCard = ({
 const styles = StyleSheet.create({
   container: {
     borderBottomWidth: 0.5,
-    borderColor: themeStyle.colors.grayscale.mediumGray,
+    borderColor: themeStyle.colors.grayscale.high,
     display: "flex",
     flexDirection: "column",
   },
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   commentAge: {
-    color: themeStyle.colors.grayscale.mediumGray,
+    color: themeStyle.colors.grayscale.high,
     marginHorizontal: 10,
     marginVertical: 5,
     fontSize: 12,

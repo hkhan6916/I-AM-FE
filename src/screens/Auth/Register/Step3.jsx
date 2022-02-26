@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   Modal,
+  SafeAreaView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera";
@@ -148,49 +149,67 @@ const Step1Screen = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScrollView style={{ marginBottom: 48 }}>
         <View style={styles.formContainer}>
           <Text style={styles.signupText}>Your Profile Video</Text>
-          <Text style={{ textAlign: "center", fontSize: 16, marginBottom: 20 }}>
+          <Text
+            style={{
+              textAlign: "center",
+              fontSize: 16,
+              marginBottom: 20,
+              color: themeStyle.colors.grayscale.lowest,
+            }}
+          >
             A profile video let&apos;s others know you better as well as your
             career and accomplishments.
           </Text>
           <Modal visible={showHelpModal}>
-            <View style={{ alignSelf: "flex-end", margin: 20 }}>
-              <TouchableOpacity onPress={() => setShowHelpModal(false)}>
-                <Ionicons name="close" size={24} />
-              </TouchableOpacity>
-            </View>
-            <View style={{ padding: 20, justifyContent: "center" }}>
-              <Text
-                style={{
-                  fontWeight: "700",
-                  fontSize: 16,
-                  alignSelf: "flex-start",
-                  marginBottom: 10,
-                }}
-              >
-                Some things you could mention about yourself:
-              </Text>
-              <Text style={styles.helpModalListItem}>
-                - Your job title and role
-              </Text>
-              <Text style={styles.helpModalListItem}>
-                - Your current or past education
-              </Text>
-              <Text style={styles.helpModalListItem}>
-                - The company you work for
-              </Text>
-              <Text style={styles.helpModalListItem}>
-                - The university you attend/attended
-              </Text>
-              <Text style={styles.helpModalListItem}>
-                - Your accomplishments
-              </Text>
-              <Text style={styles.helpModalListItem}>- Your goals</Text>
-              <Text style={styles.helpModalListItem}>- Your hobbies</Text>
-            </View>
+            <SafeAreaView
+              style={{
+                backgroundColor: themeStyle.colors.grayscale.highest,
+                flex: 1,
+              }}
+            >
+              <View style={{ alignSelf: "flex-end", margin: 20 }}>
+                <TouchableOpacity onPress={() => setShowHelpModal(false)}>
+                  <Ionicons
+                    name="close"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </TouchableOpacity>
+              </View>
+              <View style={{ padding: 20, justifyContent: "center" }}>
+                <Text
+                  style={{
+                    fontWeight: "700",
+                    fontSize: 16,
+                    alignSelf: "flex-start",
+                    marginBottom: 10,
+                  }}
+                >
+                  Some things you could mention about yourself:
+                </Text>
+                <Text style={styles.helpModalListItem}>
+                  - Your job title and role
+                </Text>
+                <Text style={styles.helpModalListItem}>
+                  - Your current or past education
+                </Text>
+                <Text style={styles.helpModalListItem}>
+                  - The company you work for
+                </Text>
+                <Text style={styles.helpModalListItem}>
+                  - The university you attend/attended
+                </Text>
+                <Text style={styles.helpModalListItem}>
+                  - Your accomplishments
+                </Text>
+                <Text style={styles.helpModalListItem}>- Your goals</Text>
+                <Text style={styles.helpModalListItem}>- Your hobbies</Text>
+              </View>
+            </SafeAreaView>
           </Modal>
           {profileVideo && faceDectected ? (
             <PreviewVideo uri={profileVideo} isFullWidth />
@@ -244,18 +263,18 @@ const Step1Screen = () => {
           ) : null}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: themeStyle.colors.grayscale.white,
+    backgroundColor: themeStyle.colors.grayscale.highest,
   },
   formContainer: {
     padding: 20,
-    backgroundColor: themeStyle.colors.grayscale.white,
+    backgroundColor: themeStyle.colors.grayscale.highest,
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
@@ -289,7 +308,7 @@ const styles = StyleSheet.create({
     backgroundColor: themeStyle.colors.primary.default,
   },
   registerationButtonText: {
-    color: themeStyle.colors.grayscale.white,
+    color: themeStyle.colors.grayscale.lowest,
   },
   takeVideoButton: {
     margin: 10,
@@ -299,12 +318,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   takeVideoButtonText: {
-    color: themeStyle.colors.grayscale.black,
+    color: themeStyle.colors.grayscale.lowest,
     fontWeight: "700",
   },
   text: {
     fontSize: 18,
-    color: "white",
+    color: themeStyle.colors.highest,
   },
   errorText: {
     fontSize: 12,
@@ -328,7 +347,7 @@ const styles = StyleSheet.create({
   passwordInput: {
     flex: 1,
     fontSize: 15,
-    color: themeStyle.colors.grayscale.black,
+    color: themeStyle.colors.grayscale.lowest,
   },
   passwordInputContainer: {
     flexDirection: "row",
@@ -355,6 +374,7 @@ const styles = StyleSheet.create({
   helpModalListItem: {
     fontWeight: "700",
     fontSize: 14,
+    color: themeStyle.colors.grayscale.lowest,
   },
 });
 export default React.memo(Step1Screen);

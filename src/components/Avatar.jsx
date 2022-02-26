@@ -28,7 +28,7 @@ const Avatar = ({
     {!preventClicks && !initials ? (
       <TouchableHighlight
         onPress={() => navigation.navigate("UserProfileScreen", { userId })}
-        underlayColor={themeStyle.colors.grayscale.mediumGray}
+        underlayColor={themeStyle.colors.grayscale.high}
       >
         <FastImage
           source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}

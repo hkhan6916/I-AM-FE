@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 10,
     borderTopWidth: 0.5,
-    borderColor: themeStyle.colors.grayscale.lightGray,
+    borderColor: themeStyle.colors.grayscale.low,
   },
   postTrigger: {
     color: themeStyle.colors.secondary.default,
@@ -145,10 +145,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 10,
-    backgroundColor: themeStyle.colors.grayscale.lightGray,
+    backgroundColor: themeStyle.colors.grayscale.low,
   },
   replyingToBannerText: {
-    color: themeStyle.colors.grayscale.white,
+    color: themeStyle.colors.grayscale.lowest,
   },
 });
 export default React.memo(CommentTextInput);
