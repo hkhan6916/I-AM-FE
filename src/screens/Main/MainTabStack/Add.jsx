@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   NativeModules,
   Platform,
+  Dimensions,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
@@ -39,6 +40,7 @@ import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
 import Upload from "react-native-background-upload";
 import { getItemAsync } from "expo-secure-store";
+import { manipulateAsync } from "expo-image-manipulator";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -53,6 +55,8 @@ const AddScreen = () => {
   const [compressionProgress, setCompressionProgress] = useState(0);
   const [showMediaSizeError, setShowMediaSizeError] = useState(false);
   const navigation = useNavigation();
+
+  const { width: screenWidth } = Dimensions.get("window");
 
   const dispatch = useDispatch();
 
@@ -112,13 +116,18 @@ const AddScreen = () => {
   };
 
   const handleUploadVideo = async (post) => {
+    // if (compressedFileUrl && post?._id) {
     const token = await getItemAsync("authToken");
+    const url = compressedFileUrl
+      ? Platform.OS == "android"
+        ? compressedFileUrl?.replace("file://", "/")
+        : compressedFileUrl
+      : Platform.OS == "android"
+      ? file?.uri.replace("file://", "")
+      : file?.uri;
     const options = {
       url: "http://192.168.5.101:5000/posts/new",
-      path:
-        Platform.OS == "android"
-          ? compressedFileUrl?.replace("file://", "/")
-          : compressedFileUrl,
+      path: url,
       method: "POST",
       type: "multipart",
       maxRetries: 2, // set retry count (Android only). Default 2
@@ -127,7 +136,7 @@ const AddScreen = () => {
         Authorization: `Bearer ${token}`,
       },
       parameters: {
-        postId: post._id,
+        postId: post?._id,
       },
       field: "file",
       // Below are options only supported on Android
@@ -135,31 +144,34 @@ const AddScreen = () => {
         enabled: false,
       },
       useUtf8Charset: true,
+      // customUploadId: post._id,
     };
-    if (compressedFileUrl && post?._id) {
-      // compress in background and .then (()=>startupload)
-      Upload.startUpload(options)
-        .then((uploadId) => {
-          console.log("Upload started");
-          Upload.addListener("progress", uploadId, (data) => {
-            console.log(`Progress: ${data.progress}%`);
-            console.log(data);
-          });
-          Upload.addListener("error", uploadId, (data) => {
-            console.log(`Error: ${data.error}%`);
-          });
-          Upload.addListener("cancelled", uploadId, (data) => {
-            console.log(`Cancelled!`);
-          });
-          Upload.addListener("completed", uploadId, (data) => {
-            console.log("Completed!");
-          });
-        })
-        .catch((err) => {
-          console.log("Upload error!", err);
+    // compress in background and .then (()=>startupload)
+    Upload.startUpload(options)
+      .then((uploadId) => {
+        console.log("Upload started");
+        Upload.addListener("progress", uploadId, (data) => {
+          console.log(`Progress: ${data.progress}%`);
+          console.log(data);
         });
-    }
+        Upload.addListener("error", uploadId, async (data) => {
+          console.log({ data });
+          console.log(`Error: ${data.error}%`);
+          await apiCall("GET", "/posts/fail/" + post?._id);
+        });
+        Upload.addListener("cancelled", uploadId, async (data) => {
+          console.log(`Cancelled!`);
+          await apiCall("GET", "/posts/fail/" + post?._id);
+        });
+        Upload.addListener("completed", uploadId, (data) => {
+          console.log("Completed!");
+        });
+      })
+      .catch((err) => {
+        console.log("Upload error!", err);
+      });
   };
+  // };
 
   const createPost = async () => {
     setLoading(true);
@@ -179,29 +191,41 @@ const AddScreen = () => {
   };
 
   const handleCompression = async (media) => {
-    if (media?.type === "video") {
-      setCompressing(true);
-      const url = await VideoCompress.compress(
-        media.uri,
-        {
-          compressionMethod: "auto",
-        },
-        (progress) => {
-          console.log({ compression: progress });
-          setCompressionProgress(Math.ceil(progress * 100));
-        }
-      );
-      setCompressedFileUrl(url);
-      return url;
-    }
+    const mediaInfo = await getInfoAsync(media?.uri);
+    const mediaSizeInMb = mediaInfo?.size / 1000000;
 
-    if (media?.type === "image") {
-      setCompressing(true);
-      const url = await ImageCompress.compress(media.uri, {
-        compressionMethod: "auto",
-      });
-      setCompressedFileUrl(url);
-      return url;
+    if (typeof mediaSizeInMb === "number" && mediaSizeInMb > 14) {
+      if (media?.type === "video") {
+        setCompressing(true);
+        const url = await VideoCompress.compress(
+          media.uri,
+          {
+            compressionMethod: "auto",
+          },
+          (progress) => {
+            console.log({ compression: progress });
+            setCompressionProgress(Math.ceil(progress * 100));
+          }
+        );
+        setCompressedFileUrl(url);
+        return url;
+      }
+
+      if (media?.type === "image") {
+        setCompressing(true);
+        const url = await ImageCompress.compress(
+          media.uri,
+          {
+            compressionMethod: "auto",
+          },
+          (progress) => {
+            console.log({ compression: progress });
+            setCompressionProgress(Math.ceil(progress * 100));
+          }
+        );
+        setCompressedFileUrl(url);
+        return url;
+      }
     }
   };
 
@@ -215,6 +239,7 @@ const AddScreen = () => {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         quality: 0.3,
+        allowsMultipleSelection: false,
       });
       if (!result.cancelled) {
         const mediaInfo = await getInfoAsync(result.uri);
@@ -334,45 +359,44 @@ const AddScreen = () => {
               }}
             />
             {file.type?.split("/")[0] === "video" ? (
-              // <View
-              //   style={{
-              //     alignItems: "center",
-              //     justifyContent: "center",
-              //   }}
-              // >
-              //   <VideoPlayer
-              //     autoHidePlayer={false}
-              //     videoProps={{
-              //       resizeMode: Video.RESIZE_MODE_COVER,
-              //       source: {
-              //         uri: file.uri,
-              //       },
-              //       // style: { width: "100%", height: "100%" },
-              //     }}
-              //     // fullscreen={true}
-              //   />
-              // </View>
-              <VideoPlayer
-                autoHidePlayer={false}
-                fullscreen
-                videoProps={{
-                  shouldPlay: true,
-                  resizeMode: Video.RESIZE_MODE_CONTAIN,
-                  source: {
-                    uri: file.uri,
-                  },
+              <View
+                style={{
+                  height: screenWidth,
+                  alignItems: "center",
+                  padding: 20,
                 }}
-                style={{ height: 300 }}
-              />
+              >
+                <VideoPlayer // TODO create new player as need to flip the media for selfie video without flipping the controls.
+                  autoHidePlayer={false}
+                  fullscreen
+                  mediaIsSelfie
+                  videoProps={{
+                    shouldPlay: true,
+                    resizeMode: Video.RESIZE_MODE_CONTAIN,
+                    source: {
+                      uri: file.uri,
+                    },
+                  }}
+                  style={{ height: 300 }}
+                />
+              </View>
             ) : file.type?.split("/")[0] === "image" ? (
-              <ImageWithCache
-                mediaOrientation={file.mediaOrientation}
-                mediaIsSelfie={file.isSelfie}
-                resizeMode="cover"
-                mediaUrl={file.uri}
-                aspectRatio={1 / 1}
-                removeBorderRadius
-              />
+              <View
+                style={{
+                  height: screenWidth,
+                  alignItems: "center",
+                  padding: 20,
+                }}
+              >
+                <ImageWithCache
+                  mediaOrientation={file.mediaOrientation}
+                  mediaIsSelfie={file.isSelfie}
+                  resizeMode="cover"
+                  mediaUrl={file.uri}
+                  aspectRatio={1 / 1}
+                  removeBorderRadius
+                />
+              </View>
             ) : null}
           </View>
         ) : null}

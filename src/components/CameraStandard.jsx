@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Text,
   View,
@@ -27,7 +27,7 @@ const CameraStandard = ({
 }) => {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [hasMicrophonePermission, setHasMicrophonePermission] = useState(null);
-  const [cameraRef, setCameraRef] = useState(null);
+  const cameraRef = useRef();
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [orientation, setOrientation] = useState("portrait");
   const dispatch = useDispatch();
@@ -63,9 +63,8 @@ const CameraStandard = ({
       DeviceMotion.removeAllListeners();
       setHasCameraPermission(false);
       setCameraActive(false);
-      setCameraRef(null);
     };
-  }, [navigation]);
+  }, []);
 
   useEffect(() => {
     DeviceMotion.addListener(({ rotation }) => {
@@ -247,9 +246,7 @@ const CameraStandard = ({
         }}
         ratio="4:3"
         type={type}
-        ref={(ref) => {
-          setCameraRef(ref);
-        }}
+        ref={cameraRef}
       >
         <View
           style={{
@@ -269,6 +266,7 @@ const CameraStandard = ({
                 width: 50,
                 alignSelf: "flex-end",
               }}
+              disabled={recording}
               onPress={() => {
                 setType(
                   type === Camera.Constants.Type.back
@@ -280,15 +278,20 @@ const CameraStandard = ({
               <Ionicons
                 name="camera-reverse-outline"
                 size={40}
-                color={themeStyle.colors.grayscale.white}
+                color={
+                  !recording
+                    ? themeStyle.colors.grayscale.white
+                    : themeStyle.colors.grayscale.mediumGray
+                }
               />
             </TouchableOpacity>
             <TouchableOpacity
               style={{ alignSelf: "center", width: 50 }}
               onPress={async () => {
-                if (cameraRef) {
-                  const photo = await cameraRef.takePictureAsync({
+                if (cameraRef?.current) {
+                  const photo = await cameraRef?.current?.takePictureAsync({
                     quality: 0,
+                    mirror: false,
                   });
                   const re = /(?:\.([^.]+))?$/;
                   const fileExtension = re.exec(photo.uri)[1];
@@ -310,58 +313,50 @@ const CameraStandard = ({
             >
               <View
                 style={{
-                  borderWidth: 2,
-                  borderRadius: 25,
-                  borderColor: "white",
-                  height: 50,
-                  width: 50,
+                  borderWidth: 5,
+                  borderRadius: 60,
+                  borderColor: themeStyle.colors.grayscale.white,
+                  height: 60,
+                  width: 60,
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
                 }}
-              >
-                <View
-                  style={{
-                    borderWidth: 2,
-                    borderRadius: 25,
-                    borderColor: "white",
-                    height: 40,
-                    width: 40,
-                    backgroundColor: "white",
-                  }}
-                />
-              </View>
+              ></View>
             </TouchableOpacity>
             <TouchableOpacity
               style={{ alignSelf: "center", width: 50 }}
               onPress={async () => {
                 if (!recording) {
                   setRecording(true);
-                  const video = await cameraRef.recordAsync({
+                  const video = await cameraRef?.current?.recordAsync({
                     quality: Camera.Constants.VideoQuality["720p"],
+                    // mirror: false,
+                    mirror: true,
                   });
-
-                  setFile({
-                    type: "video/mp4",
-                    name: "media.mp4",
-                    uri: video.uri,
-                    orientation,
-                    isSelfie: type === Camera.Constants.Type.front,
-                  });
+                  if (video) {
+                    setFile({
+                      type: "video/mp4",
+                      name: "media.mp4",
+                      uri: video.uri,
+                      orientation,
+                      isSelfie: type === Camera.Constants.Type.front,
+                    });
+                  }
                 } else {
+                  cameraRef?.current?.stopRecording();
                   setRecording(false);
                   setCameraActive(false);
-                  cameraRef.stopRecording();
                 }
               }}
             >
               <View
                 style={{
-                  borderWidth: 2,
-                  borderRadius: 25,
+                  borderWidth: 5,
+                  borderRadius: 60,
                   borderColor: themeStyle.colors.error.default,
-                  height: 50,
-                  width: 50,
+                  height: 60,
+                  width: 60,
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
@@ -381,11 +376,11 @@ const CameraStandard = ({
                 ) : (
                   <View
                     style={{
-                      borderWidth: 2,
-                      borderRadius: 25,
-                      borderColor: themeStyle.colors.error.default,
-                      height: 40,
-                      width: 40,
+                      borderWidth: 5,
+                      borderRadius: 60,
+                      borderColor: themeStyle.colors.grayscale.white,
+                      height: 60,
+                      width: 60,
                       backgroundColor: themeStyle.colors.error.default,
                     }}
                   />

@@ -136,7 +136,7 @@ const HomeScreen = () => {
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
-          backgroundColor: themeStyle.colors.grayscale.white,
+          backgroundColor: themeStyle.colors.grayscale.superLightGray,
           borderBottomWidth: 1,
           borderBottomColor: themeStyle.colors.grayscale.black,
         }}
@@ -236,50 +236,54 @@ const HomeScreen = () => {
         <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
       }
     >
-      <HomeHeading />
-      {newPostCreated.state ? (
-        <Text style={styles.newPostPill}>Post {newPostCreated.state.type}</Text>
-      ) : null}
-      <View
-        style={{
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        <Feather
-          name="coffee"
-          size={100}
-          color={themeStyle.colors.grayscale.mediumGray}
-        />
+      <SafeAreaView>
+        <HomeHeading />
+        {newPostCreated.state ? (
+          <Text style={styles.newPostPill}>
+            Post {newPostCreated.state.type}
+          </Text>
+        ) : null}
         <View
           style={{
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            marginTop: 20,
+            height: "100%",
           }}
         >
-          <Text style={{ fontWeight: "700" }}>It&apos;s quiet here...</Text>
-          <Text style={{ marginBottom: 20, fontWeight: "700" }}>
-            Try adding some people.
-          </Text>
-          <TouchableOpacity onPress={() => navigation.navigate("Search")}>
-            <View
-              style={{
-                paddingVertical: 5,
-                paddingHorizontal: 10,
-                borderWidth: 1,
-                borderColor: themeStyle.colors.secondary.default,
-                borderRadius: 5,
-              }}
-            >
-              <Text style={{ fontWeight: "700" }}>Search</Text>
-            </View>
-          </TouchableOpacity>
+          <Feather
+            name="coffee"
+            size={100}
+            color={themeStyle.colors.grayscale.mediumGray}
+          />
+          <View
+            style={{
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 20,
+            }}
+          >
+            <Text style={{ fontWeight: "700" }}>It&apos;s quiet here...</Text>
+            <Text style={{ marginBottom: 20, fontWeight: "700" }}>
+              Try adding some people.
+            </Text>
+            <TouchableOpacity onPress={() => navigation.navigate("Search")}>
+              <View
+                style={{
+                  paddingVertical: 5,
+                  paddingHorizontal: 10,
+                  borderWidth: 1,
+                  borderColor: themeStyle.colors.secondary.default,
+                  borderRadius: 5,
+                }}
+              >
+                <Text style={{ fontWeight: "700" }}>Search</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </SafeAreaView>
     </ScrollView>
   );
 };

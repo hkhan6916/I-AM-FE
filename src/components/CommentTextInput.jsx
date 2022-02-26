@@ -61,7 +61,7 @@ const CommentTextInput = forwardRef(
             hasBorderRadius && { borderRadius: 5 },
           ]}
         >
-          <ScrollView>
+          <ScrollView scrollEnabled={height > 48}>
             <TextInput
               maxLength={2000}
               ref={ref}
@@ -69,7 +69,7 @@ const CommentTextInput = forwardRef(
               style={[
                 styles.inputBox,
                 {
-                  height: Math.max(48, height),
+                  height: height < 48 ? "100%" : height,
                 },
                 isFullWidth && { flex: 1 },
               ]}
@@ -91,7 +91,11 @@ const CommentTextInput = forwardRef(
             />
           </ScrollView>
           <View
-            style={{ alignSelf: "flex-end", marginVertical: 16, marginLeft: 5 }}
+            style={{
+              alignSelf: "flex-end",
+              marginVertical: 16,
+              marginLeft: 5,
+            }}
           >
             {!loading ? (
               <TouchableOpacity
@@ -127,9 +131,9 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     paddingHorizontal: 10,
-    borderWidth: 0.5,
+    borderTopWidth: 0.5,
     borderColor: themeStyle.colors.grayscale.lightGray,
   },
   postTrigger: {

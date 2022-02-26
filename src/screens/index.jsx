@@ -19,6 +19,7 @@ const Screens = () => {
   const [feed, setFeed] = useState([]);
   const [notificationToken, setNotificationToken] = useState("");
   const loginAttemptStatus = useSelector((state) => state.loggedIn);
+
   const Theme = {
     ...DefaultTheme,
     colors: {

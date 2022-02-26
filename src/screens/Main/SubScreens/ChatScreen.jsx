@@ -8,6 +8,8 @@ import {
   StyleSheet,
   Image,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { getItemAsync } from "expo-secure-store";
 import { io } from "socket.io-client";
@@ -30,6 +32,7 @@ const ChatScreen = (props) => {
   const [socket, setSocket] = useState(null);
 
   const [roomJoined, setRoomJoined] = useState(false);
+  const [height, setHeight] = useState(1);
 
   const [media, setMedia] = useState({});
   const [mediaSendFail, setMediaSendFail] = useState(false);
@@ -71,10 +74,11 @@ const ChatScreen = (props) => {
   const getChatMessages = async () => {
     if (chat && existingChat) {
       setShowError(false);
-      const { response, success } = await apiCall(
+      const { response, success, message } = await apiCall(
         "GET",
         `/chat/${chat._id}/messages/${messages.length}`
       );
+      console.log(message);
       if (success) {
         setMessages([...messages, ...response]);
         if (messages.length && response.length === 0) {
@@ -332,228 +336,236 @@ const ChatScreen = (props) => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      {showError ? (
-        <Text>
-          It hurts to say this, but... &quot;An error occurred sending your
-          message.&quot;
-        </Text>
-      ) : null}
-      <FlatList
-        data={messages}
-        renderItem={(
-          { item: message, index: i } // change to be more performant like home and profile screen
-        ) => (
-          <View key={`message-${i}`}>
-            {messages[i - 1] &&
-            message.stringDate !== messages[i - 1].stringDate ? (
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <View style={styles.horizontalLines} />
-                <Text
-                  style={{
-                    textAlign: "center",
-                    marginHorizontal: 10,
-                    color: themeStyle.colors.grayscale.mediumGray,
-                  }}
-                >
-                  {messages[i - 1].stringDate}
-                </Text>
-                <View style={styles.horizontalLines} />
-              </View>
-            ) : null}
-            {allMessagesLoaded && i === messages.length - 1 ? (
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <View style={styles.horizontalLines} />
-                <Text
-                  style={{
-                    textAlign: "center",
-                    marginHorizontal: 10,
-                    color: themeStyle.colors.grayscale.mediumGray,
-                  }}
-                >
-                  {messages[i].stringDate}
-                </Text>
-                <View style={styles.horizontalLines} />
-              </View>
-            ) : null}
-            <MessageBox
-              message={message}
-              belongsToSender={
-                authInfo.senderId === message.user._id ||
-                message.user === "sender"
-              }
-            />
-          </View>
-        )}
-        onEndReached={() => getChatMessages()}
-        onEndReachedThreshold={0.9}
-        inverted
-        keyExtractor={(item, i) => item._id + i}
-      />
-
-      <View
-        style={{
-          flexDirection: "row",
-          minHeight: 48,
-          maxHeight: 100,
-          alignItems: "center",
-          paddingVertical: 10,
-        }}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" && "padding"}
+        keyboardVerticalOffset={93}
+        style={{ flex: 1 }}
       >
+        {showError ? <Text>An unknown error occurred</Text> : null}
+        <FlatList
+          data={messages}
+          renderItem={(
+            { item: message, index: i } // change to be more performant like home and profile screen
+          ) => (
+            <View key={`message-${i}`}>
+              {messages[i - 1] &&
+              message.stringDate !== messages[i - 1].stringDate ? (
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <View style={styles.horizontalLines} />
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      marginHorizontal: 10,
+                      color: themeStyle.colors.grayscale.mediumGray,
+                    }}
+                  >
+                    {messages[i - 1].stringDate}
+                  </Text>
+                  <View style={styles.horizontalLines} />
+                </View>
+              ) : null}
+              {allMessagesLoaded && i === messages.length - 1 ? (
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <View style={styles.horizontalLines} />
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      marginHorizontal: 10,
+                      color: themeStyle.colors.grayscale.mediumGray,
+                    }}
+                  >
+                    {messages[i].stringDate}
+                  </Text>
+                  <View style={styles.horizontalLines} />
+                </View>
+              ) : null}
+              <MessageBox
+                message={message}
+                belongsToSender={
+                  authInfo.senderId === message.user._id ||
+                  message.user === "sender"
+                }
+              />
+            </View>
+          )}
+          onEndReached={() => getChatMessages()}
+          onEndReachedThreshold={0.9}
+          inverted
+          keyExtractor={(item, i) => item._id + i}
+        />
+
         <View
           style={{
             flexDirection: "row",
-            alignItems: "flex-end",
-            justifyContent: "flex-end",
-            height: "100%",
+            minHeight: Math.max(height, 48),
+            maxHeight: 100,
+            alignItems: "center",
+            paddingVertical: 10,
           }}
         >
           <View
-            style={[
-              {
-                flexDirection: "row",
-                justifyContent: "flex-end",
-                alignItems: "flex-end",
-                height: "100%",
-              },
-              !showActions && { width: 0 },
-            ]}
-          >
-            <TouchableOpacity
-              style={{
-                marginHorizontal: 5,
-                width: 48,
-                height: 48,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-              onPress={() => pickImage()}
-            >
-              <FontAwesome name="photo" size={24} color="black" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                marginHorizontal: 5,
-                width: 48,
-                height: 48,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-              onPress={() => handleActivateCamera(true)}
-            >
-              <Ionicons name="camera-outline" size={26} color="black" />
-            </TouchableOpacity>
-          </View>
-          <View>
-            <TouchableOpacity
-              style={{
-                width: 48,
-                height: 48,
-                marginHorizontal: 10,
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: 100,
-                backgroundColor: themeStyle.colors.secondary.light,
-              }}
-              onPress={() => setShowActions(!showActions)}
-            >
-              <Ionicons
-                name={showActions ? "close" : "add"}
-                size={26}
-                color={themeStyle.colors.grayscale.white}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-        <View
-          style={{
-            flex: 1,
-            minHeight: 48,
-            height: "100%",
-            justifyContent: "flex-end",
-          }}
-        >
-          <TextInput
             style={{
-              minHeight: 48,
-              backgroundColor: themeStyle.colors.grayscale.superLightGray,
-              paddingHorizontal: 10,
-            }}
-            value={messageBody}
-            multiline
-            placeholder="Type a message..."
-            onChangeText={(v) => setMessageBody(v)}
-            scrollEnabled
-          />
-        </View>
-        <View
-          style={{
-            justifyContent: "flex-end",
-            height: "100%",
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              marginLeft: 10,
-              marginRight: 10,
+              flexDirection: "row",
               alignItems: "center",
-              justifyContent: "center",
-              height: 48,
-              width: 48,
-              borderRadius: 100,
+              justifyContent: "flex-end",
+              height: "100%",
             }}
-            onPress={() => handleMessage()}
           >
-            <Ionicons name="send-sharp" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
-      </View>
-      <View
-        style={[
-          { alignItems: "center", position: "relative" },
-          media.uri && { margin: 20 },
-          mediaSending && { backgroundColor: "grey" },
-        ]}
-      >
-        {media?.type?.includes("image") ? (
-          <Image
+            <View
+              style={[
+                {
+                  flexDirection: "row",
+                  justifyContent: "flex-end",
+                  alignItems: "flex-end",
+                  height: "100%",
+                },
+                !showActions && { width: 0 },
+              ]}
+            >
+              <TouchableOpacity
+                style={{
+                  marginHorizontal: 5,
+                  width: 48,
+                  height: 48,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onPress={() => pickImage()}
+              >
+                <FontAwesome name="photo" size={24} color="black" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  marginHorizontal: 5,
+                  width: 48,
+                  height: 48,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onPress={() => handleActivateCamera(true)}
+              >
+                <Ionicons name="camera-outline" size={26} color="black" />
+              </TouchableOpacity>
+            </View>
+            <View>
+              <TouchableOpacity
+                style={{
+                  width: 48,
+                  height: 48,
+                  marginHorizontal: 10,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: 100,
+                  backgroundColor: themeStyle.colors.secondary.light,
+                }}
+                onPress={() => setShowActions(!showActions)}
+              >
+                <Ionicons
+                  name={showActions ? "close" : "add"}
+                  size={26}
+                  color={themeStyle.colors.grayscale.white}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View
             style={{
-              borderRadius: 10,
-              aspectRatio: 1 / 1,
-              width: "100%",
+              flex: 1,
+              height: 48,
+              // height: "100%",
+              justifyContent: "center",
+              // backgroundColor: "red",
             }}
-            resizeMode="contain"
-            source={{ uri: media.uri }}
-          />
-        ) : media?.type?.includes("video") ? (
-          <View style={{ width: 200, height: 200 }}>
-            <Video
-              useNativeControls
-              source={{ uri: media.uri }}
-              resizeMode="cover"
-              style={{ width: "100%", height: "100%", alignSelf: "center" }}
+          >
+            <TextInput
+              style={{
+                // minHeight: 48,
+                backgroundColor: themeStyle.colors.grayscale.superLightGray,
+                paddingHorizontal: 10,
+              }}
+              value={messageBody}
+              multiline
+              placeholder="Type a message..."
+              onChangeText={(v) => setMessageBody(v)}
+              scrollEnabled
+              onContentSizeChange={(event) => {
+                setHeight(
+                  event.nativeEvent.contentSize.height < 150
+                    ? event.nativeEvent.contentSize.height
+                    : 150
+                );
+              }}
             />
           </View>
-        ) : null}
-        {media.uri ? (
-          <TouchableOpacity
-            onPress={() => {
-              setMedia({});
-              setShowActions(false);
+          <View
+            style={{
+              justifyContent: "center",
+              height: "100%",
             }}
-            style={{ padding: 10 }}
           >
-            <Text style={{ color: themeStyle.colors.error.default }}>
-              Cancel
+            <TouchableOpacity
+              style={{
+                marginLeft: 10,
+                marginRight: 10,
+                alignItems: "center",
+                justifyContent: "center",
+                height: 48,
+                width: 48,
+              }}
+              onPress={() => handleMessage()}
+            >
+              <Ionicons name="send-sharp" size={24} color="black" />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View
+          style={[
+            { alignItems: "center", position: "relative" },
+            media.uri && { margin: 20 },
+            mediaSending && { backgroundColor: "grey" },
+          ]}
+        >
+          {media?.type?.includes("image") ? (
+            <Image
+              style={{
+                borderRadius: 10,
+                aspectRatio: 1 / 1,
+                width: "100%",
+              }}
+              resizeMode="contain"
+              source={{ uri: media.uri }}
+            />
+          ) : media?.type?.includes("video") ? (
+            <View style={{ width: 200, height: 200 }}>
+              <Video
+                useNativeControls
+                source={{ uri: media.uri }}
+                resizeMode="cover"
+                style={{ width: "100%", height: "100%", alignSelf: "center" }}
+              />
+            </View>
+          ) : null}
+          {media.uri ? (
+            <TouchableOpacity
+              onPress={() => {
+                setMedia({});
+                setShowActions(false);
+              }}
+              style={{ padding: 10 }}
+            >
+              <Text style={{ color: themeStyle.colors.error.default }}>
+                Cancel
+              </Text>
+            </TouchableOpacity>
+          ) : null}
+          {showMediaSizeError ? (
+            <Text>
+              We can&apos;t send the chosen media file as it exceeds our 50MB
+              limit. Please choose a smaller file.
             </Text>
-          </TouchableOpacity>
-        ) : null}
-        {showMediaSizeError ? (
-          <Text>
-            We can&apos;t send the chosen media file as it exceeds our 50MB
-            limit. Please choose a smaller file.
-          </Text>
-        ) : null}
-      </View>
+          ) : null}
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

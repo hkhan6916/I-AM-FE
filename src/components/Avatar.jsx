@@ -15,6 +15,7 @@ const Avatar = ({
 }) => (
   <View
     style={{
+      transform: [{ scaleX: -1 }],
       alignSelf: "flex-start",
       width: size,
       height: size,

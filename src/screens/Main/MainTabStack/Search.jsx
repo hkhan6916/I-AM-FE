@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { View, TextInput, StyleSheet, SafeAreaView } from "react-native";
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  SafeAreaView,
+  KeyboardAvoidingView,
+} from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
 import themeStyle from "../../../theme.style";

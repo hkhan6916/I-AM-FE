@@ -6,6 +6,8 @@ import {
   FlatList,
   RefreshControl,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import PostCommentCard from "../../../components/PostCommentCard";
@@ -252,50 +254,58 @@ const CommentsScreen = (props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
-        data={comments}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        refreshControl={
-          <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-        }
-        contentContainerStyle={{ flexGrow: 1 }}
-        onEndReached={() => getComments(false, true)}
-        onMomentumScrollBegin={() => !scrollStarted && setScrollStarted(true)}
-        onEndReachedThreshold={0.5}
-        initialNumToRender={1}
-        maxToRenderPerBatch={8}
-        windowSize={10}
-        ListFooterComponent={() => (
-          <View>
-            {loadingMore ? (
-              <ActivityIndicator
-                size={"large"}
-                animating
-                color={themeStyle.colors.grayscale.lightGray}
-              />
-            ) : null}
-          </View>
-        )}
-      />
-      {showOptionsForComment ? (
-        <CommentOptionsModal
-          comment={showOptionsForComment}
-          updateComment={updateComment}
-          deleteComment={deleteComment}
-          showOptions={!!showOptionsForComment}
-          setShowOptionsForComment={setShowOptionsForComment}
-          loading={loading}
-          error={error}
-          reportComment={reportComment}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" && "padding"}
+        keyboardVerticalOffset={93}
+        style={{ flex: 1 }}
+      >
+        <FlatList
+          data={comments}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          refreshControl={
+            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+          }
+          contentContainerStyle={{ flexGrow: 1 }}
+          onEndReached={() => getComments(false, true)}
+          onMomentumScrollBegin={() => !scrollStarted && setScrollStarted(true)}
+          onEndReachedThreshold={0.5}
+          initialNumToRender={1}
+          maxToRenderPerBatch={8}
+          windowSize={10}
+          ListFooterComponent={() => (
+            <View>
+              {loadingMore ? (
+                <ActivityIndicator
+                  size={"large"}
+                  animating
+                  color={themeStyle.colors.grayscale.lightGray}
+                />
+              ) : null}
+            </View>
+          )}
         />
-      ) : null}
-      <CommentTextInput
-        ref={textInputRef}
-        submitAction={postComment}
-        replyingTo={replyingTo}
-        setReplyingTo={setReplyingTo}
-      />
+        <View>
+          {showOptionsForComment ? (
+            <CommentOptionsModal
+              comment={showOptionsForComment}
+              updateComment={updateComment}
+              deleteComment={deleteComment}
+              showOptions={!!showOptionsForComment}
+              setShowOptionsForComment={setShowOptionsForComment}
+              loading={loading}
+              error={error}
+              reportComment={reportComment}
+            />
+          ) : null}
+          <CommentTextInput
+            ref={textInputRef}
+            submitAction={postComment}
+            replyingTo={replyingTo}
+            setReplyingTo={setReplyingTo}
+          />
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

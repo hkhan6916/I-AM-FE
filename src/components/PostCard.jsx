@@ -167,7 +167,8 @@ const PostCard = ({
                     url={post.mediaUrl}
                     thumbnailUrl={post.thumbnailUrl}
                     thumbnailHeaders={post.thumbnailHeaders}
-                    isPending={post.uploaded === false}
+                    isUploading={post.ready === false}
+                    isCancelled={post.cancelled}
                   />
                 </View>
               ) : post.mediaType === "image" ? (

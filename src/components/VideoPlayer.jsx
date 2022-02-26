@@ -19,8 +19,11 @@ const VideoPlayer = ({
   isLocalMedia,
   thumbnailUrl,
   thumbnailHeaders,
-  isPending,
+  isUploading,
+  isCancelled,
 }) => {
+  console.log(mediaIsSelfie);
+
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
   const [videoDimensions, setVideoDimensions] = useState({});
@@ -61,109 +64,104 @@ const VideoPlayer = ({
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View>
-        <View
-          style={{
-            transform: [{ scaleX: mediaIsSelfie ? -1 : 1 }],
-          }}
-        >
-          {isPending ? (
-            <Text
-              style={{
-                position: "absolute",
-                fontSize: 20,
-                color: themeStyle.colors.grayscale.lightGray,
-                zIndex: 1,
-                textAlign: "center",
-                margin: 10,
-              }}
-            >
-              Uploading...
-            </Text>
-          ) : null}
-          <View
-            style={{
-              transform: [
-                {
-                  rotate:
-                    mediaOrientation === "landscape-left"
-                      ? "-90deg"
-                      : mediaOrientation === "landscape-right"
-                      ? "90deg"
-                      : "0deg",
-                },
-              ],
-            }}
-          >
-            {!readyForDisplay || isPending ? (
-              <View
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  width: "100%",
-                  height: "100%",
-                }}
-              >
-                <ImageWithCache
-                  removeBorderRadius
-                  resizeMode="cover"
-                  mediaUrl={thumbnailUrl}
-                  mediaHeaders={thumbnailHeaders}
-                  aspectRatio={1 / 1}
-                />
-              </View>
-            ) : null}
-            <Video
-              onReadyForDisplay={(params) => {
-                setVideoDimensions(params.naturalSize);
-                setReadyForDisplay(true);
-              }}
-              isMuted={!showToggle}
-              shouldPlay={shouldPlay || false}
-              ref={video}
-              isLooping={true}
-              style={{
-                aspectRatio: aspectRatio || 1,
-                width: Math.min(screenWidth, screenHeight), // math.min needed for when user switches back from landscape
-              }}
-              // source={{
-              //   uri: url,
-              // }}
-              useNativeControls={false}
-              resizeMode="cover"
-              onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
-            />
-            {!showToggle ? (
-              <View style={{ position: "absolute", right: 0 }}>
-                <Feather
-                  name={videoStatus?.isPlaying ? "pause" : "play"}
-                  size={48}
-                  color={themeStyle.colors.grayscale.white}
-                />
-              </View>
-            ) : null}
-          </View>
-        </View>
-        {videoStatus?.durationMillis && videoStatus?.positionMillis ? (
+        {isUploading || isCancelled ? (
           <Text
             style={{
               position: "absolute",
-              bottom: 0,
-              right: 0,
-              backgroundColor: themeStyle.colors.grayscale.darkGray,
-              paddingVertical: 5,
-              opacity: 0.8,
-              paddingHorizontal: 10,
-              borderRadius: 15,
+              fontSize: 20,
+              color: themeStyle.colors.grayscale.lightGray,
+              zIndex: 1,
+              textAlign: "center",
               margin: 10,
-              color: themeStyle.colors.grayscale.white,
             }}
           >
-            {handleVideoDuration(
-              videoStatus?.durationMillis - videoStatus?.positionMillis
-            )}
+            {isCancelled ? "Upload Cancelled" : "Uploading..."}
           </Text>
         ) : null}
+        <View
+          style={{
+            transform: [
+              {
+                rotate:
+                  mediaOrientation === "landscape-left"
+                    ? "-90deg"
+                    : mediaOrientation === "landscape-right"
+                    ? "90deg"
+                    : "0deg",
+              },
+            ],
+          }}
+        >
+          {!readyForDisplay || isUploading || isCancelled ? (
+            <View
+              style={{
+                position: "absolute",
+                top: 0,
+                width: "100%",
+                height: "100%",
+              }}
+            >
+              <ImageWithCache
+                removeBorderRadius
+                resizeMode="cover"
+                mediaUrl={thumbnailUrl}
+                mediaHeaders={thumbnailHeaders}
+                aspectRatio={1 / 1}
+                mediaIsSelfie={mediaIsSelfie}
+              />
+            </View>
+          ) : null}
+          <Video
+            onReadyForDisplay={(params) => {
+              setVideoDimensions(params.naturalSize);
+              setReadyForDisplay(true);
+            }}
+            isMuted={!showToggle}
+            shouldPlay={shouldPlay || false}
+            ref={video}
+            isLooping={true}
+            style={{
+              aspectRatio: aspectRatio || 1,
+              width: Math.min(screenWidth, screenHeight), // math.min needed for when user switches back from landscape
+            }}
+            // source={{
+            //   uri: url,
+            // }}
+            useNativeControls={false}
+            resizeMode="cover"
+            onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
+          />
+          {!showToggle ? (
+            <View style={{ position: "absolute", right: 0 }}>
+              <Feather
+                name={videoStatus?.isPlaying ? "pause" : "play"}
+                size={48}
+                color={themeStyle.colors.grayscale.white}
+              />
+            </View>
+          ) : null}
+        </View>
       </View>
+      {videoStatus?.durationMillis && videoStatus?.positionMillis ? (
+        <Text
+          style={{
+            position: "absolute",
+            bottom: 0,
+            right: 0,
+            backgroundColor: themeStyle.colors.grayscale.darkGray,
+            paddingVertical: 5,
+            opacity: 0.8,
+            paddingHorizontal: 10,
+            borderRadius: 15,
+            margin: 10,
+            color: themeStyle.colors.grayscale.white,
+          }}
+        >
+          {handleVideoDuration(
+            videoStatus?.durationMillis - videoStatus?.positionMillis
+          )}
+        </Text>
+      ) : null}
     </ScrollView>
   );
 };
