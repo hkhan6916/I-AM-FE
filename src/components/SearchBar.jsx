@@ -48,7 +48,7 @@ const SearchBar = ({ onFocus, onSubmitEditing, setResults }) => {
       />
       <TextInput
         style={styles.searchBar}
-        placeholderTextColor="#b8b894"
+        placeholderTextColor={themeStyle.colors.grayscale.higher}
         autoCorrect={false}
         placeholder="name, username or job title..."
         onChangeText={(v) => searchUsers(v)}
@@ -68,10 +68,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     height: 48,
     alignItems: "center",
-    backgroundColor: themeStyle.colors.grayscale.lower,
+    backgroundColor: themeStyle.colors.grayscale.highest,
+    borderBottomWidth: 1,
+    borderBottomColor: themeStyle.colors.grayscale.low,
   },
   searchIcon: {
     padding: 10,
   },
 });
-export default SearchBar;
+export default React.memo(SearchBar);

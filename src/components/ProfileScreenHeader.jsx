@@ -22,17 +22,26 @@ const ProfileScreenHeader = ({ navigation, userData }) => {
             alignItems: "center",
           }}
         >
-          <Text style={{ fontWeight: "700" }}>
+          <Text
+            style={{
+              fontWeight: "700",
+              color: themeStyle.colors.grayscale.lowest,
+            }}
+          >
             {userData.username}{" "}
             {userData.private && !userData.isFriend ? (
               <AntDesign
                 name="lock"
                 size={16}
-                color={themeStyle.colors.grayscale.higher}
+                color={themeStyle.colors.grayscale.lower}
               />
             ) : null}
           </Text>
-          {userData.jobTitle ? <Text>{userData.jobTitle}</Text> : null}
+          {userData.jobTitle ? (
+            <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+              {userData.jobTitle}
+            </Text>
+          ) : null}
         </View>
         <View
           style={{
@@ -44,15 +53,22 @@ const ProfileScreenHeader = ({ navigation, userData }) => {
           <Ionicons
             name="people"
             size={24}
-            color={themeStyle.colors.grayscale.higher}
+            color={themeStyle.colors.grayscale.lower}
           />
-          <Text style={{ marginHorizontal: 10 }}>
+          <Text
+            style={{
+              marginHorizontal: 10,
+              color: themeStyle.colors.grayscale.lowest,
+            }}
+          >
             {userData.numberOfFriends} contacts
           </Text>
         </View>
       </View>
       <TouchableOpacity>
-        <Text>{userData.private ? "Private" : "Public"}</Text>
+        <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+          {userData.private ? "Private" : "Public"}
+        </Text>
       </TouchableOpacity>
     </View>
   );

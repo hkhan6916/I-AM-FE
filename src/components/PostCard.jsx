@@ -333,7 +333,7 @@ const PostCard = ({
                 <Text
                   style={{
                     fontWeight: "700",
-                    color: themeStyle.colors.grayscale.lower,
+                    color: themeStyle.colors.grayscale.low,
                   }}
                   onPress={() =>
                     navigation.navigate("UserProfileScreen", {
@@ -348,7 +348,7 @@ const PostCard = ({
             ) : (
               <Text
                 style={{
-                  color: themeStyle.colors.grayscale.high,
+                  color: themeStyle.colors.grayscale.lower,
                   fontSize: 12,
                   marginHorizontal: 10,
                   marginVertical: 5,
@@ -370,11 +370,13 @@ const styles = StyleSheet.create({
     borderRightWidth: 0,
     borderLeftWidth: 0,
     borderColor: themeStyle.colors.grayscale.low,
-    marginBottom: 3,
+    // marginBottom: 3,
+    borderBottomColor: themeStyle.colors.grayscale.higher,
+    borderBottomWidth: 2,
     backgroundColor: themeStyle.colors.grayscale.highest,
   },
   postAge: {
-    color: themeStyle.colors.grayscale.high,
+    color: themeStyle.colors.grayscale.low,
     marginHorizontal: 10,
     marginVertical: 5,
     fontSize: 12,

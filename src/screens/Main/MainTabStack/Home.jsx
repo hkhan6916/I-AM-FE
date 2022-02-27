@@ -16,6 +16,7 @@ import {
   ActivityIndicator,
   ScrollView,
   Button,
+  useColorScheme,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,6 +45,8 @@ const HomeScreen = () => {
   const [connectionsAsReceiverOffset, setConnectionsAsReceiverOffset] =
     useState(0);
   const [loading, setLoading] = useState(false);
+
+  const colorSchema = useColorScheme();
 
   const navigation = useNavigation();
   const flatlistRef = useRef(null);
@@ -136,7 +139,10 @@ const HomeScreen = () => {
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
-          backgroundColor: themeStyle.colors.grayscale.lower,
+          backgroundColor:
+            colorSchema === "dark"
+              ? themeStyle.colors.grayscale.highest
+              : themeStyle.colors.grayscale.higher,
           borderBottomWidth: 1,
           borderBottomColor: themeStyle.colors.grayscale.lowest,
         }}
@@ -214,7 +220,9 @@ const HomeScreen = () => {
                 />
                 {allPostsLoaded ? (
                   <View>
-                    <Text>You&apos;ve caught up!</Text>
+                    <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                      You&apos;ve caught up!
+                    </Text>
                   </View>
                 ) : null}
               </View>
@@ -264,8 +272,21 @@ const HomeScreen = () => {
               marginTop: 20,
             }}
           >
-            <Text style={{ fontWeight: "700" }}>It&apos;s quiet here...</Text>
-            <Text style={{ marginBottom: 20, fontWeight: "700" }}>
+            <Text
+              style={{
+                fontWeight: "700",
+                color: themeStyle.colors.grayscale.lowest,
+              }}
+            >
+              It&apos;s quiet here...
+            </Text>
+            <Text
+              style={{
+                marginBottom: 20,
+                fontWeight: "700",
+                color: themeStyle.colors.grayscale.lowest,
+              }}
+            >
               Try adding some people.
             </Text>
             <TouchableOpacity onPress={() => navigation.navigate("Search")}>
@@ -278,7 +299,14 @@ const HomeScreen = () => {
                   borderRadius: 5,
                 }}
               >
-                <Text style={{ fontWeight: "700" }}>Search</Text>
+                <Text
+                  style={{
+                    fontWeight: "700",
+                    color: themeStyle.colors.grayscale.lowest,
+                  }}
+                >
+                  Search
+                </Text>
               </View>
             </TouchableOpacity>
           </View>

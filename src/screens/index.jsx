@@ -12,19 +12,25 @@ import themeStyle from "../theme.style";
 import FeedContext from "../Context";
 import registerNotifications from "../helpers/registerNotifications";
 import * as SplashScreen from "expo-splash-screen";
+import { Appearance, useColorScheme } from "react-native";
 
 const Screens = () => {
+  const test = useColorScheme();
+  console.log(test);
   const [loggedIn, setLoggedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [feed, setFeed] = useState([]);
   const [notificationToken, setNotificationToken] = useState("");
   const loginAttemptStatus = useSelector((state) => state.loggedIn);
-
+  const colorScheme = useColorScheme();
   const Theme = {
     ...DefaultTheme,
     colors: {
       ...DefaultTheme.colors,
-      background: themeStyle.colors.grayscale.lower,
+      background:
+        colorScheme === "dark"
+          ? themeStyle.colors.grayscale.highest
+          : themeStyle.colors.grayscale.higher,
     },
   };
 

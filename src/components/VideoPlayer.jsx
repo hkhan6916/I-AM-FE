@@ -22,8 +22,6 @@ const VideoPlayer = ({
   isUploading,
   isCancelled,
 }) => {
-  console.log(mediaIsSelfie);
-
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
   const [videoDimensions, setVideoDimensions] = useState({});

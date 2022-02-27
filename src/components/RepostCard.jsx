@@ -47,7 +47,11 @@ const RepostCard = ({ postContent, isPreview }) => {
           >
             <Text
               numberOfLines={1}
-              style={{ fontWeight: "700", maxWidth: 200 }}
+              style={{
+                fontWeight: "700",
+                maxWidth: 200,
+                color: themeStyle.colors.grayscale.lowest,
+              }}
             >
               {postContent.postAuthor.username}
             </Text>
@@ -114,7 +118,10 @@ const RepostCard = ({ postContent, isPreview }) => {
             <Text
               onTextLayout={onTextLayout}
               numberOfLines={!bodyCollapsed ? 3 : null}
-              style={{ textAlign: "left" }}
+              style={{
+                textAlign: "left",
+                color: themeStyle.colors.grayscale.lowest,
+              }}
             >
               {postContent.body}
             </Text>
@@ -122,7 +129,7 @@ const RepostCard = ({ postContent, isPreview }) => {
               <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
                 <Text
                   style={{
-                    color: themeStyle.colors.grayscale.higher,
+                    color: themeStyle.colors.grayscale.low,
                     marginBottom: 10,
                     marginTop: 5,
                   }}

@@ -283,7 +283,7 @@ const AddScreen = () => {
       <View
         style={{
           padding: 10,
-          backgroundColor: themeStyle.colors.grayscale.lowest,
+          backgroundColor: themeStyle.colors.grayscale.highest,
         }}
       >
         <Text
@@ -302,10 +302,15 @@ const AddScreen = () => {
       ) : null}
       <ScrollView contentContainerStyle={{ padding: 10 }}>
         <TextInput
-          style={{ minHeight: 100, textAlignVertical: "top", fontSize: 16 }}
+          style={{
+            minHeight: 100,
+            textAlignVertical: "top",
+            fontSize: 16,
+            color: themeStyle.colors.grayscale.lowest,
+          }}
           value={postBody}
           placeholder="What's on your mind?"
-          placeholderTextColor={themeStyle.colors.grayscale.low}
+          placeholderTextColor={themeStyle.colors.grayscale.lower}
           multiline
           maxLength={1000}
           onChangeText={(v) => setPostBody(v)}
@@ -327,7 +332,7 @@ const AddScreen = () => {
               <AntDesign
                 name="close"
                 size={24}
-                color={themeStyle.colors.grayscale.lowest}
+                color={themeStyle.colors.grayscale.highest}
               />
             </TouchableOpacity>
             {showMediaSizeError ? (
@@ -407,7 +412,7 @@ const AddScreen = () => {
           justifyContent: "space-between",
           alignItems: "center",
           padding: 10,
-          backgroundColor: themeStyle.colors.grayscale.lowest,
+          backgroundColor: themeStyle.colors.grayscale.highest,
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
@@ -456,7 +461,7 @@ const AddScreen = () => {
             <Text
               style={{
                 fontSize: 16,
-                color: themeStyle.colors.grayscale.lowest,
+                color: themeStyle.colors.white,
               }}
             >
               Post

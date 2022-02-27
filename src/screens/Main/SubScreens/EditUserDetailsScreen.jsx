@@ -431,11 +431,11 @@ const EditUserDetailsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: themeStyle.colors.grayscale.lowest,
+    backgroundColor: themeStyle.colors.grayscale.highest,
   },
   formContainer: {
     paddingHorizontal: 20,
-    backgroundColor: themeStyle.colors.grayscale.lowest,
+    backgroundColor: themeStyle.colors.grayscale.highest,
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
@@ -463,6 +463,7 @@ const styles = StyleSheet.create({
   },
   resetProfileVideoText: {
     textAlign: "center",
+    color: themeStyle.colors.grayscale.lowest,
   },
   faceDetectionError: {
     marginVertical: 20,

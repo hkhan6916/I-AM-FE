@@ -5,6 +5,7 @@ import {
   StyleSheet,
   SafeAreaView,
   KeyboardAvoidingView,
+  ScrollView,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
@@ -21,7 +22,7 @@ const SearchScreen = () => {
         onSubmitEditing={() => setShowAllResults(true)}
         setResults={setResults}
       />
-      <View>
+      <ScrollView keyboardShouldPersistTaps="handled">
         {results.map((user) => (
           <UserThumbnail
             key={user._id}
@@ -29,7 +30,7 @@ const SearchScreen = () => {
             avatarSize={showAllResults ? 70 : 55}
           />
         ))}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
