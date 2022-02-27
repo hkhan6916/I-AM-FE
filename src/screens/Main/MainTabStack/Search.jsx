@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
 import {
   View,
   TextInput,
@@ -6,32 +6,43 @@ import {
   SafeAreaView,
   KeyboardAvoidingView,
   ScrollView,
+  Platform,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
 import themeStyle from "../../../theme.style";
 import SearchBar from "../../../components/SearchBar";
+import { StatusBar } from "expo-status-bar";
 
 const SearchScreen = () => {
   const [results, setResults] = useState([]);
   const [showAllResults, setShowAllResults] = useState(false);
   return (
-    <SafeAreaView style={styles.container}>
-      <SearchBar
-        onFocus={() => setShowAllResults(false)}
-        onSubmitEditing={() => setShowAllResults(true)}
-        setResults={setResults}
+    <Fragment>
+      <SafeAreaView
+        style={{
+          flex: 0,
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        }}
       />
-      <ScrollView keyboardShouldPersistTaps="handled">
-        {results.map((user) => (
-          <UserThumbnail
-            key={user._id}
-            user={user}
-            avatarSize={showAllResults ? 70 : 55}
-          />
-        ))}
-      </ScrollView>
-    </SafeAreaView>
+      {Platform.OS === "ios" ? <StatusBar translucent={true} /> : null}
+      <SafeAreaView style={styles.container}>
+        <SearchBar
+          onFocus={() => setShowAllResults(false)}
+          onSubmitEditing={() => setShowAllResults(true)}
+          setResults={setResults}
+        />
+        <ScrollView keyboardShouldPersistTaps="handled">
+          {results.map((user) => (
+            <UserThumbnail
+              key={user._id}
+              user={user}
+              avatarSize={showAllResults ? 70 : 55}
+            />
+          ))}
+        </ScrollView>
+      </SafeAreaView>
+    </Fragment>
   );
 };
 

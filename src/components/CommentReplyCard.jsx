@@ -98,7 +98,11 @@ const CommentReplyCard = ({
             style={{ marginRight: 20 }}
             onPress={() => setShowOptionsForComment(reply)}
           >
-            <Entypo name="dots-three-vertical" size={16} color="black" />
+            <Entypo
+              name="dots-three-vertical"
+              size={16}
+              color={themeStyle.colors.grayscale.lowest}
+            />
           </TouchableOpacity>
         </View>
         <View style={styles.replyBodyContainer}>
@@ -137,7 +141,7 @@ const CommentReplyCard = ({
             >
               <Text
                 style={{
-                  color: themeStyle.colors.grayscale.high,
+                  color: themeStyle.colors.grayscale.low,
                   fontWeight: "700",
                 }}
               >
@@ -159,7 +163,7 @@ const CommentReplyCard = ({
                   color={
                     reply.liked
                       ? themeStyle.colors.secondary.default
-                      : themeStyle.colors.grayscale.high
+                      : themeStyle.colors.grayscale.low
                   }
                 />
               </TouchableOpacity>
@@ -232,7 +236,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   commentAge: {
-    color: themeStyle.colors.grayscale.high,
+    color: themeStyle.colors.grayscale.low,
     marginHorizontal: 10,
     marginVertical: 5,
     fontSize: 12,

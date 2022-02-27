@@ -48,7 +48,7 @@ const SearchBar = ({ onFocus, onSubmitEditing, setResults }) => {
       />
       <TextInput
         style={styles.searchBar}
-        placeholderTextColor={themeStyle.colors.grayscale.higher}
+        placeholderTextColor={themeStyle.colors.grayscale.low}
         autoCorrect={false}
         placeholder="name, username or job title..."
         onChangeText={(v) => searchUsers(v)}

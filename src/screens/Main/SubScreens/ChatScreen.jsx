@@ -432,7 +432,11 @@ const ChatScreen = (props) => {
                 }}
                 onPress={() => pickImage()}
               >
-                <FontAwesome name="photo" size={24} color="black" />
+                <FontAwesome
+                  name="photo"
+                  size={24}
+                  color={themeStyle.colors.grayscale.lowest}
+                />
               </TouchableOpacity>
               <TouchableOpacity
                 style={{
@@ -444,7 +448,11 @@ const ChatScreen = (props) => {
                 }}
                 onPress={() => handleActivateCamera(true)}
               >
-                <Ionicons name="camera-outline" size={26} color="black" />
+                <Ionicons
+                  name="camera-outline"
+                  size={26}
+                  color={themeStyle.colors.grayscale.lowest}
+                />
               </TouchableOpacity>
             </View>
             <View>
@@ -514,7 +522,11 @@ const ChatScreen = (props) => {
               }}
               onPress={() => handleMessage()}
             >
-              <Ionicons name="send-sharp" size={24} color="black" />
+              <Ionicons
+                name="send-sharp"
+                size={24}
+                color={themeStyle.colors.grayscale.lowest}
+              />
             </TouchableOpacity>
           </View>
         </View>

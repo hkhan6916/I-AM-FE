@@ -115,7 +115,11 @@ const PostCommentCard = ({
             }}
             onPress={() => setShowOptionsForComment(comment)}
           >
-            <Entypo name="dots-three-vertical" size={16} color="black" />
+            <Entypo
+              name="dots-three-vertical"
+              size={16}
+              color={themeStyle.colors.grayscale.lowest}
+            />
           </TouchableOpacity>
         </View>
         <View style={styles.commentBodyContainer}>
@@ -130,7 +134,7 @@ const PostCommentCard = ({
               >
                 <Text
                   style={{
-                    color: themeStyle.colors.grayscale.high,
+                    color: themeStyle.colors.grayscale.low,
                     fontWeight: "700",
                   }}
                 >
@@ -154,7 +158,7 @@ const PostCommentCard = ({
                     color={
                       comment.liked
                         ? themeStyle.colors.secondary.default
-                        : themeStyle.colors.grayscale.high
+                        : themeStyle.colors.grayscale.low
                     }
                   />
                 </TouchableOpacity>
@@ -182,7 +186,7 @@ const PostCommentCard = ({
                 })
               }
             >
-              <Text style={{ color: themeStyle.colors.grayscale.higher }}>
+              <Text style={{ color: themeStyle.colors.grayscale.low }}>
                 View {comment.replyCount}{" "}
                 {comment.replyCount > 1 ? "replies" : "reply"}
               </Text>
@@ -243,7 +247,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   commentAge: {
-    color: themeStyle.colors.grayscale.high,
+    color: themeStyle.colors.grayscale.low,
     marginHorizontal: 10,
     marginVertical: 5,
     fontSize: 12,

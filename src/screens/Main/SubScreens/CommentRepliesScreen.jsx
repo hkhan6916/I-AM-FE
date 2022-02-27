@@ -6,6 +6,8 @@ import {
   FlatList,
   RefreshControl,
   ActivityIndicator,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import PostCommentCard from "../../../components/PostCommentCard";
@@ -208,58 +210,64 @@ const CommentRepliesScreen = (props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
-        data={replies}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        refreshControl={
-          <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-        }
-        ListHeaderComponent={() => (
-          <PostCommentCard
-            isNestedInList={false}
-            newReply={null}
-            comment={comment}
-            setShowOptionsForComment={setShowOptionsForComment}
-          />
-        )}
-        contentContainerStyle={{ flexGrow: 1 }}
-        onEndReached={() => getCommentReplies(false, true)}
-        onMomentumScrollBegin={() => !scrollStarted && setScrollStarted(true)}
-        onEndReachedThreshold={0.5}
-        initialNumToRender={1}
-        maxToRenderPerBatch={8}
-        windowSize={10}
-        ListFooterComponent={() => (
-          <View>
-            {loadingMore ? (
-              <ActivityIndicator
-                size={"large"}
-                animating
-                color={themeStyle.colors.grayscale.low}
-              />
-            ) : null}
-          </View>
-        )}
-      />
-      {showOptionsForComment ? (
-        <CommentOptionsModal
-          comment={showOptionsForComment}
-          updateComment={updateComment}
-          deleteComment={deleteComment}
-          showOptions={!!showOptionsForComment}
-          setShowOptionsForComment={setShowOptionsForComment}
-          loading={loading}
-          error={error}
-          reportComment={reportComment}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" && "padding"}
+        keyboardVerticalOffset={93}
+        style={{ flex: 1 }}
+      >
+        <FlatList
+          data={replies}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          refreshControl={
+            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+          }
+          ListHeaderComponent={() => (
+            <PostCommentCard
+              isNestedInList={false}
+              newReply={null}
+              comment={comment}
+              setShowOptionsForComment={setShowOptionsForComment}
+            />
+          )}
+          contentContainerStyle={{ flexGrow: 1 }}
+          onEndReached={() => getCommentReplies(false, true)}
+          onMomentumScrollBegin={() => !scrollStarted && setScrollStarted(true)}
+          onEndReachedThreshold={0.5}
+          initialNumToRender={1}
+          maxToRenderPerBatch={8}
+          windowSize={10}
+          ListFooterComponent={() => (
+            <View>
+              {loadingMore ? (
+                <ActivityIndicator
+                  size={"large"}
+                  animating
+                  color={themeStyle.colors.grayscale.low}
+                />
+              ) : null}
+            </View>
+          )}
         />
-      ) : null}
-      <CommentTextInput
-        ref={textInputRef}
-        submitAction={postComment}
-        replyingTo={replyingTo}
-        setReplyingTo={setReplyingTo}
-      />
+        {showOptionsForComment ? (
+          <CommentOptionsModal
+            comment={showOptionsForComment}
+            updateComment={updateComment}
+            deleteComment={deleteComment}
+            showOptions={!!showOptionsForComment}
+            setShowOptionsForComment={setShowOptionsForComment}
+            loading={loading}
+            error={error}
+            reportComment={reportComment}
+          />
+        ) : null}
+        <CommentTextInput
+          ref={textInputRef}
+          submitAction={postComment}
+          replyingTo={replyingTo}
+          setReplyingTo={setReplyingTo}
+        />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

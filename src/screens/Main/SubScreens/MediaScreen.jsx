@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 
 import {
   Text,
@@ -72,142 +72,146 @@ const MediaScreen = (props) => {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View>
-        {post?.mediaType === "video" ? (
-          // <VideoPlayer
-          //   url={post.mediaUrl}
-          //   mediaHeaders={post.mediaHeaders}
-          //   mediaOrientation={post.mediaOrientation}
-          //   mediaIsSelfie={post.mediaIsSelfie}
-          //   isFullScreen
-          //   setShowActions={setShowActions}
-          // />
-          <ExpoVideoPlayer
-            uri={post.mediaUrl}
-            mediaOrientation={post.mediaOrientation}
-          />
-        ) : post?.mediaType === "image" ? (
-          <View
-            style={{
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <ImageWithCache
+    <Fragment>
+      <SafeAreaView
+        style={{
+          flex: 0,
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        }}
+      />
+      <SafeAreaView style={styles.container}>
+        <View>
+          {post?.mediaType === "video" ? (
+            <ExpoVideoPlayer
+              uri={post.mediaUrl}
               mediaOrientation={post.mediaOrientation}
-              mediaIsSelfie={post.mediaIsSelfie}
-              resizeMode="cover"
-              mediaHeaders={post.mediaHeaders}
-              mediaUrl={post.mediaUrl}
-              removeBorderRadius
             />
-          </View>
-        ) : null}
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={{
-            position: "absolute",
-            left: 10,
-            top: 10,
-          }}
-        >
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              opacity: showActions || !post.mediaType === "video" ? 1 : 0.5,
-            }}
-          >
-            <Ionicons
-              name="arrow-back"
-              size={26}
-              color={themeStyle.colors.grayscale.lowest}
-            />
-            <Text
+          ) : post?.mediaType === "image" ? (
+            <View
               style={{
-                color: themeStyle.colors.grayscale.lowest,
-                fontSize: 16,
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              Back
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableWithoutFeedback>
-          <View
+              <ImageWithCache
+                mediaOrientation={post.mediaOrientation}
+                mediaIsSelfie={post.mediaIsSelfie}
+                resizeMode="cover"
+                mediaHeaders={post.mediaHeaders}
+                mediaUrl={post.mediaUrl}
+                removeBorderRadius
+              />
+            </View>
+          ) : null}
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
             style={{
               position: "absolute",
-              bottom: 70,
-              right: 0,
-              opacity: post.mediaType !== "video" ? 1 : showActions ? 1 : 0.2,
-              borderRadius: 20,
-              display: "flex",
-              flexDirection: "column",
+              left: 10,
+              top: 10,
             }}
           >
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("CommentsScreen", {
-                  postId: post._id,
-                })
-              }
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
+              <Ionicons
+                name="arrow-back"
+                size={26}
+                color={themeStyle.colors.grayscale.low}
+              />
               <Text
                 style={{
-                  color: themeStyle.colors.grayscale.lowest,
-                  margin: 20,
+                  color: themeStyle.colors.grayscale.low,
+                  fontSize: 16,
                 }}
               >
-                <FontAwesome
-                  name="comment-o"
-                  size={24}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
+                Back
               </Text>
-            </TouchableOpacity>
-            {!post.belongsToUser ? (
-              <TouchableOpacity onPress={() => handleReaction()}>
-                <View
+            </View>
+          </TouchableOpacity>
+          <TouchableWithoutFeedback>
+            <View
+              style={{
+                position: "absolute",
+                bottom: 70,
+                right: 0,
+                borderRadius: 20,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate("CommentsScreen", {
+                    postId: post._id,
+                  })
+                }
+              >
+                <Text
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
+                    color: themeStyle.colors.grayscale.lowest,
+                    margin: 20,
                   }}
                 >
-                  <Text
-                    style={{
-                      color: themeStyle.colors.grayscale.lowest,
-                      marginHorizontal: 20,
-                    }}
-                  >
-                    <MaterialCommunityIcons
-                      name={liked ? "thumb-up" : "thumb-up-outline"}
-                      size={24}
-                      color={
-                        liked
-                          ? themeStyle.colors.secondary.default
-                          : themeStyle.colors.grayscale.lowest
-                      }
-                    />
-                  </Text>
-                  <Text
-                    style={{
-                      color: themeStyle.colors.grayscale.lowest,
-                      marginHorizontal: 20,
-                    }}
-                  >
-                    {likes}
-                  </Text>
-                </View>
+                  <FontAwesome
+                    name="comment-o"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </Text>
               </TouchableOpacity>
-            ) : null}
-          </View>
-        </TouchableWithoutFeedback>
-      </View>
-    </SafeAreaView>
+              {!post.belongsToUser ? (
+                <TouchableOpacity onPress={() => handleReaction()}>
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.lowest,
+                        marginHorizontal: 20,
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name={liked ? "thumb-up" : "thumb-up-outline"}
+                        size={24}
+                        color={
+                          liked
+                            ? themeStyle.colors.secondary.default
+                            : themeStyle.colors.grayscale.lowest
+                        }
+                      />
+                    </Text>
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.lowest,
+                        marginHorizontal: 20,
+                      }}
+                    >
+                      {likes}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+      </SafeAreaView>
+      <SafeAreaView
+        style={{
+          flex: 0,
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        }}
+      />
+    </Fragment>
   );
 };
 

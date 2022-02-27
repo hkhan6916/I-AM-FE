@@ -51,7 +51,7 @@ const ProfileInfo = ({
           <Ionicons
             name="people"
             size={24}
-            color={themeStyle.colors.grayscale.higher}
+            color={themeStyle.colors.grayscale.lower}
           />
           <Text style={{ marginHorizontal: 10 }}>
             {user.numberOfFriends} contacts
@@ -90,7 +90,11 @@ const ProfileInfo = ({
                       flexDirection: "row",
                     }}
                   >
-                    <AntDesign name="check" size={20} color="black" />
+                    <AntDesign
+                      name="check"
+                      size={20}
+                      color={themeStyle.colors.grayscale.lowest}
+                    />
                     <Text style={{ fontWeight: "700" }}>Accept</Text>
                   </View>
                 </TouchableOpacity>
@@ -110,7 +114,11 @@ const ProfileInfo = ({
                       flexDirection: "row",
                     }}
                   >
-                    <AntDesign name="close" size={20} color="black" />
+                    <AntDesign
+                      name="close"
+                      size={20}
+                      color={themeStyle.colors.grayscale.lowest}
+                    />
                     <Text style={{ fontWeight: "700" }}>Delete</Text>
                   </View>
                 </TouchableOpacity>

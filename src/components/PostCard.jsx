@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
@@ -13,6 +13,7 @@ import themeStyle from "../theme.style";
 import apiCall from "../helpers/apiCall";
 import ImageWithCache from "./ImageWithCache";
 import RepostCard from "./RepostCard";
+import LottieView from "lottie-react-native";
 
 const PostCard = ({
   post: initialPost,
@@ -25,6 +26,8 @@ const PostCard = ({
   const [isCollapsible, setIsCollapsible] = useState(false);
 
   const navigation = useNavigation();
+
+  const lottieRef = useRef(null);
 
   const onTextLayout = (e) => {
     setIsCollapsible(e.nativeEvent.lines.length >= 3);
@@ -50,6 +53,7 @@ const PostCard = ({
         setPost(initialPost);
       }
     }
+    lottieRef?.current?.play();
   };
 
   const PostAge = () => {
@@ -62,10 +66,6 @@ const PostCard = ({
       </Text>
     );
   };
-
-  // useEffect(() => {
-  //   setPost(initialPost);
-  // }, [initialPost]);
 
   return (
     <View style={[styles.container, isPreview && styles.preview]}>
@@ -258,15 +258,24 @@ const PostCard = ({
                     alignItems: "center",
                   }}
                 >
-                  <MaterialCommunityIcons
-                    name={post.liked ? "thumb-up" : "thumb-up-outline"}
-                    size={20}
-                    color={
-                      post.liked
-                        ? themeStyle.colors.secondary.default
-                        : themeStyle.colors.grayscale.lowest
-                    }
-                  />
+                  {post.liked ? (
+                    <LottieView
+                      ref={lottieRef}
+                      autoPlay={false}
+                      loop={false}
+                      source={require("../../assets/lotties/like.json")}
+                      style={{
+                        width: 60,
+                        height: 60,
+                      }}
+                    />
+                  ) : (
+                    <MaterialCommunityIcons
+                      name={"thumb-up-outline"}
+                      size={20}
+                      color={themeStyle.colors.grayscale.lowest}
+                    />
+                  )}
                 </TouchableOpacity>
               ) : null}
               <TouchableOpacity

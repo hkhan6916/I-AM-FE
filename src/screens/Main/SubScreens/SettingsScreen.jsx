@@ -28,7 +28,11 @@ const SettingScreen = () => {
             onPress={() => navigation.navigate("EditUserDetailsScreen")}
           >
             <View style={styles.optionContent}>
-              <Ionicons name="person-outline" size={14} color="black" />
+              <Ionicons
+                name="person-outline"
+                size={14}
+                color={themeStyle.colors.grayscale.lowest}
+              />
               <Text style={styles.basicOptionsText}>My Details</Text>
             </View>
           </TouchableOpacity>
@@ -38,7 +42,11 @@ const SettingScreen = () => {
             onPress={() => navigation.navigate("EditUserDetailsScreen")}
           >
             <View style={styles.optionContent}>
-              <Ionicons name="person-outline" size={14} color="black" />
+              <Ionicons
+                name="person-outline"
+                size={14}
+                color={themeStyle.colors.grayscale.lowest}
+              />
               <Text style={styles.basicOptionsText}>Account</Text>
             </View>
           </TouchableOpacity>
@@ -48,7 +56,11 @@ const SettingScreen = () => {
             onPress={() => navigation.navigate("PrivacyPolicyScreen")}
           >
             <View style={styles.optionContent}>
-              <Ionicons name="lock-closed-outline" size={14} color="black" />
+              <Ionicons
+                name="lock-closed-outline"
+                size={14}
+                color={themeStyle.colors.grayscale.lowest}
+              />
               <Text style={styles.basicOptionsText}>Privacy Policy</Text>
             </View>
           </TouchableOpacity>
@@ -58,7 +70,11 @@ const SettingScreen = () => {
             onPress={() => navigation.navigate("TermsOfUseScreen")}
           >
             <View style={styles.optionContent}>
-              <Ionicons name="clipboard-outline" size={14} color="black" />
+              <Ionicons
+                name="clipboard-outline"
+                size={14}
+                color={themeStyle.colors.grayscale.lowest}
+              />
               <Text style={styles.basicOptionsText}>Terms Of Use</Text>
             </View>
           </TouchableOpacity>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
 import {
   View,
   Text,
@@ -41,6 +41,7 @@ import * as TaskManager from "expo-task-manager";
 import Upload from "react-native-background-upload";
 import { getItemAsync } from "expo-secure-store";
 import { manipulateAsync } from "expo-image-manipulator";
+import { StatusBar } from "expo-status-bar";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -279,203 +280,212 @@ const AddScreen = () => {
     );
   }
   return (
-    <SafeAreaView style={styles.container}>
-      <View
+    <Fragment>
+      <SafeAreaView
         style={{
-          padding: 10,
+          flex: 0,
           backgroundColor: themeStyle.colors.grayscale.highest,
         }}
-      >
-        <Text
-          style={{
-            fontSize: 24,
-            color: themeStyle.colors.primary.default,
-          }}
-        >
-          New Post
-        </Text>
-      </View>
-      {postBody.length >= 1000 - 25 ? (
-        <Text style={styles.postLimitMessage}>
-          {1000 - postBody.length} Characters Remaining
-        </Text>
-      ) : null}
-      <ScrollView contentContainerStyle={{ padding: 10 }}>
-        <TextInput
-          style={{
-            minHeight: 100,
-            textAlignVertical: "top",
-            fontSize: 16,
-            color: themeStyle.colors.grayscale.lowest,
-          }}
-          value={postBody}
-          placeholder="What's on your mind?"
-          placeholderTextColor={themeStyle.colors.grayscale.lower}
-          multiline
-          maxLength={1000}
-          onChangeText={(v) => setPostBody(v)}
-        />
-        {file.uri ? (
-          <View
-            style={{
-              borderWidth: !showMediaSizeError ? 1 : 2,
-              borderRadius: 5,
-              borderColor: !showMediaSizeError
-                ? themeStyle.colors.primary.default
-                : themeStyle.colors.error.default,
-            }}
-          >
-            <TouchableOpacity
-              style={{ alignSelf: "flex-end" }}
-              onPress={() => setFile({})}
-            >
-              <AntDesign
-                name="close"
-                size={24}
-                color={themeStyle.colors.grayscale.highest}
-              />
-            </TouchableOpacity>
-            {showMediaSizeError ? (
-              <Text
-                style={{
-                  color: themeStyle.colors.error.default,
-                  marginHorizontal: 5,
-                }}
-              >
-                Choose a file smaller than 100MB
-              </Text>
-            ) : null}
-            {compressing ? (
-              <Text
-                style={{
-                  marginHorizontal: 5,
-                  marginBottom: 5,
-                  color: themeStyle.colors.secondary.default,
-                }}
-              >
-                {compressionProgress < 100 ? "Processing..." : "Processed"}
-              </Text>
-            ) : null}
-            <View
-              style={{
-                height: 5,
-                width: `${compressionProgress}%`,
-                backgroundColor: themeStyle.colors.secondary.default,
-              }}
-            />
-            {file.type?.split("/")[0] === "video" ? (
-              <View
-                style={{
-                  height: screenWidth,
-                  alignItems: "center",
-                  padding: 20,
-                }}
-              >
-                <VideoPlayer // TODO create new player as need to flip the media for selfie video without flipping the controls.
-                  autoHidePlayer={false}
-                  fullscreen
-                  mediaIsSelfie
-                  videoProps={{
-                    shouldPlay: true,
-                    resizeMode: Video.RESIZE_MODE_CONTAIN,
-                    source: {
-                      uri: file.uri,
-                    },
-                  }}
-                  style={{ height: 300 }}
-                />
-              </View>
-            ) : file.type?.split("/")[0] === "image" ? (
-              <View
-                style={{
-                  height: screenWidth,
-                  alignItems: "center",
-                  padding: 20,
-                }}
-              >
-                <ImageWithCache
-                  mediaOrientation={file.mediaOrientation}
-                  mediaIsSelfie={file.isSelfie}
-                  resizeMode="cover"
-                  mediaUrl={file.uri}
-                  aspectRatio={1 / 1}
-                  removeBorderRadius
-                />
-              </View>
-            ) : null}
-          </View>
-        ) : null}
-      </ScrollView>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: 10,
-          backgroundColor: themeStyle.colors.grayscale.highest,
-        }}
-      >
-        <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginHorizontal: 10,
-            }}
-          >
-            <TouchableOpacity onPress={() => setCameraActive(true)}>
-              <FontAwesome
-                name="camera"
-                size={24}
-                color={themeStyle.colors.grayscale.lowest}
-              />
-            </TouchableOpacity>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginHorizontal: 10,
-            }}
-          >
-            <TouchableOpacity onPress={() => pickMedia()}>
-              <FontAwesome
-                name="image"
-                size={24}
-                color={themeStyle.colors.grayscale.lowest}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
+      />
+      {Platform.OS === "ios" ? <StatusBar translucent={true} /> : null}
+      <SafeAreaView style={styles.container}>
         <View
           style={{
-            justifyContent: "center",
-            flexDirection: "row",
-            backgroundColor: themeStyle.colors.primary.default,
-            padding: 5,
-            borderRadius: 20,
-            width: 70,
+            padding: 10,
+            backgroundColor: themeStyle.colors.grayscale.highest,
           }}
         >
-          <TouchableOpacity onPress={() => createPost()}>
-            <Text
+          <Text
+            style={{
+              fontSize: 24,
+              color: themeStyle.colors.primary.default,
+            }}
+          >
+            New Post
+          </Text>
+        </View>
+        {postBody.length >= 1000 - 25 ? (
+          <Text style={styles.postLimitMessage}>
+            {1000 - postBody.length} Characters Remaining
+          </Text>
+        ) : null}
+        <ScrollView contentContainerStyle={{ padding: 10 }}>
+          <TextInput
+            style={{
+              minHeight: 100,
+              textAlignVertical: "top",
+              fontSize: 16,
+              color: themeStyle.colors.grayscale.lowest,
+            }}
+            value={postBody}
+            placeholder="What's on your mind?"
+            placeholderTextColor={themeStyle.colors.grayscale.lower}
+            multiline
+            maxLength={1000}
+            onChangeText={(v) => setPostBody(v)}
+          />
+          {file.uri ? (
+            <View
               style={{
-                fontSize: 16,
-                color: themeStyle.colors.white,
+                borderWidth: !showMediaSizeError ? 1 : 2,
+                borderRadius: 5,
+                borderColor: !showMediaSizeError
+                  ? themeStyle.colors.primary.default
+                  : themeStyle.colors.error.default,
               }}
             >
-              Post
-            </Text>
-          </TouchableOpacity>
+              <TouchableOpacity
+                style={{ alignSelf: "flex-end" }}
+                onPress={() => setFile({})}
+              >
+                <AntDesign
+                  name="close"
+                  size={24}
+                  color={themeStyle.colors.grayscale.highest}
+                />
+              </TouchableOpacity>
+              {showMediaSizeError ? (
+                <Text
+                  style={{
+                    color: themeStyle.colors.error.default,
+                    marginHorizontal: 5,
+                  }}
+                >
+                  Choose a file smaller than 100MB
+                </Text>
+              ) : null}
+              {compressing ? (
+                <Text
+                  style={{
+                    marginHorizontal: 5,
+                    marginBottom: 5,
+                    color: themeStyle.colors.secondary.default,
+                  }}
+                >
+                  {compressionProgress < 100 ? "Processing..." : "Processed"}
+                </Text>
+              ) : null}
+              <View
+                style={{
+                  height: 5,
+                  width: `${compressionProgress}%`,
+                  backgroundColor: themeStyle.colors.secondary.default,
+                }}
+              />
+              {file.type?.split("/")[0] === "video" ? (
+                <View
+                  style={{
+                    height: screenWidth,
+                    alignItems: "center",
+                    padding: 20,
+                  }}
+                >
+                  <VideoPlayer // TODO create new player as need to flip the media for selfie video without flipping the controls.
+                    autoHidePlayer={false}
+                    fullscreen
+                    mediaIsSelfie
+                    videoProps={{
+                      shouldPlay: true,
+                      resizeMode: Video.RESIZE_MODE_CONTAIN,
+                      source: {
+                        uri: file.uri,
+                      },
+                    }}
+                    style={{ height: 300 }}
+                  />
+                </View>
+              ) : file.type?.split("/")[0] === "image" ? (
+                <View
+                  style={{
+                    height: screenWidth,
+                    alignItems: "center",
+                    padding: 20,
+                  }}
+                >
+                  <ImageWithCache
+                    mediaOrientation={file.mediaOrientation}
+                    mediaIsSelfie={file.isSelfie}
+                    resizeMode="cover"
+                    mediaUrl={file.uri}
+                    aspectRatio={1 / 1}
+                    removeBorderRadius
+                  />
+                </View>
+              ) : null}
+            </View>
+          ) : null}
+        </ScrollView>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: 10,
+            backgroundColor: themeStyle.colors.grayscale.highest,
+          }}
+        >
+          <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginHorizontal: 10,
+              }}
+            >
+              <TouchableOpacity onPress={() => setCameraActive(true)}>
+                <FontAwesome
+                  name="camera"
+                  size={24}
+                  color={themeStyle.colors.grayscale.lowest}
+                />
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginHorizontal: 10,
+              }}
+            >
+              <TouchableOpacity onPress={() => pickMedia()}>
+                <FontAwesome
+                  name="image"
+                  size={24}
+                  color={themeStyle.colors.grayscale.lowest}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View
+            style={{
+              justifyContent: "center",
+              flexDirection: "row",
+              backgroundColor: themeStyle.colors.primary.default,
+              padding: 5,
+              borderRadius: 20,
+              width: 70,
+            }}
+          >
+            <TouchableOpacity onPress={() => createPost()}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: themeStyle.colors.white,
+                }}
+              >
+                Post
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-      {error ? (
-        <View>
-          <Text style={styles.errorTitle}>{error.title}</Text>
-          <Text style={styles.errorMessage}>{error.message}</Text>
-        </View>
-      ) : null}
-    </SafeAreaView>
+        {error ? (
+          <View>
+            <Text style={styles.errorTitle}>{error.title}</Text>
+            <Text style={styles.errorMessage}>{error.message}</Text>
+          </View>
+        ) : null}
+      </SafeAreaView>
+    </Fragment>
   );
 };
 const styles = StyleSheet.create({

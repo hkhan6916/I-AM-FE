@@ -124,11 +124,18 @@ const ProfileScreen = () => {
           borderBottomWidth: 1,
         }}
       >
-        <Text style={{ fontSize: 20 }} numberOfLines={1}>
+        <Text
+          style={{ fontSize: 20, color: themeStyle.colors.grayscale.lowest }}
+          numberOfLines={1}
+        >
           {userData.username}
         </Text>
         <TouchableOpacity onPress={() => navigation.navigate("SettingsScreen")}>
-          <MaterialCommunityIcons name="cog-outline" size={24} color="black" />
+          <MaterialCommunityIcons
+            name="cog-outline"
+            size={24}
+            color={themeStyle.colors.grayscale.lowest}
+          />
         </TouchableOpacity>
       </View>
       {userData ? (
