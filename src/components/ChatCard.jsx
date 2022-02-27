@@ -14,10 +14,22 @@ const ChatCard = ({ chat }) => {
         profileGifHeaders={user.profileGifHeaders}
       />
       <View style={styles.chatInfo}>
-        <Text numberOfLines={1} style={{ fontWeight: "600", fontSize: 16 }}>
+        <Text
+          numberOfLines={1}
+          style={{
+            fontWeight: "600",
+            fontSize: 16,
+            color: themeStyle.colors.grayscale.lowest,
+          }}
+        >
           {user.firstName} {user.lastName}
         </Text>
-        <Text numberOfLines={1}>{chat.previewMessage}</Text>
+        <Text
+          style={{ color: themeStyle.colors.grayscale.lowest }}
+          numberOfLines={1}
+        >
+          {chat.previewMessage}
+        </Text>
       </View>
     </View>
   );

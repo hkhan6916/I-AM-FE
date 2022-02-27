@@ -42,6 +42,9 @@ const MainStack = () => (
         headerTitleStyle: {
           fontWeight: "bold",
         },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        },
         title: "",
       }}
       name="UserProfileScreen"
@@ -50,6 +53,9 @@ const MainStack = () => (
     <Stack.Screen
       options={{
         headerShown: false,
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        },
       }}
       name="MediaScreen"
       component={MediaScreen}
@@ -60,6 +66,9 @@ const MainStack = () => (
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
           fontWeight: "bold",
+        },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
         },
       }}
       name="RepostScreen"
@@ -73,6 +82,9 @@ const MainStack = () => (
         headerTitleStyle: {
           fontWeight: "bold",
         },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        },
       }}
       name="CommentsScreen"
       component={CommentsScreen}
@@ -84,6 +96,9 @@ const MainStack = () => (
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
           fontWeight: "bold",
+        },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
         },
       }}
       name="CommentRepliesScreen"
@@ -97,6 +112,9 @@ const MainStack = () => (
         headerTitleStyle: {
           fontWeight: "bold",
         },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        },
       }}
       name="PostsScreen"
       component={PostScreen}
@@ -108,6 +126,9 @@ const MainStack = () => (
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
           fontWeight: "bold",
+        },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
         },
       }}
       name="ChatScreen"
@@ -121,6 +142,9 @@ const MainStack = () => (
         headerTitleStyle: {
           fontWeight: "bold",
         },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        },
       }}
       name="ChatListScreen"
       component={ChatListScreen}
@@ -132,6 +156,9 @@ const MainStack = () => (
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
           fontWeight: "bold",
+        },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
         },
       }}
       name="CreateChatScreen"
@@ -145,6 +172,9 @@ const MainStack = () => (
         headerTitleStyle: {
           fontWeight: "bold",
         },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        },
       }}
       name="EditUserDetailsScreen"
       component={EditUserDetailsScreen}
@@ -156,6 +186,9 @@ const MainStack = () => (
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
           fontWeight: "bold",
+        },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
         },
       }}
       name="SettingsScreen"
@@ -169,6 +202,9 @@ const MainStack = () => (
         headerTitleStyle: {
           fontWeight: "bold",
         },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        },
       }}
       name="PrivacyPolicyScreen"
       component={PrivacyPolicyScreen}
@@ -180,6 +216,9 @@ const MainStack = () => (
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
           fontWeight: "bold",
+        },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
         },
       }}
       name="TermsOfUseScreen"
@@ -193,6 +232,9 @@ const MainStack = () => (
         headerTitleStyle: {
           fontWeight: "bold",
         },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        },
       }}
       name="AdScreen"
       component={AdScreen}
@@ -204,6 +246,9 @@ const MainStack = () => (
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
           fontWeight: "bold",
+        },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
         },
       }}
       name="Test"

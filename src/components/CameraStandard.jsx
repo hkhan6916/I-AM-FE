@@ -213,7 +213,12 @@ const CameraStandard = ({
   }
   return (
     <View
-      style={{ flex: 1, backgroundColor: themeStyle.colors.grayscale.lowest }}
+      style={{
+        flex: 1,
+        backgroundColor: themeStyle.colors.grayscale.highest,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
     >
       <TouchableOpacity
         onPress={() => setCameraActive(false)}
@@ -256,6 +261,7 @@ const CameraStandard = ({
             flex: 1,
             backgroundColor: "transparent",
             justifyContent: "flex-end",
+            marginBottom: 10,
           }}
         >
           <View

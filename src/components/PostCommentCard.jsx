@@ -123,7 +123,9 @@ const PostCommentCard = ({
           </TouchableOpacity>
         </View>
         <View style={styles.commentBodyContainer}>
-          <Text>{comment.body}</Text>
+          <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+            {comment.body}
+          </Text>
         </View>
         <View style={styles.actionsContainer}>
           <View style={styles.actions}>

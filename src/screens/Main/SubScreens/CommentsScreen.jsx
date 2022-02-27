@@ -37,23 +37,19 @@ const CommentsScreen = (props) => {
   const navigation = useNavigation();
   const textInputRef = useRef();
 
-  const getComments = async (refresh = false, onScroll = false) => {
+  const getComments = async (onScroll = false) => {
     if (onScroll && !scrollStarted) return;
     let isCancelled = false;
     if (!isCancelled) {
       if (!allCommentsLoaded) {
         setScrollStarted(false);
-        setLoadingMore(!refresh);
+        setLoadingMore(true);
         const { response, success } = await apiCall(
           "GET",
           `/posts/comments/${postId}/${comments.length}`
         );
         setLoadingMore(false);
         if (success) {
-          if (refresh) {
-            setAllCommentsLoaded(false);
-            setComments(response);
-          }
           if (!response.length) {
             setAllCommentsLoaded(true);
           } else {
@@ -187,11 +183,23 @@ const CommentsScreen = (props) => {
     }
   };
 
-  const onRefresh = useCallback(async () => {
+  const onRefresh = async () => {
     setRefreshing(true);
-    await getComments(true);
+    setNewCommentsIds([]);
+    await apiCall("GET", `/posts/comments/${postId}/0`).then(
+      ({ success, response }) => {
+        console.log(response.length);
+        if (success) {
+          if (!response.length) {
+            setAllCommentsLoaded(true);
+          } else {
+            setComments([...response]);
+          }
+        }
+      }
+    );
     setRefreshing(false);
-  }, []);
+  };
 
   const renderItem = useCallback(
     ({ item }) =>
@@ -208,7 +216,7 @@ const CommentsScreen = (props) => {
 
   const keyExtractor = useCallback(
     (item) => item.customKey || item._id,
-    [comments]
+    [comments, newCommentsIds]
   );
 
   useEffect(() => {
@@ -216,7 +224,7 @@ const CommentsScreen = (props) => {
     // navigation.addListener("focus", async () => {
     (async () => {
       setInitialLoading(true);
-      await apiCall("GET", `/posts/comments/${postId}/${comments.length}`).then(
+      await apiCall("GET", `/posts/comments/${postId}/0`).then(
         ({ success, response }) => {
           if (isMounted) {
             setInitialLoading(false);
@@ -224,7 +232,7 @@ const CommentsScreen = (props) => {
               if (!response.length) {
                 setAllCommentsLoaded(true);
               } else {
-                setComments([...comments, ...response]);
+                setComments(response);
               }
             }
           }
@@ -267,7 +275,7 @@ const CommentsScreen = (props) => {
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }
           contentContainerStyle={{ flexGrow: 1 }}
-          onEndReached={() => getComments(false, true)}
+          onEndReached={() => getComments(true)}
           onMomentumScrollBegin={() => !scrollStarted && setScrollStarted(true)}
           onEndReachedThreshold={0.5}
           initialNumToRender={1}

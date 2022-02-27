@@ -482,13 +482,14 @@ const ChatScreen = (props) => {
               height: 48,
               // height: "100%",
               justifyContent: "center",
-              // backgroundColor: "red",
+              backgroundColor: themeStyle.colors.grayscale.higher,
             }}
           >
             <TextInput
               style={{
-                // minHeight: 48,
-                backgroundColor: themeStyle.colors.grayscale.lower,
+                // minHeight:
+                color: themeStyle.colors.grayscale.lowest,
+                backgroundColor: themeStyle.colors.grayscale.higher,
                 paddingHorizontal: 10,
               }}
               value={messageBody}

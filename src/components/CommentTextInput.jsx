@@ -66,6 +66,7 @@ const CommentTextInput = forwardRef(
               maxLength={2000}
               ref={ref}
               multiline
+              placeholderTextColor={themeStyle.colors.grayscale.high}
               style={[
                 styles.inputBox,
                 {
@@ -126,6 +127,7 @@ CommentTextInput.displayName = "CommentTextInput";
 const styles = StyleSheet.create({
   inputBox: {
     paddingVertical: 10,
+    color: themeStyle.colors.grayscale.lowest,
   },
   inputBoxContainer: {
     display: "flex",
@@ -135,6 +137,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderTopWidth: 0.5,
     borderColor: themeStyle.colors.grayscale.low,
+    backgroundColor: themeStyle.colors.grayscale.higher,
   },
   postTrigger: {
     color: themeStyle.colors.secondary.default,

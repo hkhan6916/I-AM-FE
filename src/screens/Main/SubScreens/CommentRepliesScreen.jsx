@@ -127,6 +127,7 @@ const CommentRepliesScreen = (props) => {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
+    setNewRepliesIds([]);
     await getCommentReplies(true);
     setRefreshing(false);
   }, []);

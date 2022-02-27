@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
   searchBar: {
     flex: 1,
     color: themeStyle.colors.grayscale.lowest,
+    height: "100%",
   },
   searchSection: {
     flexDirection: "row",

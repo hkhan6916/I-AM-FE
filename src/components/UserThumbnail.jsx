@@ -27,10 +27,20 @@ const UserThumbnail = ({ user, avatarSize, preventClicks }) => {
           marginLeft: 20,
         }}
       >
-        <Text numberOfLines={1} style={{ fontWeight: "700", maxWidth: 200 }}>
+        <Text
+          numberOfLines={1}
+          style={{
+            fontWeight: "700",
+            maxWidth: 200,
+            color: themeStyle.colors.grayscale.lowest,
+          }}
+        >
           {user.username}
         </Text>
-        <Text style={{ maxWidth: 200 }} numberOfLines={1}>
+        <Text
+          style={{ maxWidth: 200, color: themeStyle.colors.grayscale.lowest }}
+          numberOfLines={1}
+        >
           {user.firstName} {user.lastName}
         </Text>
         {user.jobTitle && (

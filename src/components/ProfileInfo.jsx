@@ -29,7 +29,12 @@ const ProfileInfo = ({
             alignItems: "center",
           }}
         >
-          <Text style={{ fontWeight: "700" }}>
+          <Text
+            style={{
+              fontWeight: "700",
+              color: themeStyle.colors.grayscale.lowest,
+            }}
+          >
             {user.username}{" "}
             {user.private && !user.isFriend ? (
               <AntDesign
@@ -53,7 +58,12 @@ const ProfileInfo = ({
             size={24}
             color={themeStyle.colors.grayscale.lower}
           />
-          <Text style={{ marginHorizontal: 10 }}>
+          <Text
+            style={{
+              marginHorizontal: 10,
+              color: themeStyle.colors.grayscale.lowest,
+            }}
+          >
             {user.numberOfFriends} contacts
           </Text>
         </View>
@@ -69,7 +79,14 @@ const ProfileInfo = ({
                     borderRadius: 5,
                   }}
                 >
-                  <Text style={{ fontWeight: "700" }}>Remove Contact</Text>
+                  <Text
+                    style={{
+                      fontWeight: "700",
+                      color: themeStyle.colors.grayscale.lowest,
+                    }}
+                  >
+                    Remove Contact
+                  </Text>
                 </View>
               </TouchableOpacity>
             ) : user.requestReceived ? (
@@ -95,7 +112,14 @@ const ProfileInfo = ({
                       size={20}
                       color={themeStyle.colors.grayscale.lowest}
                     />
-                    <Text style={{ fontWeight: "700" }}>Accept</Text>
+                    <Text
+                      style={{
+                        fontWeight: "700",
+                        color: themeStyle.colors.grayscale.lowest,
+                      }}
+                    >
+                      Accept
+                    </Text>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -119,7 +143,14 @@ const ProfileInfo = ({
                       size={20}
                       color={themeStyle.colors.grayscale.lowest}
                     />
-                    <Text style={{ fontWeight: "700" }}>Delete</Text>
+                    <Text
+                      style={{
+                        fontWeight: "700",
+                        color: themeStyle.colors.grayscale.lowest,
+                      }}
+                    >
+                      Delete
+                    </Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -133,7 +164,13 @@ const ProfileInfo = ({
                     borderRadius: 5,
                   }}
                 >
-                  <Text style={{ fontWeight: "700", textAlign: "center" }}>
+                  <Text
+                    style={{
+                      fontWeight: "700",
+                      textAlign: "center",
+                      color: themeStyle.colors.grayscale.lowest,
+                    }}
+                  >
                     Request sent
                   </Text>
                 </View>
@@ -152,6 +189,7 @@ const ProfileInfo = ({
                   <Text
                     style={{
                       fontWeight: "700",
+                      color: themeStyle.colors.grayscale.lowest,
                     }}
                   >
                     Add User

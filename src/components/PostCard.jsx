@@ -53,7 +53,7 @@ const PostCard = ({
         setPost(initialPost);
       }
     }
-    lottieRef?.current?.play();
+    lottieRef?.current?.play(15, 1000);
   };
 
   const PostAge = () => {
@@ -263,10 +263,13 @@ const PostCard = ({
                       ref={lottieRef}
                       autoPlay={false}
                       loop={false}
+                      progress={1}
                       source={require("../../assets/lotties/like.json")}
                       style={{
-                        width: 60,
-                        height: 60,
+                        width: 40,
+                        height: 40,
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     />
                   ) : (
