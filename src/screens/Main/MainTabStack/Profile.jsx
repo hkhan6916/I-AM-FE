@@ -16,6 +16,7 @@ import themeStyle from "../../../theme.style";
 import ProfileScreenHeader from "../../../components/ProfileScreenHeader";
 import { useScrollToTop } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import PostOptionsModal from "../../../components/PostOptionsModal";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -24,6 +25,8 @@ const ProfileScreen = () => {
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [visibleItems, setVisibleItems] = useState([]);
+  const [showPostOptions, setShowPostOptions] = useState(null);
+  const [error, setError] = useState("");
 
   const navigation = useNavigation();
 
@@ -60,6 +63,43 @@ const ProfileScreen = () => {
     setLoading(false);
   };
 
+  const reportPost = async (reasonIndex) => {
+    setLoading(true);
+    const { success } = await apiCall("POST", "/posts/report", {
+      commentId: showPostOptions?._id,
+      reason: reasonIndex,
+    });
+    setLoading(false);
+    if (!success) {
+      setError("An error occurred.");
+    } else {
+      setShowPostOptions(null);
+    }
+  };
+
+  const editPost = () => navigation.navigate("Add", { post: showPostOptions });
+
+  const deletePost = async () => {
+    const { success } = await apiCall(
+      "DELETE",
+      `/posts/remove/${showPostOptions?._id}`
+    );
+    if (success) {
+      const newPosts = userPosts.map((post) => {
+        if (post._id === showPostOptions?._id) {
+          return {
+            ...post,
+            deleted: true,
+            customKey: `${post._id}-deleted}`,
+          };
+        }
+        return post;
+      });
+      setUserPosts(newPosts);
+      setShowPostOptions(null);
+    }
+  };
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     const { success, response } = await apiCall(
@@ -92,13 +132,23 @@ const ProfileScreen = () => {
   ]);
 
   const renderItem = useCallback(
-    ({ item }) => (
-      <PostCard isVisible={visibleItems.includes(item._id)} post={item} />
-    ),
-    []
+    ({ item }) => {
+      if (!item.deleted)
+        return (
+          <PostCard
+            isVisible={visibleItems.includes(item._id)}
+            post={item}
+            setShowPostOptions={setShowPostOptions}
+          />
+        );
+    },
+    [userPosts]
   );
 
-  const keyExtractor = useCallback((item) => item._id, []);
+  const keyExtractor = useCallback(
+    (item) => item?.customKey || item?._id,
+    [userPosts]
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -150,9 +200,9 @@ const ProfileScreen = () => {
           refreshControl={
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }
-          ListHeaderComponent={() => (
-            <ProfileScreenHeader userData={userData} navigation={navigation} />
-          )}
+          // ListHeaderComponent={() => (
+          //   <ProfileScreenHeader userData={userData} navigation={navigation} />
+          // )}
           ListFooterComponent={() => (
             <ActivityIndicator
               size="large"
@@ -168,6 +218,14 @@ const ProfileScreen = () => {
           // windowSize={5}
         />
       ) : null}
+      <PostOptionsModal
+        showOptions={!!showPostOptions}
+        setShowPostOptions={setShowPostOptions}
+        reportPost={reportPost}
+        deletePost={deletePost}
+        editPost={editPost}
+        belongsToUser={true}
+      />
     </SafeAreaView>
   );
 };

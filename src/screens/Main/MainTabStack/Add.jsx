@@ -43,7 +43,7 @@ import { getItemAsync } from "expo-secure-store";
 import { manipulateAsync } from "expo-image-manipulator";
 import { StatusBar } from "expo-status-bar";
 
-const AddScreen = () => {
+const AddScreen = (props) => {
   const isFocused = useIsFocused();
   const [postBody, setPostBody] = useState("");
   const [loading, setLoading] = useState(false);
@@ -58,6 +58,10 @@ const AddScreen = () => {
   const navigation = useNavigation();
 
   const { width: screenWidth } = Dimensions.get("window");
+
+  const post = props.route.params?.post;
+
+  console.log(post);
 
   const dispatch = useDispatch();
 

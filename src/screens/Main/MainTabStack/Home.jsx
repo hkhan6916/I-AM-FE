@@ -30,6 +30,7 @@ import apiCall from "../../../helpers/apiCall";
 import Logo from "../../../Logo";
 import { useScrollToTop } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import PostOptionsModal from "../../../components/PostOptionsModal";
 
 const { statusBarHeight } = Constants;
 
@@ -45,6 +46,8 @@ const HomeScreen = () => {
   const [connectionsAsReceiverOffset, setConnectionsAsReceiverOffset] =
     useState(0);
   const [loading, setLoading] = useState(false);
+  const [showPostOptions, setShowPostOptions] = useState(null);
+  const [error, setError] = useState("");
 
   const colorSchema = useColorScheme();
 
@@ -72,6 +75,42 @@ const HomeScreen = () => {
       connectionsAsSenderOffset: connectionsAsSenderOffset,
       connectionsAsReceiverOffset: connectionsAsReceiverOffset,
     };
+  };
+  const reportPost = async (reasonIndex) => {
+    setLoading(true);
+    const { success } = await apiCall("POST", "/posts/report", {
+      commentId: showPostOptions?._id,
+      reason: reasonIndex,
+    });
+    setLoading(false);
+    if (!success) {
+      setError("An error occurred.");
+    } else {
+      setShowPostOptions(null);
+    }
+  };
+
+  const editPost = () => navigation.navigate("Add");
+
+  const deletePost = async () => {
+    const { success } = await apiCall(
+      "DELETE",
+      `/posts/remove/${showPostOptions?._id}`
+    );
+    if (success) {
+      const newComments = feed.map((post) => {
+        if (post._id === showPostOptions?._id) {
+          return {
+            ...post,
+            deleted: true,
+            customKey: `${post._id}-deleted}`,
+          };
+        }
+        return post;
+      });
+      setFeed(newComments);
+      setShowPostOptions(null);
+    }
   };
 
   const getUserFeed = async () => {
@@ -167,6 +206,7 @@ const HomeScreen = () => {
   const renderItem = useCallback(
     ({ item, index }) => (
       <PostCard
+        setShowPostOptions={setShowPostOptions}
         loadingMore={loading && index === feed.length - 1}
         isVisible={visibleItems.includes(item._id)}
         post={item}
@@ -230,6 +270,14 @@ const HomeScreen = () => {
             onEndReachedThreshold={0.5}
             initialNumToRender={10}
             maxToRenderPerBatch={5}
+          />
+          <PostOptionsModal
+            showOptions={!!showPostOptions}
+            setShowPostOptions={setShowPostOptions}
+            reportPost={reportPost}
+            deletePost={deletePost}
+            editPost={editPost}
+            belongsToUser={false}
           />
         </View>
       </SafeAreaView>

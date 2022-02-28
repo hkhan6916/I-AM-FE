@@ -66,6 +66,7 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
           }}
         >
           <Video
+            positionMillis={100}
             style={{
               transform: [{ scaleX: -1 }],
               alignSelf: "center",
@@ -149,4 +150,4 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
   );
 };
 
-export default React.memo(PreviewVideo);
+export default React.memo(PreviewVideo, (prev, next) => prev.uri === next.uri);

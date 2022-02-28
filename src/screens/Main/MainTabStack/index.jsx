@@ -64,7 +64,7 @@ const MainTabStack = () => {
           let iconName;
           if (route.name === "Home") {
             iconName = "home";
-          } else if (route.name === "Post") {
+          } else if (route.name === "Add") {
             iconName = "add";
           } else if (route.name === "Me") {
             iconName = "happy";
@@ -77,7 +77,7 @@ const MainTabStack = () => {
           return (
             <Ionicons
               name={iconName}
-              size={route.name === "Post" ? 35 : size}
+              size={route.name === "Add" ? 35 : size}
               color={color}
             />
           );
@@ -86,7 +86,7 @@ const MainTabStack = () => {
     >
       <Tab.Screen headerShown name="Home" component={HomeScreen} />
       <Tab.Screen name="Search" component={SearchStack} />
-      <Tab.Screen name="Post" component={AddScreen} />
+      <Tab.Screen name="Add" component={AddScreen} />
       <Tab.Screen name="Friends" component={FriendsScreen} />
       <Tab.Screen name="Me" component={ProfileScreen} />
     </Tab.Navigator>
