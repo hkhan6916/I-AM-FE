@@ -60,9 +60,11 @@ const MediaScreen = (props) => {
   };
   useEffect(() => {
     (async () => {
-      await ScreenOrientation.lockAsync(
-        ScreenOrientation.OrientationLock.DEFAULT
-      );
+      if (post?.mediaType === "video") {
+        await ScreenOrientation.lockAsync(
+          ScreenOrientation.OrientationLock.DEFAULT
+        );
+      }
     })();
     return async () => {
       await ScreenOrientation.lockAsync(
@@ -96,7 +98,7 @@ const MediaScreen = (props) => {
               <ImageWithCache
                 mediaOrientation={post.mediaOrientation}
                 mediaIsSelfie={post.mediaIsSelfie}
-                resizeMode="cover"
+                resizeMode="contain"
                 mediaHeaders={post.mediaHeaders}
                 mediaUrl={post.mediaUrl}
                 removeBorderRadius
@@ -220,7 +222,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: themeStyle.colors.grayscale.lowest,
+    backgroundColor: themeStyle.colors.grayscale.highest,
   },
 });
 

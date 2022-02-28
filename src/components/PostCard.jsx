@@ -264,6 +264,7 @@ const PostCard = ({
                       autoPlay={false}
                       loop={false}
                       progress={1}
+                      speed={1}
                       source={require("../../assets/lotties/like.json")}
                       style={{
                         width: 40,

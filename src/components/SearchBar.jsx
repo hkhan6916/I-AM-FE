@@ -1,11 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { View, TextInput, StyleSheet } from "react-native";
+import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import themeStyle from "../theme.style";
 import apiCall from "../helpers/apiCall";
 
 const SearchBar = ({ onFocus, onSubmitEditing, setResults }) => {
-  const [searchInput, setSearchInput] = useState();
+  const [searchInput, setSearchInput] = useState("");
   const [typingStatus, setTypingStatus] = useState({
     name: "",
     typing: false,
@@ -24,6 +24,7 @@ const SearchBar = ({ onFocus, onSubmitEditing, setResults }) => {
       }, 250),
     });
   };
+
   const handleSearch = async (searchTerm) => {
     const { response } = await apiCall("POST", `/user/search/0`, {
       searchTerm,
@@ -34,6 +35,12 @@ const SearchBar = ({ onFocus, onSubmitEditing, setResults }) => {
       setResults([]);
     }
   };
+
+  const resetSearch = () => {
+    setResults([]);
+    setSearchInput("");
+  };
+
   return (
     <View style={styles.searchSection}>
       <Ionicons
@@ -47,15 +54,26 @@ const SearchBar = ({ onFocus, onSubmitEditing, setResults }) => {
         }
       />
       <TextInput
+        value={searchInput}
         style={styles.searchBar}
         placeholderTextColor={themeStyle.colors.grayscale.low}
         autoCorrect={false}
-        placeholder="name, username or job title..."
+        placeholder="name, username or job title"
         onChangeText={(v) => searchUsers(v)}
         returnKeyType="search"
         onFocus={() => onFocus()}
         onSubmitEditing={() => onSubmitEditing()}
       />
+      {searchInput ? (
+        <TouchableOpacity onPress={() => resetSearch()}>
+          <Ionicons
+            style={styles.searchIcon}
+            name="close"
+            size={20}
+            color={themeStyle.colors.grayscale.lowest}
+          />
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 };

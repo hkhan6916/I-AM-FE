@@ -112,7 +112,7 @@ const ChatListScreen = () => {
           <Entypo
             name="new-message"
             size={24}
-            color={themeStyle.colors.grayscale.higher}
+            color={themeStyle.colors.grayscale.lowest}
           />
         </TouchableOpacity>
       </View>

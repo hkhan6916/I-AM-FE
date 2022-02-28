@@ -219,11 +219,9 @@ const HomeScreen = () => {
                   color={themeStyle.colors.grayscale.low}
                 />
                 {allPostsLoaded ? (
-                  <View>
-                    <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                      You&apos;ve caught up!
-                    </Text>
-                  </View>
+                  <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                    That&apos;s everything!
+                  </Text>
                 ) : null}
               </View>
             )}
