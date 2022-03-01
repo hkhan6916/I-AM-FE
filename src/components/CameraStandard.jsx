@@ -17,7 +17,8 @@ import { manipulateAsync } from "expo-image-manipulator";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import Constants from "expo-constants";
 import themeStyle from "../theme.style";
-
+import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
+import * as ScreenOrientation from "expo-screen-orientation";
 const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 const CameraStandard = ({
   setCameraActive,
@@ -32,6 +33,34 @@ const CameraStandard = ({
   const [orientation, setOrientation] = useState("portrait");
   const dispatch = useDispatch();
   const navigation = useNavigation();
+
+  const screenOrientation = useScreenOrientation();
+
+  const controlsPosition =
+    screenOrientation === "LANDSCAPE"
+      ? {
+          right: 20,
+          height: "100%",
+          top: 0,
+          justifyContent: "center",
+          alignItems: "center",
+        }
+      : { bottom: 0 };
+
+  const cameraStyles =
+    screenOrientation === "LANDSCAPE"
+      ? {
+          width: screenWidth * 1.33,
+          height: screenWidth,
+          // marginTop: (screenWidth - screenHeight * 1.33) / 2,
+          // marginBottom: (screenWidth - screenHeight * 1.33) / 2,
+        }
+      : {
+          width: screenWidth,
+          height: screenWidth * 1.33,
+          marginTop: (screenHeight - screenWidth * 1.33) / 2,
+          marginBottom: (screenHeight - screenWidth * 1.33) / 2,
+        };
 
   const packageName = Constants.manifest.releaseChannel
     ? Constants.manifest.android.package
@@ -49,6 +78,10 @@ const CameraStandard = ({
 
   useEffect(() => {
     (async () => {
+      await ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.DEFAULT
+      );
+
       const { status: cameraStatus } =
         await Camera.requestCameraPermissionsAsync();
       const { status: microphoneStatus } =
@@ -58,7 +91,10 @@ const CameraStandard = ({
       setHasMicrophonePermission(microphoneStatus === "granted");
       dispatch({ type: "SET_CAMERA_ACTIVATED", payload: true });
     })();
-    return () => {
+    return async () => {
+      await ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.PORTRAIT_UP
+      );
       dispatch({ type: "SET_CAMERA_ACTIVATED", payload: false });
       DeviceMotion.removeAllListeners();
       setHasCameraPermission(false);
@@ -226,6 +262,9 @@ const CameraStandard = ({
           height: 48,
           width: 48,
           margin: 15,
+          position: "absolute",
+          top: 0,
+          left: 20,
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -244,18 +283,7 @@ const CameraStandard = ({
           </Text>
         </View>
       </TouchableOpacity>
-      <Camera
-        // mirror
-        style={{
-          width: screenWidth,
-          height: screenWidth * 1.33,
-          marginTop: (screenHeight - screenWidth * 1.33) / 2,
-          marginBottom: (screenHeight - screenWidth * 1.33) / 2,
-        }}
-        ratio="4:3"
-        type={type}
-        ref={cameraRef}
-      >
+      <Camera style={cameraStyles} ratio="4:3" type={type} ref={cameraRef}>
         <View
           style={{
             flex: 1,
@@ -266,15 +294,20 @@ const CameraStandard = ({
         >
           <View
             style={{
-              flexDirection: "row",
-              justifyContent: "space-evenly",
+              flexDirection:
+                screenOrientation === "PORTRAIT" ? "row" : "column",
+              position: "absolute",
+              alignSelf: "center",
+              ...controlsPosition,
             }}
           >
             <TouchableOpacity
-              style={{
-                width: 50,
-                alignSelf: "flex-end",
-              }}
+              style={[
+                { alignSelf: "center", width: 50 },
+                screenOrientation === "PORTRAIT"
+                  ? { marginHorizontal: 20 }
+                  : { marginVertical: 20 },
+              ]}
               disabled={recording}
               onPress={() => {
                 setType(
@@ -295,7 +328,12 @@ const CameraStandard = ({
               />
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ alignSelf: "center", width: 50 }}
+              style={[
+                { alignSelf: "center", width: 50 },
+                screenOrientation === "PORTRAIT"
+                  ? { marginHorizontal: 20 }
+                  : { marginVertical: 20 },
+              ]}
               onPress={async () => {
                 if (cameraRef?.current) {
                   const photo = await cameraRef?.current?.takePictureAsync({
@@ -334,7 +372,12 @@ const CameraStandard = ({
               ></View>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ alignSelf: "center", width: 50 }}
+              style={[
+                { alignSelf: "center", width: 50 },
+                screenOrientation === "PORTRAIT"
+                  ? { marginHorizontal: 20 }
+                  : { marginVertical: 20 },
+              ]}
               onPress={async () => {
                 if (!recording) {
                   setRecording(true);

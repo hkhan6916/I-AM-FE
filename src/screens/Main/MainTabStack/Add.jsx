@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -42,6 +42,7 @@ import Upload from "react-native-background-upload";
 import { getItemAsync } from "expo-secure-store";
 import { manipulateAsync } from "expo-image-manipulator";
 import { StatusBar } from "expo-status-bar";
+import * as ScreenOrientation from "expo-screen-orientation";
 
 const AddScreen = (props) => {
   const isFocused = useIsFocused();
@@ -60,8 +61,6 @@ const AddScreen = (props) => {
   const { width: screenWidth } = Dimensions.get("window");
 
   const post = props.route.params?.post;
-
-  console.log(post);
 
   const dispatch = useDispatch();
 
@@ -262,6 +261,13 @@ const AddScreen = (props) => {
       }
     }
   };
+
+  // useEffect(() => {
+  //   (async () =>
+  //     await ScreenOrientation.lockAsync(
+  //       ScreenOrientation.OrientationLock.PORTRAIT_UP
+  //     ))();
+  // }, [cameraActive]);
 
   if (loading) {
     return (
