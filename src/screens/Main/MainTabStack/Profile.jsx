@@ -66,7 +66,7 @@ const ProfileScreen = () => {
   const reportPost = async (reasonIndex) => {
     setLoading(true);
     const { success } = await apiCall("POST", "/posts/report", {
-      commentId: showPostOptions?._id,
+      postId: showPostOptions?._id,
       reason: reasonIndex,
     });
     setLoading(false);
@@ -131,6 +131,11 @@ const ProfileScreen = () => {
     { onViewableItemsChanged, viewabilityConfig },
   ]);
 
+  const triggerOptionsModal = (post) => {
+    setError("");
+    setShowPostOptions(post);
+  };
+
   const renderItem = useCallback(
     ({ item }) => {
       if (!item.deleted)
@@ -138,7 +143,7 @@ const ProfileScreen = () => {
           <PostCard
             isVisible={visibleItems.includes(item._id)}
             post={item}
-            setShowPostOptions={setShowPostOptions}
+            setShowPostOptions={triggerOptionsModal}
           />
         );
     },
@@ -225,6 +230,7 @@ const ProfileScreen = () => {
         deletePost={deletePost}
         editPost={editPost}
         belongsToUser={true}
+        error={error}
       />
     </SafeAreaView>
   );

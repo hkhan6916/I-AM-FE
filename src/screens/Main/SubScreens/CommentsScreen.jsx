@@ -201,6 +201,11 @@ const CommentsScreen = (props) => {
     setRefreshing(false);
   };
 
+  const triggerOptionsModal = (post) => {
+    setShowOptionsForComment(post);
+    setError("");
+  };
+
   const renderItem = useCallback(
     ({ item }) =>
       newCommentsIds.indexOf(item._id) === -1 || item.new ? ( // prevent newly created comments from rendering again since they'll be fetch from the backend as the user scrolls
@@ -208,7 +213,7 @@ const CommentsScreen = (props) => {
           replyToUser={replyToUser}
           key={item._id}
           comment={item}
-          setShowOptionsForComment={setShowOptionsForComment}
+          setShowOptionsForComment={triggerOptionsModal}
         />
       ) : null,
     [newCommentsIds, comments]

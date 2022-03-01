@@ -13,6 +13,7 @@ import themeStyle from "../../../theme.style";
 import PostCard from "../../../components/PostCard";
 import ProfileInfo from "../../../components/ProfileInfo";
 import ContentLoader from "../../../components/ContentLoader";
+import PostOptionsModal from "../../../components/PostOptionsModal";
 
 const UserProfileScreen = (props) => {
   const { userId } = props.route.params;
@@ -23,12 +24,51 @@ const UserProfileScreen = (props) => {
   const [refreshing, setRefreshing] = useState(false);
   const [visibleItems, setVisibleItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showPostOptions, setShowPostOptions] = useState(null);
+  const [error, setError] = useState("");
 
   const { width: screenWidth } = Dimensions.get("window");
 
   const navigation = useNavigation();
 
   const flatlistRef = useRef(null);
+
+  const reportPost = async (reasonIndex) => {
+    setLoading(true);
+    const { success } = await apiCall("POST", "/posts/report", {
+      postId: showPostOptions?._id,
+      reason: reasonIndex,
+    });
+    setLoading(false);
+    if (!success) {
+      setError("An error occurred.");
+    } else {
+      setShowPostOptions(null);
+    }
+  };
+
+  const editPost = () => navigation.navigate("Add", { post: showPostOptions });
+
+  const deletePost = async () => {
+    const { success } = await apiCall(
+      "DELETE",
+      `/posts/remove/${showPostOptions?._id}`
+    );
+    if (success) {
+      const newPosts = userPosts.map((post) => {
+        if (post._id === showPostOptions?._id) {
+          return {
+            ...post,
+            deleted: true,
+            customKey: `${post._id}-deleted}`,
+          };
+        }
+        return post;
+      });
+      setUserPosts(newPosts);
+      setShowPostOptions(null);
+    }
+  };
 
   const sendFriendRequest = async () => {
     if (user.private) {
@@ -180,11 +220,23 @@ const UserProfileScreen = (props) => {
     }
   }, []);
 
+  const triggerOptionsModal = (post) => {
+    setError("");
+    setShowPostOptions(post);
+  };
+
   const renderItem = useCallback(
-    ({ item }) => (
-      <PostCard isVisible={visibleItems.includes(item._id)} post={item} />
-    ),
-    []
+    ({ item }) => {
+      if (!item?.deleted)
+        return (
+          <PostCard
+            setShowPostOptions={triggerOptionsModal}
+            isVisible={visibleItems.includes(item._id)}
+            post={item}
+          />
+        );
+    },
+    [userPosts]
   );
 
   function renderHeader() {
@@ -199,6 +251,11 @@ const UserProfileScreen = (props) => {
       />
     );
   }
+
+  const keyExtractor = useCallback(
+    (item) => item?.customKey || item?._id,
+    [userPosts]
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -252,7 +309,7 @@ const UserProfileScreen = (props) => {
           }
           data={userPosts}
           renderItem={renderItem}
-          keyExtractor={(item, index) => `${item._id}-${index}`}
+          keyExtractor={keyExtractor}
           refreshControl={
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }
@@ -270,6 +327,15 @@ const UserProfileScreen = (props) => {
           initialNumToRender={10}
           maxToRenderPerBatch={5}
           // windowSize={5}
+        />
+        <PostOptionsModal
+          showOptions={!!showPostOptions}
+          setShowPostOptions={setShowPostOptions}
+          reportPost={reportPost}
+          deletePost={deletePost}
+          editPost={editPost}
+          belongsToUser={showPostOptions?.belongsToUser}
+          error={error}
         />
       </SafeAreaView>
     );

@@ -21,8 +21,10 @@ const PostOptionsModal = ({
   deletePost,
   editPost,
   belongsToUser,
+  error,
 }) => {
   const [showReportOptions, setShowReportOptions] = useState(false);
+  const [showDeleteGuard, setShowDeleteGuard] = useState(false);
 
   const reportOptions = [
     "It's spam",
@@ -40,6 +42,7 @@ const PostOptionsModal = ({
           onPress={() => {
             setShowPostOptions(null);
             setShowReportOptions(false);
+            setShowDeleteGuard(false);
           }}
         >
           <View
@@ -57,31 +60,88 @@ const PostOptionsModal = ({
                 backgroundColor: themeStyle.colors.grayscale.higher,
               }}
             >
-              {!showReportOptions ? (
-                <View>
-                  <TouchableOpacity onPress={() => setShowReportOptions(true)}>
-                    <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                      Report
-                    </Text>
-                  </TouchableOpacity>
+              {error ? (
+                <Text
+                  style={{
+                    alignSelf: "flex-end",
+                    fontSize: 12,
+                    color: themeStyle.colors.error.default,
+                    fontWeight: "700",
+                  }}
+                >
+                  {error}
+                </Text>
+              ) : null}
+              {!showReportOptions && !showDeleteGuard ? (
+                <View style={{ alignItems: "center" }}>
+                  {!belongsToUser ? (
+                    <TouchableOpacity
+                      onPress={() => setShowReportOptions(true)}
+                    >
+                      <Text
+                        style={{
+                          color: themeStyle.colors.grayscale.lowest,
+                          textAlign: "center",
+                          marginBottom: 20,
+                        }}
+                      >
+                        Report
+                      </Text>
+                    </TouchableOpacity>
+                  ) : null}
                   {belongsToUser ? (
                     <View>
-                      <TouchableOpacity onPress={() => deletePost()}>
-                        <Text
-                          style={{ color: themeStyle.colors.grayscale.lowest }}
-                        >
-                          Delete
-                        </Text>
-                      </TouchableOpacity>
                       <TouchableOpacity onPress={() => editPost()}>
                         <Text
-                          style={{ color: themeStyle.colors.grayscale.lowest }}
+                          style={{
+                            color: themeStyle.colors.grayscale.lowest,
+                            textAlign: "center",
+                            marginBottom: 20,
+                          }}
                         >
                           Edit
                         </Text>
                       </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => setShowDeleteGuard(true)}
+                      >
+                        <Text
+                          style={{
+                            color: themeStyle.colors.error.default,
+                            textAlign: "center",
+                            marginBottom: 20,
+                          }}
+                        >
+                          Delete
+                        </Text>
+                      </TouchableOpacity>
                     </View>
                   ) : null}
+                </View>
+              ) : showDeleteGuard ? (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <TouchableOpacity onPress={() => deletePost()}>
+                    <Text style={{ color: themeStyle.colors.error.default }}>
+                      Delete
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setShowDeleteGuard(false)}>
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.lowest,
+                        textAlign: "center",
+                        marginBottom: 20,
+                      }}
+                    >
+                      Cancel
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               ) : (
                 <View>
@@ -101,6 +161,7 @@ const PostOptionsModal = ({
                           style={{
                             textAlign: "center",
                             color: themeStyle.colors.secondary.default,
+                            fontWeight: "700",
                           }}
                         >
                           {option}

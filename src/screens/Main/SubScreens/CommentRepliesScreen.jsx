@@ -200,6 +200,11 @@ const CommentRepliesScreen = (props) => {
     [replies]
   );
 
+  const triggerOptionsModal = (post) => {
+    setError("");
+    setShowOptionsForComment(post);
+  };
+
   useEffect(() => {
     (async () => {
       await getCommentReplies();
@@ -228,7 +233,7 @@ const CommentRepliesScreen = (props) => {
               isNestedInList={false}
               newReply={null}
               comment={comment}
-              setShowOptionsForComment={setShowOptionsForComment}
+              setShowOptionsForComment={triggerOptionsModal}
             />
           )}
           contentContainerStyle={{ flexGrow: 1 }}

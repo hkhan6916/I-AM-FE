@@ -79,7 +79,7 @@ const HomeScreen = () => {
   const reportPost = async (reasonIndex) => {
     setLoading(true);
     const { success } = await apiCall("POST", "/posts/report", {
-      commentId: showPostOptions?._id,
+      postId: showPostOptions?._id,
       reason: reasonIndex,
     });
     setLoading(false);
@@ -206,7 +206,7 @@ const HomeScreen = () => {
   const renderItem = useCallback(
     ({ item, index }) => (
       <PostCard
-        setShowPostOptions={setShowPostOptions}
+        setShowPostOptions={triggerOptionsModal}
         loadingMore={loading && index === feed.length - 1}
         isVisible={visibleItems.includes(item._id)}
         post={item}
@@ -216,6 +216,11 @@ const HomeScreen = () => {
   );
 
   const keyExtractor = useCallback((item) => item._id, []);
+
+  const triggerOptionsModal = (post) => {
+    setError("");
+    setShowPostOptions(post);
+  };
 
   useEffect(() => {
     if (newPostCreated.state) {
@@ -278,6 +283,7 @@ const HomeScreen = () => {
             deletePost={deletePost}
             editPost={editPost}
             belongsToUser={false}
+            error={error}
           />
         </View>
       </SafeAreaView>
