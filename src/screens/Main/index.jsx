@@ -15,6 +15,7 @@ import EditUserDetailsScreen from "./SubScreens/EditUserDetailsScreen";
 import SettingsScreen from "./SubScreens/SettingsScreen";
 import PrivacyPolicyScreen from "./SubScreens/PrivacyPolicyScreen";
 import TermsOfUseScreen from "./SubScreens/TermsOfUseScreen";
+import OtherUserFriendsScreen from "./SubScreens/OtherUserFriendsScreen";
 import AdScreen from "./SubScreens/AdTest";
 import Test from "./SubScreens/Test";
 
@@ -223,6 +224,21 @@ const MainStack = () => (
       }}
       name="TermsOfUseScreen"
       component={TermsOfUseScreen}
+    />
+    <Stack.Screen
+      options={{
+        title: "",
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        },
+      }}
+      name="OtherUserFriendsScreen"
+      component={OtherUserFriendsScreen}
     />
     <Stack.Screen
       options={{

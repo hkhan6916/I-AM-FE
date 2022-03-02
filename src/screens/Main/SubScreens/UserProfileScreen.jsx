@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   Dimensions,
   ActivityIndicator,
+  Button,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import { useNavigation } from "@react-navigation/native";
@@ -236,7 +237,7 @@ const UserProfileScreen = (props) => {
           />
         );
     },
-    [userPosts]
+    [userPosts, userId]
   );
 
   function renderHeader() {
@@ -271,7 +272,8 @@ const UserProfileScreen = (props) => {
           });
           if (
             !response.otherUser?.private ||
-            (response.otherUser?.private && response.otherUser.isFriend)
+            (response.otherUser?.private && response.otherUser.isFriend) ||
+            response.otherUser.isSameUser
           ) {
             await getUserPosts();
           }
@@ -283,7 +285,7 @@ const UserProfileScreen = (props) => {
       setUserPosts([]);
       isMounted = false;
     };
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     let isMounted = true;

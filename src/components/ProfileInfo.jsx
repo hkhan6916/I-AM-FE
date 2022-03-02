@@ -6,6 +6,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { View, Text, TouchableOpacity } from "react-native";
 import PreviewVideo from "./PreviewVideo";
+import { useNavigation } from "@react-navigation/native";
 
 const ProfileInfo = ({
   user,
@@ -15,6 +16,7 @@ const ProfileInfo = ({
   removeConnection,
   acceptFriendRequest,
 }) => {
+  const navigation = useNavigation();
   return (
     <View>
       <PreviewVideo
@@ -46,27 +48,36 @@ const ProfileInfo = ({
           </Text>
           {user.jobTitle ? <Text>{user.jobTitle}</Text> : null}
         </View>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginVertical: 20,
-          }}
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("OtherUserFriendsScreen", {
+              userId: user?._id,
+              firstName: user?.firstName,
+            })
+          }
         >
-          <Ionicons
-            name="people"
-            size={24}
-            color={themeStyle.colors.grayscale.lower}
-          />
-          <Text
+          <View
             style={{
-              marginHorizontal: 10,
-              color: themeStyle.colors.grayscale.lowest,
+              flexDirection: "row",
+              alignItems: "center",
+              marginVertical: 20,
             }}
           >
-            {user.numberOfFriends} contacts
-          </Text>
-        </View>
+            <Ionicons
+              name="people"
+              size={24}
+              color={themeStyle.colors.grayscale.lower}
+            />
+            <Text
+              style={{
+                marginHorizontal: 10,
+                color: themeStyle.colors.grayscale.lowest,
+              }}
+            >
+              {user.numberOfFriends} contacts
+            </Text>
+          </View>
+        </TouchableOpacity>
         {!user.isSameUser ? (
           <View>
             {user.isFriend ? (
