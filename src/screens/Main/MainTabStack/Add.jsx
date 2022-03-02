@@ -314,9 +314,9 @@ const AddScreen = (props) => {
             New Post
           </Text>
         </View>
-        {postBody.length >= 1000 - 25 ? (
+        {postBody.length >= 2000 - 25 ? (
           <Text style={styles.postLimitMessage}>
-            {1000 - postBody.length} Characters Remaining
+            {2000 - postBody.length} Characters Remaining
           </Text>
         ) : null}
         <ScrollView contentContainerStyle={{ padding: 10 }}>
@@ -331,7 +331,7 @@ const AddScreen = (props) => {
             placeholder="What's on your mind?"
             placeholderTextColor={themeStyle.colors.grayscale.lower}
             multiline
-            maxLength={1000}
+            maxLength={2000}
             onChangeText={(v) => setPostBody(v)}
           />
           {file.uri ? (

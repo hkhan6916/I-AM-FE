@@ -91,6 +91,7 @@ const LoginScreen = () => {
             <Ionicons
               name={showPassword ? "eye-outline" : "eye-off-outline"}
               size={19}
+              color={themeStyle.colors.grayscale.lowest}
             />
           </TouchableOpacity>
         </View>

@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   SafeAreaView,
-  Dimensions,
 } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
 import {
@@ -16,24 +15,15 @@ import {
   Ionicons,
 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import VideoPlayer from "expo-video-player";
-import { Video } from "expo-av";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import ImageWithCache from "../../../components/ImageWithCache";
 import ExpoVideoPlayer from "../../../components/ExpoVideoPlayer";
-import Constants from "expo-constants";
 const MediaScreen = (props) => {
-  const [showActions, setShowActions] = useState(false);
   const { post } = props.route.params;
   const [liked, setLked] = useState(post.liked);
   const [likes, setLikes] = useState(post.likes);
   const navigation = useNavigation();
-  const { width, height } = Dimensions.get("window");
-  const videoHeightOffset = 12;
-
-  const playerHeight = (width < height ? width : height) - videoHeightOffset;
-  const playerWidth = width > height ? width : height;
 
   const handleReaction = async () => {
     if (liked) {
@@ -84,10 +74,7 @@ const MediaScreen = (props) => {
       <SafeAreaView style={styles.container}>
         <View>
           {post?.mediaType === "video" ? (
-            <ExpoVideoPlayer
-              uri={post.mediaUrl}
-              mediaOrientation={post.mediaOrientation}
-            />
+            <ExpoVideoPlayer uri={post.mediaUrl} />
           ) : post?.mediaType === "image" ? (
             <View
               style={{
@@ -148,11 +135,14 @@ const MediaScreen = (props) => {
               }}
             >
               <TouchableOpacity
-                onPress={() =>
+                onPress={async () => {
+                  await ScreenOrientation.lockAsync(
+                    ScreenOrientation.OrientationLock.PORTRAIT_UP
+                  );
                   navigation.navigate("CommentsScreen", {
                     postId: post._id,
-                  })
-                }
+                  });
+                }}
               >
                 <Text
                   style={{

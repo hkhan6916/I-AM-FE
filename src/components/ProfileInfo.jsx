@@ -68,7 +68,7 @@ const ProfileInfo = ({
           </Text>
         </View>
         {!user.isSameUser ? (
-          <View style={{ alignItems: "center" }}>
+          <View>
             {user.isFriend ? (
               <TouchableOpacity onPress={() => removeConnection()}>
                 <View
@@ -83,6 +83,7 @@ const ProfileInfo = ({
                     style={{
                       fontWeight: "700",
                       color: themeStyle.colors.grayscale.lowest,
+                      textAlign: "center",
                     }}
                   >
                     Remove Contact
@@ -90,9 +91,9 @@ const ProfileInfo = ({
                 </View>
               </TouchableOpacity>
             ) : user.requestReceived ? (
-              <View style={{ flexDirection: "row" }}>
+              <View style={{ flexDirection: "column" }}>
                 <TouchableOpacity
-                  style={{ marginHorizontal: 10 }}
+                  style={{ margin: 10 }}
                   onPress={() => acceptFriendRequest()}
                 >
                   <View
@@ -116,14 +117,16 @@ const ProfileInfo = ({
                       style={{
                         fontWeight: "700",
                         color: themeStyle.colors.grayscale.lowest,
+                        textAlign: "center",
                       }}
                     >
+                      {" "}
                       Accept
                     </Text>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={{ marginHorizontal: 10 }}
+                  style={{ margin: 10 }}
                   onPress={() => rejectFriendRequest()}
                 >
                   <View
@@ -149,6 +152,7 @@ const ProfileInfo = ({
                         color: themeStyle.colors.grayscale.lowest,
                       }}
                     >
+                      {" "}
                       Delete
                     </Text>
                   </View>
@@ -183,13 +187,13 @@ const ProfileInfo = ({
                     borderWidth: 1,
                     padding: 10,
                     borderRadius: 5,
-                    flexDirection: "row",
                   }}
                 >
                   <Text
                     style={{
                       fontWeight: "700",
                       color: themeStyle.colors.grayscale.lowest,
+                      textAlign: "center",
                     }}
                   >
                     Add User

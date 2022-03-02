@@ -7,6 +7,7 @@ import {
   Linking,
   Platform,
   BackHandler,
+  StatusBar,
 } from "react-native";
 import { Camera } from "expo-camera";
 import { Ionicons, EvilIcons } from "@expo/vector-icons";
@@ -93,7 +94,6 @@ const CameraStandard = ({
     })();
     return async () => {
       dispatch({ type: "SET_CAMERA_ACTIVATED", payload: false });
-      DeviceMotion.removeAllListeners();
       setHasCameraPermission(false);
       setCameraActive(false);
     };
@@ -253,6 +253,7 @@ const CameraStandard = ({
         justifyContent: "center",
       }}
     >
+      <StatusBar hidden />
       <TouchableOpacity
         onPress={() => setCameraActive(false)}
         style={{
