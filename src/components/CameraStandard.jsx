@@ -92,9 +92,6 @@ const CameraStandard = ({
       dispatch({ type: "SET_CAMERA_ACTIVATED", payload: true });
     })();
     return async () => {
-      await ScreenOrientation.lockAsync(
-        ScreenOrientation.OrientationLock.PORTRAIT_UP
-      );
       dispatch({ type: "SET_CAMERA_ACTIVATED", payload: false });
       DeviceMotion.removeAllListeners();
       setHasCameraPermission(false);
@@ -340,6 +337,9 @@ const CameraStandard = ({
                     quality: 0,
                     mirror: false,
                   });
+                  await ScreenOrientation.lockAsync(
+                    ScreenOrientation.OrientationLock.PORTRAIT_UP
+                  );
                   const re = /(?:\.([^.]+))?$/;
                   const fileExtension = re.exec(photo.uri)[1];
                   const resizedPhoto = await manipulateAsync(
@@ -396,6 +396,9 @@ const CameraStandard = ({
                     });
                   }
                 } else {
+                  await ScreenOrientation.lockAsync(
+                    ScreenOrientation.OrientationLock.PORTRAIT_UP
+                  );
                   cameraRef?.current?.stopRecording();
                   setRecording(false);
                   setCameraActive(false);

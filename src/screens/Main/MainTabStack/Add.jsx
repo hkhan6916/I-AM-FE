@@ -407,7 +407,7 @@ const AddScreen = (props) => {
               ) : file.type?.split("/")[0] === "image" ? (
                 <View
                   style={{
-                    height: screenWidth,
+                    height: screenWidth - 40,
                     alignItems: "center",
                     padding: 20,
                   }}
@@ -415,7 +415,7 @@ const AddScreen = (props) => {
                   <ImageWithCache
                     mediaOrientation={file.mediaOrientation}
                     mediaIsSelfie={file.isSelfie}
-                    resizeMode="cover"
+                    resizeMode="contain"
                     mediaUrl={file.uri}
                     aspectRatio={1 / 1}
                     removeBorderRadius

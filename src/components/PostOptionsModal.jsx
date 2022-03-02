@@ -126,7 +126,12 @@ const PostOptionsModal = ({
                     justifyContent: "space-between",
                   }}
                 >
-                  <TouchableOpacity onPress={() => deletePost()}>
+                  <TouchableOpacity
+                    onPress={async () => {
+                      await deletePost();
+                      setShowDeleteGuard(false);
+                    }}
+                  >
                     <Text style={{ color: themeStyle.colors.error.default }}>
                       Delete
                     </Text>

@@ -155,6 +155,11 @@ const ProfileScreen = () => {
     [userPosts]
   );
 
+  const renderHeaderComponent = useCallback(
+    () => <ProfileScreenHeader userData={userData} navigation={navigation} />,
+    [userData]
+  );
+
   useEffect(() => {
     let isMounted = true;
     (async () => {
@@ -205,9 +210,7 @@ const ProfileScreen = () => {
           refreshControl={
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }
-          // ListHeaderComponent={() => (
-          //   <ProfileScreenHeader userData={userData} navigation={navigation} />
-          // )}
+          ListHeaderComponent={renderHeaderComponent}
           ListFooterComponent={() => (
             <ActivityIndicator
               size="large"
