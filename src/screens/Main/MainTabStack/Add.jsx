@@ -61,9 +61,8 @@ const AddScreen = (props) => {
   const { width: screenWidth } = Dimensions.get("window");
 
   const post = props.route.params?.post;
-
+  console.log("232", { post }, "232");
   const dispatch = useDispatch();
-
   const createPostData = async () => {
     const postData = new FormData();
     if (file.uri) {
@@ -108,19 +107,20 @@ const AddScreen = (props) => {
 
   const handlePostCreation = async () => {
     const postData = await createPostData();
-    const { success, response } = await apiCall("POST", "/posts/new", postData);
+    const { success, response } = !post
+      ? await apiCall("POST", "/posts/new", postData)
+      : await apiCall("POST", `/posts/update/${post?._id}`, postData);
     if (success) {
-      return response.post;
+      return post || response.post;
     } else {
       setError({
         title: "Well... that wasn't supposed to happen!",
-        message: "An error occured creating your post.",
+        message: "An error occured creating your post?.",
       });
     }
   };
 
   const handleUploadVideo = async (post) => {
-    // if (compressedFileUrl && post?._id) {
     const token = await getItemAsync("authToken");
     const url = compressedFileUrl
       ? Platform.OS == "android"
@@ -148,7 +148,7 @@ const AddScreen = (props) => {
         enabled: false,
       },
       useUtf8Charset: true,
-      // customUploadId: post._id,
+      // customUploadId: post?._id,
     };
     // compress in background and .then (()=>startupload)
     Upload.startUpload(options)
@@ -261,13 +261,19 @@ const AddScreen = (props) => {
       }
     }
   };
+  useEffect(() => {
+    if (post) {
+      setPostBody(post?.body);
+    }
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (post) {
+        setPostBody("");
+      }
+    });
 
-  // useEffect(() => {
-  //   (async () =>
-  //     await ScreenOrientation.lockAsync(
-  //       ScreenOrientation.OrientationLock.PORTRAIT_UP
-  //     ))();
-  // }, [cameraActive]);
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe;
+  }, [navigation, post]);
 
   if (loading) {
     return (
@@ -334,7 +340,7 @@ const AddScreen = (props) => {
             maxLength={2000}
             onChangeText={(v) => setPostBody(v)}
           />
-          {file.uri ? (
+          {file.uri || post?.mediaType ? (
             <View
               style={{
                 borderWidth: !showMediaSizeError ? 1 : 2,
@@ -419,6 +425,46 @@ const AddScreen = (props) => {
                     mediaUrl={file.uri}
                     aspectRatio={1 / 1}
                     removeBorderRadius
+                  />
+                </View>
+              ) : post?.mediaType === "video" ? (
+                <View
+                  style={{
+                    height: screenWidth,
+                    alignItems: "center",
+                    padding: 20,
+                  }}
+                >
+                  <VideoPlayer
+                    autoHidePlayer={false}
+                    fullscreen
+                    mediaIsSelfie
+                    videoProps={{
+                      shouldPlay: true,
+                      resizeMode: Video.RESIZE_MODE_CONTAIN,
+                      source: {
+                        uri: post?.mediaUrl,
+                      },
+                    }}
+                    style={{ height: 300 }}
+                  />
+                </View>
+              ) : post?.mediaType === "image" ? (
+                <View
+                  style={{
+                    height: screenWidth - 40,
+                    alignItems: "center",
+                    padding: 20,
+                  }}
+                >
+                  <ImageWithCache
+                    mediaOrientation={post?.mediaOrientation}
+                    mediaIsSelfie={post?.isSelfie}
+                    resizeMode="contain"
+                    mediaUrl={post?.mediaUrl}
+                    aspectRatio={1 / 1}
+                    removeBorderRadius
+                    mediaHeaders={post?.mediaHeaders}
                   />
                 </View>
               ) : null}

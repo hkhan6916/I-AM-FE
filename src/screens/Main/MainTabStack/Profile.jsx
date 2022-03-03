@@ -100,19 +100,15 @@ const ProfileScreen = () => {
     }
   };
 
-  const onRefresh = useCallback(async () => {
+  const onRefresh = async () => {
     setRefreshing(true);
-    const { success, response } = await apiCall(
-      "GET",
-      `/user/posts/${userPosts.length}`
-    );
+    const { success, response } = await apiCall("GET", `/user/posts/0`);
     await getUserData();
-    await getUserPosts(true);
     setRefreshing(false);
     if (success) {
       setUserPosts(response);
     }
-  }, []);
+  };
 
   const onViewableItemsChanged = ({ viewableItems }) => {
     viewableItems.forEach((item) => {
