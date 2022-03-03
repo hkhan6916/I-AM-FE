@@ -1,20 +1,30 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, StyleSheet, RefreshControl, FlatList } from "react-native";
+import {
+  View,
+  StyleSheet,
+  RefreshControl,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
 import { useNavigation } from "@react-navigation/native";
-
+import themeStyle from "../../../theme.style";
 const OtherUserFriendsScreen = (props) => {
   const { userId, firstName } = props.route.params;
   const [friends, setFriends] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
 
   const getFriends = async () => {
+    setLoading(true);
     const { success, response } = await apiCall(
       "GET",
       `/user/${userId}/friend/fetch/all/${friends.length}`
     );
+    setLoading(false);
+
     if (success) {
       setFriends(response);
     }
@@ -29,6 +39,18 @@ const OtherUserFriendsScreen = (props) => {
     ({ item }) => <UserThumbnail user={item} avatarSize={50} />,
     []
   );
+
+  const listFooterComponent = useCallback(
+    () => (
+      <ActivityIndicator
+        size={"large"}
+        color={themeStyle.colors.primary.default}
+        animating={loading}
+      />
+    ),
+    [loading]
+  );
+
   const keyExtractor = useCallback((item) => item._id, []);
 
   useEffect(() => {
@@ -49,6 +71,7 @@ const OtherUserFriendsScreen = (props) => {
         refreshControl={
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
+        ListFooterComponent={listFooterComponent}
       />
     </View>
   );

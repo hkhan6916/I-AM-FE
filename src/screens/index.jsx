@@ -15,8 +15,6 @@ import * as SplashScreen from "expo-splash-screen";
 import { Appearance, useColorScheme } from "react-native";
 
 const Screens = () => {
-  const test = useColorScheme();
-  console.log(test);
   const [loggedIn, setLoggedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [feed, setFeed] = useState([]);

@@ -7,13 +7,17 @@ import VideoPlayer from "./VideoPlayer";
 import PreviewVideo from "./PreviewVideo";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import apiCall from "../helpers/apiCall";
+import { useNavigation } from "@react-navigation/native";
 
 const ProfileScreenHeader = ({ userData }) => {
   const [isPrivate, setIsPrivate] = useState(!!userData.private);
 
+  const navigation = useNavigation();
+
   const changeUserVisibility = async () => {
+    setIsPrivate(!isPrivate);
     const { success } = await apiCall("GET", "/user/visibility/change");
-    if (success) {
+    if (!success) {
       setIsPrivate(!isPrivate);
     }
   };
@@ -94,17 +98,18 @@ const ProfileScreenHeader = ({ userData }) => {
             size={24}
             color={themeStyle.colors.grayscale.lower}
           />
-          <Text
-            style={{
-              marginHorizontal: 10,
-              color: themeStyle.colors.grayscale.lowest,
-            }}
-          >
-            {userData.numberOfFriends} contacts
-          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate("Friends")}>
+            <Text
+              style={{
+                marginHorizontal: 10,
+                color: themeStyle.colors.grayscale.lowest,
+              }}
+            >
+              {userData.numberOfFriends} contacts
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
-      <Text> Your account is {isPrivate ? "Private" : "Public"}</Text>
     </View>
   );
 };

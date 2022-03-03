@@ -6,7 +6,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { View, Text, TouchableOpacity } from "react-native";
 import PreviewVideo from "./PreviewVideo";
-import { useNavigation } from "@react-navigation/native";
+import { StackActions, useNavigation } from "@react-navigation/native";
 
 const ProfileInfo = ({
   user,
@@ -17,6 +17,16 @@ const ProfileInfo = ({
   acceptFriendRequest,
 }) => {
   const navigation = useNavigation();
+
+  const handleUserFriendsNavigation = () => {
+    // pushes a new screen on top of the prev one to create a journey
+    const pushScreen = StackActions.push("OtherUserFriendsScreen", {
+      userId: user?._id,
+      firstName: user?.firstName,
+    });
+
+    navigation.dispatch(pushScreen);
+  };
   return (
     <View>
       <PreviewVideo
@@ -48,26 +58,34 @@ const ProfileInfo = ({
           </Text>
           {user.jobTitle ? <Text>{user.jobTitle}</Text> : null}
         </View>
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate("OtherUserFriendsScreen", {
-              userId: user?._id,
-              firstName: user?.firstName,
-            })
-          }
+
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginVertical: 20,
+          }}
         >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginVertical: 20,
-            }}
-          >
-            <Ionicons
-              name="people"
-              size={24}
-              color={themeStyle.colors.grayscale.lower}
-            />
+          <Ionicons
+            name="people"
+            size={24}
+            color={themeStyle.colors.grayscale.lower}
+          />
+          {(user.private && user.isFriend) ||
+          !user.private ||
+          user.isSameUser ? (
+            <TouchableOpacity onPress={() => handleUserFriendsNavigation()}>
+              <Text
+                style={{
+                  marginHorizontal: 10,
+                  color: themeStyle.colors.primary.default,
+                  fontWeight: "700",
+                }}
+              >
+                {user.numberOfFriends} contacts
+              </Text>
+            </TouchableOpacity>
+          ) : (
             <Text
               style={{
                 marginHorizontal: 10,
@@ -76,8 +94,8 @@ const ProfileInfo = ({
             >
               {user.numberOfFriends} contacts
             </Text>
-          </View>
-        </TouchableOpacity>
+          )}
+        </View>
         {!user.isSameUser ? (
           <View>
             {user.isFriend ? (

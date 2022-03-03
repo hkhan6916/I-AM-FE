@@ -3,9 +3,18 @@ import { View, Text, TouchableHighlight } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Avatar from "./Avatar";
 import themeStyle from "../theme.style";
+import { StackActions } from "@react-navigation/native";
 
 const UserThumbnail = ({ user, avatarSize, preventClicks }) => {
   const navigation = useNavigation();
+  const handleUserProfileNavigation = () => {
+    // pushes a new screen on top of the prev one to create a journey
+    const pushScreen = StackActions.push("UserProfileScreen", {
+      userId: user._id,
+    });
+
+    navigation.dispatch(pushScreen);
+  };
   const Thumbnail = () => (
     <View
       style={{
@@ -64,9 +73,7 @@ const UserThumbnail = ({ user, avatarSize, preventClicks }) => {
           key={user._id}
           underlayColor="gray"
           style={{ margin: 10 }}
-          onPress={() =>
-            navigation.navigate("UserProfileScreen", { userId: user._id })
-          }
+          onPress={() => handleUserProfileNavigation()}
         >
           <Thumbnail />
         </TouchableHighlight>
