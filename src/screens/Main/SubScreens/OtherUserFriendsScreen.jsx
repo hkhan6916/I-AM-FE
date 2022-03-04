@@ -72,6 +72,7 @@ const OtherUserFriendsScreen = (props) => {
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
         ListFooterComponent={listFooterComponent}
+        onEndReached={() => getFriends()}
       />
     </View>
   );

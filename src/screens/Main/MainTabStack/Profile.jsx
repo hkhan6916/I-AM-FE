@@ -77,7 +77,10 @@ const ProfileScreen = () => {
     }
   };
 
-  const editPost = () => navigation.navigate("Add", { post: showPostOptions });
+  const editPost = () => {
+    setShowPostOptions(null);
+    navigation.navigate("Add", { post: showPostOptions });
+  };
 
   const deletePost = async () => {
     const { success } = await apiCall(

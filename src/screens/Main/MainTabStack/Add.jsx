@@ -59,17 +59,17 @@ const AddScreen = (props) => {
   const [removeMedia, setRemoveMedia] = useState(false);
   const navigation = useNavigation();
 
+  const existingPost = props.route.params?.post;
+
   const { width: screenWidth } = Dimensions.get("window");
 
-  const post = props.route.params?.post;
-  console.log("232", { post }, "232");
   const dispatch = useDispatch();
   const createPostData = async () => {
     const postData = new FormData();
     if (file.uri) {
       const { type, name, uri, orientation, isSelfie } = file;
       if (type.split("/")[0] === "video") {
-        // just add thumbnail for videos. We'll add the rest of the media later.
+        // just adds thumbnail for videos. We add the rest of the media later.
         const thumbnailUri = await generateThumbnail(uri);
         const thumbnailFormat = thumbnailUri.split(".").pop();
         postData.append("file", {
@@ -88,7 +88,7 @@ const AddScreen = (props) => {
         postData.append("mediaIsSelfie", isSelfie || false);
       }
     }
-    if (post) {
+    if (existingPost) {
       // if existing post, append remove media incase user wants to rmeove old media file
       postData.append("removeMedia", removeMedia);
     }
@@ -112,11 +112,11 @@ const AddScreen = (props) => {
 
   const handlePostCreation = async () => {
     const postData = await createPostData();
-    const { success, response } = !post
+    const { success, response } = !existingPost
       ? await apiCall("POST", "/posts/new", postData)
-      : await apiCall("POST", `/posts/update/${post?._id}`, postData);
+      : await apiCall("POST", `/posts/update/${existingPost?._id}`, postData);
     if (success) {
-      return post || response.post;
+      return existingPost || response.post;
     } else {
       setError({
         title: "Well... that wasn't supposed to happen!",
@@ -268,18 +268,18 @@ const AddScreen = (props) => {
     }
   };
   useEffect(() => {
-    if (post) {
-      setPostBody(post?.body);
+    if (existingPost) {
+      setPostBody(existingPost?.body);
     }
     const unsubscribe = navigation.addListener("blur", () => {
-      if (post) {
+      if (existingPost) {
         setPostBody("");
       }
     });
 
     // Return the function to unsubscribe from the event so it gets removed on unmount
     return unsubscribe;
-  }, [navigation, post]);
+  }, [navigation, existingPost]);
 
   if (loading) {
     return (
@@ -315,6 +315,9 @@ const AddScreen = (props) => {
           style={{
             padding: 10,
             backgroundColor: themeStyle.colors.grayscale.highest,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
           <Text
@@ -323,8 +326,28 @@ const AddScreen = (props) => {
               color: themeStyle.colors.primary.default,
             }}
           >
-            New Post
+            {existingPost ? "Edit Post" : "New Post"}
           </Text>
+          {existingPost?.body !== postBody ||
+          (existingPost?.mediaUrl && removeMedia) ? (
+            <View>
+              <TouchableOpacity
+                onPress={() => {
+                  setRemoveMedia(false);
+                  setPostBody(existingPost.body || "");
+                }}
+              >
+                <Text
+                  style={{
+                    color: themeStyle.colors.secondary.default,
+                    fontSize: 16,
+                  }}
+                >
+                  Undo changes
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
         </View>
         {postBody.length >= 2000 - 25 ? (
           <Text style={styles.postLimitMessage}>
@@ -346,15 +369,7 @@ const AddScreen = (props) => {
             maxLength={2000}
             onChangeText={(v) => setPostBody(v)}
           />
-          {post?.mediaUrl && removeMedia ? (
-            <View>
-              <Text>Media files removed from post.</Text>
-              <TouchableOpacity onPress={() => setRemoveMedia(false)}>
-                <Text>Undo</Text>
-              </TouchableOpacity>
-            </View>
-          ) : null}
-          {file.uri || (post?.mediaType && !removeMedia) ? (
+          {file.uri || (existingPost?.mediaType && !removeMedia) ? (
             <View
               style={{
                 borderWidth: !showMediaSizeError ? 1 : 2,
@@ -444,7 +459,7 @@ const AddScreen = (props) => {
                     removeBorderRadius
                   />
                 </View>
-              ) : post?.mediaType === "video" && !removeMedia ? (
+              ) : existingPost?.mediaType === "video" && !removeMedia ? (
                 <View
                   style={{
                     height: screenWidth,
@@ -460,13 +475,13 @@ const AddScreen = (props) => {
                       shouldPlay: true,
                       resizeMode: Video.RESIZE_MODE_CONTAIN,
                       source: {
-                        uri: post?.mediaUrl,
+                        uri: existingPost?.mediaUrl,
                       },
                     }}
                     style={{ height: 300 }}
                   />
                 </View>
-              ) : post?.mediaType === "image" && !removeMedia ? (
+              ) : existingPost?.mediaType === "image" && !removeMedia ? (
                 <View
                   style={{
                     height: screenWidth - 40,
@@ -475,13 +490,13 @@ const AddScreen = (props) => {
                   }}
                 >
                   <ImageWithCache
-                    mediaOrientation={post?.mediaOrientation}
-                    mediaIsSelfie={post?.isSelfie}
+                    mediaOrientation={existingPost?.mediaOrientation}
+                    mediaIsSelfie={existingPost?.isSelfie}
                     resizeMode="contain"
-                    mediaUrl={post?.mediaUrl}
+                    mediaUrl={existingPost?.mediaUrl}
                     aspectRatio={1 / 1}
                     removeBorderRadius
-                    mediaHeaders={post?.mediaHeaders}
+                    mediaHeaders={existingPost?.mediaHeaders}
                   />
                 </View>
               ) : null}
@@ -538,13 +553,17 @@ const AddScreen = (props) => {
               borderRadius: 20,
               width: 70,
               opacity:
-                (removeMedia && !postBody) || (!file?.uri && !postBody)
+                (removeMedia && !postBody) ||
+                (!existingPost && !file?.uri && !postBody)
                   ? 0.5
                   : 1,
             }}
           >
             <TouchableOpacity
-              disabled={(removeMedia && !postBody) || (!file && !postBody)}
+              disabled={
+                (removeMedia && !postBody) ||
+                (!existingPost && !file && !postBody)
+              }
               onPress={() => createPost()}
             >
               <Text
