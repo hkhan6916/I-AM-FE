@@ -56,6 +56,7 @@ const AddScreen = (props) => {
   const [compressing, setCompressing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState(0);
   const [showMediaSizeError, setShowMediaSizeError] = useState(false);
+  const [removeMedia, setRemoveMedia] = useState(false);
   const navigation = useNavigation();
 
   const { width: screenWidth } = Dimensions.get("window");
@@ -86,6 +87,10 @@ const AddScreen = (props) => {
         postData.append("mediaOrientation", orientation || "");
         postData.append("mediaIsSelfie", isSelfie || false);
       }
+    }
+    if (post) {
+      // if existing post, append remove media incase user wants to rmeove old media file
+      postData.append("removeMedia", removeMedia);
     }
     if (postBody) {
       postData.append("postBody", postBody);
@@ -185,6 +190,7 @@ const AddScreen = (props) => {
       }
       setPostBody("");
       setFile("");
+      setRemoveMedia(false);
       dispatch({
         type: "SET_POST_CREATED",
         payload: { posted: true, type: "created" },
@@ -340,7 +346,15 @@ const AddScreen = (props) => {
             maxLength={2000}
             onChangeText={(v) => setPostBody(v)}
           />
-          {file.uri || post?.mediaType ? (
+          {post?.mediaUrl && removeMedia ? (
+            <View>
+              <Text>Media files removed from post.</Text>
+              <TouchableOpacity onPress={() => setRemoveMedia(false)}>
+                <Text>Undo</Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
+          {file.uri || (post?.mediaType && !removeMedia) ? (
             <View
               style={{
                 borderWidth: !showMediaSizeError ? 1 : 2,
@@ -352,12 +366,15 @@ const AddScreen = (props) => {
             >
               <TouchableOpacity
                 style={{ alignSelf: "flex-end" }}
-                onPress={() => setFile({})}
+                onPress={() => {
+                  setRemoveMedia(true);
+                  setFile({});
+                }}
               >
                 <AntDesign
                   name="close"
                   size={24}
-                  color={themeStyle.colors.grayscale.highest}
+                  color={themeStyle.colors.grayscale.lowest}
                 />
               </TouchableOpacity>
               {showMediaSizeError ? (
@@ -427,7 +444,7 @@ const AddScreen = (props) => {
                     removeBorderRadius
                   />
                 </View>
-              ) : post?.mediaType === "video" ? (
+              ) : post?.mediaType === "video" && !removeMedia ? (
                 <View
                   style={{
                     height: screenWidth,
@@ -449,7 +466,7 @@ const AddScreen = (props) => {
                     style={{ height: 300 }}
                   />
                 </View>
-              ) : post?.mediaType === "image" ? (
+              ) : post?.mediaType === "image" && !removeMedia ? (
                 <View
                   style={{
                     height: screenWidth - 40,
@@ -520,9 +537,16 @@ const AddScreen = (props) => {
               padding: 5,
               borderRadius: 20,
               width: 70,
+              opacity:
+                (removeMedia && !postBody) || (!file?.uri && !postBody)
+                  ? 0.5
+                  : 1,
             }}
           >
-            <TouchableOpacity onPress={() => createPost()}>
+            <TouchableOpacity
+              disabled={(removeMedia && !postBody) || (!file && !postBody)}
+              onPress={() => createPost()}
+            >
               <Text
                 style={{
                   fontSize: 16,
