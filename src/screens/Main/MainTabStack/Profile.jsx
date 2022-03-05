@@ -34,8 +34,8 @@ const ProfileScreen = () => {
 
   useScrollToTop(flatlistRef);
 
-  const getUserPosts = async (refreshing) => {
-    if (!allPostsLoaded || (allPostsLoaded && refreshing)) {
+  const getUserPosts = async () => {
+    if (!allPostsLoaded) {
       const { success, response } = await apiCall(
         "GET",
         `/user/posts/${userPosts.length}`
@@ -105,12 +105,14 @@ const ProfileScreen = () => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    const { success, response } = await apiCall("GET", `/user/posts/0`);
+
+    const { success, response } = await apiCall("GET", "/user/posts/0");
+    if (success) {
+      setUserPosts([]);
+      setUserPosts([...response]);
+    }
     await getUserData();
     setRefreshing(false);
-    if (success) {
-      setUserPosts(response);
-    }
   };
 
   const onViewableItemsChanged = ({ viewableItems }) => {
@@ -146,17 +148,17 @@ const ProfileScreen = () => {
           />
         );
     },
-    [userPosts]
+    [userPosts, refreshing]
   );
 
   const keyExtractor = useCallback(
     (item) => item?.customKey || item?._id,
-    [userPosts]
+    [userPosts, refreshing]
   );
 
   const renderHeaderComponent = useCallback(
     () => <ProfileScreenHeader userData={userData} navigation={navigation} />,
-    [userData]
+    [userData, refreshing]
   );
 
   useEffect(() => {
@@ -200,9 +202,9 @@ const ProfileScreen = () => {
       {userData ? (
         <FlatList
           ref={flatlistRef}
-          viewabilityConfigCallbackPairs={
-            viewabilityConfigCallbackPairs.current
-          }
+          // viewabilityConfigCallbackPairs={
+          //   viewabilityConfigCallbackPairs.current
+          // }
           data={userPosts}
           renderItem={renderItem}
           keyExtractor={keyExtractor}

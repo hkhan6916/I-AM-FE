@@ -243,7 +243,7 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
-        title: "",
+        title: "Edit post",
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {

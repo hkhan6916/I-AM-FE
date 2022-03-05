@@ -139,7 +139,7 @@ const PostCard = ({
             />
           </TouchableOpacity>
         </View>
-        {post.repostPostObj ? (
+        {post.repostPostId ? (
           <View>
             <RepostCard
               postContent={post.repostPostObj}

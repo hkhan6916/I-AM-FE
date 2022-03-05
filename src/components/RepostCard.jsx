@@ -15,6 +15,23 @@ const RepostCard = ({ postContent, isPreview }) => {
     setIsCollapsible(e.nativeEvent.lines.length >= 3);
   };
 
+  if (!postContent) {
+    return (
+      <View
+        style={{
+          borderColor: themeStyle.colors.grayscale.low,
+          borderWidth: 0.5,
+          padding: 20,
+          margin: 20,
+        }}
+      >
+        <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+          This post no longer exists.
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <TouchableOpacity
       style={styles.repostedPostContent}

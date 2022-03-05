@@ -48,8 +48,10 @@ const UserProfileScreen = (props) => {
     }
   };
 
-  const editPost = () => navigation.navigate("Add", { post: showPostOptions });
-
+  const editPost = () => {
+    setShowPostOptions(null);
+    navigation.navigate("EditPostScreen", { postId: showPostOptions?._id });
+  };
   const deletePost = async () => {
     const { success } = await apiCall(
       "DELETE",

@@ -28,21 +28,13 @@ import {
   Video as VideoCompress,
   Image as ImageCompress,
 } from "react-native-compressor";
-// import ExpoVideoPlayer from "../../../components/ExpoVideoPlayer";
-// import VideoPlayer from "../../../components/VideoPlayer";
+import RepostCard from "../../../components/RepostCard";
 import VideoPlayer from "expo-video-player";
-import { LinearGradient } from "expo-linear-gradient";
-import { backgroundUpload } from "react-native-compressor";
-import { AntDesign } from "@expo/vector-icons";
-import { FontAwesome } from "@expo/vector-icons";
-import * as VideoThumbnails from "expo-video-thumbnails";
-import * as BackgroundFetch from "expo-background-fetch";
-import * as TaskManager from "expo-task-manager";
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import { getThumbnailAsync } from "expo-video-thumbnails";
 import Upload from "react-native-background-upload";
 import { getItemAsync } from "expo-secure-store";
-import { manipulateAsync } from "expo-image-manipulator";
 import { StatusBar } from "expo-status-bar";
-import * as ScreenOrientation from "expo-screen-orientation";
 
 const EditPostScreen = (props) => {
   const isFocused = useIsFocused();
@@ -64,7 +56,7 @@ const EditPostScreen = (props) => {
   const { width: screenWidth } = Dimensions.get("window");
 
   const { postId } = props.route.params;
-
+  console.log(postId);
   const dispatch = useDispatch();
   const createPostData = async () => {
     const postData = new FormData();
@@ -91,7 +83,7 @@ const EditPostScreen = (props) => {
       }
     }
     postData.append("removeMedia", removeMedia);
-    if (postBody) {
+    if (typeof postBody === "string") {
       postData.append("postBody", postBody);
     }
 
@@ -100,7 +92,7 @@ const EditPostScreen = (props) => {
 
   const generateThumbnail = async () => {
     try {
-      const { uri } = await VideoThumbnails.getThumbnailAsync(file.uri, {
+      const { uri } = await getThumbnailAsync(file.uri, {
         time: 0,
       });
       return uri;
@@ -109,7 +101,7 @@ const EditPostScreen = (props) => {
     }
   };
 
-  const handlePostCreation = async () => {
+  const handlePostUpdate = async () => {
     const postData = await createPostData();
     const { success, response } = await apiCall(
       "POST",
@@ -118,11 +110,12 @@ const EditPostScreen = (props) => {
     );
     setSuccess(success);
     if (success) {
-      return existingPost || response.post;
+      setExistingPost({ ...existingPost, ...response });
+      return existingPost;
     } else {
       setError({
         title: "Error",
-        message: "An error occurred creating your post.",
+        message: "An error occurred updating your post.",
       });
       return;
     }
@@ -184,15 +177,14 @@ const EditPostScreen = (props) => {
       });
   };
 
-  const createPost = async () => {
+  const updatePost = async () => {
     setLoading(true);
     setError(null);
-    await handlePostCreation().then(async (post) => {
+    await handlePostUpdate().then(async (post) => {
       if (!post) return;
       if (file.type?.split("/")[0] === "video") {
         await handleUploadVideo(post);
       }
-      setPostBody("");
       setFile("");
       setRemoveMedia(false);
     });
@@ -350,7 +342,7 @@ const EditPostScreen = (props) => {
               style={{ alignSelf: "flex-end", marginVertical: 20 }}
               onPress={() => {
                 setRemoveMedia(false);
-                setPostBody(existingPost.body || "");
+                setPostBody(existingPost?.body || "");
                 setCompressing(false);
                 setCompressionProgress(0);
                 setFile({});
@@ -466,18 +458,19 @@ const EditPostScreen = (props) => {
                     padding: 20,
                   }}
                 >
-                  {/* <VideoPlayer
+                  <VideoPlayer // TODO create new player as need to flip the media for selfie video without flipping the controls.
                     autoHidePlayer={false}
                     fullscreen
+                    mediaIsSelfie
                     videoProps={{
-                      //   shouldPlay: false,
-                      //   resizeMode: Video.RESIZE_MODE_CONTAIN,
+                      shouldPlay: true,
+                      resizeMode: Video.RESIZE_MODE_CONTAIN,
                       source: {
                         uri: existingPost?.mediaUrl,
                       },
                     }}
                     style={{ height: 300 }}
-                  /> */}
+                  />
                 </View>
               ) : existingPost?.mediaType === "image" && !removeMedia ? (
                 <View
@@ -500,6 +493,9 @@ const EditPostScreen = (props) => {
               ) : null}
             </View>
           ) : null}
+          {existingPost?.repostPostId ? (
+            <RepostCard postContent={existingPost?.repostPostObj} isPreview />
+          ) : null}
         </ScrollView>
         <View
           style={{
@@ -510,38 +506,42 @@ const EditPostScreen = (props) => {
             backgroundColor: themeStyle.colors.grayscale.highest,
           }}
         >
-          <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginHorizontal: 10,
-              }}
-            >
-              <TouchableOpacity onPress={() => setCameraActive(true)}>
-                <FontAwesome
-                  name="camera"
-                  size={24}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
-              </TouchableOpacity>
+          {!existingPost?.repostPostId ? (
+            <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginHorizontal: 10,
+                }}
+              >
+                <TouchableOpacity onPress={() => setCameraActive(true)}>
+                  <FontAwesome
+                    name="camera"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </TouchableOpacity>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginHorizontal: 10,
+                }}
+              >
+                <TouchableOpacity onPress={() => pickMedia()}>
+                  <FontAwesome
+                    name="image"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginHorizontal: 10,
-              }}
-            >
-              <TouchableOpacity onPress={() => pickMedia()}>
-                <FontAwesome
-                  name="image"
-                  size={24}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
+          ) : (
+            <View /> // needed to fill up gap
+          )}
           <View
             style={{
               justifyContent: "center",
@@ -551,18 +551,22 @@ const EditPostScreen = (props) => {
               borderRadius: 20,
               width: 70,
               opacity:
-                (removeMedia && !postBody) ||
-                (!existingPost && !file?.uri && !postBody)
+                (!existingPost?.repostPostId &&
+                  ((removeMedia && !postBody) ||
+                    (!existingPost && !file && !postBody))) ||
+                existingPost?.body === postBody
                   ? 0.5
                   : 1,
             }}
           >
             <TouchableOpacity
               disabled={
-                (removeMedia && !postBody) ||
-                (!existingPost && !file && !postBody)
+                (!existingPost?.repostPostId &&
+                  ((removeMedia && !postBody) ||
+                    (!existingPost && !file && !postBody))) ||
+                existingPost?.body === postBody
               }
-              onPress={() => createPost()}
+              onPress={() => updatePost()}
             >
               <Text
                 style={{
@@ -570,7 +574,7 @@ const EditPostScreen = (props) => {
                   color: themeStyle.colors.white,
                 }}
               >
-                Post
+                Update
               </Text>
             </TouchableOpacity>
           </View>

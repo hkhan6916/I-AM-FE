@@ -35,7 +35,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { backgroundUpload } from "react-native-compressor";
 import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
-import * as VideoThumbnails from "expo-video-thumbnails";
+import { getThumbnailAsync } from "expo-video-thumbnails";
 import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
 import Upload from "react-native-background-upload";
@@ -95,7 +95,7 @@ const AddScreen = (props) => {
 
   const generateThumbnail = async () => {
     try {
-      const { uri } = await VideoThumbnails.getThumbnailAsync(file.uri, {
+      const { uri } = await getThumbnailAsync(file.uri, {
         time: 0,
       });
       return uri;
