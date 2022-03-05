@@ -50,7 +50,6 @@ const AddScreen = (props) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [file, setFile] = useState({});
-  const [existingPost, setExistingPost] = useState(null);
   const [compressedFileUrl, setCompressedFileUrl] = useState(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [recording, setRecording] = useState(false);
@@ -87,10 +86,6 @@ const AddScreen = (props) => {
         postData.append("mediaIsSelfie", isSelfie || false);
       }
     }
-    if (existingPost) {
-      // if existing post, append remove media incase user wants to rmeove old media file
-      postData.append("removeMedia", removeMedia);
-    }
     if (postBody) {
       postData.append("postBody", postBody);
     }
@@ -111,13 +106,9 @@ const AddScreen = (props) => {
 
   const handlePostCreation = async () => {
     const postData = await createPostData();
-    console.log({ exists: !!existingPost });
-    const { success, response, message } = !existingPost
-      ? await apiCall("POST", "/posts/new", postData)
-      : await apiCall("POST", `/posts/update/${existingPost?._id}`, postData);
-    console.log(success);
+    const { success, response } = await apiCall("POST", "/posts/new", postData);
     if (success) {
-      return existingPost || response.post;
+      return response.post;
     } else {
       setError({
         title: "Error",
@@ -270,14 +261,6 @@ const AddScreen = (props) => {
       }
     }
   };
-  useEffect(() => {
-    if (props.route.params?.post) {
-      setPostBody(props.route.params.post.body);
-      setExistingPost(props.route.params.post);
-      setFile({});
-      setError(null);
-    }
-  }, [navigation, props.route.params?.post]);
 
   if (loading) {
     return (
@@ -324,26 +307,8 @@ const AddScreen = (props) => {
               color: themeStyle.colors.primary.default,
             }}
           >
-            {existingPost ? "Edit Post" : "New Post"}
+            New Post
           </Text>
-          {existingPost ? (
-            <TouchableOpacity
-              onPress={() => {
-                setExistingPost(null);
-                setPostBody("");
-                setFile({});
-              }}
-            >
-              <Text
-                style={{
-                  color: themeStyle.colors.secondary.default,
-                  fontSize: 16,
-                }}
-              >
-                Cancel
-              </Text>
-            </TouchableOpacity>
-          ) : null}
         </View>
         {postBody.length >= 2000 - 25 ? (
           <Text style={styles.postLimitMessage}>
@@ -365,31 +330,7 @@ const AddScreen = (props) => {
             maxLength={2000}
             onChangeText={(v) => setPostBody(v)}
           />
-          {existingPost &&
-          (existingPost?.body !== postBody ||
-            file?.uri ||
-            (existingPost?.mediaUrl && removeMedia)) ? (
-            <TouchableOpacity
-              style={{ alignSelf: "flex-end", marginVertical: 20 }}
-              onPress={() => {
-                setRemoveMedia(false);
-                setPostBody(existingPost.body || "");
-                setCompressing(false);
-                setCompressionProgress(0);
-                setFile({});
-              }}
-            >
-              <Text
-                style={{
-                  color: themeStyle.colors.secondary.default,
-                  fontSize: 16,
-                }}
-              >
-                Undo changes
-              </Text>
-            </TouchableOpacity>
-          ) : null}
-          {file.uri || (existingPost?.mediaType && !removeMedia) ? (
+          {file.uri ? (
             <View
               style={{
                 borderWidth: !showMediaSizeError ? 1 : 2,
@@ -481,46 +422,6 @@ const AddScreen = (props) => {
                     removeBorderRadius
                   />
                 </View>
-              ) : existingPost?.mediaType === "video" && !removeMedia ? (
-                <View
-                  style={{
-                    height: screenWidth,
-                    alignItems: "center",
-                    padding: 20,
-                  }}
-                >
-                  <VideoPlayer
-                    autoHidePlayer={false}
-                    fullscreen
-                    mediaIsSelfie
-                    videoProps={{
-                      shouldPlay: true,
-                      resizeMode: Video.RESIZE_MODE_CONTAIN,
-                      source: {
-                        uri: existingPost?.mediaUrl,
-                      },
-                    }}
-                    style={{ height: 300 }}
-                  />
-                </View>
-              ) : existingPost?.mediaType === "image" && !removeMedia ? (
-                <View
-                  style={{
-                    height: screenWidth - 40,
-                    alignItems: "center",
-                    padding: 20,
-                  }}
-                >
-                  <ImageWithCache
-                    mediaOrientation={existingPost?.mediaOrientation}
-                    mediaIsSelfie={existingPost?.isSelfie}
-                    resizeMode="contain"
-                    mediaUrl={existingPost?.mediaUrl}
-                    aspectRatio={1 / 1}
-                    removeBorderRadius
-                    mediaHeaders={existingPost?.mediaHeaders}
-                  />
-                </View>
               ) : null}
             </View>
           ) : null}
@@ -574,18 +475,11 @@ const AddScreen = (props) => {
               padding: 5,
               borderRadius: 20,
               width: 70,
-              opacity:
-                (removeMedia && !postBody) ||
-                (!existingPost && !file?.uri && !postBody)
-                  ? 0.5
-                  : 1,
+              opacity: !file?.uri && !postBody ? 0.5 : 1,
             }}
           >
             <TouchableOpacity
-              disabled={
-                (removeMedia && !postBody) ||
-                (!existingPost && !file && !postBody)
-              }
+              disabled={!file && !postBody}
               onPress={() => createPost()}
             >
               <Text

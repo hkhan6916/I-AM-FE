@@ -49,6 +49,7 @@ const EditPostScreen = (props) => {
   const [postBody, setPostBody] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState();
   const [file, setFile] = useState({});
   const [existingPost, setExistingPost] = useState(null);
   const [compressedFileUrl, setCompressedFileUrl] = useState(null);
@@ -115,6 +116,7 @@ const EditPostScreen = (props) => {
       `/posts/update/${existingPost?._id}`,
       postData
     );
+    setSuccess(success);
     if (success) {
       return existingPost || response.post;
     } else {
@@ -276,8 +278,7 @@ const EditPostScreen = (props) => {
           setPostBody(response.body || "");
         } else {
           setError({
-            title: "Error",
-            message: "An error occurred processing your request.",
+            message: "An error occurred displaying your post.",
           });
         }
       })();
@@ -317,6 +318,13 @@ const EditPostScreen = (props) => {
         {postBody.length >= 2000 - 25 ? (
           <Text style={styles.postLimitMessage}>
             {2000 - postBody.length} Characters Remaining
+          </Text>
+        ) : null}
+        {success ? (
+          <Text
+            style={{ color: themeStyle.colors.success.default, margin: 10 }}
+          >
+            Post updated.
           </Text>
         ) : null}
         <ScrollView contentContainerStyle={{ padding: 10 }}>
@@ -458,19 +466,18 @@ const EditPostScreen = (props) => {
                     padding: 20,
                   }}
                 >
-                  <VideoPlayer
+                  {/* <VideoPlayer
                     autoHidePlayer={false}
                     fullscreen
-                    mediaIsSelfie
                     videoProps={{
-                      shouldPlay: true,
-                      resizeMode: Video.RESIZE_MODE_CONTAIN,
+                      //   shouldPlay: false,
+                      //   resizeMode: Video.RESIZE_MODE_CONTAIN,
                       source: {
                         uri: existingPost?.mediaUrl,
                       },
                     }}
                     style={{ height: 300 }}
-                  />
+                  /> */}
                 </View>
               ) : existingPost?.mediaType === "image" && !removeMedia ? (
                 <View
@@ -570,7 +577,6 @@ const EditPostScreen = (props) => {
         </View>
         {error ? (
           <View>
-            <Text style={styles.errorTitle}>{error.title}</Text>
             <Text style={styles.errorMessage}>{error.message}</Text>
           </View>
         ) : null}
