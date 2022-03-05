@@ -44,7 +44,7 @@ import { manipulateAsync } from "expo-image-manipulator";
 import { StatusBar } from "expo-status-bar";
 import * as ScreenOrientation from "expo-screen-orientation";
 
-const AddScreen = (props) => {
+const EditPostScreen = (props) => {
   const isFocused = useIsFocused();
   const [postBody, setPostBody] = useState("");
   const [loading, setLoading] = useState(false);
@@ -61,6 +61,8 @@ const AddScreen = (props) => {
   const navigation = useNavigation();
 
   const { width: screenWidth } = Dimensions.get("window");
+
+  const { postId } = props.route.params;
 
   const dispatch = useDispatch();
   const createPostData = async () => {
@@ -87,10 +89,7 @@ const AddScreen = (props) => {
         postData.append("mediaIsSelfie", isSelfie || false);
       }
     }
-    if (existingPost) {
-      // if existing post, append remove media incase user wants to rmeove old media file
-      postData.append("removeMedia", removeMedia);
-    }
+    postData.append("removeMedia", removeMedia);
     if (postBody) {
       postData.append("postBody", postBody);
     }
@@ -111,11 +110,11 @@ const AddScreen = (props) => {
 
   const handlePostCreation = async () => {
     const postData = await createPostData();
-    console.log({ exists: !!existingPost });
-    const { success, response, message } = !existingPost
-      ? await apiCall("POST", "/posts/new", postData)
-      : await apiCall("POST", `/posts/update/${existingPost?._id}`, postData);
-    console.log(success);
+    const { success, response } = await apiCall(
+      "POST",
+      `/posts/update/${existingPost?._id}`,
+      postData
+    );
     if (success) {
       return existingPost || response.post;
     } else {
@@ -194,11 +193,6 @@ const AddScreen = (props) => {
       setPostBody("");
       setFile("");
       setRemoveMedia(false);
-      dispatch({
-        type: "SET_POST_CREATED",
-        payload: { posted: true, type: "created" },
-      });
-      navigation.navigate("Home");
     });
     setLoading(false);
   };
@@ -271,13 +265,24 @@ const AddScreen = (props) => {
     }
   };
   useEffect(() => {
-    if (props.route.params?.post) {
-      setPostBody(props.route.params.post.body);
-      setExistingPost(props.route.params.post);
-      setFile({});
-      setError(null);
+    if (postId) {
+      (async () => {
+        const { success, response } = await apiCall(
+          "GET",
+          `/posts/fetch/${postId}`
+        );
+        if (success) {
+          setExistingPost(response);
+          setPostBody(response.body || "");
+        } else {
+          setError({
+            title: "Error",
+            message: "An error occurred processing your request.",
+          });
+        }
+      })();
     }
-  }, [navigation, props.route.params?.post]);
+  }, [navigation, postId]);
 
   if (loading) {
     return (
@@ -309,42 +314,6 @@ const AddScreen = (props) => {
       />
       {Platform.OS === "ios" ? <StatusBar translucent={true} /> : null}
       <SafeAreaView style={styles.container}>
-        <View
-          style={{
-            padding: 10,
-            backgroundColor: themeStyle.colors.grayscale.highest,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 24,
-              color: themeStyle.colors.primary.default,
-            }}
-          >
-            {existingPost ? "Edit Post" : "New Post"}
-          </Text>
-          {existingPost ? (
-            <TouchableOpacity
-              onPress={() => {
-                setExistingPost(null);
-                setPostBody("");
-                setFile({});
-              }}
-            >
-              <Text
-                style={{
-                  color: themeStyle.colors.secondary.default,
-                  fontSize: 16,
-                }}
-              >
-                Cancel
-              </Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
         {postBody.length >= 2000 - 25 ? (
           <Text style={styles.postLimitMessage}>
             {2000 - postBody.length} Characters Remaining
@@ -629,4 +598,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddScreen;
+export default EditPostScreen;
