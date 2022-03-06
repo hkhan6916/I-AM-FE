@@ -103,14 +103,15 @@ const EditPostScreen = (props) => {
 
   const handlePostUpdate = async () => {
     const postData = await createPostData();
-    const { success, response } = await apiCall(
+    const { success, message } = await apiCall(
       "POST",
       `/posts/update/${existingPost?._id}`,
       postData
     );
+    console.log(message);
     setSuccess(success);
     if (success) {
-      setExistingPost({ ...existingPost, ...response });
+      setExistingPost({ ...existingPost, body: postBody });
       return existingPost;
     } else {
       setError({
