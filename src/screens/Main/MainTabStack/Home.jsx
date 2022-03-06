@@ -40,6 +40,7 @@ const HomeScreen = () => {
   const initialFeed = useContext(FeedContext);
   const [feed, setFeed] = useState(initialFeed);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
+  const [postIds, setPostIds] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [visibleItems, setVisibleItems] = useState([]);
   const [connectionsAsSenderOffset, setConnectionsAsSenderOffset] = useState(0);
@@ -127,7 +128,17 @@ const HomeScreen = () => {
         if (!response.feed?.length) {
           setAllPostsLoaded(true);
         } else {
-          setFeed([...feed, ...response.feed]);
+          const ids = [
+            ...postIds,
+            ...response.feed.map((post) => post._id.toString()),
+          ];
+          setPostIds(ids);
+          setFeed([
+            ...feed,
+            ...response.feed.filter((post) => {
+              if (!postIds.includes(post._id.toString())) return post;
+            }),
+          ]);
           setConnectionsAsSenderOffset(response.connectionsAsSenderOffset);
           setConnectionsAsReceiverOffset(response.connectionsAsReceiverOffset);
         }
@@ -158,6 +169,11 @@ const HomeScreen = () => {
     setAllPostsLoaded(false);
     setRefreshing(true);
     const { success, response } = await apiCall("POST", "/user/feed");
+    const ids = [
+      ...postIds,
+      ...response.feed.map((post) => post._id.toString()),
+    ];
+    setPostIds(ids);
     setRefreshing(false);
     if (success) {
       setConnectionsAsReceiverOffset(0);
@@ -204,15 +220,17 @@ const HomeScreen = () => {
   );
 
   const renderItem = useCallback(
-    ({ item, index }) => (
-      <PostCard
-        setShowPostOptions={triggerOptionsModal}
-        loadingMore={loading && index === feed.length - 1}
-        isVisible={visibleItems.includes(item._id)}
-        post={item}
-      />
-    ),
-    []
+    ({ item, index }) => {
+      return (
+        <PostCard
+          setShowPostOptions={triggerOptionsModal}
+          loadingMore={loading && index === feed.length - 1}
+          isVisible={visibleItems.includes(item._id)}
+          post={item}
+        />
+      );
+    },
+    [postIds]
   );
 
   const keyExtractor = useCallback((item) => item._id, []);
@@ -223,6 +241,9 @@ const HomeScreen = () => {
   };
 
   useEffect(() => {
+    const ids = [...postIds, ...feed.map((post) => post._id.toString())];
+    setPostIds(ids);
+
     if (newPostCreated.state) {
       setTimeout(() => {
         dispatch({ type: "SET_POST_CREATED", payload: false });
@@ -244,6 +265,7 @@ const HomeScreen = () => {
             // viewabilityConfigCallbackPairs={
             //   viewabilityConfigCallbackPairs.current
             // }
+            extraData={postIds.length}
             data={feed}
             renderItem={renderItem}
             keyExtractor={keyExtractor}

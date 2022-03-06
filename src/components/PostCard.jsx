@@ -382,19 +382,18 @@ const PostCard = ({
                   </Text>
                   {post.likes > 1 ? `and ${post.likes - 1} others` : ""}
                 </Text>
-              ) : (
-                <Text
-                  style={{
-                    color: themeStyle.colors.grayscale.lower,
-                    fontSize: 12,
-                    marginHorizontal: 10,
-                    marginVertical: 5,
-                  }}
-                >
-                  {post.likes} likes
-                </Text>
-              )}
+              ) : null}
             </View>
+            <Text
+              style={{
+                color: themeStyle.colors.grayscale.lower,
+                fontSize: 12,
+                marginHorizontal: 10,
+                marginVertical: 5,
+              }}
+            >
+              {post.likes} likes
+            </Text>
             <PostAge />
           </View>
         )}
