@@ -459,19 +459,30 @@ const EditPostScreen = (props) => {
                     padding: 20,
                   }}
                 >
-                  <VideoPlayer // TODO create new player as need to flip the media for selfie video without flipping the controls.
-                    autoHidePlayer={false}
-                    fullscreen
-                    mediaIsSelfie
-                    videoProps={{
-                      shouldPlay: true,
-                      resizeMode: Video.RESIZE_MODE_CONTAIN,
-                      source: {
-                        uri: existingPost?.mediaUrl,
-                      },
-                    }}
-                    style={{ height: 300 }}
-                  />
+                  {existingPost?.ready ? (
+                    <VideoPlayer // TODO create new player as need to flip the media for selfie video without flipping the controls.
+                      autoHidePlayer={false}
+                      fullscreen
+                      mediaIsSelfie
+                      videoProps={{
+                        shouldPlay: true,
+                        resizeMode: Video.RESIZE_MODE_CONTAIN,
+                        source: {
+                          uri: existingPost?.mediaUrl,
+                        },
+                      }}
+                      style={{ height: 300 }}
+                    />
+                  ) : (
+                    <ImageWithCache
+                      removeBorderRadius
+                      resizeMode="cover"
+                      mediaUrl={existingPost?.thumbnailUrl}
+                      mediaHeaders={existingPost?.thumbnailHeaders}
+                      aspectRatio={1 / 1}
+                      mediaIsSelfie={existingPost?.mediaIsSelfi}
+                    />
+                  )}
                 </View>
               ) : existingPost?.mediaType === "image" && !removeMedia ? (
                 <View

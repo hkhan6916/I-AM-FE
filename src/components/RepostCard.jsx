@@ -1,10 +1,17 @@
 import React, { useState } from "react";
-import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Avatar from "./Avatar";
 import themeStyle from "../theme.style";
 import ImageWithCache from "./ImageWithCache";
 import { Feather } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 const RepostCard = ({ postContent, isPreview }) => {
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
@@ -131,33 +138,44 @@ const RepostCard = ({ postContent, isPreview }) => {
           <View
             style={{
               margin: 10,
+              maxHeight: 200,
             }}
           >
-            <Text
-              onTextLayout={onTextLayout}
-              numberOfLines={!bodyCollapsed ? 3 : null}
+            <View>
+              <Text
+                onTextLayout={onTextLayout}
+                numberOfLines={6}
+                style={{
+                  textAlign: "left",
+                  color: themeStyle.colors.grayscale.lowest,
+                }}
+              >
+                {postContent.body}
+              </Text>
+            </View>
+            <View
               style={{
-                textAlign: "left",
-                color: themeStyle.colors.grayscale.lowest,
+                position: "absolute",
+                bottom: -10,
+                width: "100%",
+                height: 30,
+                opacity: 0.7,
+                backgroundColor: themeStyle.colors.grayscale.highest,
               }}
-            >
-              {postContent.body}
-            </Text>
-            {isCollapsible && !bodyCollapsed ? (
-              <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
-                <Text
-                  style={{
-                    color: themeStyle.colors.grayscale.low,
-                    marginBottom: 10,
-                    marginTop: 5,
-                  }}
-                >
-                  Read more
-                </Text>
-              </TouchableOpacity>
-            ) : null}
+            />
           </View>
         ) : null}
+        <Text
+          style={{
+            color: themeStyle.colors.grayscale.high,
+            fontSize: 12,
+            marginHorizontal: 10,
+            marginVertical: 5,
+            alignSelf: "flex-end",
+          }}
+        >
+          {postContent.likes} likes
+        </Text>
       </View>
     </TouchableOpacity>
   );

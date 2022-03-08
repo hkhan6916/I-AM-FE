@@ -8,13 +8,11 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import PostCard from "../../../components/PostCard";
 import apiCall from "../../../helpers/apiCall";
 import formatAge from "../../../helpers/formatAge";
 import themeStyle from "../../../theme.style";
 import Avatar from "../../../components/Avatar";
 import {
-  Entypo,
   FontAwesome,
   Ionicons,
   MaterialCommunityIcons,
@@ -24,7 +22,8 @@ import VideoPlayer from "../../../components/VideoPlayer";
 import LottieView from "lottie-react-native";
 
 const PostScreen = (props) => {
-  const { post: initialPost } = props.route.params;
+  const { post: initialPost, prevScreen } = props.route.params;
+
   const [post, setPost] = useState(initialPost);
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
   const [isCollapsible, setIsCollapsible] = useState(false);
@@ -33,9 +32,20 @@ const PostScreen = (props) => {
 
   const lottieRef = useRef(null);
 
+  const handleGoBack = () => {
+    if (prevScreen) {
+      navigation.navigate(prevScreen, {
+        postToUpdate: post,
+      });
+    } else {
+      navigation.goBack();
+    }
+  };
+
   const onTextLayout = (e) => {
     setIsCollapsible(e.nativeEvent.lines.length >= 3);
   };
+
   const handleReaction = async () => {
     if (post.liked) {
       const newPost = { ...post, liked: false };
@@ -81,7 +91,7 @@ const PostScreen = (props) => {
           }}
         >
           <TouchableOpacity
-            onPress={() => navigation.goBack()}
+            onPress={() => handleGoBack()}
             style={{
               marginVertical: 10,
               marginHorizontal: 15,

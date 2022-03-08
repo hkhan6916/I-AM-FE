@@ -119,34 +119,43 @@ const PostOptionsModal = ({
                   ) : null}
                 </View>
               ) : showDeleteGuard ? (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <TouchableOpacity
-                    onPress={async () => {
-                      await deletePost();
-                      setShowDeleteGuard(false);
+                <View>
+                  <Text
+                    style={{
+                      color: themeStyle.colors.grayscale.lowest,
+                      marginBottom: 20,
                     }}
                   >
-                    <Text style={{ color: themeStyle.colors.error.default }}>
-                      Delete
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setShowDeleteGuard(false)}>
-                    <Text
-                      style={{
-                        color: themeStyle.colors.grayscale.lowest,
-                        textAlign: "center",
-                        marginBottom: 20,
+                    Are you sure?
+                  </Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={async () => {
+                        await deletePost();
+                        setShowDeleteGuard(false);
                       }}
                     >
-                      Cancel
-                    </Text>
-                  </TouchableOpacity>
+                      <Text style={{ color: themeStyle.colors.error.default }}>
+                        Delete
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setShowDeleteGuard(false)}>
+                      <Text
+                        style={{
+                          color: themeStyle.colors.grayscale.lowest,
+                          textAlign: "center",
+                        }}
+                      >
+                        Cancel
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               ) : (
                 <View>

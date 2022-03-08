@@ -23,6 +23,7 @@ const PostCard = ({
   isVisible,
   setShowPostOptions,
   deleted,
+  screen,
 }) => {
   const [post, setPost] = useState(initialPost);
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
@@ -360,7 +361,7 @@ const PostCard = ({
               {post.likedBy ? (
                 <Text
                   style={{
-                    color: themeStyle.colors.grayscale.high,
+                    color: themeStyle.colors.grayscale.lower,
                     fontSize: 12,
                     marginHorizontal: 10,
                     marginVertical: 5,
@@ -370,7 +371,7 @@ const PostCard = ({
                   <Text
                     style={{
                       fontWeight: "700",
-                      color: themeStyle.colors.grayscale.low,
+                      color: themeStyle.colors.grayscale.lower,
                     }}
                     onPress={() =>
                       navigation.navigate("UserProfileScreen", {
@@ -382,18 +383,19 @@ const PostCard = ({
                   </Text>
                   {post.likes > 1 ? `and ${post.likes - 1} others` : ""}
                 </Text>
-              ) : null}
+              ) : (
+                <Text
+                  style={{
+                    color: themeStyle.colors.grayscale.lower,
+                    fontSize: 12,
+                    marginHorizontal: 10,
+                    marginVertical: 5,
+                  }}
+                >
+                  {post.likes} likes
+                </Text>
+              )}
             </View>
-            <Text
-              style={{
-                color: themeStyle.colors.grayscale.lower,
-                fontSize: 12,
-                marginHorizontal: 10,
-                marginVertical: 5,
-              }}
-            >
-              {post.likes} likes
-            </Text>
             <PostAge />
           </View>
         )}

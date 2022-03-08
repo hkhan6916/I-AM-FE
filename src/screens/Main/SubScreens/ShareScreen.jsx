@@ -9,10 +9,8 @@ import {
   View,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
-import PostCard from "../../../components/PostCard";
 import { useDispatch } from "react-redux";
 import RepostCard from "../../../components/RepostCard";
-import { Ionicons } from "@expo/vector-icons";
 import themeStyle from "../../../theme.style";
 
 const ShareScreen = (props) => {
