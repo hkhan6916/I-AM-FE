@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import MainTabStack from "./MainTabStack";
 import UserProfileScreen from "./SubScreens/UserProfileScreen";
 import MediaScreen from "./SubScreens/MediaScreen";
-import RepostScreen from "./SubScreens/RepostScreen";
+import ShareScreen from "./SubScreens/ShareScreen";
 import CommentsScreen from "./SubScreens/CommentsScreen";
 import CommentsRepliesScreen from "./SubScreens/CommentRepliesScreen";
 import themeStyle from "../../theme.style";
@@ -64,6 +64,7 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
+        title: "Share",
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
@@ -73,8 +74,8 @@ const MainStack = () => (
           backgroundColor: themeStyle.colors.grayscale.highest,
         },
       }}
-      name="RepostScreen"
-      component={RepostScreen}
+      name="ShareScreen"
+      component={ShareScreen}
     />
     <Stack.Screen
       options={{
@@ -108,15 +109,7 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
-        title: "",
-        headerShown: true,
-        headerTintColor: themeStyle.colors.primary.default,
-        headerTitleStyle: {
-          fontWeight: "bold",
-        },
-        headerStyle: {
-          backgroundColor: themeStyle.colors.grayscale.highest,
-        },
+        headerShown: false,
       }}
       name="PostsScreen"
       component={PostScreen}

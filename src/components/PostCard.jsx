@@ -329,7 +329,7 @@ const PostCard = ({
               </View>
               <TouchableOpacity
                 onPress={() =>
-                  navigation.navigate("RepostScreen", {
+                  navigation.navigate("ShareScreen", {
                     prevScreen: "Home",
                     post: post.repostPostObj || post,
                   })

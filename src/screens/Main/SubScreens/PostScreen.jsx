@@ -13,9 +13,15 @@ import apiCall from "../../../helpers/apiCall";
 import formatAge from "../../../helpers/formatAge";
 import themeStyle from "../../../theme.style";
 import Avatar from "../../../components/Avatar";
-import { Entypo } from "@expo/vector-icons";
+import {
+  Entypo,
+  FontAwesome,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import ImageWithCache from "../../../components/ImageWithCache";
 import VideoPlayer from "../../../components/VideoPlayer";
+import LottieView from "lottie-react-native";
 
 const PostScreen = (props) => {
   const { post: initialPost } = props.route.params;
@@ -67,7 +73,30 @@ const PostScreen = (props) => {
   if (post) {
     return (
       <SafeAreaView style={styles.container}>
-        <ScrollView>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={{
+              marginVertical: 10,
+              marginHorizontal: 15,
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <Ionicons
+              name="arrow-back"
+              size={32}
+              color={themeStyle.colors.grayscale.low}
+            />
+          </TouchableOpacity>
+        </View>
+        <ScrollView style={{ marginVertical: 20 }}>
           <View>
             {post.postAuthor && (
               <View style={[styles.postAuthorContainer]}>
@@ -170,7 +199,6 @@ const PostScreen = (props) => {
           {post.body ? (
             <View
               style={{
-                padding: 5,
                 marginHorizontal: 10,
               }}
             >
@@ -199,6 +227,139 @@ const PostScreen = (props) => {
               ) : null}
             </View>
           ) : null}
+          <View>
+            <View
+              style={{
+                flexDirection: "row",
+                flex: 1,
+                justifyContent: "space-between",
+              }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                {!post.belongsToUser ? (
+                  <TouchableOpacity
+                    onPress={() => handleReaction()}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {post.liked ? (
+                      <LottieView
+                        ref={lottieRef}
+                        autoPlay={false}
+                        loop={false}
+                        progress={1}
+                        speed={1}
+                        source={require("../../../../assets/lotties/like.json")}
+                        style={{
+                          width: 40,
+                          height: 40,
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      />
+                    ) : (
+                      <MaterialCommunityIcons
+                        name={"thumb-up-outline"}
+                        size={20}
+                        color={themeStyle.colors.grayscale.lowest}
+                      />
+                    )}
+                  </TouchableOpacity>
+                ) : null}
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate("CommentsScreen", {
+                      postId: post._id,
+                    })
+                  }
+                  style={{
+                    width: 40,
+                    height: 40,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginHorizontal: 5,
+                  }}
+                >
+                  <FontAwesome
+                    name="comment-o"
+                    size={20}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate("ShareScreen", {
+                    prevScreen: "Home",
+                    post: post.repostPostObj || post,
+                  })
+                }
+                style={{
+                  width: 40,
+                  height: 40,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginHorizontal: 5,
+                  justifySelf: "flex-end",
+                }}
+              >
+                <Ionicons
+                  name="arrow-redo-outline"
+                  size={22}
+                  color={themeStyle.colors.grayscale.lowest}
+                />
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{
+                alignItems: "center",
+                justifyContent: "space-between",
+                flexDirection: "row",
+              }}
+            >
+              {post.likedBy ? (
+                <Text
+                  style={{
+                    color: themeStyle.colors.grayscale.high,
+                    fontSize: 12,
+                    marginHorizontal: 10,
+                    marginVertical: 5,
+                  }}
+                >
+                  Liked by{" "}
+                  <Text
+                    style={{
+                      fontWeight: "700",
+                      color: themeStyle.colors.grayscale.low,
+                    }}
+                    onPress={() =>
+                      navigation.navigate("UserProfileScreen", {
+                        userId: post.likedBy._id,
+                      })
+                    }
+                  >
+                    {post.likedBy.firstName} {post.likedBy.lastName}{" "}
+                  </Text>
+                  {post.likes > 1 ? `and ${post.likes - 1} others` : ""}
+                </Text>
+              ) : null}
+            </View>
+            <Text
+              style={{
+                color: themeStyle.colors.grayscale.lower,
+                fontSize: 12,
+                marginHorizontal: 10,
+                marginVertical: 5,
+              }}
+            >
+              {post.likes} likes
+            </Text>
+            <PostAge />
+          </View>
         </ScrollView>
       </SafeAreaView>
     );
@@ -213,7 +374,8 @@ const styles = StyleSheet.create({
   postAuthorContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    padding: 5,
+    paddingHorizontal: 5,
+    marginBottom: 20,
     borderColor: themeStyle.colors.grayscale.low,
   },
 });

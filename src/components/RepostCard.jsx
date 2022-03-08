@@ -37,6 +37,7 @@ const RepostCard = ({ postContent, isPreview }) => {
       style={styles.repostedPostContent}
       onPress={() => navigation.navigate("PostsScreen", { post: postContent })}
       underlayColor={themeStyle.colors.grayscale.high}
+      disabled={isPreview}
     >
       <View>
         <View
