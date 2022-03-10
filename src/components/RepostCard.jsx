@@ -14,13 +14,7 @@ import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 const RepostCard = ({ postContent, isPreview }) => {
-  const [bodyCollapsed, setBodyCollapsed] = useState(false);
-  const [isCollapsible, setIsCollapsible] = useState(false);
-
   const navigation = useNavigation();
-  const onTextLayout = (e) => {
-    setIsCollapsible(e.nativeEvent.lines.length >= 3);
-  };
 
   if (!postContent) {
     return (
@@ -143,7 +137,6 @@ const RepostCard = ({ postContent, isPreview }) => {
           >
             <View>
               <Text
-                onTextLayout={onTextLayout}
                 numberOfLines={6}
                 style={{
                   textAlign: "left",
@@ -165,17 +158,6 @@ const RepostCard = ({ postContent, isPreview }) => {
             />
           </View>
         ) : null}
-        <Text
-          style={{
-            color: themeStyle.colors.grayscale.high,
-            fontSize: 12,
-            marginHorizontal: 10,
-            marginVertical: 5,
-            alignSelf: "flex-end",
-          }}
-        >
-          {postContent.likes} likes
-        </Text>
       </View>
     </TouchableOpacity>
   );

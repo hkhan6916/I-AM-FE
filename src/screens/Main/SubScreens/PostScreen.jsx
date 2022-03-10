@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   SafeAreaView,
   Text,
@@ -20,9 +20,12 @@ import {
 import ImageWithCache from "../../../components/ImageWithCache";
 import VideoPlayer from "../../../components/VideoPlayer";
 import LottieView from "lottie-react-native";
+import { useDispatch } from "react-redux";
 
 const PostScreen = (props) => {
   const { post: initialPost, prevScreen } = props.route.params;
+
+  const dispatch = useDispatch();
 
   const [post, setPost] = useState(initialPost);
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
@@ -46,10 +49,19 @@ const PostScreen = (props) => {
     setIsCollapsible(e.nativeEvent.lines.length >= 3);
   };
 
+  const getAdditionalPostData = async () => {
+    const { success, response } = await apiCall(
+      "POST",
+      `/posts/${post?._id}/additionaldata`
+    );
+    if (success) {
+      setPost({ ...post, liked: response.liked, likes: response.likes });
+    }
+  };
+
   const handleReaction = async () => {
     if (post.liked) {
-      const newPost = { ...post, liked: false };
-      newPost.likes -= 1;
+      const newPost = { ...post, liked: false, likes: post.likes - 1 };
       setPost(newPost);
       const { success } = await apiCall(
         "GET",
@@ -57,18 +69,26 @@ const PostScreen = (props) => {
       );
       if (!success) {
         setPost(initialPost);
+        return;
       }
+      dispatch({ type: "SET_UPDATED_POST", payload: newPost });
     } else {
-      const newPost = { ...post, liked: true };
-      newPost.likes += 1;
+      const newPost = { ...post, liked: true, likes: post.likes + 1 };
+
       setPost(newPost);
       const { success } = await apiCall("GET", `/posts/like/add/${post._id}`);
       if (!success) {
         setPost(initialPost);
+        return;
       }
+      dispatch({ type: "SET_UPDATED_POST", payload: newPost });
     }
     lottieRef?.current?.play(15, 1000);
   };
+
+  useEffect(() => {
+    (async () => await getAdditionalPostData())();
+  }, []);
 
   const PostAge = () => {
     const { age } = post;
@@ -76,7 +96,7 @@ const PostScreen = (props) => {
 
     return (
       <Text style={styles.postAge}>
-        {ageObject.age} {ageObject.unit} ago
+        {ageObject?.age} {ageObject?.unit} ago
       </Text>
     );
   };
@@ -323,40 +343,6 @@ const PostScreen = (props) => {
                   color={themeStyle.colors.grayscale.lowest}
                 />
               </TouchableOpacity>
-            </View>
-            <View
-              style={{
-                alignItems: "center",
-                justifyContent: "space-between",
-                flexDirection: "row",
-              }}
-            >
-              {post.likedBy ? (
-                <Text
-                  style={{
-                    color: themeStyle.colors.grayscale.high,
-                    fontSize: 12,
-                    marginHorizontal: 10,
-                    marginVertical: 5,
-                  }}
-                >
-                  Liked by{" "}
-                  <Text
-                    style={{
-                      fontWeight: "700",
-                      color: themeStyle.colors.grayscale.low,
-                    }}
-                    onPress={() =>
-                      navigation.navigate("UserProfileScreen", {
-                        userId: post.likedBy._id,
-                      })
-                    }
-                  >
-                    {post.likedBy.firstName} {post.likedBy.lastName}{" "}
-                  </Text>
-                  {post.likes > 1 ? `and ${post.likes - 1} others` : ""}
-                </Text>
-              ) : null}
             </View>
             <Text
               style={{

@@ -28,12 +28,14 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: "700",
+    color: themeStyle.colors.grayscale.lowest,
   },
   visibleTextInputs: {
     fontSize: 15,
     height: 45,
     paddingHorizontal: 10,
-    backgroundColor: themeStyle.colors.grayscale.lower,
+    backgroundColor: themeStyle.colors.grayscale.higher,
+    color: themeStyle.colors.grayscale.lowest,
   },
   textInputContainer: {
     alignSelf: "stretch",

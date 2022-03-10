@@ -373,10 +373,10 @@ const EditUserDetailsScreen = () => {
               onChangeText={(v) => {
                 setPassword(v);
                 if (validationErrors?.password) {
-                  setValidationErrors({
-                    ...validationErrors,
-                    password: null,
-                  });
+                  let newValidationErrorsObj = validationErrors;
+                  delete newValidationErrorsObj.password;
+                  setValidationErrors(newValidationErrorsObj);
+                  console.log(newValidationErrorsObj);
                 }
               }}
             />
@@ -400,15 +400,20 @@ const EditUserDetailsScreen = () => {
           ) : null}
         </View>
       </ScrollView>
-      <View style={styles.submitButtonContainer}>
+      <View
+        style={[
+          styles.submitButtonContainer,
+          (profileVideo && !faceDetected) ||
+            (Object.keys(validationErrors).length && { opacity: 0.3 }),
+        ]}
+      >
         <TouchableOpacity
-          style={[
-            styles.submitButton,
-            (profileVideo && !faceDetected) ||
-              (validationErrors && { opacity: 0.3 }),
-          ]}
+          style={[styles.submitButton]}
           onPress={() => updateProfile()}
-          disabled={(profileVideo && !faceDetected) || validationErrors}
+          disabled={
+            (profileVideo && !faceDetected) ||
+            Object.keys(validationErrors).length
+          }
         >
           {isUpdating ? (
             <ActivityIndicator
@@ -491,7 +496,9 @@ const styles = StyleSheet.create({
   },
   submitButtonContainer: {
     width: "100%",
-    backgroundColor: themeStyle.colors.grayscale.lowest,
+    backgroundColor: themeStyle.colors.grayscale.highest,
+    borderWidth: 1,
+    borderColor: themeStyle.colors.primary.light,
     position: "absolute",
     bottom: 0,
     alignItems: "center",
@@ -505,7 +512,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderTopWidth: 2,
-    borderColor: themeStyle.colors.grayscale.lower,
   },
   takeVideoButton: {
     margin: 10,

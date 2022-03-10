@@ -12,9 +12,9 @@ import Input from "../../../components/Input";
 import { useSelector, useDispatch } from "react-redux";
 
 const Step1Screen = () => {
-  const [firstName, setFirstName] = useState("test");
-  const [lastName, setLastName] = useState("test");
-  const [jobTitle, setJobTitle] = useState("test");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
 
   const [validationErrors, setValidationErrors] = useState({});
 

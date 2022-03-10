@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: "400",
     fontSize: 12,
+    color: themeStyle.colors.grayscale.lowest,
   },
   textInput: {
     fontSize: 15,

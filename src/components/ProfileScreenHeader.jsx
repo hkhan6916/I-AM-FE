@@ -36,12 +36,14 @@ const ProfileScreenHeader = ({ userData }) => {
             padding: 10,
             borderRadius: 5,
             marginVertical: 10,
+            marginHorizontal: 5,
           }}
         >
           <Text
             style={{
               color: themeStyle.colors.grayscale.lowest,
               textAlign: "center",
+              fontWeight: "700",
             }}
           >
             {isPrivate ? "Private" : "Public"}
@@ -102,7 +104,7 @@ const ProfileScreenHeader = ({ userData }) => {
             <Text
               style={{
                 marginHorizontal: 10,
-                color: themeStyle.colors.grayscale.lowest,
+                color: themeStyle.colors.primary.default,
               }}
             >
               {userData.numberOfFriends} contacts

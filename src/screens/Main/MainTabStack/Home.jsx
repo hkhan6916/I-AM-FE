@@ -34,7 +34,7 @@ import PostOptionsModal from "../../../components/PostOptionsModal";
 
 const { statusBarHeight } = Constants;
 
-const HomeScreen = (props) => {
+const HomeScreen = () => {
   const dispatch = useDispatch();
   const newPostCreated = useSelector((state) => state.postCreated);
   const initialFeed = useContext(FeedContext);
@@ -49,8 +49,6 @@ const HomeScreen = (props) => {
   const [loading, setLoading] = useState(false);
   const [showPostOptions, setShowPostOptions] = useState(null);
   const [error, setError] = useState("");
-
-  const postToUpdate = props.route.params;
 
   const colorSchema = useColorScheme();
 

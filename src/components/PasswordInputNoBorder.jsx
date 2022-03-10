@@ -53,6 +53,7 @@ const PasswordInputNoBorder = ({
           onPress={() => setShowPassword(!showPassword)}
         >
           <Ionicons
+            color={themeStyle.colors.grayscale.lowest}
             name={showPassword ? "eye-outline" : "eye-off-outline"}
             size={19}
           />
@@ -72,6 +73,7 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: "400",
     fontSize: 12,
+    color: themeStyle.colors.grayscale.lowest,
   },
   textInput: {
     fontSize: 15,
@@ -95,7 +97,7 @@ const styles = StyleSheet.create({
     height: 45,
     padding: 5,
     paddingHorizontal: 8,
-    backgroundColor: themeStyle.colors.grayscale.lower,
+    backgroundColor: themeStyle.colors.grayscale.higher,
   },
   eyeIcon: {
     justifyContent: "center",

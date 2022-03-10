@@ -18,11 +18,11 @@ import Constants from "expo-constants";
 import themeStyle from "../theme.style";
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
-const CameraStandard = ({
+const ProfileVideoCamera = ({
   recording,
   setRecording,
   setProfileVideo,
-  setCameraActive,
+  setCameraActivated,
   recordingLength,
   setRecordingLength,
   hasCameraPermission,
@@ -59,7 +59,7 @@ const CameraStandard = ({
     } else {
       setRecording(false);
       cameraRef.stopRecording();
-      setCameraActive(false);
+      setCameraActivated(false);
     }
   };
 
@@ -76,7 +76,7 @@ const CameraStandard = ({
         if (recording && length === 0) {
           setRecording(false);
           cameraRef.stopRecording();
-          setCameraActive(false);
+          setCameraActivated(false);
         }
       }, 1000);
       return () => {
@@ -87,7 +87,7 @@ const CameraStandard = ({
   }, [recording]);
 
   const deactivateCamera = () => {
-    setCameraActive(false);
+    setCameraActivated(false);
     return true;
   };
 
@@ -95,7 +95,7 @@ const CameraStandard = ({
     BackHandler.addEventListener("hardwareBackPress", deactivateCamera);
     return () => {
       setRecording(false);
-      setCameraActive(false);
+      setCameraActivated(false);
       setCameraRef(null);
       BackHandler.removeEventListener("hardwareBackPress", deactivateCamera);
     };
@@ -205,14 +205,14 @@ const CameraStandard = ({
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: themeStyle.colors.grayscale.lowest,
+        backgroundColor: themeStyle.colors.grayscale.highest,
         alignItems: "center",
         justifyContent: "center",
       }}
     >
       <View>
         <TouchableOpacity
-          onPress={() => setCameraActive(false)}
+          onPress={() => setCameraActivated(false)}
           style={{
             height: 48,
             width: 48,
@@ -343,4 +343,4 @@ const CameraStandard = ({
   );
 };
 
-export default CameraStandard;
+export default ProfileVideoCamera;

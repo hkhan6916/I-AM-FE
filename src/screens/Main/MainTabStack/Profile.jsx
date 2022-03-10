@@ -17,6 +17,7 @@ import ProfileScreenHeader from "../../../components/ProfileScreenHeader";
 import { useScrollToTop } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import PostOptionsModal from "../../../components/PostOptionsModal";
+import { useSelector } from "react-redux";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -27,6 +28,8 @@ const ProfileScreen = () => {
   const [visibleItems, setVisibleItems] = useState([]);
   const [showPostOptions, setShowPostOptions] = useState(null);
   const [error, setError] = useState("");
+
+  const updatedPost = useSelector((state) => state.updatedPost);
 
   const navigation = useNavigation();
 
@@ -148,17 +151,17 @@ const ProfileScreen = () => {
           />
         );
     },
-    [userPosts, refreshing]
+    [userPosts]
   );
 
   const keyExtractor = useCallback(
     (item) => item?.customKey || item?._id,
-    [userPosts, refreshing]
+    [userPosts]
   );
 
   const renderHeaderComponent = useCallback(
     () => <ProfileScreenHeader userData={userData} navigation={navigation} />,
-    [userData, refreshing]
+    [userData]
   );
 
   useEffect(() => {
@@ -167,6 +170,22 @@ const ProfileScreen = () => {
       if (isMounted) {
         await getUserData();
         await getUserPosts();
+        navigation.addListener("focus", () => {
+          if (updatedPost?.state) {
+            const newUserPosts = userPosts.filter((post) => {
+              if (
+                post._id.toString() === updatedPost.state._id.toString() ||
+                post.repostPostObj?._id.toString() ===
+                  updatedPost.state._id.toString()
+              ) {
+                console.log(post._id);
+                return updatedPost.state;
+              }
+              return updatedPost.state;
+            });
+            setUserPosts(newUserPosts);
+          }
+        });
       }
     })();
     return () => {
