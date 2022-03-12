@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { Camera } from "expo-camera";
 import { Ionicons, EvilIcons } from "@expo/vector-icons";
-import { DeviceMotion } from "expo-sensors";
 import { useDispatch } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { manipulateAsync } from "expo-image-manipulator";
@@ -31,7 +30,6 @@ const CameraStandard = ({
   const [hasMicrophonePermission, setHasMicrophonePermission] = useState(null);
   const cameraRef = useRef();
   const [type, setType] = useState(Camera.Constants.Type.back);
-  const [orientation, setOrientation] = useState("portrait");
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -53,8 +51,6 @@ const CameraStandard = ({
       ? {
           width: screenWidth * 1.33,
           height: screenWidth,
-          // marginTop: (screenWidth - screenHeight * 1.33) / 2,
-          // marginBottom: (screenWidth - screenHeight * 1.33) / 2,
         }
       : {
           width: screenWidth,
@@ -79,9 +75,7 @@ const CameraStandard = ({
 
   useEffect(() => {
     (async () => {
-      await ScreenOrientation.lockAsync(
-        ScreenOrientation.OrientationLock.DEFAULT
-      );
+      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.ALL);
 
       const { status: cameraStatus } =
         await Camera.requestCameraPermissionsAsync();
@@ -99,37 +93,6 @@ const CameraStandard = ({
     };
   }, []);
 
-  useEffect(() => {
-    DeviceMotion.addListener(({ rotation }) => {
-      const gamma = rotation?.gamma;
-      const beta = Math.abs(rotation?.beta);
-
-      const absGamma = Math.abs(gamma);
-      const absBeta = Math.abs(beta);
-      let ort;
-      if (absGamma <= 0.04 && absBeta <= 0.24) {
-        ort = "portrait";
-      } else if ((absGamma <= 1.0 || absGamma >= 2.3) && absBeta >= 0.5) {
-        ort = "portrait";
-      } else if (gamma < 0) {
-        ort =
-          type === Camera.Constants.Type.front
-            ? "landscape-right"
-            : "landscape-left";
-      } else {
-        ort =
-          type === Camera.Constants.Type.front
-            ? "landscape-left"
-            : "landscape-right";
-      }
-
-      setOrientation(ort);
-    });
-
-    return () => {
-      DeviceMotion.removeAllListeners();
-    };
-  }, [type]);
   const deactivateCamera = () => {
     setCameraActive(false);
     return true;
@@ -352,7 +315,6 @@ const CameraStandard = ({
                     type: `image/${fileExtension}`,
                     name: `${"media."}${fileExtension}`,
                     uri: resizedPhoto.uri,
-                    orientation,
                     isSelfie: type === Camera.Constants.Type.front,
                   });
                   setCameraActive(false);
@@ -392,7 +354,6 @@ const CameraStandard = ({
                       type: "video/mp4",
                       name: "media.mp4",
                       uri: video.uri,
-                      orientation,
                       isSelfie: type === Camera.Constants.Type.front,
                     });
                   }

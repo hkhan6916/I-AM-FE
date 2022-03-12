@@ -9,7 +9,6 @@ const ImageWithCache = ({
   aspectRatio,
   mediaUrl,
   mediaIsSelfie,
-  mediaOrientation,
   mediaHeaders,
   isFullScreen,
   toggleFullScreen,
@@ -25,20 +24,7 @@ const ImageWithCache = ({
         },
       ]}
     >
-      <View
-        style={{
-          transform: [
-            {
-              rotate:
-                mediaOrientation === "landscape-left"
-                  ? "-90deg"
-                  : mediaOrientation === "landscape-right"
-                  ? "90deg"
-                  : "0deg",
-            },
-          ],
-        }}
-      >
+      <View>
         {isFullScreen ? (
           <Modal presentationStyle="pageSheet">
             <View

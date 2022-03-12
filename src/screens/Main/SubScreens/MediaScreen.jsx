@@ -83,7 +83,6 @@ const MediaScreen = (props) => {
               }}
             >
               <ImageWithCache
-                mediaOrientation={post.mediaOrientation}
                 mediaIsSelfie={post.mediaIsSelfie}
                 resizeMode="contain"
                 mediaHeaders={post.mediaHeaders}

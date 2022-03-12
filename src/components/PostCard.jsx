@@ -200,7 +200,6 @@ const PostCard = ({
                   >
                     <VideoPlayer
                       shouldPlay={isVisible}
-                      mediaOrientation={post.mediaOrientation}
                       mediaIsSelfie={post.mediaIsSelfie}
                       url={post.mediaUrl}
                       thumbnailUrl={post.thumbnailUrl}
@@ -219,7 +218,6 @@ const PostCard = ({
                     <ImageWithCache
                       removeBorderRadius
                       mediaHeaders={post.mediaHeaders}
-                      mediaOrientation={post.mediaOrientation}
                       mediaIsSelfie={post.mediaIsSelfie}
                       resizeMode="cover"
                       mediaUrl={post.mediaUrl}

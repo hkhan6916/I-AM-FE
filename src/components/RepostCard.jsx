@@ -90,7 +90,6 @@ const RepostCard = ({ postContent, isPreview }) => {
             <ImageWithCache
               removeBorderRadius
               mediaHeaders={postContent.thumbnailHeaders}
-              mediaOrientation={postContent.mediaOrientation}
               mediaIsSelfie={postContent.mediaIsSelfie}
               resizeMode="cover"
               mediaUrl={postContent.thumbnailUrl}
@@ -120,7 +119,6 @@ const RepostCard = ({ postContent, isPreview }) => {
             <ImageWithCache
               removeBorderRadius
               mediaHeaders={postContent.mediaHeaders}
-              mediaOrientation={postContent.mediaOrientation}
               mediaIsSelfie={postContent.mediaIsSelfie}
               resizeMode="cover"
               mediaUrl={postContent.mediaUrl}

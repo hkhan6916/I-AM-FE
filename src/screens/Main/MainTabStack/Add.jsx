@@ -28,23 +28,15 @@ import {
   Video as VideoCompress,
   Image as ImageCompress,
 } from "react-native-compressor";
-// import ExpoVideoPlayer from "../../../components/ExpoVideoPlayer";
-// import VideoPlayer from "../../../components/VideoPlayer";
 import VideoPlayer from "expo-video-player";
-import { LinearGradient } from "expo-linear-gradient";
-import { backgroundUpload } from "react-native-compressor";
 import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { getThumbnailAsync } from "expo-video-thumbnails";
-import * as BackgroundFetch from "expo-background-fetch";
-import * as TaskManager from "expo-task-manager";
 import Upload from "react-native-background-upload";
 import { getItemAsync } from "expo-secure-store";
-import { manipulateAsync } from "expo-image-manipulator";
 import { StatusBar } from "expo-status-bar";
-import * as ScreenOrientation from "expo-screen-orientation";
 
-const AddScreen = (props) => {
+const AddScreen = () => {
   const isFocused = useIsFocused();
   const [postBody, setPostBody] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,7 +48,6 @@ const AddScreen = (props) => {
   const [compressing, setCompressing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState(0);
   const [showMediaSizeError, setShowMediaSizeError] = useState(false);
-  const [removeMedia, setRemoveMedia] = useState(false);
   const navigation = useNavigation();
 
   const { width: screenWidth } = Dimensions.get("window");
@@ -65,7 +56,7 @@ const AddScreen = (props) => {
   const createPostData = async () => {
     const postData = new FormData();
     if (file.uri) {
-      const { type, name, uri, orientation, isSelfie } = file;
+      const { type, name, uri, isSelfie } = file;
       if (type.split("/")[0] === "video") {
         // just adds thumbnail for videos. We add the rest of the media later.
         const thumbnailUri = await generateThumbnail(uri);
@@ -82,7 +73,6 @@ const AddScreen = (props) => {
           name: name || `media.${format}`,
           uri,
         });
-        postData.append("mediaOrientation", orientation || "");
         postData.append("mediaIsSelfie", isSelfie || false);
       }
     }
@@ -105,9 +95,14 @@ const AddScreen = (props) => {
   };
 
   const handlePostCreation = async () => {
-    // await createPostData();
+    setLoading(true);
     const postData = await createPostData();
-    const { success, response, message } = await apiCall("POST", "/posts/new", postData);
+    const { success, response, message } = await apiCall(
+      "POST",
+      "/posts/new",
+      postData
+    );
+    setLoading(false);
     if (success) {
       return response.post;
     } else {
@@ -119,82 +114,99 @@ const AddScreen = (props) => {
     }
   };
 
-  const handleUploadVideo = async (post) => {
-    await handleCompression(file);
+  const handleLargeFileUpload = async (post) => {
+    const mediaInfo = await getInfoAsync(file?.uri);
 
-    const token = await getItemAsync("authToken");
-    const url = compressedFileUrl
-      ? Platform.OS == "android"
-        ? compressedFileUrl?.replace("file://", "/")
-        : compressedFileUrl
-      : Platform.OS == "android"
-      ? file?.uri.replace("file://", "")
-      : file?.uri;
-    const options = {
-      url: "http://192.168.5.101:5000/posts/new",
-      path: url,
-      method: "POST",
-      type: "multipart",
-      maxRetries: 2, // set retry count (Android only). Default 2
-      headers: {
-        "content-type": "multipart/form-data", // Customize content-type
-        Authorization: `Bearer ${token}`,
-      },
-      parameters: {
-        postId: post?._id,
-      },
-      field: "file",
-      // Below are options only supported on Android
-      notification: {
-        enabled: false,
-      },
-      useUtf8Charset: true,
-      // customUploadId: post?._id,
-    };
-    // compress in background and .then (()=>startupload)
-    Upload.startUpload(options)
-      .then((uploadId) => {
-        console.log("Upload started");
-        Upload.addListener("progress", uploadId, (data) => {
-          console.log(`Progress: ${data.progress}%`);
-          console.log(data);
-        });
-        Upload.addListener("error", uploadId, async (data) => {
-          console.log({ data });
-          console.log(`Error: ${data.error}%`);
-          await apiCall("GET", "/posts/fail/" + post?._id);
-        });
-        Upload.addListener("cancelled", uploadId, async (data) => {
-          console.log(`Cancelled!`);
-          await apiCall("GET", "/posts/fail/" + post?._id);
-        });
-        Upload.addListener("completed", uploadId, (data) => {
-          console.log("Completed!");
-        });
-      })
-      .catch((err) => {
-        console.log("Upload error!", err);
-      });
-  };
-
-  const createPost = async () => {
-    setLoading(true);
-    setError(null);
-    await handlePostCreation().then(async (post) => {
-      if (!post) return;
-      if (file.type?.split("/")[0] === "video") {
-        await handleUploadVideo(post);
-      }
-      setPostBody("");
-      setFile("");
-      setRemoveMedia(false);
+    if (file.type?.split("/")[0] === "video") {
       dispatch({
         type: "SET_POST_CREATED",
         payload: { posted: true, type: "created" },
       });
       navigation.navigate("Home");
+      setCompressing(true);
+      await VideoCompress.compress(
+        file.uri,
+        {
+          compressionMethod: "auto",
+        },
+        (progress) => {
+          console.log({ compression: progress });
+          setCompressionProgress(Math.ceil(progress * 100));
+        }
+      ).then(async (compressedUrl) => {
+        const token = await getItemAsync("authToken");
+        const url = compressedUrl
+          ? Platform.OS == "android"
+            ? compressedUrl?.replace("file://", "/")
+            : compressedUrl
+          : Platform.OS == "android"
+          ? file?.uri.replace("file://", "")
+          : file?.uri;
+        const options = {
+          url: "http://192.168.5.101:5000/posts/new",
+          path: url,
+          method: "POST",
+          type: "multipart",
+          maxRetries: 2, // set retry count (Android only). Default 2
+          headers: {
+            "content-type": "multipart/form-data", // Customize content-type
+            Authorization: `Bearer ${token}`,
+          },
+          parameters: {
+            postId: post?._id,
+          },
+          field: "file",
+          // Below are options only supported on Android
+          notification: {
+            enabled: false,
+          },
+          useUtf8Charset: true,
+          // customUploadId: post?._id,
+        };
+        // compress in background and .then (()=>startupload)
+        Upload.startUpload(options)
+          .then((uploadId) => {
+            console.log("Upload started");
+            Upload.addListener("progress", uploadId, (data) => {
+              console.log(`Progress: ${data.progress}%`);
+              console.log(data);
+            });
+            Upload.addListener("error", uploadId, async (data) => {
+              console.log({ data });
+              console.log(`Error: ${data.error}%`);
+              await apiCall("GET", "/posts/fail/" + post?._id);
+            });
+            Upload.addListener("cancelled", uploadId, async (data) => {
+              console.log(`Cancelled!`);
+              await apiCall("GET", "/posts/fail/" + post?._id);
+            });
+            Upload.addListener("completed", uploadId, (data) => {
+              console.log("Completed!");
+            });
+          })
+          .catch((err) => {
+            console.log("Upload error!", err);
+          });
+      });
+    }
+  };
+
+  const createPost = async () => {
+    setError(null);
+    await handlePostCreation().then(async (post) => {
+      if (!post) return;
+      setPostBody("");
+      setFile("");
+      if (file.type?.split("/")[0] === "video") {
+        await handleLargeFileUpload(post);
+      } else {
+        dispatch({
+          type: "SET_POST_CREATED",
+          payload: { posted: true, type: "created" },
+        });
+        navigation.navigate("Home");
+      }
     });
-    setLoading(false);
   };
 
   const handleCompression = async (media) => {
@@ -346,7 +358,6 @@ const AddScreen = (props) => {
               <TouchableOpacity
                 style={{ alignSelf: "flex-end" }}
                 onPress={() => {
-                  setRemoveMedia(true);
                   setFile({});
                 }}
               >
@@ -417,7 +428,6 @@ const AddScreen = (props) => {
                   }}
                 >
                   <ImageWithCache
-                    mediaOrientation={file.mediaOrientation}
                     mediaIsSelfie={file.isSelfie}
                     resizeMode="contain"
                     mediaUrl={file.uri}

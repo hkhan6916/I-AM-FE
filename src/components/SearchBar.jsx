@@ -38,9 +38,8 @@ const SearchBar = ({
   };
 
   const handleSearch = async (searchTerm) => {
-    console.log({ searchTerm });
     if (!dataToSearchWithin) {
-      // if no local data, send apicall
+      // if no local data, send apicall to find friends.
       const { response } = await apiCall("POST", `/user/search/0`, {
         searchTerm,
       });

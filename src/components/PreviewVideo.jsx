@@ -5,6 +5,7 @@ import themeStyle from "../theme.style";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import LottieView from "lottie-react-native";
+import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
 
 const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
   const { width: screenWidth } = Dimensions.get("window");
@@ -13,6 +14,7 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
 
   const profileVideoRef = useRef(null);
   const navigation = useNavigation();
+  useScreenOrientation(true); // just forces a re render ONLY when screen rotates. Without this, video does not adjust for landscape viewing.
 
   const handleVideoDuration = (duration) => {
     if (!duration) {

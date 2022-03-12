@@ -56,12 +56,10 @@ const EditPostScreen = (props) => {
   const { width: screenWidth } = Dimensions.get("window");
 
   const { postId } = props.route.params;
-  console.log(postId);
-  const dispatch = useDispatch();
   const createPostData = async () => {
     const postData = new FormData();
     if (file.uri) {
-      const { type, name, uri, orientation, isSelfie } = file;
+      const { type, name, uri, isSelfie } = file;
       if (type.split("/")[0] === "video") {
         // just adds thumbnail for videos. We add the rest of the media later.
         const thumbnailUri = await generateThumbnail(uri);
@@ -78,7 +76,6 @@ const EditPostScreen = (props) => {
           name: name || `media.${format}`,
           uri,
         });
-        postData.append("mediaOrientation", orientation || "");
         postData.append("mediaIsSelfie", isSelfie || false);
       }
     }
@@ -443,7 +440,6 @@ const EditPostScreen = (props) => {
                   }}
                 >
                   <ImageWithCache
-                    mediaOrientation={file.mediaOrientation}
                     mediaIsSelfie={file.isSelfie}
                     resizeMode="contain"
                     mediaUrl={file.uri}
@@ -493,7 +489,6 @@ const EditPostScreen = (props) => {
                   }}
                 >
                   <ImageWithCache
-                    mediaOrientation={existingPost?.mediaOrientation}
                     mediaIsSelfie={existingPost?.isSelfie}
                     resizeMode="contain"
                     mediaUrl={existingPost?.mediaUrl}

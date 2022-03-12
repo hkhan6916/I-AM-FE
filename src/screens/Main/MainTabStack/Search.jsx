@@ -1,14 +1,5 @@
 import React, { Fragment, useState } from "react";
-import {
-  View,
-  TextInput,
-  StyleSheet,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  ScrollView,
-  Platform,
-} from "react-native";
-import apiCall from "../../../helpers/apiCall";
+import { StyleSheet, SafeAreaView, ScrollView, Platform } from "react-native";
 import UserThumbnail from "../../../components/UserThumbnail";
 import themeStyle from "../../../theme.style";
 import SearchBar from "../../../components/SearchBar";

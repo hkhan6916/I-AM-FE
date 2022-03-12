@@ -11,7 +11,6 @@ const VideoPlayer = ({
   url,
   isFullScreen,
   setShowActions,
-  mediaOrientation,
   mediaIsSelfie,
   // mediaHeaders,
   shouldPlay,
@@ -76,20 +75,7 @@ const VideoPlayer = ({
             {isCancelled ? "Upload Cancelled" : "Uploading..."}
           </Text>
         ) : null}
-        <View
-          style={{
-            transform: [
-              {
-                rotate:
-                  mediaOrientation === "landscape-left"
-                    ? "-90deg"
-                    : mediaOrientation === "landscape-right"
-                    ? "90deg"
-                    : "0deg",
-              },
-            ],
-          }}
-        >
+        <View>
           {!readyForDisplay || isUploading || isCancelled ? (
             <View
               style={{
