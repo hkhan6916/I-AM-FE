@@ -105,20 +105,23 @@ const AddScreen = (props) => {
   };
 
   const handlePostCreation = async () => {
+    // await createPostData();
     const postData = await createPostData();
-    const { success, response } = await apiCall("POST", "/posts/new", postData);
+    const { success, response, message } = await apiCall("POST", "/posts/new", postData);
     if (success) {
       return response.post;
     } else {
       setError({
         title: "Error",
-        message: "An error occurred creating your post.",
+        message: `An error occurred creating your post. Please try again, or check your connection.`,
       });
       return;
     }
   };
 
   const handleUploadVideo = async (post) => {
+    await handleCompression(file);
+
     const token = await getItemAsync("authToken");
     const url = compressedFileUrl
       ? Platform.OS == "android"
@@ -257,7 +260,7 @@ const AddScreen = (props) => {
         setCompressing(false);
         setCompressionProgress(0);
         setFile({ ...result, ...mediaInfo });
-        await handleCompression(result);
+        // await handleCompression(result);
       }
     }
   };

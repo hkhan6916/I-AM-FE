@@ -83,7 +83,7 @@ const ProfileScreenHeader = ({ userData }) => {
             {userData.username}{" "}
           </Text>
           {userData.jobTitle ? (
-            <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+            <Text style={{ color: themeStyle.colors.grayscale.lower }}>
               {userData.jobTitle}
             </Text>
           ) : null}

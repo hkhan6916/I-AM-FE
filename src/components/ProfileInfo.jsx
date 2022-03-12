@@ -52,7 +52,7 @@ const ProfileInfo = ({
               <AntDesign
                 name="lock"
                 size={16}
-                color={themeStyle.colors.grayscale.higher}
+                color={themeStyle.colors.grayscale.lower}
               />
             ) : null}
           </Text>

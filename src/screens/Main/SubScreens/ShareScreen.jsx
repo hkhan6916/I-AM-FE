@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Text,
   View,
+  ActivityIndicator,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import { useDispatch } from "react-redux";
@@ -17,12 +18,16 @@ const ShareScreen = (props) => {
   const { prevScreen, post } = props.route.params;
 
   const [repostBody, setRepostBody] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const handleRepost = async () => {
+    setLoading(true);
     const { success } = await apiCall("POST", `/posts/repost/${post._id}`, {
       body: repostBody,
     });
+    setLoading(success);
 
     if (success) {
       if (prevScreen === "Home") {
@@ -66,15 +71,23 @@ const ShareScreen = (props) => {
             padding: 10,
           }}
         >
-          <Text
-            style={{
-              color: themeStyle.colors.white,
-              fontSize: 16,
-              textAlign: "center",
-            }}
-          >
-            Share
-          </Text>
+          {loading ? (
+            <ActivityIndicator
+              animating={loading}
+              color={themeStyle.colors.white}
+              size="large"
+            />
+          ) : (
+            <Text
+              style={{
+                color: themeStyle.colors.white,
+                fontSize: 16,
+                textAlign: "center",
+              }}
+            >
+              Share
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
     </ScrollView>

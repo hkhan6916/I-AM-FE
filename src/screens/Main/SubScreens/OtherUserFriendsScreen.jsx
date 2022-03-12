@@ -10,23 +10,24 @@ import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
 import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../../../theme.style";
+import SearchBar from "../../../components/SearchBar";
+
 const OtherUserFriendsScreen = (props) => {
   const { userId, firstName } = props.route.params;
   const [friends, setFriends] = useState([]);
+  const [searchedFriends, setSearchedFriends] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
 
   const getFriends = async () => {
-    setLoading(true);
     const { success, response } = await apiCall(
       "GET",
       `/user/${userId}/friend/fetch/all/${friends.length}`
     );
-    setLoading(false);
 
     if (success) {
-      setFriends(response);
+      setFriends([...friends, ...response]);
     }
   };
 
@@ -64,8 +65,19 @@ const OtherUserFriendsScreen = (props) => {
 
   return (
     <View style={styles.container}>
+      <SearchBar
+        setResults={setSearchedFriends}
+        contactName={firstName}
+        dataToSearchWithin={friends}
+      />
       <FlatList
-        data={friends}
+        data={
+          searchedFriends === "none"
+            ? []
+            : searchedFriends?.length
+            ? searchedFriends
+            : friends
+        }
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         refreshControl={

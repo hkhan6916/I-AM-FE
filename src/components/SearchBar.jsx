@@ -4,7 +4,13 @@ import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import themeStyle from "../theme.style";
 import apiCall from "../helpers/apiCall";
 
-const SearchBar = ({ onFocus, onSubmitEditing, setResults }) => {
+const SearchBar = ({
+  onFocus,
+  onSubmitEditing,
+  setResults,
+  dataToSearchWithin,
+  contactName,
+}) => {
   const [searchInput, setSearchInput] = useState("");
   const [typingStatus, setTypingStatus] = useState({
     name: "",
@@ -12,27 +18,48 @@ const SearchBar = ({ onFocus, onSubmitEditing, setResults }) => {
     typingTimeout: 0,
   });
   const searchUsers = (searchTerm) => {
-    if (typingStatus.typingTimeout) {
-      clearTimeout(typingStatus.typingTimeout);
+    if (!dataToSearchWithin) {
+      if (typingStatus.typingTimeout) {
+        clearTimeout(typingStatus.typingTimeout);
+      }
+      setSearchInput(searchTerm);
+      setTypingStatus({
+        name: searchTerm,
+        typing: false,
+        typingTimeout: setTimeout(() => {
+          handleSearch(searchTerm);
+        }, 250),
+      });
+    } else {
+      setSearchInput(searchTerm);
+
+      handleSearch(searchTerm);
     }
-    setSearchInput(searchTerm);
-    setTypingStatus({
-      name: searchTerm,
-      typing: false,
-      typingTimeout: setTimeout(() => {
-        handleSearch(searchTerm);
-      }, 250),
-    });
   };
 
   const handleSearch = async (searchTerm) => {
-    const { response } = await apiCall("POST", `/user/search/0`, {
-      searchTerm,
-    });
-    if (response.length) {
-      setResults(response);
+    console.log({ searchTerm });
+    if (!dataToSearchWithin) {
+      // if no local data, send apicall
+      const { response } = await apiCall("POST", `/user/search/0`, {
+        searchTerm,
+      });
+      if (response.length) {
+        setResults(response);
+      } else {
+        setResults([]);
+      }
     } else {
-      setResults([]);
+      const result = dataToSearchWithin.filter((friend) => {
+        return (
+          friend.firstName?.includes(searchTerm) ||
+          friend.lastName?.includes(searchTerm) ||
+          friend.username?.includes(searchTerm) ||
+          friend.jobTitle?.includes(searchTerm)
+        );
+      });
+      // if empty search, return empty array, if no results found return "none" else return result
+      setResults(!searchTerm ? [] : !result.length ? "none" : result);
     }
   };
 
@@ -42,7 +69,13 @@ const SearchBar = ({ onFocus, onSubmitEditing, setResults }) => {
   };
 
   return (
-    <View style={styles.searchSection}>
+    <View
+      style={
+        dataToSearchWithin
+          ? styles.localSearchStyles
+          : styles.defaultContainerStyles
+      }
+    >
       <Ionicons
         style={styles.searchIcon}
         name="search"
@@ -58,11 +91,15 @@ const SearchBar = ({ onFocus, onSubmitEditing, setResults }) => {
         style={styles.searchBar}
         placeholderTextColor={themeStyle.colors.grayscale.low}
         autoCorrect={false}
-        placeholder="name, username or job title"
+        placeholder={
+          dataToSearchWithin
+            ? `Search ${contactName ? `${contactName}'s` : ""} contacts`
+            : "name, username or job title"
+        }
         onChangeText={(v) => searchUsers(v)}
         returnKeyType="search"
-        onFocus={() => onFocus()}
-        onSubmitEditing={() => onSubmitEditing()}
+        onFocus={onFocus ? () => onFocus() : null}
+        onSubmitEditing={onSubmitEditing ? () => onSubmitEditing() : null}
       />
       {searchInput ? (
         <TouchableOpacity onPress={() => resetSearch()}>
@@ -83,13 +120,21 @@ const styles = StyleSheet.create({
     color: themeStyle.colors.grayscale.lowest,
     height: "100%",
   },
-  searchSection: {
+  defaultContainerStyles: {
     flexDirection: "row",
     height: 48,
     alignItems: "center",
     backgroundColor: themeStyle.colors.grayscale.highest,
     borderBottomWidth: 1,
     borderBottomColor: themeStyle.colors.grayscale.low,
+  },
+  localSearchStyles: {
+    flexDirection: "row",
+    height: 48,
+    alignItems: "center",
+    backgroundColor: themeStyle.colors.grayscale.higher,
+    borderRadius: 48,
+    marginBottom: 20,
   },
   searchIcon: {
     padding: 10,
