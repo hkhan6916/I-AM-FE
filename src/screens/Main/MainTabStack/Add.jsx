@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   TouchableOpacity,
   Platform,
   Dimensions,
+  BackHandler,
+  Image,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
@@ -288,6 +290,11 @@ const AddScreen = () => {
     }
   };
 
+  const handleGifSelect = (gifUrl) => {
+    setFile({});
+    setGif(gifUrl);
+  };
+
   if (loading) {
     return (
       <ActivityIndicator
@@ -319,7 +326,7 @@ const AddScreen = () => {
       {Platform.OS === "ios" ? <StatusBar translucent={true} /> : null}
       <SafeAreaView style={styles.container}>
         <GifModal
-          setGif={setGif}
+          selectGif={handleGifSelect}
           active={showGifsModal}
           setShowModal={setShowGifsModal}
         />
@@ -432,6 +439,19 @@ const AddScreen = () => {
                   />
                 </View>
               ) : null}
+            </View>
+          ) : gif ? (
+            <View
+              style={{
+                height: screenWidth - 40,
+                alignItems: "center",
+                padding: 20,
+              }}
+            >
+              <Image
+                style={{ width: "100%", height: "100%" }}
+                source={{ uri: gif }}
+              />
             </View>
           ) : null}
         </ScrollView>

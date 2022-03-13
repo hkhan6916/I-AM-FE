@@ -14,7 +14,7 @@ const ImageWithCache = ({
   toggleFullScreen,
   removeBorderRadius,
 }) => {
-  const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+  const { width: screenWidth } = Dimensions.get("window");
 
   return (
     <View

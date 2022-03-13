@@ -36,6 +36,10 @@ const LoginScreen = () => {
       await setItemAsync("userId", response.userId);
       await setItemAsync("authToken", response.token);
 
+      Object.keys(response.apiKeys)?.forEach(async (key) => {
+        await setItemAsync(key, response.apiKeys[key]);
+      });
+
       dispatch({ type: "SET_USER_LOGGED_IN", payload: true });
     }
     if (!success) {

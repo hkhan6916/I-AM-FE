@@ -1,30 +1,50 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Modal,
   TouchableOpacity,
   TextInput,
   FlatList,
-  ActivityIndicator,
   Image,
+  Text,
+  Dimensions,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import themeStyle from "../theme.style";
-
+import { getItemAsync } from "expo-secure-store";
 import axios from "axios";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const GifModal = ({ setShowModal, setGif, active }) => {
+const GifModal = ({ setShowModal, selectGif, active }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [error, setError] = useState("");
   const [gifs, setGifs] = useState([]);
-
+  const { width: screenWidth } = Dimensions.get("window");
   const handleGifSearch = async (searchInput) => {
-    setSearchQuery(searchInput);
-    const response = await axios({
-      method: "POST",
-      url: `https://g.tenor.com/v1/search?q=${searchQuery}&key=0I867H5DB2J8&limit=20&media_filter=minimal`,
-    });
-    setGifs(response.data.results);
-    console.log(response.data.results);
+    let isCancelled = false;
+    if (!isCancelled) {
+      const tenorApiKey = await getItemAsync("tenorApiKey");
+      setSearchQuery(searchInput);
+      try {
+        const response = await axios({
+          method: "POST",
+          url: `https://g.tenor.com/v1/search?q=${searchQuery}&key=${tenorApiKey}&limit=20&media_filter=minimal&contentfilter=high&locale=en_US&ar_range=standard`,
+        });
+        if (error) {
+          setError("");
+        }
+
+        setGifs(response.data?.results);
+      } catch (err) {
+        setError("Unable to retrieve gifs.");
+        return;
+      }
+    }
+    return {
+      cancel() {
+        isCancelled = true;
+      },
+    };
   };
 
   const renderItem = useCallback(
@@ -38,12 +58,17 @@ const GifModal = ({ setShowModal, setGif, active }) => {
           backgroundColor: themeStyle.colors.grayscale.higher,
         }}
       >
-        <TouchableOpacity onPress={() => setGif(item?.media[0].gif.url)}>
+        <TouchableOpacity
+          onPress={() => {
+            selectGif(item?.media[0].gif.url);
+            setShowModal(false);
+          }}
+        >
           <Image
             style={{
               justifyContent: "center",
               alignItems: "center",
-              height: 100,
+              height: screenWidth / 2,
             }}
             source={{ uri: item.media[0].tinygif.url }}
           />
@@ -55,49 +80,97 @@ const GifModal = ({ setShowModal, setGif, active }) => {
 
   const keyExtractor = useCallback((item) => item.id, []);
 
+  useEffect(() => {
+    (async () => {
+      await handleGifSearch();
+    })();
+  }, []);
+
   return (
-    <Modal visible={active}>
-      <View
+    <Modal
+      onRequestClose={async () => {
+        (await handleGifSearch()).cancel();
+        setShowModal(false);
+      }}
+      visible={active}
+    >
+      <SafeAreaView
         style={{
-          flex: 1,
           backgroundColor: themeStyle.colors.grayscale.highest,
-          justifyContent: "center",
+          flex: 1,
         }}
       >
-        <View style={{ alignSelf: "flex-end", margin: 20 }}>
-          <TouchableOpacity onPress={() => setShowModal(false)}>
-            <AntDesign
-              name="close"
-              size={20}
-              color={themeStyle.colors.grayscale.lowest}
-            />
-          </TouchableOpacity>
-        </View>
-        <FlatList
-          data={gifs}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          contentContainerStyle={{ flexGrow: 1 }}
-          onEndReachedThreshold={0.5}
-          initialNumToRender={10}
-          maxToRenderPerBatch={5}
-          numColumns={2}
-        />
-        <TextInput
-          placeholder="Search gifs"
-          placeholderTextColor={themeStyle.colors.grayscale.lower}
+        <View
           style={{
-            color: themeStyle.colors.grayscale.lowest,
-            backgroundColor: themeStyle.colors.grayscale.higher,
-            height: 48,
-            paddingVertical: 5,
-            paddingHorizontal: 10,
+            flex: 1,
+            backgroundColor: themeStyle.colors.grayscale.highest,
+            justifyContent: "center",
           }}
-          onChangeText={(v) => handleGifSearch(v)}
-        />
-      </View>
+        >
+          <View
+            style={{
+              alignSelf: "flex-start",
+              marginHorizontal: 10,
+              marginVertical: 10,
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => setShowModal(false)}
+              style={{ justifyContent: "center", flexDirection: "row" }}
+            >
+              <AntDesign
+                name="arrowleft"
+                size={24}
+                color={themeStyle.colors.grayscale.lowest}
+              />
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.lowest,
+                  fontSize: 16,
+                  marginHorizontal: 10,
+                }}
+              >
+                Add a gif
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <TextInput
+            placeholder="Search Gifs"
+            placeholderTextColor={themeStyle.colors.grayscale.lower}
+            style={{
+              color: themeStyle.colors.grayscale.lowest,
+              backgroundColor: themeStyle.colors.grayscale.higher,
+              height: 48,
+              paddingVertical: 5,
+              paddingHorizontal: 10,
+            }}
+            onChangeText={(v) => handleGifSearch(v)}
+          />
+          {error ? (
+            <Text
+              style={{
+                color: themeStyle.colors.error.default,
+                textAlign: "center",
+              }}
+            >
+              {error}
+            </Text>
+          ) : (
+            <FlatList
+              data={gifs}
+              renderItem={renderItem}
+              keyExtractor={keyExtractor}
+              contentContainerStyle={{ flexGrow: 1 }}
+              onEndReachedThreshold={0.5}
+              initialNumToRender={10}
+              maxToRenderPerBatch={5}
+              numColumns={2}
+            />
+          )}
+        </View>
+      </SafeAreaView>
     </Modal>
   );
 };
 
-export default React.memo(GifModal);
+export default GifModal;
