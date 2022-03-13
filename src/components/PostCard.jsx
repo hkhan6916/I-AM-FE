@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
   MaterialCommunityIcons,
@@ -183,13 +183,32 @@ const PostCard = ({
           <View>
             <TouchableOpacity
               onPress={() =>
-                !post.private && navigation.navigate("MediaScreen", { post })
+                !post.private &&
+                !post.gif &&
+                navigation.navigate("MediaScreen", { post })
               }
               underlayColor={themeStyle.colors.grayscale.high}
               delayPressIn={150}
             >
               <View>
-                {post.mediaType === "video" ? (
+                {post.gif ? (
+                  <View
+                    style={{
+                      flex: 1,
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Image
+                      resizeMode={"contain"}
+                      style={{
+                        aspectRatio: 1 / 1,
+                        width: "100%",
+                        height: "100%",
+                      }}
+                      source={{ uri: post.gif }}
+                    />
+                  </View>
+                ) : post.mediaType === "video" ? (
                   <View
                     style={{
                       flex: 1,

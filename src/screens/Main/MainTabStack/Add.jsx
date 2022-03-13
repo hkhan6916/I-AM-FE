@@ -56,7 +56,17 @@ const AddScreen = () => {
   const dispatch = useDispatch();
   const createPostData = async () => {
     const postData = new FormData();
+    if (postBody) {
+      // upload any text body if there is any
+      postData.append("postBody", postBody);
+    }
+    if (gif) {
+      // if there's a gif, skip everything and just upload the gif
+      postData.append("gif", gif);
+      return postData;
+    }
     if (file.uri) {
+      // if there's a file, determine if compression is required
       const { type, name, uri, isSelfie } = file;
       if (type.split("/")[0] === "video") {
         // just adds thumbnail for videos. We add the rest of the media later.
@@ -71,7 +81,7 @@ const AddScreen = () => {
         const mediaInfo = await getInfoAsync(uri);
         const mediaSizeInMb = mediaInfo?.size / 1000000;
         if (mediaSizeInMb >= 14) {
-          // if image size if more than or equal to 14mb
+          // if image size is more than or equal to 14mb then compress it
           const format = uri.split(".").pop();
           const compressedUri = await ImageCompress.compress(
             uri,
@@ -89,6 +99,7 @@ const AddScreen = () => {
           });
           postData.append("mediaIsSelfie", isSelfie || false);
         } else {
+          // otherwise we just send the image without compression
           const format = uri.split(".").pop();
           postData.append("file", {
             type: type.split("/").length > 1 ? type : `${type}/${format}`,
@@ -98,9 +109,6 @@ const AddScreen = () => {
           postData.append("mediaIsSelfie", isSelfie || false);
         }
       }
-    }
-    if (postBody) {
-      postData.append("postBody", postBody);
     }
 
     return postData;
@@ -120,7 +128,13 @@ const AddScreen = () => {
   const handlePostCreation = async () => {
     setLoading(true);
     const postData = await createPostData();
-    const { success, response } = await apiCall("POST", "/posts/new", postData);
+    console.log(postData);
+    const { success, response, message } = await apiCall(
+      "POST",
+      "/posts/new",
+      postData
+    );
+    console.log(message);
     setLoading(false);
     if (success) {
       return response.post;
@@ -405,7 +419,7 @@ const AddScreen = () => {
                   style={{
                     height: screenWidth,
                     alignItems: "center",
-                    padding: 20,
+                    padding: 5,
                   }}
                 >
                   <VideoPlayer // TODO create new player as need to flip the media for selfie video without flipping the controls.
@@ -427,7 +441,7 @@ const AddScreen = () => {
                   style={{
                     height: screenWidth - 40,
                     alignItems: "center",
-                    padding: 20,
+                    padding: 5,
                   }}
                 >
                   <ImageWithCache
@@ -445,10 +459,11 @@ const AddScreen = () => {
               style={{
                 height: screenWidth - 40,
                 alignItems: "center",
-                padding: 20,
+                padding: 5,
               }}
             >
               <Image
+                resizeMode="contain"
                 style={{ width: "100%", height: "100%" }}
                 source={{ uri: gif }}
               />
@@ -522,11 +537,11 @@ const AddScreen = () => {
               padding: 5,
               borderRadius: 20,
               width: 70,
-              opacity: !file?.uri && !postBody ? 0.5 : 1,
+              opacity: !file?.uri && !postBody && !gif ? 0.5 : 1,
             }}
           >
             <TouchableOpacity
-              disabled={!file && !postBody}
+              disabled={!file.uri && !postBody && !gif}
               onPress={() => createPost()}
             >
               <Text

@@ -14,6 +14,7 @@ import themeStyle from "../theme.style";
 import { getItemAsync } from "expo-secure-store";
 import axios from "axios";
 import { SafeAreaView } from "react-native-safe-area-context";
+import SearchBar from "./SearchBar";
 
 const GifModal = ({ setShowModal, selectGif, active }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -134,18 +135,11 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
               </Text>
             </TouchableOpacity>
           </View>
-          <TextInput
+          <SearchBar
             placeholder="Search Gifs"
-            placeholderTextColor={themeStyle.colors.grayscale.lower}
-            style={{
-              color: themeStyle.colors.grayscale.lowest,
-              backgroundColor: themeStyle.colors.grayscale.higher,
-              height: 48,
-              paddingVertical: 5,
-              paddingHorizontal: 10,
-            }}
-            onChangeText={(v) => handleGifSearch(v)}
+            onTypingEnd={(v) => handleGifSearch(v)}
           />
+          {console.log("hey")}
           {error ? (
             <Text
               style={{
