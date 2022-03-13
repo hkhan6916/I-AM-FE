@@ -10,7 +10,7 @@ import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
 import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../../../theme.style";
-import SearchBar from "../../../components/SearchBar";
+import UserSearchBar from "../../../components/UserSearchBar";
 
 const OtherUserFriendsScreen = (props) => {
   const { userId, firstName } = props.route.params;
@@ -65,7 +65,7 @@ const OtherUserFriendsScreen = (props) => {
 
   return (
     <View style={styles.container}>
-      <SearchBar
+      <UserSearchBar
         setResults={setSearchedFriends}
         contactName={firstName}
         dataToSearchWithin={friends}

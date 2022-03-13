@@ -48,7 +48,6 @@ const FriendsScreen = () => {
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
       >
-        {console.log(friends)}
         {friends.length ? (
           friends.map((friend) => (
             <UserThumbnail key={friend._id} user={friend} avatarSize={50} />

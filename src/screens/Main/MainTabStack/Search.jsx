@@ -2,7 +2,7 @@ import React, { Fragment, useState } from "react";
 import { StyleSheet, SafeAreaView, ScrollView, Platform } from "react-native";
 import UserThumbnail from "../../../components/UserThumbnail";
 import themeStyle from "../../../theme.style";
-import SearchBar from "../../../components/SearchBar";
+import UserSearchBar from "../../../components/UserSearchBar";
 import { StatusBar } from "expo-status-bar";
 
 const SearchScreen = () => {
@@ -18,7 +18,7 @@ const SearchScreen = () => {
       />
       {Platform.OS === "ios" ? <StatusBar translucent={true} /> : null}
       <SafeAreaView style={styles.container}>
-        <SearchBar
+        <UserSearchBar
           onFocus={() => setShowAllResults(false)}
           onSubmitEditing={() => setShowAllResults(true)}
           setResults={setResults}

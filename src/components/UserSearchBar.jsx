@@ -4,7 +4,7 @@ import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import themeStyle from "../theme.style";
 import apiCall from "../helpers/apiCall";
 
-const SearchBar = ({
+const UserSearchBar = ({
   onFocus,
   onSubmitEditing,
   setResults,
@@ -139,4 +139,4 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 });
-export default React.memo(SearchBar);
+export default React.memo(UserSearchBar);
