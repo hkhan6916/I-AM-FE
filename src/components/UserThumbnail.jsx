@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableHighlight } from "react-native";
+import { View, Text, TouchableHighlight, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Avatar from "./Avatar";
 import themeStyle from "../theme.style";
@@ -28,6 +28,7 @@ const UserThumbnail = ({ user, avatarSize, preventClicks }) => {
         avatarUrl={user.profileGifUrl}
         profileGifHeaders={user.profileGifHeaders}
         hasBorder
+        preventClicks
       />
       <View
         style={{
@@ -69,14 +70,14 @@ const UserThumbnail = ({ user, avatarSize, preventClicks }) => {
   return (
     <View>
       {!preventClicks ? (
-        <TouchableHighlight
+        <TouchableOpacity
           key={user._id}
           underlayColor="gray"
           style={{ margin: 10 }}
           onPress={() => handleUserProfileNavigation()}
         >
           <Thumbnail />
-        </TouchableHighlight>
+        </TouchableOpacity>
       ) : (
         <Thumbnail />
       )}

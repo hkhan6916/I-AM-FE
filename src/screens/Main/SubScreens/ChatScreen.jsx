@@ -326,6 +326,7 @@ const ChatScreen = (props) => {
   if (cameraActive) {
     return (
       <CameraStandard
+        cameraActive={cameraActive}
         recording={recording}
         setCameraActive={toggleCamera}
         setFile={setMedia}

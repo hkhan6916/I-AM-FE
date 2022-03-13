@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import formatAge from "../../../helpers/formatAge";
@@ -186,7 +187,24 @@ const PostScreen = (props) => {
             delayPressIn={150}
           >
             <View>
-              {post.mediaType === "video" ? (
+              {post.gif ? (
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "column",
+                  }}
+                >
+                  <Image
+                    resizeMode={"contain"}
+                    style={{
+                      aspectRatio: 1 / 1,
+                      width: "100%",
+                      height: "100%",
+                    }}
+                    source={{ uri: post.gif }}
+                  />
+                </View>
+              ) : post.mediaType === "video" ? (
                 <View
                   style={{
                     flex: 1,

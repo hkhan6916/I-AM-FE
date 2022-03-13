@@ -17,6 +17,7 @@ import {
   ScrollView,
   Button,
   useColorScheme,
+  SafeAreaView,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,7 +30,6 @@ import PostCard from "../../../components/PostCard";
 import apiCall from "../../../helpers/apiCall";
 import Logo from "../../../Logo";
 import { useScrollToTop } from "@react-navigation/native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import PostOptionsModal from "../../../components/PostOptionsModal";
 
 const { statusBarHeight } = Constants;

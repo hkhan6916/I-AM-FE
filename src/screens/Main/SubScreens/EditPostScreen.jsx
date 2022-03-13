@@ -4,19 +4,15 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  Button,
-  Keyboard,
   SafeAreaView,
   ScrollView,
-  KeyboardAvoidingView,
   ActivityIndicator,
   TouchableOpacity,
-  NativeModules,
   Platform,
   Dimensions,
+  Image,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
-import { useDispatch } from "react-redux";
 import { Video } from "expo-av";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
@@ -30,11 +26,16 @@ import {
 } from "react-native-compressor";
 import RepostCard from "../../../components/RepostCard";
 import VideoPlayer from "expo-video-player";
-import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import {
+  AntDesign,
+  FontAwesome,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import { getThumbnailAsync } from "expo-video-thumbnails";
 import Upload from "react-native-background-upload";
 import { getItemAsync } from "expo-secure-store";
 import { StatusBar } from "expo-status-bar";
+import GifModal from "../../../components/GifModal";
 
 const EditPostScreen = (props) => {
   const isFocused = useIsFocused();
@@ -51,6 +52,9 @@ const EditPostScreen = (props) => {
   const [compressionProgress, setCompressionProgress] = useState(0);
   const [showMediaSizeError, setShowMediaSizeError] = useState(false);
   const [removeMedia, setRemoveMedia] = useState(false);
+  const [showGifsModal, setShowGifsModal] = useState(false);
+  const [gif, setGif] = useState("");
+
   const navigation = useNavigation();
 
   const { width: screenWidth } = Dimensions.get("window");
@@ -58,6 +62,14 @@ const EditPostScreen = (props) => {
   const { postId } = props.route.params;
   const createPostData = async () => {
     const postData = new FormData();
+    if (typeof postBody === "string") {
+      postData.append("postBody", postBody);
+    }
+    if (gif) {
+      // if there's a gif, skip everything and just upload the gif
+      postData.append("gif", gif);
+      return postData;
+    }
     if (file.uri) {
       const { type, name, uri, isSelfie } = file;
       if (type.split("/")[0] === "video") {
@@ -80,9 +92,6 @@ const EditPostScreen = (props) => {
       }
     }
     postData.append("removeMedia", removeMedia);
-    if (typeof postBody === "string") {
-      postData.append("postBody", postBody);
-    }
 
     return postData;
   };
@@ -240,6 +249,8 @@ const EditPostScreen = (props) => {
         quality: 0.3,
         allowsMultipleSelection: false,
       });
+      setGif("");
+      setRemoveMedia(false);
       if (!result.cancelled) {
         const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
@@ -256,7 +267,34 @@ const EditPostScreen = (props) => {
       }
     }
   };
+
+  const handleGifSelect = (gifUrl) => {
+    setFile({});
+    setRemoveMedia(false);
+    setGif(gifUrl);
+  };
+
+  const validateInfo = () => {
+    // if new file or gif added, all good
+    if ((file.uri || gif) && !removeMedia) {
+      return false;
+    }
+    // check if any data is present
+    if (removeMedia && !postBody) {
+      return true;
+    }
+    // check if no new post body added
+    if (postBody === existingPost?.body || !postBody) {
+      return true;
+    }
+  };
+
   useEffect(() => {
+    if (cameraActive) {
+      navigation.setOptions({ headerShown: false });
+    } else {
+      navigation.setOptions({ headerShown: true });
+    }
     if (postId) {
       (async () => {
         const { success, response } = await apiCall(
@@ -273,7 +311,7 @@ const EditPostScreen = (props) => {
         }
       })();
     }
-  }, [navigation, postId]);
+  }, [navigation, postId, cameraActive]);
 
   if (loading) {
     return (
@@ -288,6 +326,7 @@ const EditPostScreen = (props) => {
   if (cameraActive && isFocused) {
     return (
       <CameraStandard
+        cameraActive={cameraActive}
         recording={recording}
         setCameraActive={setCameraActive}
         setFile={setFile}
@@ -305,6 +344,11 @@ const EditPostScreen = (props) => {
       />
       {Platform.OS === "ios" ? <StatusBar translucent={true} /> : null}
       <SafeAreaView style={styles.container}>
+        <GifModal
+          selectGif={handleGifSelect}
+          active={showGifsModal}
+          setShowModal={setShowGifsModal}
+        />
         {postBody.length >= 2000 - 25 ? (
           <Text style={styles.postLimitMessage}>
             {2000 - postBody.length} Characters Remaining
@@ -335,6 +379,7 @@ const EditPostScreen = (props) => {
           {existingPost &&
           (existingPost?.body !== postBody ||
             file?.uri ||
+            gif ||
             (existingPost?.mediaUrl && removeMedia)) ? (
             <TouchableOpacity
               style={{ alignSelf: "flex-end", marginVertical: 20 }}
@@ -344,6 +389,7 @@ const EditPostScreen = (props) => {
                 setCompressing(false);
                 setCompressionProgress(0);
                 setFile({});
+                setGif("");
               }}
             >
               <Text
@@ -356,7 +402,8 @@ const EditPostScreen = (props) => {
               </Text>
             </TouchableOpacity>
           ) : null}
-          {file.uri || (existingPost?.mediaType && !removeMedia) ? (
+          {!removeMedia &&
+          (file.uri || gif || existingPost?.mediaUrl || existingPost?.gif) ? (
             <View
               style={{
                 borderWidth: !showMediaSizeError ? 1 : 2,
@@ -409,7 +456,21 @@ const EditPostScreen = (props) => {
                   />
                 </View>
               ) : null}
-              {file.type?.split("/")[0] === "video" ? (
+              {gif ? (
+                <View
+                  style={{
+                    height: screenWidth - 40,
+                    alignItems: "center",
+                    padding: 5,
+                  }}
+                >
+                  <Image
+                    resizeMode="contain"
+                    style={{ width: "100%", height: "100%" }}
+                    source={{ uri: gif }}
+                  />
+                </View>
+              ) : file.type?.split("/")[0] === "video" ? (
                 <View
                   style={{
                     height: screenWidth,
@@ -447,7 +508,21 @@ const EditPostScreen = (props) => {
                     removeBorderRadius
                   />
                 </View>
-              ) : existingPost?.mediaType === "video" && !removeMedia ? (
+              ) : existingPost?.gif ? (
+                <View
+                  style={{
+                    height: screenWidth - 40,
+                    alignItems: "center",
+                    padding: 5,
+                  }}
+                >
+                  <Image
+                    resizeMode="contain"
+                    style={{ width: "100%", height: "100%" }}
+                    source={{ uri: existingPost?.gif }}
+                  />
+                </View>
+              ) : existingPost?.mediaType === "video" ? (
                 <View
                   style={{
                     height: screenWidth,
@@ -480,7 +555,7 @@ const EditPostScreen = (props) => {
                     />
                   )}
                 </View>
-              ) : existingPost?.mediaType === "image" && !removeMedia ? (
+              ) : existingPost?.mediaType === "image" ? (
                 <View
                   style={{
                     height: screenWidth - 40,
@@ -545,6 +620,24 @@ const EditPostScreen = (props) => {
                   />
                 </TouchableOpacity>
               </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginHorizontal: 10,
+                  borderWidth: 1,
+                  borderColor: themeStyle.colors.grayscale.lowest,
+                  borderRadius: 5,
+                }}
+              >
+                <TouchableOpacity onPress={() => setShowGifsModal(true)}>
+                  <MaterialCommunityIcons
+                    name="gif"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
           ) : (
             <View /> // needed to fill up gap
@@ -557,22 +650,11 @@ const EditPostScreen = (props) => {
               padding: 5,
               borderRadius: 20,
               width: 70,
-              opacity:
-                (!existingPost?.repostPostId &&
-                  ((removeMedia && !postBody) ||
-                    (!existingPost && !file && !postBody))) ||
-                existingPost?.body === postBody
-                  ? 0.5
-                  : 1,
+              opacity: validateInfo() ? 0.5 : 1,
             }}
           >
             <TouchableOpacity
-              disabled={
-                (!existingPost?.repostPostId &&
-                  ((removeMedia && !postBody) ||
-                    (!existingPost && !file && !postBody))) ||
-                existingPost?.body === postBody
-              }
+              disabled={validateInfo()}
               onPress={() => updatePost()}
             >
               <Text

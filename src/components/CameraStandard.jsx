@@ -99,6 +99,8 @@ const CameraStandard = ({
   };
 
   useEffect(() => {
+    
+
     BackHandler.addEventListener("hardwareBackPress", deactivateCamera);
     return () => {
       setRecording(false);

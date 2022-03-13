@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Avatar from "./Avatar";
@@ -80,7 +81,24 @@ const RepostCard = ({ postContent, isPreview }) => {
             </Text>
           </View>
         </View>
-        {postContent.mediaType === "video" ? (
+        {postContent.gif ? (
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "column",
+            }}
+          >
+            <Image
+              resizeMode={"contain"}
+              style={{
+                aspectRatio: 1 / 1,
+                width: "100%",
+                height: "100%",
+              }}
+              source={{ uri: postContent.gif }}
+            />
+          </View>
+        ) : postContent.mediaType === "video" ? (
           <View
             style={{
               flex: 1,

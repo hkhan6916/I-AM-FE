@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
   Platform,
   Dimensions,
-  BackHandler,
   Image,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
@@ -289,6 +288,7 @@ const AddScreen = () => {
         quality: 0.3,
         allowsMultipleSelection: false,
       });
+      setGif("");
       if (!result.cancelled) {
         const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
@@ -322,6 +322,7 @@ const AddScreen = () => {
   if (cameraActive && isFocused) {
     return (
       <CameraStandard
+        cameraActive={cameraActive}
         recording={recording}
         setCameraActive={setCameraActive}
         setFile={setFile}

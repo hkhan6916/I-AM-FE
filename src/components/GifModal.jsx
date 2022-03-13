@@ -8,12 +8,12 @@ import {
   Image,
   Text,
   Dimensions,
+  SafeAreaView,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import themeStyle from "../theme.style";
 import { getItemAsync } from "expo-secure-store";
 import axios from "axios";
-import { SafeAreaView } from "react-native-safe-area-context";
 import SearchBar from "./SearchBar";
 
 const GifModal = ({ setShowModal, selectGif, active }) => {
