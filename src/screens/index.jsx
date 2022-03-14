@@ -12,7 +12,7 @@ import themeStyle from "../theme.style";
 import FeedContext from "../Context";
 import registerNotifications from "../helpers/registerNotifications";
 import * as SplashScreen from "expo-splash-screen";
-import { Appearance, useColorScheme } from "react-native";
+import { useColorScheme } from "react-native";
 
 const Screens = () => {
   const [loggedIn, setLoggedIn] = useState(false);

@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import themeStyle from "../theme.style";
 import { TouchableOpacity, View, Text } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import VideoPlayer from "./VideoPlayer";
 import PreviewVideo from "./PreviewVideo";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import apiCall from "../helpers/apiCall";
@@ -28,28 +25,30 @@ const ProfileScreenHeader = ({ userData }) => {
         isFullWidth
         previewText={"Tap to play"}
       />
-      <TouchableOpacity onPress={() => changeUserVisibility()}>
-        <View
-          style={{
-            borderColor: themeStyle.colors.primary.default,
-            borderWidth: 1,
-            padding: 10,
-            borderRadius: 5,
-            marginVertical: 10,
-            marginHorizontal: 5,
-          }}
-        >
-          <Text
+      {!userData.followersMode ? (
+        <TouchableOpacity onPress={() => changeUserVisibility()}>
+          <View
             style={{
-              color: themeStyle.colors.grayscale.lowest,
-              textAlign: "center",
-              fontWeight: "700",
+              borderColor: themeStyle.colors.primary.default,
+              borderWidth: 1,
+              padding: 10,
+              borderRadius: 5,
+              marginVertical: 10,
+              marginHorizontal: 5,
             }}
           >
-            {isPrivate ? "Private" : "Public"}
-          </Text>
-        </View>
-      </TouchableOpacity>
+            <Text
+              style={{
+                color: themeStyle.colors.grayscale.lowest,
+                textAlign: "center",
+                fontWeight: "700",
+              }}
+            >
+              {isPrivate ? "Private" : "Public"}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      ) : null}
       {isPrivate ? (
         <Text
           style={{

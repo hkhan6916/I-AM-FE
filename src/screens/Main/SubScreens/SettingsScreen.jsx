@@ -39,7 +39,7 @@ const SettingScreen = () => {
         </View>
         <View style={styles.option}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("EditUserDetailsScreen")}
+            onPress={() => navigation.navigate("AccountScreen")}
           >
             <View style={styles.optionContent}>
               <Ionicons

@@ -15,7 +15,6 @@ import {
   FlatList,
   ActivityIndicator,
   ScrollView,
-  Button,
   useColorScheme,
   SafeAreaView,
 } from "react-native";

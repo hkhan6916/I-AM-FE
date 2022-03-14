@@ -138,7 +138,7 @@ const Step1Screen = () => {
       <ProfileVideoCamera
         setRecording={setRecording}
         setProfileVideo={setProfileVideo}
-        setCameraActive={setCameraActivated}
+        setCameraActivated={setCameraActivated}
         setRecordingLength={setRecordingLength}
         recording={recording}
         recordingLength={recordingLength}

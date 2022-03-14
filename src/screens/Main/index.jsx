@@ -17,6 +17,8 @@ import PrivacyPolicyScreen from "./SubScreens/PrivacyPolicyScreen";
 import TermsOfUseScreen from "./SubScreens/TermsOfUseScreen";
 import OtherUserFriendsScreen from "./SubScreens/OtherUserFriendsScreen";
 import EditPostScreen from "./SubScreens/EditPostScreen";
+import AccountScreen from "./SubScreens/AccountScreen";
+import FollowersModeScreen from "./SubScreens/FollowersModeScreen";
 import AdScreen from "./SubScreens/AdTest";
 import Test from "./SubScreens/Test";
 
@@ -176,6 +178,21 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
+        title: "My Account",
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        },
+      }}
+      name="AccountScreen"
+      component={AccountScreen}
+    />
+    <Stack.Screen
+      options={{
         title: "Settings",
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
@@ -248,6 +265,21 @@ const MainStack = () => (
       }}
       name="EditPostScreen"
       component={EditPostScreen}
+    />
+    <Stack.Screen
+      options={{
+        title: "Followers Mode",
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        },
+      }}
+      name="FollowersModeScreen"
+      component={FollowersModeScreen}
     />
     <Stack.Screen
       options={{

@@ -1,6 +1,6 @@
 import { Appearance } from "react-native";
 let colorScheme = Appearance.getColorScheme();
-const theme =
+const themeStyle =
   colorScheme === "dark"
     ? {
         colors: {
@@ -66,4 +66,4 @@ const theme =
           white: "#FFFFFF",
         },
       };
-export default theme;
+export default themeStyle;

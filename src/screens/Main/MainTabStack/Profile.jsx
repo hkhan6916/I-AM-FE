@@ -30,6 +30,7 @@ const ProfileScreen = () => {
   const [error, setError] = useState("");
 
   const updatedPost = useSelector((state) => state.updatedPost);
+  const globalUserData = useSelector((state) => state.userData);
 
   const navigation = useNavigation();
 
