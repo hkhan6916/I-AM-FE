@@ -14,7 +14,7 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
 
   const profileVideoRef = useRef(null);
   const navigation = useNavigation();
-  useScreenOrientation(true); // just forces a re render ONLY when screen rotates. Without this, video does not adjust for landscape viewing.
+  useScreenOrientation(!!uri); // just forces a re render ONLY when screen rotates. Without this, video does not adjust for landscape viewing.
 
   const handleVideoDuration = (duration) => {
     if (!duration) {

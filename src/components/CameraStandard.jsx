@@ -33,7 +33,7 @@ const CameraStandard = ({
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  const screenOrientation = useScreenOrientation();
+  const screenOrientation = useScreenOrientation(true);
 
   const controlsPosition =
     screenOrientation === "LANDSCAPE"
@@ -99,8 +99,6 @@ const CameraStandard = ({
   };
 
   useEffect(() => {
-    
-
     BackHandler.addEventListener("hardwareBackPress", deactivateCamera);
     return () => {
       setRecording(false);

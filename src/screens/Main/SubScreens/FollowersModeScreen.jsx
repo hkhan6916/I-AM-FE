@@ -18,14 +18,17 @@ const FollowersModeScreen = () => {
   const toggleFollowersMode = async () => {
     setError("");
     setEnabled(!enabled);
-    const { success } = await apiCall("GET", "/user/followersmode/toggle");
-
+    const { success, response } = await apiCall(
+      "GET",
+      "/user/followersmode/toggle"
+    );
+    console.log(response);
     if (success) {
       dispatch({
         type: "SET_USER_DATA",
         payload: {
           ...userData.state,
-          followersMode: !userData.state?.followersMode,
+          followersMode: response.followersMode,
         },
       });
     } else {

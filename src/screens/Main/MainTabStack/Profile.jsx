@@ -166,34 +166,20 @@ const ProfileScreen = () => {
   );
 
   useEffect(() => {
-    let isMounted = true;
     (async () => {
-      if (isMounted) {
-        await getUserData();
-        await getUserPosts();
-        navigation.addListener("focus", () => {
-          if (updatedPost?.state) {
-            const newUserPosts = userPosts.filter((post) => {
-              if (
-                post._id.toString() === updatedPost.state._id.toString() ||
-                post.repostPostObj?._id.toString() ===
-                  updatedPost.state._id.toString()
-              ) {
-                console.log(post._id);
-                return updatedPost.state;
-              }
-              return updatedPost.state;
-            });
-            setUserPosts(newUserPosts);
-          }
-        });
-      }
+      await getUserData();
+      await getUserPosts();
     })();
     return () => {
       setUserPosts([]);
-      isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (globalUserData.state) {
+      setUserData(globalUserData.state);
+    }
+  }, [globalUserData?.state]);
   return (
     <SafeAreaView style={styles.container}>
       <View

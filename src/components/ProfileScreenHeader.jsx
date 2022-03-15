@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import themeStyle from "../theme.style";
 import { TouchableOpacity, View, Text } from "react-native";
 import PreviewVideo from "./PreviewVideo";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import apiCall from "../helpers/apiCall";
 import { useNavigation } from "@react-navigation/native";
 
@@ -18,6 +18,7 @@ const ProfileScreenHeader = ({ userData }) => {
       setIsPrivate(!isPrivate);
     }
   };
+
   return (
     <View>
       <PreviewVideo
@@ -48,8 +49,34 @@ const ProfileScreenHeader = ({ userData }) => {
             </Text>
           </View>
         </TouchableOpacity>
-      ) : null}
-      {isPrivate ? (
+      ) : (
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "row",
+            marginTop: 20,
+          }}
+        >
+          <MaterialIcons
+            name="public"
+            size={16}
+            color={themeStyle.colors.grayscale.lowest}
+          />
+          <Text
+            style={{
+              color: themeStyle.colors.grayscale.lowest,
+              textAlign: "center",
+              fontWeight: "700",
+              fontSize: 12,
+              marginLeft: 5,
+            }}
+          >
+            Your account is in followers mode.
+          </Text>
+        </View>
+      )}
+      {isPrivate && !userData.followersMode ? (
         <Text
           style={{
             color: themeStyle.colors.grayscale.lowest,
@@ -106,7 +133,8 @@ const ProfileScreenHeader = ({ userData }) => {
                 color: themeStyle.colors.primary.default,
               }}
             >
-              {userData.numberOfFriends} contacts
+              {userData.numberOfFriends}{" "}
+              {userData.followersMode ? "followers" : "contacts"}
             </Text>
           </TouchableOpacity>
         </View>

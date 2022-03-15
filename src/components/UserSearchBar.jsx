@@ -10,6 +10,7 @@ const UserSearchBar = ({
   setResults,
   dataToSearchWithin,
   contactName,
+  onEndEditing,
 }) => {
   const [searchInput, setSearchInput] = useState("");
   const [typingStatus, setTypingStatus] = useState({
@@ -86,6 +87,7 @@ const UserSearchBar = ({
         }
       />
       <TextInput
+        onEndEditing={onEndEditing ? () => onEndEditing() : null}
         value={searchInput}
         style={styles.searchBar}
         placeholderTextColor={themeStyle.colors.grayscale.low}
@@ -101,7 +103,12 @@ const UserSearchBar = ({
         onSubmitEditing={onSubmitEditing ? () => onSubmitEditing() : null}
       />
       {searchInput ? (
-        <TouchableOpacity onPress={() => resetSearch()}>
+        <TouchableOpacity
+          onPress={() => {
+            onEndEditing();
+            resetSearch();
+          }}
+        >
           <Ionicons
             style={styles.searchIcon}
             name="close"

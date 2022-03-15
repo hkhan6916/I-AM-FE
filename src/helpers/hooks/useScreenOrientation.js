@@ -4,10 +4,11 @@ import {
   addOrientationChangeListener,
 } from "expo-screen-orientation";
 
-const useScreenOrientation = () => {
+const useScreenOrientation = (active) => {
   const [orientation, setOrientation] = useState(0);
 
   useEffect(() => {
+    if (!active) return;
     getOrientationAsync().then((value) => {
       setOrientation(value);
     });

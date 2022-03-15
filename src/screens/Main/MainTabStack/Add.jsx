@@ -127,17 +127,18 @@ const AddScreen = () => {
   const handlePostCreation = async () => {
     setLoading(true);
     const postData = await createPostData();
-    console.log(postData);
+
     const { success, response, message } = await apiCall(
       "POST",
       "/posts/new",
       postData
     );
-    console.log(message);
+    console.log(message, postData);
     setLoading(false);
     if (success) {
       return response.post;
     } else {
+      console.log(response);
       setError({
         title: "Error",
         message: `An error occurred creating your post. Please try again, or check your connection.`,
