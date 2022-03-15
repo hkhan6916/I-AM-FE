@@ -19,7 +19,7 @@ const SearchScreen = () => {
   const [results, setResults] = useState([]);
   const [newsFeed, setNewsFeed] = useState([]);
   const [showAllResults, setShowAllResults] = useState(false);
-  const [hideNews, setHideNews] = useState(false);
+  const [hideFeedAndSuggestions, setHideFeedAndSuggestions] = useState(false);
 
   const getNewsFeed = async () => {
     // const { data: response } = await axios({
@@ -128,27 +128,85 @@ const SearchScreen = () => {
         <UserSearchBar
           onFocus={() => {
             setShowAllResults(false);
-            setHideNews(true);
+            setHideFeedAndSuggestions(true);
           }}
-          onEndEditing={() => !results.length && setHideNews(false)}
+          onEndEditing={() =>
+            !results.length && setHideFeedAndSuggestions(false)
+          }
           onSubmitEditing={() => setShowAllResults(true)}
           setResults={setResults}
         />
-        <ScrollView keyboardShouldPersistTaps="handled">
-          {results.map(
-            // TODO: move this to flatlist
-            (user) => (
-              <UserThumbnail
-                key={user._id}
-                user={user}
-                avatarSize={showAllResults ? 70 : 55}
-              />
-            )
+        {!hideFeedAndSuggestions ? (
+          <ScrollView style={{ flex: 1 }}>
+            <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+              Suggested Users
+            </Text>
+            <View
+              style={{
+                marginVertical: 20,
+                padding: 20,
+                backgroundColor: "aqua",
+              }}
+            >
+              <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                Some users who is public
+              </Text>
+            </View>
+            <View
+              style={{
+                marginVertical: 20,
+                padding: 20,
+                backgroundColor: "aqua",
+              }}
+            >
+              <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                Some users who is public
+              </Text>
+            </View>
+            <View
+              style={{
+                marginVertical: 20,
+                padding: 20,
+                backgroundColor: "aqua",
+              }}
+            >
+              <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                Some users who is public
+              </Text>
+            </View>
+            <View
+              style={{
+                marginVertical: 20,
+                padding: 20,
+                backgroundColor: "aqua",
+              }}
+            >
+              <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                Some users who is public
+              </Text>
+            </View>
+          </ScrollView>
+        ) : null}
+        <FlatList
+          data={results}
+          renderItem={({ item: user }) => (
+            <UserThumbnail
+              key={user._id}
+              user={user}
+              avatarSize={showAllResults ? 70 : 55}
+            />
           )}
-        </ScrollView>
-        {!hideNews ? (
+          keyExtractor={(item) => item._id}
+        />
+        {!hideFeedAndSuggestions ? (
           <FlatList
-            style={{ height: "50%" }}
+            style={{
+              height: "30%",
+              backgroundColor: themeStyle.colors.grayscale.low,
+              padding: 5,
+              margin: 5,
+              borderRadius: 5,
+            }}
             data={newsFeed}
             keyExtractor={(item, i) => `${item?.title}-${i}`}
             ListHeaderComponent={() => (
@@ -159,7 +217,7 @@ const SearchScreen = () => {
                     fontSize: 16,
                   }}
                 >
-                  Latest News
+                  Latest Business News
                 </Text>
               </View>
             )}

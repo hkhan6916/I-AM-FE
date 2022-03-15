@@ -40,6 +40,7 @@ const MainTabStack = () => {
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={({ route }) => ({
+        tabBarHideOnKeyboard: true,
         contentStyle: {
           backgroundColor: themeStyle.colors.grayscale.lowest,
         },
