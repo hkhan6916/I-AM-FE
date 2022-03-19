@@ -1,11 +1,10 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
   Platform,
   FlatList,
-  Image,
   Text,
   View,
 } from "react-native";
@@ -13,7 +12,7 @@ import UserThumbnail from "../../../components/UserThumbnail";
 import themeStyle from "../../../theme.style";
 import UserSearchBar from "../../../components/UserSearchBar";
 import { StatusBar } from "expo-status-bar";
-import axios from "axios";
+import NewsCard from "../../../components/NewsCard";
 
 const SearchScreen = () => {
   const [results, setResults] = useState([]);
@@ -30,91 +29,87 @@ const SearchScreen = () => {
     setNewsFeed([
       {
         news_url:
-          "https://techcrunch.com/2022/03/15/startup-banking-service-mercury-jumps-into-debt-lending-to-take-on-silicon-valley-bank/",
+          "https://www.kitco.com/news/2022-03-17/Gold-price-has-a-path-to-2-200-after-Fed-revealed-its-strategy-SSGA-s-Milling-Stanley.html",
         image_url:
-          "https://cdn.snapi.dev/images/v1/g/e/gettyimages-1326068857-1279371.jpg",
+          "https://cdn.snapi.dev/images/v1/6/q/three-all-cap-index-sectors-trade-below-economic-book-value-post-3q21-earnings-1155125-1282957.jpg",
         title:
-          "Startup banking service Mercury jumps into debt lending to take on Silicon Valley Bank",
-        text: "Mercury, a well-funded, three-year-old startup that offers a host of banking services to startups, is today rolling out a new offering for its customers: venture debt. The idea is to loan out $200 million this year and up to $1 billion next year in startups that have already raised $2 million in funding from at [\u2026]",
-        source_name: "TechCrunch",
-        date: "Tue, 15 Mar 2022 17:38:14 -0400",
-        topics: [],
+          "Gold price has a path to $2,200 after Fed revealed its strategy - SSGA's Milling-Stanley",
+        text: "(Kitco News) - The Federal Reserve has laid out a clear tightening path, and now gold prices are free to push to new highs above $2,000 an ounce as inflation will remain a clear threat to consumers, according to one market strategist.",
+        source_name: "Kitco",
+        date: "Thu, 17 Mar 2022 13:13:25 -0400",
+        topics: ["gold"],
         sentiment: "Neutral",
         type: "Article",
       },
       {
-        news_url: "https://www.youtube.com/watch?v=6nxIspWljSI",
+        news_url: "https://www.youtube.com/watch?v=op0Wr7RLvdc",
         image_url:
-          "https://cdn.snapi.dev/images/v1/m/q/us-could-get-into-an-inflationary-spiral-unlike-anything-weve-seen-economist-1279376.jpg",
+          "https://cdn.snapi.dev/images/v1/q/k/fed-needs-to-be-more-aggressive-to-bring-down-inflation-says-whartons-jeremy-siegel-1282951.jpg",
         title:
-          "US could get into an inflationary spiral \u2018unlike anything we've seen': Economist",
-        text: "Hoover Institution distinguished visiting fellow Kevin Hassett weighs in on inflation and the possibility of a recession. Subscribe to Fox Business!",
-        source_name: "Fox Business",
-        date: "Tue, 15 Mar 2022 17:30:01 -0400",
+          "Fed needs to be more aggressive to bring down inflation, says Wharton's Jeremy Siegel",
+        text: "Jeremy Siegel, Wharton school professor, joins the 'Halftime Report' to discuss his thoughts on the Federal Reserve's decision to raise raises the federal funds rate by a quarter of a percentage point.",
+        source_name: "CNBC Television",
+        date: "Thu, 17 Mar 2022 13:09:09 -0400",
+        topics: [],
+        sentiment: "Neutral",
+        type: "Video",
+      },
+      {
+        news_url: "https://www.youtube.com/watch?v=HkoytNSFZyc",
+        image_url:
+          "https://cdn.snapi.dev/images/v1/d/o/what-the-feds-interest-rate-liftoff-means-for-the-economy-yahoo-u-1282956.jpg",
+        title:
+          "What the Fed's interest rate liftoff means for the economy: Yahoo U",
+        text: "Yahoo Finance's Brian Cheung explains how the Federal Reserve raising interest rates affects the U.S. economy on this week's Yahoo U.",
+        source_name: "Yahoo Finance",
+        date: "Thu, 17 Mar 2022 13:05:28 -0400",
         topics: [],
         sentiment: "Negative",
         type: "Video",
       },
       {
         news_url:
-          "https://www.forbes.com/sites/jasonbisnoff/2022/03/15/wall-streets-skittish-attitude-toward-putin-pays-off-as-russia-default-looms/",
+          "https://seekingalpha.com/article/4496194-emerging-markets-can-weather-us-rate-tightening-cycle",
         image_url:
-          "https://cdn.snapi.dev/images/v1/3/p/wall-streets-skittish-attitude-toward-putin-pays-off-as-russia-default-looms-1279338.jpg",
+          "https://cdn.snapi.dev/images/v1/h/n/dow-nasdaq-transports-and-russell-2000-have-negative-weekly-charts-1156322-1282935.jpg",
+        title: "Emerging Markets Can Weather The U.S. Rate Tightening Cycle",
+        text: "Emerging Markets Can Weather The U.S. Rate Tightening Cycle",
+        source_name: "Seeking Alpha",
+        date: "Thu, 17 Mar 2022 12:58:00 -0400",
+        topics: ["paylimitwall"],
+        sentiment: "Neutral",
+        type: "Article",
+      },
+      {
+        news_url:
+          "https://seekingalpha.com/article/4496191-fed-highlights-concerns-over-inflation-as-rate-hiking-cycle-begins",
+        image_url:
+          "https://cdn.snapi.dev/images/v1/y/q/fedex-and-ups-may-be-signs-of-supply-chain-improvements-1155229-1282936.jpg",
         title:
-          "Wall Street's Skittish Attitude Toward Putin Pays Off As Russia Default Looms",
-        text: "Despite Citigroup losses of as much as $9.8 billion, the biggest U.S. banks have mostly steered clear of the country already under sanctions for Crimea.",
-        source_name: "Forbes",
-        date: "Tue, 15 Mar 2022 17:14:16 -0400",
+          "Fed Highlights Concerns Over Inflation As Rate-Hiking Cycle Begins",
+        text: "Fed Highlights Concerns Over Inflation As Rate-Hiking Cycle Begins",
+        source_name: "Seeking Alpha",
+        date: "Thu, 17 Mar 2022 12:55:00 -0400",
         topics: ["paylimitwall"],
         sentiment: "Negative",
         type: "Article",
       },
-      {
-        news_url: "https://www.youtube.com/watch?v=ndY4PmSlzl4",
-        image_url:
-          "https://cdn.snapi.dev/images/v1/p/z/fed-decision-the-dot-plot-should-increase-morgan-stanley-cio-says-1279345.jpg",
-        title:
-          "Fed decision: \u2018The dot plot should increase,' Morgan Stanley CIO says",
-        text: "Cresset Capital CIO Jack Ablin and Michael Kushma, Morgan Stanley Investment Management CIO of Broad Markets Fixed Income, joins Yahoo Finance Live to discuss the Fed's interest rate hikes as commodity prices continue to rise, inflation following the Russia-Ukraine conflict, volatile oil prices, avoiding buying the dip, and recession conditions.",
-        source_name: "Yahoo Finance",
-        date: "Tue, 15 Mar 2022 17:03:43 -0400",
-        topics: [],
-        sentiment: "Neutral",
-        type: "Video",
-      },
-      {
-        news_url:
-          "https://www.marketwatch.com/story/api-data-reportedly-show-a-weekly-climb-in-us-crude-supplies-2022-03-15",
-        image_url:
-          "https://cdn.snapi.dev/images/v1/p/j/m02d20201008t2i1536705109w940fhfwllplsqrlynxmpeg9714r-1161599-1279320.jpg",
-        title: "API data reportedly show a weekly climb in U.S. crude supplies",
-        text: "The American Petroleum Institute reported late Tuesday that U.S. crude supplies rose by 3.75 million barrels for the week ended March 11, according to sources. The API also reportedly showed a weekly inventory decline of 3.8 million barrels for gasoline, while distillate stockpiles edged up by 888,000 barrels.",
-        source_name: "Market Watch",
-        date: "Tue, 15 Mar 2022 16:44:06 -0400",
-        topics: ["oil", "paylimitwall"],
-        sentiment: "Negative",
-        type: "Article",
-      },
-      {
-        news_url: "https://www.youtube.com/watch?v=Mcpv-qhbMvc",
-        image_url:
-          "https://cdn.snapi.dev/images/v1/t/j/stocks-close-in-the-green-led-by-amazon-tesla-and-microsoft-1279300.jpg",
-        title: "Stocks close in the green, led by Amazon, Tesla, and Microsoft",
-        text: "Yahoo Finance's Jared Blikre examines the market action heading into the closing bell, as well as taking a look at Nasdaq leaders, sector actions, Hycroft Mining, the travel industry, volatility levels, ARK ETF component stocks, and semiconductors.",
-        source_name: "Yahoo Finance",
-        date: "Tue, 15 Mar 2022 16:36:41 -0400",
-        topics: [],
-        sentiment: "Positive",
-        type: "Video",
-      },
     ]);
   };
+
+  const renderItem = useCallback(
+    ({ item }) => <NewsCard newsBlock={item} />,
+    []
+  );
+
+  const keyExtractor = useCallback((item, i) => `${item?.title}-${i}`, []);
 
   useEffect(() => {
     (async () => {
       await getNewsFeed();
     })();
   }, []);
+
   return (
     <Fragment>
       <SafeAreaView
@@ -149,7 +144,7 @@ const SearchScreen = () => {
               }}
             >
               <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                Some users who is public
+                Some user who is public
               </Text>
             </View>
             <View
@@ -160,7 +155,7 @@ const SearchScreen = () => {
               }}
             >
               <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                Some users who is public
+                Some user who is public
               </Text>
             </View>
             <View
@@ -171,7 +166,7 @@ const SearchScreen = () => {
               }}
             >
               <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                Some users who is public
+                Some user who is public
               </Text>
             </View>
             <View
@@ -182,7 +177,7 @@ const SearchScreen = () => {
               }}
             >
               <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                Some users who is public
+                Some user who is public
               </Text>
             </View>
           </ScrollView>
@@ -202,13 +197,11 @@ const SearchScreen = () => {
           <FlatList
             style={{
               height: "30%",
-              backgroundColor: themeStyle.colors.grayscale.low,
               padding: 5,
               margin: 5,
-              borderRadius: 5,
             }}
             data={newsFeed}
-            keyExtractor={(item, i) => `${item?.title}-${i}`}
+            keyExtractor={keyExtractor}
             ListHeaderComponent={() => (
               <View>
                 <Text
@@ -221,32 +214,7 @@ const SearchScreen = () => {
                 </Text>
               </View>
             )}
-            renderItem={({ item }) => (
-              <View style={{ alignItems: "center", marginVertical: 5 }}>
-                <View
-                  style={{
-                    width: "100%",
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Image
-                    style={{ width: 100, aspectRatio: 1 / 1 }}
-                    source={{ uri: item.image_url }}
-                  />
-                  <Text
-                    style={{
-                      color: themeStyle.colors.grayscale.lowest,
-                      marginHorizontal: 20,
-                      // height: "100%",
-                      flex: 1,
-                    }}
-                  >
-                    {item.title}
-                  </Text>
-                </View>
-              </View>
-            )}
+            renderItem={renderItem}
           />
         ) : null}
       </SafeAreaView>

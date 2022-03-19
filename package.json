@@ -54,6 +54,7 @@
     "react-native-svg": "12.1.1",
     "react-native-web": "0.17.1",
     "react-redux": "^7.2.5",
+    "realm": "^10.13.0",
     "redux": "^4.1.1",
     "socket.io-client": "^4.4.0"
   },

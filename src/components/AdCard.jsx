@@ -15,13 +15,14 @@ const AdCard = (props) => {
       style={{
         elevation: 1,
         zIndex: 1,
-        backgroundColor: themeStyle.colors.grayscale.lower,
+        backgroundColor: themeStyle.colors.grayscale.highest,
+        marginVertical: 3,
         padding: 5,
       }}
     >
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
-          <AdIconView style={{ width: 30, height: 30 }} />
+          <AdIconView style={{ width: 30, height: 30, margin: 5 }} />
           <View
             style={{
               flexDirection: "column",
@@ -29,10 +30,22 @@ const AdCard = (props) => {
               marginHorizontal: 5,
             }}
           >
-            <Text numberOfLines={1} style={{ fontWeight: "700", fontSize: 12 }}>
+            <Text
+              numberOfLines={1}
+              style={{
+                fontWeight: "700",
+                fontSize: 12,
+                color: themeStyle.colors.grayscale.lowest,
+              }}
+            >
               {props.nativeAd.advertiserName}
             </Text>
-            <Text style={{ fontSize: 12 }}>
+            <Text
+              style={{
+                fontSize: 12,
+                color: themeStyle.colors.grayscale.lowest,
+              }}
+            >
               {props.nativeAd.sponsoredTranslation}
             </Text>
           </View>
@@ -48,17 +61,26 @@ const AdCard = (props) => {
         <AdMediaView
           style={{
             width: "100%",
-            aspectRatio: 4 / 3,
+            aspectRatio: 16 / 9,
           }}
         />
       </View>
       <Text style={{ color: themeStyle.colors.grayscale.high }}>
         {props.nativeAd.socialContext}
       </Text>
-      <Text>{props.nativeAd.bodyText}</Text>
-      <Text>{props.nativeAd?.linkDescription}</Text>
+      <Text style={{ color: themeStyle.colors.grayscale.lowest, fontSize: 12 }}>
+        {props.nativeAd.bodyText}
+      </Text>
+      <Text style={{ color: themeStyle.colors.grayscale.lowest, fontSize: 12 }}>
+        {props.nativeAd?.linkDescription}
+      </Text>
       <AdTriggerView>
-        <Text numberOfLines={1}>{props.nativeAd.callToActionText}</Text>
+        <Text
+          numberOfLines={1}
+          style={{ color: themeStyle.colors.secondary.default }}
+        >
+          {props.nativeAd.callToActionText}
+        </Text>
       </AdTriggerView>
     </View>
   );

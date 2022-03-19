@@ -1,10 +1,31 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Button, Platform, View } from "react-native";
+import { StyleSheet, Button, Platform, View, FlatList } from "react-native";
 import React from "react";
 import * as FacebookAds from "expo-ads-facebook";
 import AdCard from "../../../components/AdCard";
 
 export default function AdScreen() {
+  const data = [
+    {
+      news_url:
+        "https://www.kitco.com/news/2022-03-17/Gold-price-has-a-path-to-2-200-after-Fed-revealed-its-strategy-SSGA-s-Milling-Stanley.html",
+      image_url:
+        "https://cdn.snapi.dev/images/v1/6/q/three-all-cap-index-sectors-trade-below-economic-book-value-post-3q21-earnings-1155125-1282957.jpg",
+      title:
+        "Gold price has a path to $2,200 after Fed revealed its strategy - SSGA's Milling-Stanley",
+      text: "(Kitco News) - The Federal Reserve has laid out a clear tightening path, and now gold prices are free to push to new highs above $2,000 an ounce as inflation will remain a clear threat to consumers, according to one market strategist.",
+      source_name: "Kitco",
+      date: "Thu, 17 Mar 2022 13:13:25 -0400",
+      topics: ["gold"],
+      sentiment: "Neutral",
+      type: "Article",
+    },
+  ];
+
+  // const id = AdSettings.currentDeviceHash();
+
+  // console.log({ id });
+
   let [isLoaded, setIsLoaded] = React.useState(false);
   FacebookAds.AdSettings.addTestDevice(
     FacebookAds.AdSettings.currentDeviceHash
@@ -30,49 +51,30 @@ export default function AdScreen() {
     return placementId;
   }
 
-  const bannerId = getPlacementId(true);
-  const interstitialId = getPlacementId(false);
   const adsManager = new FacebookAds.NativeAdsManager(
-    "IMG_16_9_LINK#3130380047243958_3130406723907957"
+    "3130380047243958_3167702336845062",
+    1
   );
 
-  console.log(adsManager);
-
-  FacebookAds.AdSettings.requestPermissionsAsync().then((permissions) => {
-    let canTrack = permissions.status === "granted";
-    FacebookAds.AdSettings.setAdvertiserTrackingEnabled(canTrack);
-    setIsLoaded(true);
-  });
-
-  function showInterstitial() {
-    FacebookAds.InterstitialAdManager.showAd(interstitialId)
-      .then((didClick) => console.log({ didClick }))
-      .catch((error) => console.log({ error }));
-  }
-  //   function getBannerAd() {
-  //     if (isLoaded) {
-  //       return (
-  //         <FacebookAds.BannerAd
-  //           placementId={bannerId}
-  //           type="large"
-  //           onPress={() => console.log("click")}
-  //           onError={(error) => console.log(error.nativeEvent)}
-  //         />
-  //       );
-  //     }
-  //   }
+  console.log({ adsManager });
 
   return (
     <View style={styles.container}>
-      <AdCard
-        adsManager={adsManager}
-        onAdLoaded={(e) => console.log(e)}
-        onError={(e) => console.log(e)}
-      />
-      {/* <View style={styles.content}>
-        <Button title="Show Interstitial" onPress={showInterstitial} />
-      </View> */}
-      {/* <View style={styles.adView}>{getBannerAd()}</View> */}
+      {adsManager ? (
+        <AdCard
+          adsManager={adsManager}
+          onAdLoaded={(e) => console.log({ e })}
+          onError={(e) => console.log(e)}
+        />
+      ) : // <FlatList
+      //   data={data}
+      //   keyExtractor={(item, i) => i}
+      //   renderItem={() => {
+      //     return (
+      //     );
+      //   }}
+      // />
+      null}
     </View>
   );
 }

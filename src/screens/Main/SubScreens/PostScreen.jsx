@@ -262,7 +262,7 @@ const PostScreen = (props) => {
                 <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
                   <Text
                     style={{
-                      color: themeStyle.colors.grayscale.higher,
+                      color: themeStyle.colors.grayscale.low,
                       marginBottom: 10,
                       marginTop: 5,
                     }}
