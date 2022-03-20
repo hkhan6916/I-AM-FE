@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { View, TouchableOpacity, Text, Image } from "react-native";
 import Collapsible from "react-native-collapsible";
 import themeStyle from "../theme.style";
-import { withNativeAd } from "expo-ads-facebook";
 
 const NewsDropdown = ({ newsBlock }) => {
   const [collapsed, setCollapsed] = useState(true); // this is weird, but the library has a backwards collapsed toggle
@@ -48,4 +47,4 @@ const NewsDropdown = ({ newsBlock }) => {
     </View>
   );
 };
-export default withNativeAd(NewsDropdown);
+export default NewsDropdown;

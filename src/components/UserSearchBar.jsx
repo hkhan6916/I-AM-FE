@@ -1,6 +1,16 @@
-import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
-import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import { Ionicons, Feather } from "@expo/vector-icons";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  FlatList,
+  BackHandler,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import themeStyle from "../theme.style";
 import apiCall from "../helpers/apiCall";
 
@@ -11,14 +21,20 @@ const UserSearchBar = ({
   dataToSearchWithin,
   contactName,
   onEndEditing,
+  userSearchHistory = [],
+  onReset,
+  resultsVisible,
+  feedIsVisible = false,
 }) => {
   const [searchInput, setSearchInput] = useState("");
+  const [showHistory, setShowHistory] = useState(false);
   const [typingStatus, setTypingStatus] = useState({
     name: "",
     typing: false,
     typingTimeout: 0,
   });
   const searchUsers = (searchTerm) => {
+    setShowHistory(true);
     if (!dataToSearchWithin) {
       if (typingStatus.typingTimeout) {
         clearTimeout(typingStatus.typingTimeout);
@@ -63,60 +79,145 @@ const UserSearchBar = ({
     }
   };
 
+  const renderItem = useCallback(
+    ({ item: search }) => {
+      return (
+        <TouchableOpacity onPress={() => searchUsers(search.searchQuery)}>
+          <View
+            style={{
+              padding: 10,
+              flexDirection: "row",
+              marginVertical: 5,
+            }}
+          >
+            <Feather
+              name="clock"
+              size={16}
+              color={themeStyle.colors.grayscale.lowest}
+            />
+            <Text
+              style={{
+                color: themeStyle.colors.grayscale.lowest,
+                marginLeft: 20,
+              }}
+            >
+              {search.searchQuery}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      );
+    },
+    [resultsVisible, showHistory]
+  );
+
+  const keyExtractor = useCallback((item, i) => `${item.userId}-${i}`, []);
+
   const resetSearch = () => {
+    Keyboard.dismiss();
     setResults([]);
+    setShowHistory(false);
     setSearchInput("");
+    if (onReset) {
+      onReset();
+    }
   };
 
   return (
-    <View
-      style={
-        dataToSearchWithin
-          ? styles.localSearchStyles
-          : styles.defaultContainerStyles
-      }
-    >
-      <Ionicons
-        style={styles.searchIcon}
-        name="search"
-        size={16}
-        color={
-          searchInput
-            ? themeStyle.colors.grayscale.lowest
-            : themeStyle.colors.grayscale.low
-        }
-      />
-      <TextInput
-        onEndEditing={onEndEditing ? () => onEndEditing() : null}
-        value={searchInput}
-        style={styles.searchBar}
-        placeholderTextColor={themeStyle.colors.grayscale.low}
-        autoCorrect={false}
-        placeholder={
+    <View>
+      <View
+        style={
           dataToSearchWithin
-            ? `Search ${contactName ? `${contactName}'s` : ""} contacts`
-            : "name, username or job title"
+            ? styles.localSearchStyles
+            : styles.defaultContainerStyles
         }
-        onChangeText={(v) => searchUsers(v)}
-        returnKeyType="search"
-        onFocus={onFocus ? () => onFocus() : null}
-        onSubmitEditing={onSubmitEditing ? () => onSubmitEditing() : null}
-      />
-      {searchInput ? (
-        <TouchableOpacity
-          onPress={() => {
-            onEndEditing();
-            resetSearch();
-          }}
-        >
+      >
+        <TouchableOpacity onPress={() => resetSearch()}>
           <Ionicons
             style={styles.searchIcon}
-            name="close"
-            size={20}
-            color={themeStyle.colors.grayscale.lowest}
+            name="arrow-back"
+            size={24}
+            color={
+              searchInput
+                ? themeStyle.colors.grayscale.lowest
+                : themeStyle.colors.grayscale.low
+            }
           />
         </TouchableOpacity>
+        <Ionicons
+          style={styles.searchIcon}
+          name="search"
+          size={16}
+          color={
+            searchInput
+              ? themeStyle.colors.grayscale.lowest
+              : themeStyle.colors.grayscale.low
+          }
+        />
+        <TouchableWithoutFeedback onPress={onFocus ? () => onFocus() : null}>
+          <TextInput
+            onEndEditing={
+              onEndEditing
+                ? () => {
+                    onEndEditing();
+                  }
+                : null
+            }
+            value={searchInput}
+            style={styles.searchBar}
+            placeholderTextColor={themeStyle.colors.grayscale.low}
+            autoCorrect={false}
+            placeholder={
+              dataToSearchWithin
+                ? `Search ${contactName ? `${contactName}'s` : ""} contacts`
+                : "name, username or job title"
+            }
+            onChangeText={(v) => searchUsers(v)}
+            returnKeyType="search"
+            onFocus={
+              onFocus
+                ? () => {
+                    onFocus();
+                    setShowHistory(true);
+                  }
+                : setShowHistory(true)
+            }
+            onSubmitEditing={
+              onSubmitEditing ? () => onSubmitEditing(searchInput) : null
+            }
+          />
+        </TouchableWithoutFeedback>
+        {searchInput ? (
+          <TouchableOpacity
+            onPress={() => {
+              onEndEditing();
+              resetSearch();
+              setShowHistory(false);
+            }}
+          >
+            <Ionicons
+              style={styles.searchIcon}
+              name="close"
+              size={20}
+              color={themeStyle.colors.grayscale.lowest}
+            />
+          </TouchableOpacity>
+        ) : null}
+      </View>
+      {showHistory && !resultsVisible && !feedIsVisible ? (
+        <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
+          Search History
+        </Text>
       ) : null}
+      <FlatList
+        data={
+          showHistory && !resultsVisible && !feedIsVisible
+            ? userSearchHistory
+            : []
+        }
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        keyboardShouldPersistTaps={"always"}
+      />
     </View>
   );
 };

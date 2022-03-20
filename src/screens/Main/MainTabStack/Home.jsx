@@ -17,6 +17,7 @@ import {
   ScrollView,
   useColorScheme,
   SafeAreaView,
+  Button,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -260,7 +261,7 @@ const HomeScreen = () => {
   if (feed.length) {
     return (
       <SafeAreaView style={styles.container}>
-        {/* <Button title="test" onPress={() => navigation.navigate("AdScreen")} /> */}
+        {/* <Button title="test" onPress={() => navigation.navigate("Test")} /> */}
         <View>
           {newPostCreated.state ? (
             <Text style={styles.newPostPill}>

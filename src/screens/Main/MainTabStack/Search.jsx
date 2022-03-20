@@ -7,18 +7,60 @@ import {
   FlatList,
   Text,
   View,
+  TouchableOpacity,
+  BackHandler,
+  Keyboard,
 } from "react-native";
 import UserThumbnail from "../../../components/UserThumbnail";
 import themeStyle from "../../../theme.style";
 import UserSearchBar from "../../../components/UserSearchBar";
 import { StatusBar } from "expo-status-bar";
 import NewsCard from "../../../components/NewsCard";
-
+import * as SQLite from "expo-sqlite";
+import { StackActions, useNavigation } from "@react-navigation/native";
+import {
+  createUserSearchHistoryTable,
+  insertUserSearchHistory,
+  getUserSearchHistory,
+} from "../../../helpers/sqlite/userSearchHistory";
 const SearchScreen = () => {
   const [results, setResults] = useState([]);
   const [newsFeed, setNewsFeed] = useState([]);
   const [showAllResults, setShowAllResults] = useState(false);
   const [hideFeedAndSuggestions, setHideFeedAndSuggestions] = useState(false);
+  const [userSearchHistory, setUserSearchHistory] = useState([]);
+
+  const navigation = useNavigation();
+  const db = SQLite.openDatabase("localdb");
+
+  const handleUserProfileNavigation = async (user) => {
+    if (!user) return;
+
+    const pushScreen = StackActions.push("UserProfileScreen", {
+      userId: user._id,
+    });
+
+    navigation.dispatch(pushScreen);
+  };
+
+  const onUserSearch = async (searchQuery) => {
+    if (!results.length) {
+      console.log("le");
+      Keyboard.dismiss();
+      return;
+    }
+    await createUserSearchHistoryTable(db);
+
+    await insertUserSearchHistory({
+      db,
+      searchQuery,
+    });
+
+    const newHistory = await getUserSearchHistory(db);
+    setUserSearchHistory(newHistory);
+
+    setShowAllResults(true);
+  };
 
   const getNewsFeed = async () => {
     // const { data: response } = await axios({
@@ -105,10 +147,46 @@ const SearchScreen = () => {
   const keyExtractor = useCallback((item, i) => `${item?.title}-${i}`, []);
 
   useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setHideFeedAndSuggestions(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setHideFeedAndSuggestions(false);
+      }
+    );
+
     (async () => {
+      await createUserSearchHistoryTable(db);
+
       await getNewsFeed();
+      const history = await getUserSearchHistory(db);
+      setUserSearchHistory(history || []);
     })();
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
   }, []);
+
+  // function handleBackButtonClick() {
+  //   // resetSearch();
+  //   return true;
+  // }
+
+  // useEffect(() => {
+  //   BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
+  //   return () => {
+  //     BackHandler.removeEventListener(
+  //       "hardwareBackPress",
+  //       handleBackButtonClick
+  //     );
+  //   };
+  // }, []);
 
   return (
     <Fragment>
@@ -128,10 +206,14 @@ const SearchScreen = () => {
           onEndEditing={() =>
             !results.length && setHideFeedAndSuggestions(false)
           }
-          onSubmitEditing={() => setShowAllResults(true)}
+          onSubmitEditing={(searchQuery) => onUserSearch(searchQuery)}
           setResults={setResults}
+          userSearchHistory={userSearchHistory}
+          onReset={() => !results.length && setHideFeedAndSuggestions(false)}
+          resultsVisible={!!results.length}
+          feedIsVisible={!hideFeedAndSuggestions}
         />
-        {!hideFeedAndSuggestions ? (
+        {/* {!hideFeedAndSuggestions ? (
           <ScrollView style={{ flex: 1 }}>
             <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
               Suggested Users
@@ -181,22 +263,24 @@ const SearchScreen = () => {
               </Text>
             </View>
           </ScrollView>
-        ) : null}
+        ) : null} */}
         <FlatList
           data={results}
           renderItem={({ item: user }) => (
             <UserThumbnail
               key={user._id}
               user={user}
-              avatarSize={showAllResults ? 70 : 55}
+              avatarSize={showAllResults ? 70 : 40}
+              fontSize={12}
             />
           )}
           keyExtractor={(item) => item._id}
+          keyboardShouldPersistTaps={"always"}
         />
-        {!hideFeedAndSuggestions ? (
+        {!hideFeedAndSuggestions && !results.length ? (
           <FlatList
             style={{
-              height: "30%",
+              height: "100%", //"30%",
               padding: 5,
               margin: 5,
             }}
