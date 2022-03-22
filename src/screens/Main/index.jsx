@@ -113,7 +113,7 @@ const MainStack = () => (
       options={{
         headerShown: false,
       }}
-      name="PostsScreen"
+      name="PostScreen"
       component={PostScreen}
     />
     <Stack.Screen

@@ -4,8 +4,6 @@ import {
   SafeAreaView,
   Platform,
   FlatList,
-  Text,
-  View,
   Keyboard,
 } from "react-native";
 import UserThumbnail from "../../../components/UserThumbnail";
@@ -57,12 +55,31 @@ const SearchScreen = () => {
     }
   };
 
-  const renderItem = useCallback(
+  const renderSearchFeed = useCallback(
     ({ item }) => <SearchFeedItem post={item} />,
     []
   );
 
-  const keyExtractor = useCallback((item, i) => `${item?.title}-${i}`, []);
+  const renderThumbnail = useCallback(
+    ({ item: user }) => (
+      <UserThumbnail
+        key={user._id}
+        user={user}
+        avatarSize={showAllResults ? 70 : 40}
+        fontSize={12}
+      />
+    ),
+    []
+  );
+
+  const searchFeedKeyExtractor = useCallback(
+    (item, i) => `${item?.title}-${i}`,
+    []
+  );
+  const searchResultsKeyExtractor = useCallback(
+    (item, i) => `${item._id}-${i}`,
+    []
+  );
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -119,15 +136,8 @@ const SearchScreen = () => {
         {results.length ? (
           <FlatList
             data={results}
-            renderItem={({ item: user }) => (
-              <UserThumbnail
-                key={user._id}
-                user={user}
-                avatarSize={showAllResults ? 70 : 40}
-                fontSize={12}
-              />
-            )}
-            keyExtractor={(item) => item._id}
+            renderItem={renderThumbnail}
+            keyExtractor={searchResultsKeyExtractor}
             keyboardShouldPersistTaps={"always"}
           />
         ) : null}
@@ -137,8 +147,8 @@ const SearchScreen = () => {
               height: "100%",
             }}
             data={searchFeed}
-            keyExtractor={keyExtractor}
-            renderItem={renderItem}
+            keyExtractor={searchFeedKeyExtractor}
+            renderItem={renderSearchFeed}
             numColumns={3}
             contentContainerStyle={{ flexGrow: 1 }}
             onEndReached={() => getSearchFeed()}

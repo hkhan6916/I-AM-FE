@@ -37,7 +37,7 @@ const RepostCard = ({ postContent, isPreview }) => {
   return (
     <TouchableOpacity
       style={styles.repostedPostContent}
-      onPress={() => navigation.navigate("PostsScreen", { post: postContent })}
+      onPress={() => navigation.navigate("PostScreen", { post: postContent })}
       underlayColor={themeStyle.colors.grayscale.high}
       disabled={isPreview}
     >

@@ -14,6 +14,7 @@ import formatAge from "../../../helpers/formatAge";
 import themeStyle from "../../../theme.style";
 import Avatar from "../../../components/Avatar";
 import {
+  Feather,
   FontAwesome,
   Ionicons,
   MaterialCommunityIcons,
@@ -214,13 +215,14 @@ const PostScreen = (props) => {
                   }}
                 >
                   <VideoPlayer
-                    shouldPlay={false}
+                    shouldPlay={true}
                     mediaIsSelfie={post.mediaIsSelfie}
                     url={post.mediaUrl}
                     thumbnailUrl={post.thumbnailUrl}
                     thumbnailHeaders={post.thumbnailHeaders}
                     isUploading={post.ready === false}
                     isCancelled={post.cancelled}
+                    showToggle
                   />
                 </View>
               ) : post.mediaType === "image" ? (

@@ -108,9 +108,9 @@ const VideoPlayer = ({
               aspectRatio: aspectRatio || 1,
               width: Math.min(screenWidth, screenHeight), // math.min needed for when user switches back from landscape
             }}
-            // source={{
-            //   uri: url,
-            // }}
+            source={{
+              uri: url,
+            }}
             useNativeControls={false}
             resizeMode="cover"
             onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
