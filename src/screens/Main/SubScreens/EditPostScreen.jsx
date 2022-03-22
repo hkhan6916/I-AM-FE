@@ -403,6 +403,7 @@ const EditPostScreen = (props) => {
             </TouchableOpacity>
           ) : null}
           {!removeMedia &&
+          !existingPost.repostPostId &&
           (file.uri || gif || existingPost?.mediaUrl || existingPost?.gif) ? (
             <View
               style={{

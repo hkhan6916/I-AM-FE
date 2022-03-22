@@ -12,18 +12,22 @@ const Avatar = ({
   hasBorder,
   profileGifHeaders,
   initials,
+  style,
 }) => (
   <View
-    style={{
-      transform: [{ scaleX: -1 }],
-      alignSelf: "flex-start",
-      width: size,
-      height: size,
-      borderRadius: 50,
-      overflow: "hidden",
-      borderWidth: hasBorder || initials ? 2 : 0,
-      borderColor: themeStyle.colors.primary.default,
-    }}
+    style={[
+      {
+        transform: [{ scaleX: -1 }],
+        alignSelf: "flex-start",
+        width: size,
+        height: size,
+        borderRadius: 50,
+        overflow: "hidden",
+        borderWidth: hasBorder || initials ? 2 : 0,
+        borderColor: themeStyle.colors.primary.default,
+      },
+      style && style,
+    ]}
   >
     {!preventClicks && !initials ? (
       <TouchableHighlight

@@ -131,18 +131,20 @@ const UserSearchBar = ({
             : styles.defaultContainerStyles
         }
       >
-        <TouchableOpacity onPress={() => resetSearch()}>
-          <Ionicons
-            style={styles.searchIcon}
-            name="arrow-back"
-            size={24}
-            color={
-              searchInput
-                ? themeStyle.colors.grayscale.lowest
-                : themeStyle.colors.grayscale.low
-            }
-          />
-        </TouchableOpacity>
+        {showHistory ? (
+          <TouchableOpacity onPress={() => resetSearch()}>
+            <Ionicons
+              style={styles.searchIcon}
+              name="arrow-back"
+              size={24}
+              color={
+                searchInput
+                  ? themeStyle.colors.grayscale.lowest
+                  : themeStyle.colors.grayscale.low
+              }
+            />
+          </TouchableOpacity>
+        ) : null}
         <Ionicons
           style={styles.searchIcon}
           name="search"
@@ -181,6 +183,7 @@ const UserSearchBar = ({
                   }
                 : setShowHistory(true)
             }
+            blurOnSubmit={false}
             onSubmitEditing={
               onSubmitEditing ? () => onSubmitEditing(searchInput) : null
             }
@@ -190,8 +193,10 @@ const UserSearchBar = ({
           <TouchableOpacity
             onPress={() => {
               onEndEditing();
-              resetSearch();
-              setShowHistory(false);
+              setSearchInput("");
+
+              // resetSearch();
+              // setShowHistory(false);
             }}
           >
             <Ionicons

@@ -13,6 +13,7 @@ const ImageWithCache = ({
   isFullScreen,
   toggleFullScreen,
   removeBorderRadius,
+  style,
 }) => {
   const { width: screenWidth } = Dimensions.get("window");
 
@@ -76,6 +77,7 @@ const ImageWithCache = ({
               aspectRatio
                 ? { aspectRatio: aspectRatio }
                 : { width: screenWidth },
+              style && style,
             ]}
           />
         )}
