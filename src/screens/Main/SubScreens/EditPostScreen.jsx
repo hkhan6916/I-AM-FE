@@ -279,6 +279,9 @@ const EditPostScreen = (props) => {
     if ((file.uri || gif) && !removeMedia) {
       return false;
     }
+    if (removeMedia && (postBody || existingPost?.body)) {
+      return false;
+    }
     // check if any data is present
     if (removeMedia && !postBody) {
       return true;
@@ -342,6 +345,7 @@ const EditPostScreen = (props) => {
           backgroundColor: themeStyle.colors.grayscale.highest,
         }}
       />
+      {console.log("dhdhhdhdhdhd")}
       {Platform.OS === "ios" ? <StatusBar translucent={true} /> : null}
       <SafeAreaView style={styles.container}>
         <GifModal
@@ -403,7 +407,7 @@ const EditPostScreen = (props) => {
             </TouchableOpacity>
           ) : null}
           {!removeMedia &&
-          !existingPost.repostPostId &&
+          !existingPost?.repostPostId &&
           (file.uri || gif || existingPost?.mediaUrl || existingPost?.gif) ? (
             <View
               style={{

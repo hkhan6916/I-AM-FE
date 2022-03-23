@@ -45,11 +45,10 @@ const SearchScreen = () => {
   };
 
   const getSearchFeed = async () => {
-    const { response, success, message } = await apiCall(
+    const { response, success } = await apiCall(
       "GET",
       `/posts/searchfeed/${searchFeed.length}`
     );
-    console.log("hey");
     if (success) {
       setSearchFeed([...searchFeed, ...response]);
     }

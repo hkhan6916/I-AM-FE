@@ -8,20 +8,13 @@ import {
   Entypo,
 } from "@expo/vector-icons";
 import VideoPlayer from "./VideoPlayer";
-import formatAge from "../helpers/formatAge";
 import Avatar from "./Avatar";
 import themeStyle from "../theme.style";
 import apiCall from "../helpers/apiCall";
 import ImageWithCache from "./ImageWithCache";
 import RepostCard from "./RepostCard";
 import LottieView from "lottie-react-native";
-import {
-  withNativeAd,
-  AdTriggerView,
-  AdMediaView,
-  AdIconView,
-  AdOptionsView,
-} from "expo-ads-facebook";
+import PostAge from "./PostAge";
 import AdCard from "./AdCard";
 
 const PostCard = ({
@@ -69,89 +62,6 @@ const PostCard = ({
     }
     lottieRef?.current?.play(15, 1000);
   };
-
-  const PostAge = () => {
-    const { age } = post;
-    const ageObject = formatAge(age);
-
-    return (
-      <Text style={styles.postAge}>
-        {ageObject.age} {ageObject.unit} ago
-      </Text>
-    );
-  };
-  if (post.type == "ad") {
-    return (
-      <View /> // <View style={[styles.container]}>
-      //   <View style={styles.container}>
-      //     <View
-      //       style={{ flexDirection: "row", justifyContent: "space-between" }}
-      //     >
-      //       <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
-      //         {/* <AdIconView style={{ width: 30, height: 30 }} /> */}
-      //         <View
-      //           style={{
-      //             flexDirection: "column",
-      //             height: "100%",
-      //             marginHorizontal: 5,
-      //           }}
-      //         >
-      //           <Text
-      //             numberOfLines={1}
-      //             style={{
-      //               fontWeight: "700",
-      //               fontSize: 12,
-      //               color: themeStyle.colors.grayscale.lowest,
-      //             }}
-      //           >
-      //             {post.advertiserName}
-      //           </Text>
-      //           <Text
-      //             style={{
-      //               fontSize: 12,
-      //               color: themeStyle.colors.grayscale.lowest,
-      //             }}
-      //           >
-      //             {post.sponsoredTranslation}
-      //           </Text>
-      //         </View>
-      //       </View>
-      //       <AdOptionsView style={{ height: 48, width: 48 }} />
-      //     </View>
-      //     <View
-      //       style={{
-      //         paddingVertical: 10,
-      //         backgroundColor: themeStyle.colors.grayscale.lower,
-      //       }}
-      //     >
-      //       <AdMediaView
-      //         style={{
-      //           width: "100%",
-      //           aspectRatio: 16 / 9,
-      //         }}
-      //       />
-      //     </View>
-      //     <Text style={{ color: themeStyle.colors.grayscale.high }}>
-      //       {post.socialContext}
-      //     </Text>
-      //     <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-      //       {post.bodyText}
-      //     </Text>
-      //     <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-      //       {post?.linkDescription}
-      //     </Text>
-      //     <AdTriggerView>
-      //       <Text
-      //         numberOfLines={1}
-      //         style={{ color: themeStyle.colors.secondary.default }}
-      //       >
-      //         {post.callToActionText}
-      //       </Text>
-      //     </AdTriggerView>
-      //   </View>
-      // </View>
-    );
-  }
 
   if (!deleted) {
     return (
@@ -505,7 +415,7 @@ const PostCard = ({
                   </Text>
                 )}
               </View>
-              <PostAge />
+              <PostAge age={post.age} />
             </View>
           )}
         </View>
@@ -520,16 +430,9 @@ const styles = StyleSheet.create({
     borderRightWidth: 0,
     borderLeftWidth: 0,
     borderColor: themeStyle.colors.grayscale.low,
-    // marginBottom: 3,
     borderBottomColor: themeStyle.colors.grayscale.higher,
     borderBottomWidth: 2,
     backgroundColor: themeStyle.colors.grayscale.highest,
-  },
-  postAge: {
-    color: themeStyle.colors.grayscale.low,
-    marginHorizontal: 10,
-    marginVertical: 5,
-    fontSize: 12,
   },
   preview: {
     margin: 20,

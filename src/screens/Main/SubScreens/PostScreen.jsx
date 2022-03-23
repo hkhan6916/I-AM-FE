@@ -23,6 +23,7 @@ import ImageWithCache from "../../../components/ImageWithCache";
 import VideoPlayer from "../../../components/VideoPlayer";
 import LottieView from "lottie-react-native";
 import { useDispatch } from "react-redux";
+import PostAge from "../../../components/PostAge";
 
 const PostScreen = (props) => {
   const { post: initialPost, prevScreen } = props.route.params;
@@ -92,16 +93,6 @@ const PostScreen = (props) => {
     (async () => await getAdditionalPostData())();
   }, []);
 
-  const PostAge = () => {
-    const { age } = post;
-    const ageObject = formatAge(age);
-
-    return (
-      <Text style={styles.postAge}>
-        {ageObject?.age} {ageObject?.unit} ago
-      </Text>
-    );
-  };
   if (post) {
     return (
       <SafeAreaView style={styles.container}>
@@ -372,7 +363,7 @@ const PostScreen = (props) => {
             >
               {post.likes} likes
             </Text>
-            <PostAge />
+            <PostAge age={post.age} />
           </View>
         </ScrollView>
       </SafeAreaView>

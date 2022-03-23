@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Modal, TouchableOpacity, Dimensions } from "react-native";
 import FastImage from "react-native-fast-image";
 import { AntDesign } from "@expo/vector-icons";
 import themeStyle from "../theme.style";
+import ContentLoader from "../components/ContentLoader";
 
 const ImageWithCache = ({
   resizeMode,
@@ -13,10 +14,11 @@ const ImageWithCache = ({
   isFullScreen,
   toggleFullScreen,
   removeBorderRadius,
+  showContentLoader = false,
   style,
 }) => {
   const { width: screenWidth } = Dimensions.get("window");
-
+  const [ready, setReady] = useState(false);
   return (
     <View
       style={[
@@ -62,24 +64,30 @@ const ImageWithCache = ({
             </View>
           </Modal>
         ) : (
-          <FastImage
-            resizeMode={
-              resizeMode === "cover"
-                ? FastImage.resizeMode.cover
-                : FastImage.resizeMode.contain
-            }
-            source={{ uri: mediaUrl, headers: mediaHeaders || {} }}
-            style={[
-              {
-                borderRadius: removeBorderRadius ? 0 : 10,
-                height: "100%",
-              },
-              aspectRatio
-                ? { aspectRatio: aspectRatio }
-                : { width: screenWidth },
-              style && style,
-            ]}
-          />
+          <View>
+            {showContentLoader && !ready ? (
+              <ContentLoader active listSize={1} isSquare />
+            ) : null}
+            <FastImage
+              onLoad={() => setReady(true)}
+              resizeMode={
+                resizeMode === "cover"
+                  ? FastImage.resizeMode.cover
+                  : FastImage.resizeMode.contain
+              }
+              source={{ uri: mediaUrl, headers: mediaHeaders || {} }}
+              style={[
+                {
+                  borderRadius: removeBorderRadius ? 0 : 10,
+                  height: "100%",
+                },
+                aspectRatio
+                  ? { aspectRatio: aspectRatio }
+                  : { width: screenWidth },
+                style && style,
+              ]}
+            />
+          </View>
         )}
       </View>
     </View>

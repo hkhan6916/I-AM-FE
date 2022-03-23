@@ -41,7 +41,6 @@ const AddScreen = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [file, setFile] = useState({});
-  const [compressedFileUrl, setCompressedFileUrl] = useState(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [recording, setRecording] = useState(false);
   const [showMediaSizeError, setShowMediaSizeError] = useState(false);
@@ -240,41 +239,6 @@ const AddScreen = () => {
         navigation.navigate("Home");
       }
     });
-  };
-
-  const handleCompression = async (media) => {
-    const mediaInfo = await getInfoAsync(media?.uri);
-    const mediaSizeInMb = mediaInfo?.size / 1000000;
-
-    if (typeof mediaSizeInMb === "number" && mediaSizeInMb > 14) {
-      if (media?.type === "video") {
-        const url = await VideoCompress.compress(
-          media.uri,
-          {
-            compressionMethod: "auto",
-          },
-          (progress) => {
-            console.log({ compression: progress });
-          }
-        );
-        setCompressedFileUrl(url);
-        return url;
-      }
-
-      if (file.type?.split("/")[0] === "image") {
-        const url = await ImageCompress.compress(
-          media.uri,
-          {
-            compressionMethod: "auto",
-          },
-          (progress) => {
-            console.log({ compression: progress });
-          }
-        );
-        setCompressedFileUrl(url);
-        return url;
-      }
-    }
   };
 
   const pickMedia = async () => {
