@@ -20,7 +20,9 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState("");
   const [gifs, setGifs] = useState([]);
+
   const { width: screenWidth } = Dimensions.get("window");
+  const imageHeight = screenWidth <= 400 ? screenWidth / 2 : screenWidth / 3;
   const handleGifSearch = async (searchInput) => {
     let isCancelled = false;
     if (!isCancelled) {
@@ -69,7 +71,8 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
             style={{
               justifyContent: "center",
               alignItems: "center",
-              height: screenWidth / 2,
+              height: imageHeight,
+              width: imageHeight,
             }}
             source={{ uri: item.media[0].tinygif.url }}
           />
@@ -139,7 +142,6 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
             placeholder="Search Gifs"
             onTypingEnd={(v) => handleGifSearch(v)}
           />
-          {console.log("hey")}
           {error ? (
             <Text
               style={{

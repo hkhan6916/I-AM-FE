@@ -126,15 +126,10 @@ const AddScreen = () => {
   const handlePostCreation = async () => {
     setLoading(true);
     const postData = await createPostData();
-
-    const { success, response, message } = await apiCall(
-      "POST",
-      "/posts/new",
-      postData
-    );
-    console.log(message, postData);
+    const { success, response } = await apiCall("POST", "/posts/new", postData);
     setLoading(false);
     if (success) {
+      setGif("");
       return response.post;
     } else {
       console.log(response);

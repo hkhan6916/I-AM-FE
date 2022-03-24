@@ -140,7 +140,9 @@ const SearchScreen = () => {
             keyboardShouldPersistTaps={"always"}
           />
         ) : null}
-        {!hideFeedAndSuggestions && !results.length ? (
+        {!hideFeedAndSuggestions &&
+        !results.length &&
+        searchFeed.length >= 20 ? (
           <FlatList
             style={{
               height: "100%",
