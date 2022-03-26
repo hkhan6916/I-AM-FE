@@ -310,6 +310,36 @@ const AddScreen = () => {
           >
             New Post
           </Text>
+          <View
+            style={{
+              justifyContent: "center",
+              flexDirection: "row",
+              opacity: !file?.uri && !postBody && !gif ? 0.7 : 1,
+              marginHorizontal: 10,
+            }}
+          >
+            <TouchableOpacity
+              disabled={!file.uri && !postBody && !gif}
+              onPress={() => createPost()}
+            >
+              {loading ? (
+                <ActivityIndicator
+                  animating
+                  color={themeStyle.colors.white}
+                  size={"small"}
+                />
+              ) : (
+                <Text
+                  style={{
+                    fontSize: 18,
+                    color: themeStyle.colors.secondary.default,
+                  }}
+                >
+                  Post
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
         {postBody.length >= 2000 - 25 ? (
           <Text style={styles.postLimitMessage}>
@@ -477,39 +507,6 @@ const AddScreen = () => {
                 />
               </TouchableOpacity>
             </View>
-          </View>
-          <View
-            style={{
-              justifyContent: "center",
-              flexDirection: "row",
-              backgroundColor: themeStyle.colors.primary.default,
-              padding: 5,
-              borderRadius: 20,
-              width: 70,
-              opacity: !file?.uri && !postBody && !gif ? 0.5 : 1,
-            }}
-          >
-            <TouchableOpacity
-              disabled={!file.uri && !postBody && !gif}
-              onPress={() => createPost()}
-            >
-              {loading ? (
-                <ActivityIndicator
-                  animating
-                  color={themeStyle.colors.white}
-                  size={"small"}
-                />
-              ) : (
-                <Text
-                  style={{
-                    fontSize: 16,
-                    color: themeStyle.colors.white,
-                  }}
-                >
-                  Post
-                </Text>
-              )}
-            </TouchableOpacity>
           </View>
         </View>
         {error ? (

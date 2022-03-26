@@ -264,9 +264,11 @@ const HomeScreen = () => {
         {/* <Button title="test" onPress={() => navigation.navigate("Test")} /> */}
         <View>
           {newPostCreated.state ? (
-            <Text style={styles.newPostPill}>
-              Post {newPostCreated.state.type}
-            </Text>
+            <View style={styles.newPostPill}>
+              <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                Post {newPostCreated.state.type}
+              </Text>
+            </View>
           ) : null}
           <HomeHeading />
           <FlatList
@@ -409,7 +411,6 @@ const styles = StyleSheet.create({
     zIndex: 3, // works on ios
     elevation: 3, // works on android
     backgroundColor: themeStyle.colors.primary.default,
-    color: themeStyle.colors.grayscale.lowest,
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 20,
