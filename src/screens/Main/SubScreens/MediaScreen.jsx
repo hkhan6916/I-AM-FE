@@ -20,15 +20,29 @@ import apiCall from "../../../helpers/apiCall";
 import ImageWithCache from "../../../components/ImageWithCache";
 import ExpoVideoPlayer from "../../../components/ExpoVideoPlayer";
 const MediaScreen = (props) => {
-  const { post } = props.route.params;
-  const [liked, setLked] = useState(post.liked);
-  const [likes, setLikes] = useState(post.likes);
+  const { post: initialPost } = props.route.params;
+  const [liked, setLiked] = useState(initialPost.liked);
+  const [likes, setLikes] = useState(initialPost.likes);
+  const [post, setPost] = useState(initialPost);
+
   const navigation = useNavigation();
+
+  const getAdditionalPostData = async () => {
+    const { success, response } = await apiCall(
+      "POST",
+      `/posts/${post?._id}/additionaldata`
+    );
+    if (success) {
+      setLikes(response.likes);
+      setLiked(response.liked);
+      setPost({ ...post, liked: response.liked, likes: response.likes });
+    }
+  };
 
   const handleReaction = async () => {
     if (liked) {
       setLikes(likes - 1);
-      setLked(false);
+      setLiked(false);
 
       const { success } = await apiCall(
         "GET",
@@ -36,20 +50,21 @@ const MediaScreen = (props) => {
       );
       if (!success) {
         setLikes(likes + 1);
-        setLked(true);
+        setLiked(true);
       }
     } else {
       setLikes(likes + 1);
-      setLked(true);
+      setLiked(true);
       const { success } = await apiCall("GET", `/posts/like/add/${post._id}`);
       if (!success) {
         setLikes(likes - 1);
-        setLked(false);
+        setLiked(false);
       }
     }
   };
   useEffect(() => {
     (async () => {
+      await getAdditionalPostData();
       if (post?.mediaType === "video") {
         await ScreenOrientation.lockAsync(
           ScreenOrientation.OrientationLock.DEFAULT

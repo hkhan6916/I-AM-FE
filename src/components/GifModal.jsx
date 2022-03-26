@@ -31,7 +31,9 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
       try {
         const response = await axios({
           method: "POST",
-          url: `https://g.tenor.com/v1/search?q=${searchQuery}&key=${tenorApiKey}&limit=20&media_filter=minimal&contentfilter=high&locale=en_US&ar_range=standard`,
+          url: `https://g.tenor.com/v1/search?q=${
+            searchQuery || ""
+          }&key=${tenorApiKey}&limit=20&media_filter=minimal&contentfilter=high&locale=en_US&ar_range=standard`,
         });
         if (error) {
           setError("");

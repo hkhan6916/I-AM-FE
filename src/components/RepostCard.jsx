@@ -1,21 +1,19 @@
-import React, { useState } from "react";
-import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Image,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import React from "react";
+import { Text, View, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { StackActions, useNavigation } from "@react-navigation/native";
 import Avatar from "./Avatar";
 import themeStyle from "../theme.style";
 import ImageWithCache from "./ImageWithCache";
 import { Feather } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 
 const RepostCard = ({ postContent, isPreview }) => {
   const navigation = useNavigation();
+
+  const handleNavigation = () => {
+    const pushScreen = StackActions.push("PostScreen", { post: postContent });
+
+    navigation.dispatch(pushScreen);
+  };
 
   if (!postContent) {
     return (
@@ -37,7 +35,7 @@ const RepostCard = ({ postContent, isPreview }) => {
   return (
     <TouchableOpacity
       style={styles.repostedPostContent}
-      onPress={() => navigation.navigate("PostScreen", { post: postContent })}
+      onPress={() => handleNavigation()}
       underlayColor={themeStyle.colors.grayscale.high}
       disabled={isPreview}
     >

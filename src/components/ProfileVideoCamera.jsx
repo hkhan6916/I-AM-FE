@@ -16,6 +16,7 @@ import { useNavigation } from "@react-navigation/native";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import Constants from "expo-constants";
 import themeStyle from "../theme.style";
+import { StatusBar } from "expo-status-bar";
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 const ProfileVideoCamera = ({
@@ -210,31 +211,36 @@ const ProfileVideoCamera = ({
         justifyContent: "center",
       }}
     >
+      <StatusBar hidden />
+
+      <TouchableOpacity
+        onPress={() => setCameraActivated(false)}
+        style={{
+          height: 48,
+          width: 48,
+          margin: 15,
+          position: "absolute",
+          top: 0,
+          left: 0,
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color={themeStyle.colors.grayscale.lowest}
+          />
+          <Text
+            style={{
+              color: themeStyle.colors.grayscale.lowest,
+              marginLeft: 10,
+            }}
+          >
+            Back
+          </Text>
+        </View>
+      </TouchableOpacity>
       <View>
-        <TouchableOpacity
-          onPress={() => setCameraActivated(false)}
-          style={{
-            height: 48,
-            width: 48,
-            margin: 15,
-          }}
-        >
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={themeStyle.colors.grayscale.lowest}
-            />
-            <Text
-              style={{
-                color: themeStyle.colors.grayscale.lowest,
-                marginLeft: 10,
-              }}
-            >
-              Back
-            </Text>
-          </View>
-        </TouchableOpacity>
         <Camera
           style={{
             width: screenWidth,

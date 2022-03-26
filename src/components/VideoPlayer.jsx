@@ -120,7 +120,7 @@ const VideoPlayer = ({
               <Feather
                 name={videoStatus?.isPlaying ? "pause" : "play"}
                 size={48}
-                color={themeStyle.colors.grayscale.low}
+                color={themeStyle.colors.white}
               />
             </View>
           ) : null}

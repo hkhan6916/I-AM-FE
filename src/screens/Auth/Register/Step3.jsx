@@ -21,6 +21,7 @@ import { useSelector, useDispatch } from "react-redux";
 import PreviewVideo from "../../../components/PreviewVideo";
 import { detectFacesAsync } from "expo-face-detector";
 import { getThumbnailAsync } from "expo-video-thumbnails";
+
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
 
@@ -34,7 +35,8 @@ const Step1Screen = () => {
   const [showHelpModal, setShowHelpModal] = useState(false);
 
   const { width: screenWidth } = Dimensions.get("window");
-  const [faceDectected, setFaceDetected] = useState(false);
+  const [faceDetected, setFaceDetected] = useState(false);
+  const [detectingFaces, setDetectingFaces] = useState(false);
 
   const [profileVideo, setProfileVideo] = useState("");
 
@@ -44,13 +46,15 @@ const Step1Screen = () => {
   const existingInfo = useSelector((state) => state.userData);
 
   const checkAllDetailsProvided = () => {
-    if (profileVideo && faceDectected) {
+    if (profileVideo && faceDetected) {
       return true;
     }
     return false;
   };
 
   const registerUser = async () => {
+    setRegisterationError("");
+
     const payload = {
       ...existingInfo.state,
       notificationToken: await getExpoPushTokenAsync({
@@ -62,37 +66,47 @@ const Step1Screen = () => {
         type: "video/mp4",
       },
     };
-    console.log(payload);
     const formData = new FormData();
     Object.keys(payload).forEach((key) => {
       formData.append(key, payload[key]);
     });
     setLoading(true);
-    const { success } = await apiCall("POST", "/user/register", formData);
-
+    const { success, message } = await apiCall(
+      "POST",
+      "/user/register",
+      formData
+    );
+    console.log(message);
     setLoading(false);
     if (success) {
-      dispatch({
-        type: "SET_USER_DATA",
-        payload: {},
-      });
-      setTimeout(() => navigation.navigate("Login"), 2000);
+      // dispatch({
+      //   type: "SET_USER_DATA",
+      //   payload: {},
+      // });
+      // setTimeout(() => navigation.navigate("Login"), 100);
+      // navigation.navigate("Login");
     } else {
-      setRegisterationError("Error, maybe network error.");
+      setRegisterationError("An error occurred. Please try again.");
     }
   };
 
-  const handleFaceDetection = async () => {
-    const { uri } = await getThumbnailAsync(profileVideo, {
+  const handleFaceDetection = async (profileVideoUrl) => {
+    setDetectingFaces(true);
+    const { uri } = await getThumbnailAsync(profileVideoUrl, {
       time: 500,
-    });
+    }); // TODO detect face at end too
     const { faces } = await detectFacesAsync(uri);
-    console.log(faces);
     if (faces?.length) {
       setFaceDetected(true);
     } else {
       setFaceDetected(false);
     }
+    setDetectingFaces(false);
+  };
+
+  const handleSetProfileVideo = async (profileVideoUrl) => {
+    await handleFaceDetection(profileVideoUrl);
+    setProfileVideo(profileVideoUrl);
   };
 
   useEffect(() => {
@@ -116,12 +130,6 @@ const Step1Screen = () => {
     }
   }, [cameraActivated]);
 
-  useEffect(() => {
-    if (profileVideo) {
-      (async () => await handleFaceDetection())();
-    }
-  }, [profileVideo]);
-
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -137,7 +145,7 @@ const Step1Screen = () => {
     return (
       <ProfileVideoCamera
         setRecording={setRecording}
-        setProfileVideo={setProfileVideo}
+        setProfileVideo={handleSetProfileVideo}
         setCameraActivated={setCameraActivated}
         setRecordingLength={setRecordingLength}
         recording={recording}
@@ -187,6 +195,7 @@ const Step1Screen = () => {
                     fontSize: 16,
                     alignSelf: "flex-start",
                     marginBottom: 10,
+                    color: themeStyle.colors.grayscale.lowest,
                   }}
                 >
                   Some things you could mention about yourself:
@@ -211,7 +220,13 @@ const Step1Screen = () => {
               </View>
             </SafeAreaView>
           </Modal>
-          {profileVideo && faceDectected ? (
+          {detectingFaces ? (
+            <ActivityIndicator
+              animating
+              size={"large"}
+              color={themeStyle.colors.primary.default}
+            />
+          ) : profileVideo && faceDetected ? (
             <PreviewVideo uri={profileVideo} isFullWidth />
           ) : profileVideo ? (
             <Text style={styles.faceDetectionError}>

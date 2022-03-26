@@ -11,7 +11,7 @@ import MainScreens from "./Main";
 import themeStyle from "../theme.style";
 import FeedContext from "../Context";
 import registerNotifications from "../helpers/registerNotifications";
-import * as SplashScreen from "expo-splash-screen";
+import { hideAsync, preventAutoHideAsync } from "expo-splash-screen";
 import { useColorScheme } from "react-native";
 
 const Screens = () => {
@@ -85,7 +85,7 @@ const Screens = () => {
 
   useEffect(() => {
     (async () => {
-      SplashScreen.preventAutoHideAsync();
+      preventAutoHideAsync();
       // if not loaded, but authenticated
       if (!loaded || loginAttemptStatus.state) {
         await getUserFeed();
@@ -122,7 +122,7 @@ const Screens = () => {
     }
     (async () => {
       if (loaded && notificationToken) {
-        await SplashScreen.hideAsync();
+        await hideAsync();
       }
     })();
   }, [loaded, notificationToken]);

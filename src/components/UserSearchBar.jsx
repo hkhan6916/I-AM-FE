@@ -25,6 +25,8 @@ const UserSearchBar = ({
   onReset,
   resultsVisible,
   feedIsVisible = false,
+  setShowAllResults,
+  showAllResults,
 }) => {
   const [searchInput, setSearchInput] = useState("");
   const [showHistory, setShowHistory] = useState(false);
@@ -35,6 +37,9 @@ const UserSearchBar = ({
   });
   const searchUsers = (searchTerm) => {
     setShowHistory(true);
+    if (showAllResults && setShowAllResults) {
+      setShowAllResults(false);
+    }
     if (!dataToSearchWithin) {
       if (typingStatus.typingTimeout) {
         clearTimeout(typingStatus.typingTimeout);

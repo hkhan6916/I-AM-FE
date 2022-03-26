@@ -75,4 +75,4 @@ const Avatar = ({
   </View>
 );
 
-export default React.memo(Avatar, (p, n) => p.size === n.size);
+export default React.memo(Avatar);

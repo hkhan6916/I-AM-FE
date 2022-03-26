@@ -37,7 +37,7 @@ const SearchScreen = () => {
       db,
       searchQuery,
     });
-
+    Keyboard.dismiss();
     const newHistory = await getUserSearchHistory(db);
     setUserSearchHistory(newHistory);
 
@@ -68,7 +68,7 @@ const SearchScreen = () => {
         fontSize={12}
       />
     ),
-    []
+    [showAllResults]
   );
 
   const searchFeedKeyExtractor = useCallback(
@@ -128,6 +128,8 @@ const SearchScreen = () => {
           onSubmitEditing={(searchQuery) => onUserSearch(searchQuery)}
           setResults={setResults}
           userSearchHistory={userSearchHistory}
+          setShowAllResults={setShowAllResults}
+          showAllResults={showAllResults}
           onReset={() => !results.length && setHideFeedAndSuggestions(false)}
           resultsVisible={!!results.length}
           feedIsVisible={!hideFeedAndSuggestions}

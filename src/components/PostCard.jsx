@@ -31,7 +31,7 @@ const PostCard = ({
   const [post, setPost] = useState(initialPost);
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
   const [isCollapsible, setIsCollapsible] = useState(false);
-
+  console.log("hey");
   const navigation = useNavigation();
 
   const lottieRef = useRef(null);

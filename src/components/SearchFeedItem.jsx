@@ -4,17 +4,21 @@ import themeStyle from "../theme.style";
 import Avatar from "./Avatar";
 import ImageWithCache from "./ImageWithCache";
 import { Feather } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { StackActions, useNavigation } from "@react-navigation/native";
 
 const SearchFeedItem = ({ post }) => {
   const { width: screenWidth } = Dimensions.get("window");
   const imageHeight = screenWidth <= 340 ? screenWidth / 2 : screenWidth / 3;
   const navigation = useNavigation();
+
+  const handleNavigation = () => {
+    const pushScreen = StackActions.push("PostScreen", { post });
+
+    navigation.dispatch(pushScreen);
+  };
   if (!post) return null;
   return (
-    <TouchableOpacity
-      onPress={() => navigation.navigate("PostScreen", { post })}
-    >
+    <TouchableOpacity onPress={() => handleNavigation()}>
       <View
         style={{
           flex: 1,

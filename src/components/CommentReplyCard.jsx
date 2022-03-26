@@ -125,7 +125,9 @@ const CommentReplyCard = ({
               </Text>
             </TouchableOpacity>
           ) : null}
-          <Text>{reply.body}</Text>
+          <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+            {reply.body}
+          </Text>
         </View>
         <View style={styles.actionsContainer}>
           <View style={styles.actions}>

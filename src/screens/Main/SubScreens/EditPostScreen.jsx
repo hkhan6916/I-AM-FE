@@ -279,6 +279,11 @@ const EditPostScreen = (props) => {
     if ((file.uri || gif) && !removeMedia) {
       return false;
     }
+
+    if (existingPost?.repostPostId && postBody !== existingPost?.body) {
+      return false;
+    }
+
     if (removeMedia && (postBody || existingPost?.body)) {
       return false;
     }
