@@ -8,6 +8,9 @@ import {
   ActivityIndicator,
   StyleSheet,
   Dimensions,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import Constants from "expo-constants";
 import { useNavigation } from "@react-navigation/native";
@@ -257,179 +260,213 @@ const EditUserDetailsScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
-      {showUpdatedPill ? (
-        <Text style={styles.newPostPill}>Profile Updated</Text>
-      ) : null}
-      <ScrollView style={{ marginBottom: 48 }}>
-        <View style={styles.formContainer}>
-          {(profileVideo && faceDetected) ||
-          (!profileVideo && initialProfileData.profileVideoUrl) ? (
-            <PreviewVideo
-              isFullWidth
-              uri={profileVideo || initialProfileData?.profileVideoUrl}
-              headers={initialProfileData?.profileVideoHeaders}
-            />
-          ) : profileVideo ? (
-            <View>
-              <PreviewVideo isFullWidth uri={profileVideo} />
-              <View style={styles.faceDetectionError}>
-                <Text style={styles.faceDetectionErrorText}>
-                  No face detected. Make sure your face is shown at the start
-                  and end of your profile video.
-                </Text>
-                <TouchableOpacity onPress={() => setProfileVideo("")}>
-                  <Text style={styles.resetProfileVideoText}>
-                    Reset Profile Video
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ) : null}
-          <TouchableOpacity
-            style={styles.takeVideoButton}
-            onPress={() => {
-              setFaceDetected(false);
-              setCameraActivated(true);
-            }}
-          >
-            <Text style={styles.takeVideoButtonText}>
-              <Ionicons name="videocam" size={14} /> Retake profile video
-            </Text>
-          </TouchableOpacity>
-          <InputNoBorder
-            label="Job title"
-            value={jobTitle !== null ? jobTitle : initialProfileData.jobTitle}
-            onChangeText={(v) => {
-              setJobTitle(v);
-              if (validationErrors.jobTitle) {
-                setValidationErrors({ ...validationErrors, jobTitle: null });
-              }
-            }}
-            error={validationErrors?.jobTitle}
-          />
-          <InputNoBorder
-            error={validationErrors?.firstName}
-            label="First Name"
-            value={
-              firstName !== null ? firstName : initialProfileData.firstName
-            }
-            onChangeText={(v) => {
-              setFirstName(v);
-              if (validationErrors.firstName) {
-                setValidationErrors({ ...validationErrors, firstName: null });
-              }
-            }}
-          />
-          <InputNoBorder
-            error={validationErrors?.lastName}
-            label="Last Name"
-            value={lastName !== null ? lastName : initialProfileData.lastName}
-            onChangeText={(v) => {
-              setLastName(v);
-              if (validationErrors.lastName) {
-                setValidationErrors({ ...validationErrors, lastName: null });
-              }
-            }}
-          />
-          <InputNoBorder
-            error={
-              validationErrors?.username?.exists
-                ? "A user with this username already exists."
-                : validationErrors?.username
-            }
-            label="Username"
-            value={username !== null ? username : initialProfileData.username}
-            onChangeText={(v) => {
-              setUsername(v);
-              if (validationErrors.username) {
-                setValidationErrors({ ...validationErrors, username: null });
-              }
-            }}
-            onEndEditing={(e) =>
-              checkUserExists("username", e.nativeEvent.text)
-            }
-          />
-          <InputNoBorder
-            error={
-              validationErrors?.email?.exists
-                ? "A user with this email already exists."
-                : validationErrors?.email
-            }
-            label="Email"
-            value={email !== null ? email : initialProfileData.email}
-            onChangeText={(v) => {
-              setEmail(v);
-              if (validationErrors.email) {
-                setValidationErrors({ ...validationErrors, email: null });
-              }
-            }}
-            onEndEditing={(e) => checkUserExists("email", e.nativeEvent.text)}
-          />
-          <View style={styles.textInputContainer}>
-            <PasswordInputNoBorder
-              label={"Password"}
-              error={validationErrors?.password}
-              onChangeText={(v) => {
-                setPassword(v);
-                if (validationErrors?.password) {
-                  let newValidationErrorsObj = validationErrors;
-                  delete newValidationErrorsObj.password;
-                  setValidationErrors(newValidationErrorsObj);
-                  console.log(newValidationErrorsObj);
-                }
-              }}
-            />
-            {validationErrors?.password && password ? (
-              <View style={styles.passwordGuide}>
-                <Text style={styles.errorText}>
-                  - Must be at least 8 characters
-                </Text>
-                <Text style={styles.errorText}>
-                  - Must container an uppercase character
-                </Text>
-                <Text style={styles.errorText}>
-                  - Must container an lowercase character
-                </Text>
-                <Text style={styles.errorText}>- Must container a number</Text>
-              </View>
-            ) : null}
-          </View>
-          {updateError ? (
-            <Text style={styles.updateError}>{updateError}</Text>
-          ) : null}
-        </View>
-      </ScrollView>
-      <View
-        style={[
-          styles.submitButtonContainer,
-          (profileVideo && !faceDetected) ||
-            (Object.keys(validationErrors).length && { opacity: 0.3 }),
-        ]}
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" && "padding"}
+        style={{ flex: 1 }}
       >
-        <TouchableOpacity
-          style={[styles.submitButton]}
-          onPress={() => updateProfile()}
-          disabled={
-            (profileVideo && !faceDetected) ||
-            Object.keys(validationErrors).length
-          }
-        >
-          {isUpdating ? (
-            <ActivityIndicator
-              size="large"
-              color={themeStyle.colors.primary.default}
-            />
-          ) : (
-            <Ionicons
-              name="checkmark"
-              size={30}
-              color={themeStyle.colors.primary.light}
-            />
-          )}
-        </TouchableOpacity>
-      </View>
-    </View>
+        <View>
+          {showUpdatedPill ? (
+            <Text style={styles.newPostPill}>Profile Updated</Text>
+          ) : null}
+          <ScrollView style={{ marginBottom: 48 }}>
+            <View style={styles.formContainer}>
+              {(profileVideo && faceDetected) ||
+              (!profileVideo && initialProfileData.profileVideoUrl) ? (
+                <PreviewVideo
+                  isFullWidth
+                  uri={profileVideo || initialProfileData?.profileVideoUrl}
+                  headers={initialProfileData?.profileVideoHeaders}
+                />
+              ) : profileVideo ? (
+                <View>
+                  <PreviewVideo isFullWidth uri={profileVideo} />
+                  <View style={styles.faceDetectionError}>
+                    <Text style={styles.faceDetectionErrorText}>
+                      No face detected. Make sure your face is shown at the
+                      start and end of your profile video.
+                    </Text>
+                    <TouchableOpacity onPress={() => setProfileVideo("")}>
+                      <Text style={styles.resetProfileVideoText}>
+                        Reset Profile Video
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ) : null}
+              <TouchableOpacity
+                style={styles.takeVideoButton}
+                onPress={() => {
+                  setFaceDetected(false);
+                  setCameraActivated(true);
+                }}
+              >
+                <Text style={styles.takeVideoButtonText}>
+                  <Ionicons name="videocam" size={14} /> Retake profile video
+                </Text>
+              </TouchableOpacity>
+              <InputNoBorder
+                label="Job title"
+                value={
+                  jobTitle !== null ? jobTitle : initialProfileData.jobTitle
+                }
+                setValue={setJobTitle}
+                onChangeText={(v) => {
+                  setJobTitle(v);
+                  if (validationErrors.jobTitle) {
+                    setValidationErrors({
+                      ...validationErrors,
+                      jobTitle: null,
+                    });
+                  }
+                }}
+                error={validationErrors?.jobTitle}
+              />
+              <InputNoBorder
+                error={validationErrors?.firstName}
+                label="First Name"
+                value={
+                  firstName !== null ? firstName : initialProfileData.firstName
+                }
+                setValue={setFirstName}
+                onChangeText={(v) => {
+                  setFirstName(v);
+                  if (validationErrors.firstName) {
+                    setValidationErrors({
+                      ...validationErrors,
+                      firstName: null,
+                    });
+                  }
+                }}
+              />
+              <InputNoBorder
+                error={validationErrors?.lastName}
+                label="Last Name"
+                value={
+                  lastName !== null ? lastName : initialProfileData.lastName
+                }
+                setValue={setLastName}
+                onChangeText={(v) => {
+                  setLastName(v);
+                  if (validationErrors.lastName) {
+                    setValidationErrors({
+                      ...validationErrors,
+                      lastName: null,
+                    });
+                  }
+                }}
+              />
+              <InputNoBorder
+                error={
+                  validationErrors?.username?.exists
+                    ? "A user with this username already exists."
+                    : validationErrors?.username
+                }
+                label="Username"
+                value={
+                  username !== null ? username : initialProfileData.username
+                }
+                setValue={setUsername}
+                onChangeText={(v) => {
+                  setUsername(v);
+                  if (validationErrors.username) {
+                    setValidationErrors({
+                      ...validationErrors,
+                      username: null,
+                    });
+                  }
+                }}
+                onEndEditing={(e) =>
+                  checkUserExists("username", e.nativeEvent.text)
+                }
+              />
+              <InputNoBorder
+                error={
+                  validationErrors?.email?.exists
+                    ? "A user with this email already exists."
+                    : validationErrors?.email
+                }
+                label="Email"
+                value={email !== null ? email : initialProfileData.email}
+                setValue={setEmail}
+                onChangeText={(v) => {
+                  setEmail(v);
+                  if (validationErrors.email) {
+                    setValidationErrors({ ...validationErrors, email: null });
+                  }
+                }}
+                onEndEditing={(e) =>
+                  checkUserExists("email", e.nativeEvent.text)
+                }
+              />
+              <View style={styles.textInputContainer}>
+                <PasswordInputNoBorder
+                  label={"Password"}
+                  error={validationErrors?.password}
+                  onChangeText={(v) => {
+                    setPassword(v);
+                    if (validationErrors?.password) {
+                      let newValidationErrorsObj = validationErrors;
+                      delete newValidationErrorsObj.password;
+                      setValidationErrors(newValidationErrorsObj);
+                      console.log(newValidationErrorsObj);
+                    }
+                  }}
+                />
+                {validationErrors?.password && password ? (
+                  <View style={styles.passwordGuide}>
+                    <Text style={styles.errorText}>
+                      - Must be at least 8 characters
+                    </Text>
+                    <Text style={styles.errorText}>
+                      - Must container an uppercase character
+                    </Text>
+                    <Text style={styles.errorText}>
+                      - Must container an lowercase character
+                    </Text>
+                    <Text style={styles.errorText}>
+                      - Must container a number
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+              {updateError ? (
+                <Text style={styles.updateError}>{updateError}</Text>
+              ) : null}
+            </View>
+          </ScrollView>
+          <View
+            style={[
+              styles.submitButtonContainer,
+              (profileVideo && !faceDetected) ||
+                (Object.keys(validationErrors).length && { opacity: 0.3 }),
+            ]}
+          >
+            <TouchableOpacity
+              style={[styles.submitButton]}
+              onPress={() => updateProfile()}
+              disabled={
+                (profileVideo && !faceDetected) ||
+                Object.keys(validationErrors).length
+              }
+            >
+              {isUpdating ? (
+                <ActivityIndicator
+                  size="large"
+                  color={themeStyle.colors.primary.default}
+                />
+              ) : (
+                <Ionicons
+                  name="checkmark"
+                  size={30}
+                  color={themeStyle.colors.primary.light}
+                />
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
@@ -495,7 +532,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   submitButtonContainer: {
-    width: "100%",
+    width: "95%",
     backgroundColor: themeStyle.colors.grayscale.highest,
     borderWidth: 1,
     borderColor: themeStyle.colors.primary.light,
@@ -505,6 +542,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     height: 48,
     zIndex: 1,
+    alignSelf: "center",
   },
   submitButton: {
     width: "100%",

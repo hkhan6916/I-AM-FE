@@ -1,5 +1,12 @@
+import { AntDesign } from "@expo/vector-icons";
 import React from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import themeStyle from "../theme.style";
 const Input = ({
   label,
@@ -9,6 +16,7 @@ const Input = ({
   onEndEditing,
   placeholder,
   isOutlined,
+  setValue,
 }) => {
   return (
     <View style={styles.textInputContainer}>
@@ -22,6 +30,7 @@ const Input = ({
             borderBottomWidth: 2,
             borderRadius: 0,
             paddingLeft: 5,
+            paddingRight: 10,
           },
           error &&
             typeof error === "string" && {
@@ -34,6 +43,15 @@ const Input = ({
         onChangeText={onChangeText ? (v) => onChangeText(v) : null}
         onEndEditing={onEndEditing ? (e) => onEndEditing(e) : null}
       />
+      {value ? (
+        <TouchableOpacity onPress={setValue ? () => setValue("") : null}>
+          <AntDesign
+            name="closecircle"
+            size={16}
+            color={themeStyle.colors.grayscale.high}
+          />
+        </TouchableOpacity>
+      ) : null}
       {error && typeof error === "string" ? (
         <Text style={styles.errorText}>{error}</Text>
       ) : null}
@@ -57,6 +75,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderWidth: 2,
     borderColor: themeStyle.colors.primary.default,
+    flex: 1,
   },
   textInputContainer: {
     alignSelf: "stretch",
