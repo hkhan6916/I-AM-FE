@@ -71,6 +71,8 @@ const CommentTextInput = forwardRef(
                 styles.inputBox,
                 {
                   height: height < 48 ? "100%" : height,
+                  paddingTop: height < 48 ? 0 : 10,
+                  paddingBottom: height < 48 ? 0 : 10,
                 },
                 isFullWidth && { flex: 1 },
               ]}
@@ -140,9 +142,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     backgroundColor: themeStyle.colors.grayscale.higher,
     marginHorizontal: 2,
-    marginBottom: 10,
+    marginBottom: 5,
     borderWidth: 0.5,
-    borderColor: themeStyle.colors.grayscale.high,
+    borderColor: themeStyle.colors.grayscale.low,
     borderRadius: 5,
   },
   postTrigger: {
