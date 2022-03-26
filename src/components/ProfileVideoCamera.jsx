@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { Camera } from "expo-camera";
 import { Ionicons, EvilIcons } from "@expo/vector-icons";
-import { useDispatch } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import Constants from "expo-constants";
@@ -50,13 +49,11 @@ const ProfileVideoCamera = ({
     if (!recording) {
       setRecordingLength(15);
       setRecording(true);
-      setTimeout(async () => {
-        const video = await cameraRef.recordAsync({
-          quality: Camera.Constants.VideoQuality["720p"],
-          mirror: false,
-        });
-        setProfileVideo(video.uri);
-      }, 500);
+      const video = await cameraRef.recordAsync({
+        quality: Camera.Constants.VideoQuality["720p"],
+        mirror: false,
+      });
+      setProfileVideo(video.uri);
     } else {
       setRecording(false);
       cameraRef.stopRecording();
@@ -293,6 +290,7 @@ const ProfileVideoCamera = ({
                 position: "absolute",
                 bottom: 20,
               }}
+              disabled={recording && recordingLength > 12}
               onPress={() => handleRecordClick()}
             >
               <View

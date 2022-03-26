@@ -21,7 +21,7 @@ import {
 } from "@expo/vector-icons";
 import ImageWithCache from "../../../components/ImageWithCache";
 import VideoPlayer from "../../../components/VideoPlayer";
-import LottieView from "lottie-react-native";
+import AnimatedLottieView from "lottie-react-native";
 import { useDispatch } from "react-redux";
 import PostAge from "../../../components/PostAge";
 
@@ -286,7 +286,7 @@ const PostScreen = (props) => {
                     }}
                   >
                     {post.liked ? (
-                      <LottieView
+                      <AnimatedLottieView
                         ref={lottieRef}
                         autoPlay={false}
                         loop={false}

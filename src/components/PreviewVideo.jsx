@@ -4,7 +4,7 @@ import { Video } from "expo-av";
 import themeStyle from "../theme.style";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
-import LottieView from "lottie-react-native";
+import AnimatedLottieView from "lottie-react-native";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
 
 const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
@@ -117,7 +117,7 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
             </View>
           ) : null}
           {!ready ? (
-            <LottieView
+            <AnimatedLottieView
               source={require("../../assets/lotties/profileVideo.json")}
               autoPlay
               loop

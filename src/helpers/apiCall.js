@@ -26,6 +26,9 @@ const apiCall = async (method, route, payload = null) => {
 
   if (payload instanceof FormData) {
     callConfig.headers["Content-Type"] = "multipart/form-data";
+    callConfig.transformRequest = () => {
+      return payload;
+    };
   }
   try {
     const { data: response } = await axios(callConfig);

@@ -21,6 +21,7 @@ import { useSelector, useDispatch } from "react-redux";
 import PreviewVideo from "../../../components/PreviewVideo";
 import { detectFacesAsync } from "expo-face-detector";
 import { getThumbnailAsync } from "expo-video-thumbnails";
+import AnimatedLottieView from "lottie-react-native";
 
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
@@ -52,9 +53,7 @@ const Step1Screen = () => {
     return false;
   };
 
-  const registerUser = async () => {
-    setRegisterationError("");
-
+  const sendUserData = async () => {
     const payload = {
       ...existingInfo.state,
       notificationToken: await getExpoPushTokenAsync({
@@ -70,24 +69,36 @@ const Step1Screen = () => {
     Object.keys(payload).forEach((key) => {
       formData.append(key, payload[key]);
     });
-    setLoading(true);
     const { success, message } = await apiCall(
       "POST",
       "/user/register",
       formData
     );
     console.log(message);
-    setLoading(false);
     if (success) {
-      // dispatch({
-      //   type: "SET_USER_DATA",
-      //   payload: {},
-      // });
-      // setTimeout(() => navigation.navigate("Login"), 100);
-      // navigation.navigate("Login");
-    } else {
-      setRegisterationError("An error occurred. Please try again.");
+      dispatch({
+        type: "SET_USER_DATA",
+        payload: {},
+      });
+      navigation.navigate("Login");
     }
+    return success;
+  };
+
+  const registerUser = async () => {
+    setRegisterationError("");
+    setLoading(true);
+
+    const success = await sendUserData();
+
+    if (!success) {
+      // re attempt
+      const reAttemptSuccess = await sendUserData();
+      if (!reAttemptSuccess) {
+        setRegisterationError("An error occurred. Please try again.");
+      }
+    }
+    setLoading(false);
   };
 
   const handleFaceDetection = async (profileVideoUrl) => {
@@ -123,20 +134,33 @@ const Step1Screen = () => {
   }, []);
 
   useEffect(() => {
-    if (cameraActivated) {
+    if (cameraActivated || loading) {
       navigation.setOptions({ headerShown: false });
     } else {
       navigation.setOptions({ headerShown: true });
     }
-  }, [cameraActivated]);
+  }, [cameraActivated, loading]);
 
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator
-          size="large"
-          color={themeStyle.colors.primary.default}
-        />
+        <Text
+          style={{
+            color: themeStyle.colors.grayscale.lowest,
+            fontSize: 20,
+            fontWeight: "700",
+          }}
+        >
+          Creating your account
+        </Text>
+        <View style={{ width: 200, height: 200 }}>
+          <AnimatedLottieView
+            source={require("../../../../assets/lotties/loadingBlocks.json")}
+            autoPlay
+            loop
+            speed={1}
+          />
+        </View>
       </View>
     );
   }
@@ -220,15 +244,15 @@ const Step1Screen = () => {
               </View>
             </SafeAreaView>
           </Modal>
-          {detectingFaces ? (
+          {recordingLength <= 12 && detectingFaces ? (
             <ActivityIndicator
               animating
               size={"large"}
               color={themeStyle.colors.primary.default}
             />
-          ) : profileVideo && faceDetected ? (
+          ) : recordingLength <= 12 && profileVideo && faceDetected ? (
             <PreviewVideo uri={profileVideo} isFullWidth />
-          ) : profileVideo ? (
+          ) : recordingLength <= 12 && profileVideo ? (
             <Text style={styles.faceDetectionError}>
               No face detected. Make sure your face is shown at the start and
               end of your profile video.

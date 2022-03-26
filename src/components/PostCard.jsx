@@ -13,7 +13,7 @@ import themeStyle from "../theme.style";
 import apiCall from "../helpers/apiCall";
 import ImageWithCache from "./ImageWithCache";
 import RepostCard from "./RepostCard";
-import LottieView from "lottie-react-native";
+import AnimatedLottieView from "lottie-react-native";
 import PostAge from "./PostAge";
 import AdCard from "./AdCard";
 
@@ -303,7 +303,7 @@ const PostCard = ({
                       }}
                     >
                       {post.liked ? (
-                        <LottieView
+                        <AnimatedLottieView
                           ref={lottieRef}
                           autoPlay={false}
                           loop={false}
