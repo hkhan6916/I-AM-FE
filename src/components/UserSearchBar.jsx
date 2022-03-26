@@ -199,7 +199,7 @@ const UserSearchBar = ({
             onPress={() => {
               onEndEditing();
               setSearchInput("");
-
+              setResults([]);
               // resetSearch();
               // setShowHistory(false);
             }}

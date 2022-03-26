@@ -31,7 +31,7 @@ const PostCard = ({
   const [post, setPost] = useState(initialPost);
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
   const [isCollapsible, setIsCollapsible] = useState(false);
-  console.log("hey");
+
   const navigation = useNavigation();
 
   const lottieRef = useRef(null);
@@ -66,6 +66,8 @@ const PostCard = ({
   if (!deleted) {
     return (
       <View>
+        {console.log(post._id)}
+        <Text style={{ color: "white" }}>{post._id}</Text>
         {adsManager ? (
           <AdCard
             adsManager={adsManager}

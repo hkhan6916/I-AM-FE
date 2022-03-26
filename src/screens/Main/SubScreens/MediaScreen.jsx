@@ -19,6 +19,7 @@ import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import ImageWithCache from "../../../components/ImageWithCache";
 import ExpoVideoPlayer from "../../../components/ExpoVideoPlayer";
+import { StatusBar } from "expo-status-bar";
 const MediaScreen = (props) => {
   const { post: initialPost } = props.route.params;
   const [liked, setLiked] = useState(initialPost.liked);
@@ -86,6 +87,7 @@ const MediaScreen = (props) => {
           backgroundColor: themeStyle.colors.grayscale.highest,
         }}
       />
+      <StatusBar hidden />
       <SafeAreaView style={styles.container}>
         <View>
           {post?.mediaType === "video" ? (

@@ -69,19 +69,14 @@ const Step1Screen = () => {
     Object.keys(payload).forEach((key) => {
       formData.append(key, payload[key]);
     });
-    const { success, message } = await apiCall(
-      "POST",
-      "/user/register",
-      formData
-    );
-    console.log(message);
-    if (success) {
-      dispatch({
-        type: "SET_USER_DATA",
-        payload: {},
-      });
-      navigation.navigate("Login");
-    }
+    const { success } = await apiCall("POST", "/user/register", formData);
+    // if (success) {
+    //   dispatch({
+    //     type: "SET_USER_DATA",
+    //     payload: {},
+    //   });
+    //   navigation.navigate("Login");
+    // }
     return success;
   };
 
@@ -92,7 +87,7 @@ const Step1Screen = () => {
     const success = await sendUserData();
 
     if (!success) {
-      // re attempt
+      // re-attempt request
       const reAttemptSuccess = await sendUserData();
       if (!reAttemptSuccess) {
         setRegisterationError("An error occurred. Please try again.");

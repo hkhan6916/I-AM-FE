@@ -66,7 +66,7 @@ const CommentTextInput = forwardRef(
               maxLength={2000}
               ref={ref}
               multiline
-              placeholderTextColor={themeStyle.colors.grayscale.high}
+              placeholderTextColor={themeStyle.colors.grayscale.low}
               style={[
                 styles.inputBox,
                 {
@@ -94,8 +94,11 @@ const CommentTextInput = forwardRef(
           <View
             style={{
               alignSelf: "flex-end",
-              marginVertical: 16,
+              // marginVertical: 16,
+              height: 48,
               marginLeft: 5,
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             {!loading ? (
@@ -135,9 +138,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 10,
-    borderTopWidth: 0.5,
-    borderColor: themeStyle.colors.grayscale.low,
     backgroundColor: themeStyle.colors.grayscale.higher,
+    marginHorizontal: 2,
+    marginBottom: 10,
+    borderWidth: 0.5,
+    borderColor: themeStyle.colors.grayscale.high,
+    borderRadius: 5,
   },
   postTrigger: {
     color: themeStyle.colors.secondary.default,

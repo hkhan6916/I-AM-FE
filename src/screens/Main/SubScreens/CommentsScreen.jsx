@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import PostCommentCard from "../../../components/PostCommentCard";
@@ -279,6 +280,9 @@ const CommentsScreen = (props) => {
           refreshControl={
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }
+          onScrollEndDrag={() => {
+            Keyboard.dismiss();
+          }}
           contentContainerStyle={{ flexGrow: 1 }}
           onEndReached={() => getComments(true)}
           onMomentumScrollBegin={() => !scrollStarted && setScrollStarted(true)}

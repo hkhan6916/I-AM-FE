@@ -21,26 +21,23 @@ const ExpoVideoPlayer = ({ uri }) => {
     }, [])
   );
   return (
-    <View>
-      <StatusBar hidden />
-      <VideoPlayer
-        autoHidePlayer={false}
-        timeVisible
-        videoProps={{
-          ref: videoRef,
-          shouldPlay: true,
-          resizeMode: Video.RESIZE_MODE_CONTAIN,
-          source: {
-            uri: uri,
-          },
-        }}
-        fullscreen={true}
-        style={{
-          width: screenWidth,
-          height: screenHeight,
-        }}
-      />
-    </View>
+    <VideoPlayer
+      autoHidePlayer={false}
+      timeVisible
+      videoProps={{
+        ref: videoRef,
+        shouldPlay: true,
+        resizeMode: Video.RESIZE_MODE_CONTAIN,
+        source: {
+          uri: uri,
+        },
+      }}
+      fullscreen
+      style={{
+        width: screenWidth,
+        height: screenHeight / 1.1,
+      }}
+    />
   );
 };
 

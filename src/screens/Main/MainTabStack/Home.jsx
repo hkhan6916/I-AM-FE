@@ -292,11 +292,11 @@ const HomeScreen = () => {
                 <ActivityIndicator
                   size="large"
                   animating={loading}
-                  color={themeStyle.colors.grayscale.low}
+                  color={themeStyle.colors.grayscale.lowest}
                 />
                 {allPostsLoaded ? (
                   <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                    That&apos;s everything!
+                    That&apos;s everything for now!
                   </Text>
                 ) : null}
               </View>

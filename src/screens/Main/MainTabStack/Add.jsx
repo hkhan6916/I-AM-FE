@@ -39,7 +39,7 @@ const AddScreen = () => {
   const isFocused = useIsFocused();
   const [postBody, setPostBody] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [file, setFile] = useState({});
   const [cameraActive, setCameraActive] = useState(false);
   const [recording, setRecording] = useState(false);
@@ -132,11 +132,9 @@ const AddScreen = () => {
       setGif("");
       return response.post;
     } else {
-      console.log(response);
-      setError({
-        title: "Error",
-        message: `An error occurred creating your post. Please try again, or check your connection.`,
-      });
+      setError(
+        "An error occurred creating your post. Please try again, or check your connection."
+      );
       return;
     }
   };
@@ -189,6 +187,7 @@ const AddScreen = () => {
           await apiCall("GET", "/posts/fail/" + post?._id);
         });
         Upload.addListener("completed", uploadId, (data) => {
+          console.log(data);
           console.log("Completed!");
         });
       })
@@ -219,7 +218,7 @@ const AddScreen = () => {
   };
 
   const createPost = async () => {
-    setError(null);
+    setError("");
     await handlePostCreation().then(async (post) => {
       if (!post) return;
       setPostBody("");
@@ -259,7 +258,6 @@ const AddScreen = () => {
         }
         setShowMediaSizeError(false);
         setFile({ ...result, ...mediaInfo });
-        // await handleCompression(result);
       }
     }
   };
@@ -268,16 +266,6 @@ const AddScreen = () => {
     setFile({});
     setGif(gifUrl);
   };
-
-  if (loading) {
-    return (
-      <ActivityIndicator
-        animating
-        color={themeStyle.colors.primary.default}
-        size={"large"}
-      />
-    );
-  }
 
   if (cameraActive && isFocused) {
     return (
@@ -505,21 +493,28 @@ const AddScreen = () => {
               disabled={!file.uri && !postBody && !gif}
               onPress={() => createPost()}
             >
-              <Text
-                style={{
-                  fontSize: 16,
-                  color: themeStyle.colors.white,
-                }}
-              >
-                Post
-              </Text>
+              {loading ? (
+                <ActivityIndicator
+                  animating
+                  color={themeStyle.colors.white}
+                  size={"small"}
+                />
+              ) : (
+                <Text
+                  style={{
+                    fontSize: 16,
+                    color: themeStyle.colors.white,
+                  }}
+                >
+                  Post
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>
         {error ? (
           <View>
-            <Text style={styles.errorTitle}>{error.title}</Text>
-            <Text style={styles.errorMessage}>{error.message}</Text>
+            <Text style={styles.errorMessage}>{error}</Text>
           </View>
         ) : null}
       </SafeAreaView>
@@ -533,11 +528,6 @@ const styles = StyleSheet.create({
   postLimitMessage: {
     alignSelf: "flex-end",
     color: themeStyle.colors.error.default,
-  },
-  errorTitle: {
-    textAlign: "center",
-    color: themeStyle.colors.error.default,
-    fontSize: 16,
   },
   errorMessage: {
     textAlign: "center",

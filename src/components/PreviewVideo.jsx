@@ -49,8 +49,13 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
       <LinearGradient
         start={[0, 0.5]}
         end={[1, 0.5]}
-        style={{ padding: 4 }}
+        style={{
+          padding: 2,
+          width: isFullWidth ? screenWidth : screenWidth / 1.5,
+          height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
+        }}
         colors={[
+          themeStyle.colors.primary.default,
           themeStyle.colors.grayscale.highest,
           themeStyle.colors.primary.light,
         ]}
@@ -72,10 +77,11 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
             style={{
               transform: [{ scaleX: -1 }],
               alignSelf: "center",
-              width: isFullWidth ? screenWidth : screenWidth / 1.5,
-              height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
+              width: "100%",
+              height: "100%",
               borderColor: themeStyle.colors.primary.default,
               borderRadius: isFullWidth ? 0 : 10,
+              aspectRatio: 1,
             }}
             onReadyForDisplay={() => setReady(true)}
             onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
