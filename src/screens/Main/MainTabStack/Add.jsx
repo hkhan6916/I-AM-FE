@@ -11,6 +11,7 @@ import {
   Platform,
   Dimensions,
   Image,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
@@ -288,232 +289,238 @@ const AddScreen = () => {
       />
       {Platform.OS === "ios" ? <StatusBar translucent={true} /> : null}
       <SafeAreaView style={styles.container}>
-        <GifModal
-          selectGif={handleGifSelect}
-          active={showGifsModal}
-          setShowModal={setShowGifsModal}
-        />
-        <View
-          style={{
-            padding: 10,
-            backgroundColor: themeStyle.colors.grayscale.highest,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" && "padding"}
+          keyboardVerticalOffset={93}
+          style={{ flex: 1 }}
         >
-          <Text
-            style={{
-              fontSize: 24,
-              color: themeStyle.colors.primary.default,
-            }}
-          >
-            New Post
-          </Text>
+          <GifModal
+            selectGif={handleGifSelect}
+            active={showGifsModal}
+            setShowModal={setShowGifsModal}
+          />
           <View
             style={{
-              justifyContent: "center",
+              padding: 10,
+              backgroundColor: themeStyle.colors.grayscale.highest,
               flexDirection: "row",
-              opacity: !file?.uri && !postBody && !gif ? 0.7 : 1,
-              marginHorizontal: 10,
+              alignItems: "center",
+              justifyContent: "space-between",
             }}
           >
-            <TouchableOpacity
-              disabled={!file.uri && !postBody && !gif}
-              onPress={() => createPost()}
+            <Text
+              style={{
+                fontSize: 24,
+                color: themeStyle.colors.primary.default,
+              }}
             >
-              {loading ? (
-                <ActivityIndicator
-                  animating
-                  color={themeStyle.colors.white}
-                  size={"small"}
-                />
-              ) : (
-                <Text
-                  style={{
-                    fontSize: 18,
-                    color: themeStyle.colors.secondary.default,
-                  }}
-                >
-                  Post
-                </Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
-        {postBody.length >= 2000 - 25 ? (
-          <Text style={styles.postLimitMessage}>
-            {2000 - postBody.length} Characters Remaining
-          </Text>
-        ) : null}
-        <ScrollView contentContainerStyle={{ padding: 10 }}>
-          <TextInput
-            style={{
-              minHeight: 100,
-              textAlignVertical: "top",
-              fontSize: 16,
-              color: themeStyle.colors.grayscale.lowest,
-            }}
-            value={postBody}
-            placeholder="What's on your mind?"
-            placeholderTextColor={themeStyle.colors.grayscale.lower}
-            multiline
-            maxLength={2000}
-            onChangeText={(v) => setPostBody(v)}
-          />
-          {file.uri ? (
+              New Post
+            </Text>
             <View
               style={{
-                borderWidth: !showMediaSizeError ? 1 : 2,
-                borderRadius: 5,
-                borderColor: !showMediaSizeError
-                  ? themeStyle.colors.primary.default
-                  : themeStyle.colors.error.default,
+                justifyContent: "center",
+                flexDirection: "row",
+                opacity: !file?.uri && !postBody && !gif ? 0.7 : 1,
+                marginHorizontal: 10,
               }}
             >
               <TouchableOpacity
-                style={{ alignSelf: "flex-end" }}
-                onPress={() => {
-                  setFile({});
+                disabled={!file.uri && !postBody && !gif}
+                onPress={() => createPost()}
+              >
+                {loading ? (
+                  <ActivityIndicator
+                    animating
+                    color={themeStyle.colors.white}
+                    size={"small"}
+                  />
+                ) : (
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      color: themeStyle.colors.secondary.default,
+                    }}
+                  >
+                    Create
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+          {postBody.length >= 2000 - 25 ? (
+            <Text style={styles.postLimitMessage}>
+              {2000 - postBody.length} Characters Remaining
+            </Text>
+          ) : null}
+          <ScrollView contentContainerStyle={{ padding: 10 }}>
+            <TextInput
+              style={{
+                minHeight: 100,
+                textAlignVertical: "top",
+                fontSize: 16,
+                color: themeStyle.colors.grayscale.lowest,
+              }}
+              value={postBody}
+              placeholder="What's on your mind?"
+              placeholderTextColor={themeStyle.colors.grayscale.lower}
+              multiline
+              maxLength={2000}
+              onChangeText={(v) => setPostBody(v)}
+            />
+            {file.uri ? (
+              <View
+                style={{
+                  borderWidth: !showMediaSizeError ? 1 : 2,
+                  borderRadius: 5,
+                  borderColor: !showMediaSizeError
+                    ? themeStyle.colors.primary.default
+                    : themeStyle.colors.error.default,
                 }}
               >
-                <AntDesign
-                  name="close"
-                  size={24}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
-              </TouchableOpacity>
-              {showMediaSizeError ? (
-                <Text
-                  style={{
-                    color: themeStyle.colors.error.default,
-                    marginHorizontal: 5,
+                <TouchableOpacity
+                  style={{ alignSelf: "flex-end" }}
+                  onPress={() => {
+                    setFile({});
                   }}
                 >
-                  Choose a file smaller than 100MB
-                </Text>
-              ) : null}
-              {file.type?.split("/")[0] === "video" ? (
-                <View
-                  style={{
-                    height: screenWidth,
-                    alignItems: "center",
-                    padding: 5,
-                  }}
-                >
-                  <VideoPlayer // TODO create new player as need to flip the media for selfie video without flipping the controls.
-                    autoHidePlayer={false}
-                    fullscreen
-                    mediaIsSelfie
-                    videoProps={{
-                      shouldPlay: true,
-                      resizeMode: Video.RESIZE_MODE_CONTAIN,
-                      source: {
-                        uri: file.uri,
-                      },
+                  <AntDesign
+                    name="close"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </TouchableOpacity>
+                {showMediaSizeError ? (
+                  <Text
+                    style={{
+                      color: themeStyle.colors.error.default,
+                      marginHorizontal: 5,
                     }}
-                    style={{ height: 300 }}
+                  >
+                    Choose a file smaller than 100MB
+                  </Text>
+                ) : null}
+                {file.type?.split("/")[0] === "video" ? (
+                  <View
+                    style={{
+                      height: screenWidth,
+                      alignItems: "center",
+                      padding: 5,
+                    }}
+                  >
+                    <VideoPlayer // TODO create new player as need to flip the media for selfie video without flipping the controls.
+                      autoHidePlayer={false}
+                      fullscreen
+                      mediaIsSelfie
+                      videoProps={{
+                        shouldPlay: true,
+                        resizeMode: Video.RESIZE_MODE_CONTAIN,
+                        source: {
+                          uri: file.uri,
+                        },
+                      }}
+                      style={{ height: 300 }}
+                    />
+                  </View>
+                ) : file.type?.split("/")[0] === "image" ? (
+                  <View
+                    style={{
+                      height: screenWidth - 40,
+                      alignItems: "center",
+                      padding: 5,
+                    }}
+                  >
+                    <ImageWithCache
+                      mediaIsSelfie={file.isSelfie}
+                      resizeMode="contain"
+                      mediaUrl={file.uri}
+                      aspectRatio={1 / 1}
+                      removeBorderRadius
+                    />
+                  </View>
+                ) : null}
+              </View>
+            ) : gif ? (
+              <View
+                style={{
+                  height: screenWidth - 40,
+                  alignItems: "center",
+                  padding: 5,
+                }}
+              >
+                <Image
+                  resizeMode="contain"
+                  style={{ width: "100%", height: "100%" }}
+                  source={{ uri: gif }}
+                />
+              </View>
+            ) : null}
+          </ScrollView>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: 10,
+              backgroundColor: themeStyle.colors.grayscale.highest,
+            }}
+          >
+            <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginHorizontal: 10,
+                }}
+              >
+                <TouchableOpacity onPress={() => setCameraActive(true)}>
+                  <FontAwesome
+                    name="camera"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
                   />
-                </View>
-              ) : file.type?.split("/")[0] === "image" ? (
-                <View
-                  style={{
-                    height: screenWidth - 40,
-                    alignItems: "center",
-                    padding: 5,
-                  }}
-                >
-                  <ImageWithCache
-                    mediaIsSelfie={file.isSelfie}
-                    resizeMode="contain"
-                    mediaUrl={file.uri}
-                    aspectRatio={1 / 1}
-                    removeBorderRadius
+                </TouchableOpacity>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginHorizontal: 10,
+                }}
+              >
+                <TouchableOpacity onPress={() => pickMedia()}>
+                  <FontAwesome
+                    name="image"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
                   />
-                </View>
-              ) : null}
+                </TouchableOpacity>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginHorizontal: 10,
+                  borderWidth: 1,
+                  borderColor: themeStyle.colors.grayscale.lowest,
+                  borderRadius: 5,
+                }}
+              >
+                <TouchableOpacity onPress={() => setShowGifsModal(true)}>
+                  <MaterialCommunityIcons
+                    name="gif"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
-          ) : gif ? (
-            <View
-              style={{
-                height: screenWidth - 40,
-                alignItems: "center",
-                padding: 5,
-              }}
-            >
-              <Image
-                resizeMode="contain"
-                style={{ width: "100%", height: "100%" }}
-                source={{ uri: gif }}
-              />
+          </View>
+          {error ? (
+            <View>
+              <Text style={styles.errorMessage}>{error}</Text>
             </View>
           ) : null}
-        </ScrollView>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: 10,
-            backgroundColor: themeStyle.colors.grayscale.highest,
-          }}
-        >
-          <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginHorizontal: 10,
-              }}
-            >
-              <TouchableOpacity onPress={() => setCameraActive(true)}>
-                <FontAwesome
-                  name="camera"
-                  size={24}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
-              </TouchableOpacity>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginHorizontal: 10,
-              }}
-            >
-              <TouchableOpacity onPress={() => pickMedia()}>
-                <FontAwesome
-                  name="image"
-                  size={24}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
-              </TouchableOpacity>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginHorizontal: 10,
-                borderWidth: 1,
-                borderColor: themeStyle.colors.grayscale.lowest,
-                borderRadius: 5,
-              }}
-            >
-              <TouchableOpacity onPress={() => setShowGifsModal(true)}>
-                <MaterialCommunityIcons
-                  name="gif"
-                  size={24}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-        {error ? (
-          <View>
-            <Text style={styles.errorMessage}>{error}</Text>
-          </View>
-        ) : null}
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </Fragment>
   );
