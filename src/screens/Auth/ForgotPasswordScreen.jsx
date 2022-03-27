@@ -75,7 +75,7 @@ const ForgotPasswordScreen = () => {
               textAlign: "center",
               fontWeight: "700",
               fontSize: 16,
-              color: themeStyle.colors.grayscale.higher,
+              color: themeStyle.colors.grayscale.lowest,
               marginHorizontal: 40,
               marginBottom: 50,
             }}
@@ -83,6 +83,7 @@ const ForgotPasswordScreen = () => {
             Enter the email address you used to register.
           </Text>
           <Input
+            setValue={setEmail}
             value={email}
             error={emailError}
             placeholder="Email Address"
@@ -105,7 +106,7 @@ const ForgotPasswordScreen = () => {
                 <Text
                   style={{
                     color: themeStyle.colors.secondary.default,
-                    fontWeight: "700",
+                    fontSize: 16,
                   }}
                 >
                   Send Email

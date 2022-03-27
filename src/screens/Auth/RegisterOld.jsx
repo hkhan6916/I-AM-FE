@@ -216,6 +216,7 @@ const RegisterationScreen = () => {
             error={validationErrors?.firstName}
             label="First Name"
             value={firstName}
+            setValue={setFirstName}
             onChangeText={(v) => {
               setFirstName(v);
               if (validationErrors.firstName) {
@@ -230,6 +231,7 @@ const RegisterationScreen = () => {
             error={validationErrors?.lastName}
             label="Last Name"
             value={lastName}
+            setValue={setJobTitle}
             onChangeText={(v) => {
               setJobTitle(v);
               if (validationErrors.jobTitle) {
@@ -244,6 +246,7 @@ const RegisterationScreen = () => {
             error={validationErrors?.jobTitle}
             label="Job Title"
             value={lastName}
+            setValue={setLastName}
             onChangeText={(v) => {
               setLastName(v);
               if (validationErrors.jobTitle) {
@@ -262,6 +265,7 @@ const RegisterationScreen = () => {
             }
             label="Username"
             value={username}
+            setValue={setUsername}
             onChangeText={(v) => {
               setUsername(v);
               if (validationErrors.username) {
@@ -283,6 +287,7 @@ const RegisterationScreen = () => {
             }
             label="Email"
             value={email}
+            setValue={setEmail}
             onChangeText={(v) => {
               setEmail(v);
               if (validationErrors.email) {
@@ -310,6 +315,7 @@ const RegisterationScreen = () => {
                 secureTextEntry={!showPassword}
                 autoCorrect={false}
                 value={password}
+                setValue={setPassword}
                 onChangeText={(v) => {
                   setPassword(v);
                   if (validationErrors.password) {

@@ -19,9 +19,7 @@ const FriendsStack = () => (
   >
     <Stack.Screen
       options={{
-        headerShown: true,
-        title: "About you",
-        headerTintColor: themeStyle.colors.primary.default,
+        headerShown: false,
       }}
       name="Step1"
       component={Step1}

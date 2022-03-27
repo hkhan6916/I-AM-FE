@@ -21,9 +21,22 @@ const Input = ({
   return (
     <View style={styles.textInputContainer}>
       <Text style={styles.label}>{label}</Text>
-      <TextInput
+      <View
         style={[
-          styles.textInput,
+          {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingRight: 10,
+            borderWidth: 2,
+            borderColor: themeStyle.colors.primary.default,
+            borderRadius: 5,
+            paddingLeft: 10,
+          },
+          error &&
+            typeof error === "string" && {
+              borderColor: themeStyle.colors.error.default,
+            },
           isOutlined && {
             color: themeStyle.colors.grayscale.lowest,
             borderWidth: 0,
@@ -32,26 +45,26 @@ const Input = ({
             paddingLeft: 5,
             paddingRight: 10,
           },
-          error &&
-            typeof error === "string" && {
-              borderColor: themeStyle.colors.error.default,
-            },
         ]}
-        placeholderTextColor={themeStyle.colors.grayscale.lower}
-        placeholder={placeholder || ""}
-        value={value}
-        onChangeText={onChangeText ? (v) => onChangeText(v) : null}
-        onEndEditing={onEndEditing ? (e) => onEndEditing(e) : null}
-      />
-      {value ? (
-        <TouchableOpacity onPress={setValue ? () => setValue("") : null}>
-          <AntDesign
-            name="closecircle"
-            size={16}
-            color={themeStyle.colors.grayscale.high}
-          />
-        </TouchableOpacity>
-      ) : null}
+      >
+        <TextInput
+          style={[styles.textInput]}
+          placeholderTextColor={themeStyle.colors.grayscale.low}
+          placeholder={placeholder || ""}
+          value={value}
+          onChangeText={onChangeText ? (v) => onChangeText(v) : null}
+          onEndEditing={onEndEditing ? (e) => onEndEditing(e) : null}
+        />
+        {value ? (
+          <TouchableOpacity onPress={setValue ? () => setValue("") : null}>
+            <AntDesign
+              name="closecircle"
+              size={16}
+              color={themeStyle.colors.grayscale.high}
+            />
+          </TouchableOpacity>
+        ) : null}
+      </View>
       {error && typeof error === "string" ? (
         <Text style={styles.errorText}>{error}</Text>
       ) : null}
@@ -71,11 +84,8 @@ const styles = StyleSheet.create({
   textInput: {
     fontSize: 15,
     height: 45,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    borderWidth: 2,
-    borderColor: themeStyle.colors.primary.default,
     flex: 1,
+    color: themeStyle.colors.grayscale.lowest,
   },
   textInputContainer: {
     alignSelf: "stretch",

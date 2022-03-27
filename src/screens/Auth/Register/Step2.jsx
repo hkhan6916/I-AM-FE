@@ -134,6 +134,7 @@ const Step2Screen = () => {
             }
             label="Username"
             value={username}
+            setValue={setUsername}
             onChangeText={(v) => {
               setUsername(v);
               if (validationErrors.username) {
@@ -156,6 +157,7 @@ const Step2Screen = () => {
             }
             label="Email"
             value={email}
+            setValue={setEmail}
             onChangeText={(v) => {
               setEmail(v);
               if (validationErrors.email) {
@@ -172,6 +174,7 @@ const Step2Screen = () => {
               isOutlined
               label={"Password"}
               error={validationErrors?.password}
+              setValue={setPassword}
               onChangeText={(v) => {
                 setPassword(v);
                 if (validationErrors.password) {
