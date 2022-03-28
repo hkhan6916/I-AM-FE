@@ -43,7 +43,7 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
       return unsubscribe;
     }
   }, [navigation]);
-
+  console.log("i am here ");
   return (
     <View>
       <LinearGradient
@@ -55,9 +55,15 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
           height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
         }}
         colors={[
-          themeStyle.colors.primary.default,
-          themeStyle.colors.grayscale.highest,
-          themeStyle.colors.primary.light,
+          ready
+            ? themeStyle.colors.primary.default
+            : themeStyle.colors.grayscale.highest,
+          ready
+            ? themeStyle.colors.grayscale.highest
+            : themeStyle.colors.grayscale.highest,
+          ready
+            ? themeStyle.colors.primary.light
+            : themeStyle.colors.grayscale.highest,
         ]}
       >
         <TouchableOpacity
@@ -98,12 +104,13 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
                 position: "absolute",
                 alignItems: "center",
                 justifyContent: "center",
-                width: isFullWidth ? screenWidth : screenWidth / 1.5,
-                height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
+                width: "100%", //isFullWidth ? screenWidth : screenWidth / 1.5,
+                height: "100%", //isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
                 borderColor: themeStyle.colors.primary.default,
                 borderRadius: isFullWidth ? 0 : 10,
                 backgroundColor: themeStyle.colors.grayscale.lowest,
-                opacity: 0.5,
+                opacity: 0.4,
+                padding: 2,
               }}
             >
               {ready ? (

@@ -5,6 +5,7 @@ import {
   RefreshControl,
   FlatList,
   ActivityIndicator,
+  Keyboard,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
@@ -69,6 +70,7 @@ const OtherUserFriendsScreen = (props) => {
         setResults={setSearchedFriends}
         contactName={firstName}
         dataToSearchWithin={friends}
+        onSubmitEditing={() => Keyboard.dismiss()}
       />
       <FlatList
         data={

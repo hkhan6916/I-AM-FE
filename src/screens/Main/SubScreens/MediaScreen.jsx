@@ -56,9 +56,13 @@ const MediaScreen = (props) => {
     } else {
       setLikes(likes + 1);
       setLiked(true);
-      const { success } = await apiCall("GET", `/posts/like/add/${post._id}`);
+      const { success, message } = await apiCall(
+        "GET",
+        `/posts/like/add/${post._id}`
+      );
+      console.log(message);
       if (!success) {
-        setLikes(likes - 1);
+        setLikes(likes);
         setLiked(false);
       }
     }

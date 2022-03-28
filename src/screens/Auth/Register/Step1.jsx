@@ -63,7 +63,7 @@ const Step1Screen = () => {
                   fontSize: 16,
                 }}
               >
-                Cancel
+                Login
               </Text>
             </View>
           </TouchableOpacity>

@@ -25,7 +25,6 @@ const PostCard = ({
   setShowPostOptions,
   deleted,
   adsManager,
-  screen,
   nativeAd,
 }) => {
   const [post, setPost] = useState(initialPost);
@@ -62,12 +61,12 @@ const PostCard = ({
     }
     lottieRef?.current?.play(15, 1000);
   };
-
+  console.log("rendering");
   if (!deleted) {
     return (
       <View>
-        {console.log(post._id)}
-        <Text style={{ color: "white" }}>{post._id}</Text>
+        {/* {console.log(post._id)}
+        <Text style={{ color: "white" }}>{post._id}</Text> */}
         {adsManager ? (
           <AdCard
             adsManager={adsManager}

@@ -31,6 +31,7 @@ const ContentLoader = ({
   listSize,
   primaryColor,
   secondaryColor,
+  customBackground,
   children,
 }) => {
   const [animation, setAnimation] = useState(new Animated.Value(0));
@@ -89,14 +90,17 @@ const ContentLoader = ({
     return (
       <View style={{ margin: 10 }}>
         <Animated.View
-          style={[styles.label, { backgroundColor: interpolatedBackground }]}
+          style={[
+            styles.label,
+            { backgroundColor: customBackground || interpolatedBackground },
+          ]}
         />
         <Animated.View
           style={[
             styles.input,
             inputInitialStyles,
             secondaryTitleStyles,
-            { backgroundColor: interpolatedBackground },
+            { backgroundColor: customBackground || interpolatedBackground },
           ]}
         />
       </View>
@@ -106,7 +110,10 @@ const ContentLoader = ({
   if (isSquare) {
     return (
       <Animated.View
-        style={[fullWidthStyles, { backgroundColor: interpolatedBackground }]}
+        style={[
+          fullWidthStyles,
+          { backgroundColor: customBackground || interpolatedBackground },
+        ]}
       />
     );
   }
@@ -117,7 +124,7 @@ const ContentLoader = ({
         style={[
           fullWidthStyles,
           avatarStyles,
-          { backgroundColor: interpolatedBackground },
+          { backgroundColor: customBackground || interpolatedBackground },
         ]}
       />
     );
@@ -137,7 +144,7 @@ const ContentLoader = ({
               styles.avatar,
               avatarInitialStyles,
               avatarStyles,
-              { backgroundColor: interpolatedBackground },
+              { backgroundColor: customBackground || interpolatedBackground },
             ]}
           />
         ) : null}
@@ -148,7 +155,7 @@ const ContentLoader = ({
               styles.title,
               titleInitialStyles,
               titleStyles,
-              { backgroundColor: interpolatedBackground },
+              { backgroundColor: customBackground || interpolatedBackground },
             ]}
           />
           <Animated.View
@@ -156,7 +163,7 @@ const ContentLoader = ({
               styles.secondaryTitle,
               secondaryTitleInitialStyles,
               secondaryTitleStyles,
-              { backgroundColor: interpolatedBackground },
+              { backgroundColor: customBackground || interpolatedBackground },
             ]}
           />
         </View>
@@ -169,7 +176,7 @@ const ContentLoader = ({
               styles.paragraph,
               paragraphInitialStyles(index, pHeight, pWidth),
               paragraphStyles,
-              { backgroundColor: interpolatedBackground },
+              { backgroundColor: customBackground || interpolatedBackground },
             ]}
           />
         ))}

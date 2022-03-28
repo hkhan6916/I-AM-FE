@@ -58,7 +58,11 @@ const PostScreen = (props) => {
       `/posts/${post?._id}/additionaldata`
     );
     if (success) {
-      setPost({ ...post, liked: response.liked, likes: response.likes });
+      setPost({
+        ...post,
+        liked: response.liked,
+        likes: response.likes,
+      });
     }
   };
 
@@ -177,6 +181,7 @@ const PostScreen = (props) => {
             }
             underlayColor={themeStyle.colors.grayscale.high}
             delayPressIn={150}
+            disabled={!!post.gif}
           >
             <View>
               {post.gif ? (

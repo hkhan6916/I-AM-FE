@@ -50,6 +50,7 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(false);
   const [showPostOptions, setShowPostOptions] = useState(null);
   const [error, setError] = useState("");
+  const [feedError, setFeedError] = useState("");
 
   const colorSchema = useColorScheme();
 
@@ -149,6 +150,9 @@ const HomeScreen = () => {
           setConnectionsAsReceiverOffset(response.connectionsAsReceiverOffset);
         }
       } else if (feed.length) {
+        setFeedError(
+          "Sorry... I could not any load posts, please try again later."
+        );
         setAllPostsLoaded(true);
       }
     }
@@ -286,7 +290,8 @@ const HomeScreen = () => {
             ListFooterComponent={() => (
               <View
                 style={{
-                  margin: 20,
+                  marginTop: 20,
+                  marginBottom: 50,
                   alignItems: "center",
                   justifyContent: "center",
                 }}
@@ -296,7 +301,11 @@ const HomeScreen = () => {
                   animating={loading}
                   color={themeStyle.colors.grayscale.lowest}
                 />
-                {allPostsLoaded ? (
+                {feedError ? (
+                  <Text style={{ color: themeStyle.colors.error.default }}>
+                    {feedError}
+                  </Text>
+                ) : allPostsLoaded ? (
                   <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
                     That&apos;s everything for now!
                   </Text>

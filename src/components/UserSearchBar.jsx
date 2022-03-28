@@ -20,7 +20,7 @@ const UserSearchBar = ({
   setResults,
   dataToSearchWithin,
   contactName,
-  onEndEditing,
+  onEndEditing = () => null,
   userSearchHistory = [],
   onReset,
   resultsVisible,
@@ -136,7 +136,7 @@ const UserSearchBar = ({
             : styles.defaultContainerStyles
         }
       >
-        {showHistory ? (
+        {showHistory && !dataToSearchWithin ? (
           <TouchableOpacity onPress={() => resetSearch()}>
             <Ionicons
               style={styles.searchIcon}
@@ -162,13 +162,7 @@ const UserSearchBar = ({
         />
         <TouchableWithoutFeedback onPress={onFocus ? () => onFocus() : null}>
           <TextInput
-            onEndEditing={
-              onEndEditing
-                ? () => {
-                    onEndEditing();
-                  }
-                : null
-            }
+            onEndEditing={() => onEndEditing && onEndEditing()}
             value={searchInput}
             style={styles.searchBar}
             placeholderTextColor={themeStyle.colors.grayscale.low}
@@ -186,7 +180,7 @@ const UserSearchBar = ({
                     onFocus();
                     setShowHistory(true);
                   }
-                : setShowHistory(true)
+                : () => setShowHistory(true)
             }
             blurOnSubmit={false}
             onSubmitEditing={
@@ -213,21 +207,26 @@ const UserSearchBar = ({
           </TouchableOpacity>
         ) : null}
       </View>
-      {showHistory && !resultsVisible && !feedIsVisible ? (
+      {showHistory &&
+      !resultsVisible &&
+      !feedIsVisible &&
+      !dataToSearchWithin ? (
         <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
           Search History
         </Text>
       ) : null}
-      <FlatList
-        data={
-          showHistory && !resultsVisible && !feedIsVisible
-            ? userSearchHistory
-            : []
-        }
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        keyboardShouldPersistTaps={"always"}
-      />
+      {!dataToSearchWithin ? (
+        <FlatList
+          data={
+            showHistory && !resultsVisible && !feedIsVisible
+              ? userSearchHistory
+              : []
+          }
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          keyboardShouldPersistTaps={"always"}
+        />
+      ) : null}
     </View>
   );
 };

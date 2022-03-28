@@ -90,7 +90,9 @@ const SearchScreen = () => {
     const keyboardDidHideListener = Keyboard.addListener(
       "keyboardDidHide",
       () => {
-        setHideFeedAndSuggestions(false);
+        // if (!results.length) {
+        //   setHideFeedAndSuggestions(false);
+        // }
       }
     );
 
@@ -144,7 +146,7 @@ const SearchScreen = () => {
         ) : null}
         {!hideFeedAndSuggestions &&
         !results.length &&
-        searchFeed.length >= 20 ? (
+        searchFeed.length >= 20 ? ( // this is so the feed can fill the whole screen else display nothing.
           <FlatList
             style={{
               height: "100%",
