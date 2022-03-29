@@ -20,6 +20,7 @@ const VideoPlayer = ({
   thumbnailHeaders,
   isUploading,
   isCancelled,
+  preventPlay,
 }) => {
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
@@ -76,7 +77,7 @@ const VideoPlayer = ({
           </Text>
         ) : null}
         <View>
-          {!readyForDisplay || isUploading || isCancelled ? (
+          {!readyForDisplay || isUploading || isCancelled || preventPlay ? (
             <View
               style={{
                 position: "absolute",
@@ -95,26 +96,28 @@ const VideoPlayer = ({
               />
             </View>
           ) : null}
-          <Video
-            onReadyForDisplay={(params) => {
-              setVideoDimensions(params.naturalSize);
-              setReadyForDisplay(true);
-            }}
-            isMuted={!showToggle}
-            shouldPlay={shouldPlay || false}
-            ref={video}
-            isLooping={true}
-            style={{
-              aspectRatio: aspectRatio || 1,
-              width: Math.min(screenWidth, screenHeight), // math.min needed for when user switches back from landscape
-            }}
-            source={{
-              uri: url,
-            }}
-            useNativeControls={false}
-            resizeMode="cover"
-            onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
-          />
+          {!preventPlay ? (
+            <Video
+              onReadyForDisplay={(params) => {
+                setVideoDimensions(params.naturalSize);
+                setReadyForDisplay(true);
+              }}
+              isMuted={!showToggle}
+              shouldPlay={shouldPlay || false}
+              ref={video}
+              isLooping={true}
+              style={{
+                aspectRatio: aspectRatio || 1,
+                width: Math.min(screenWidth, screenHeight), // math.min needed for when user switches back from landscape
+              }}
+              source={{
+                uri: url,
+              }}
+              useNativeControls={false}
+              resizeMode="cover"
+              onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
+            />
+          ) : null}
           {!showToggle ? (
             <View style={{ position: "absolute", right: 0 }}>
               <Feather

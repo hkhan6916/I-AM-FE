@@ -42,6 +42,7 @@ const SearchFeedItem = ({ post }) => {
           mediaUrl={post.thumbnailUrl || post.mediaUrl}
           mediaHeaders={post.thumbnailHeaders || post.mediaHeaders}
           removeBorderRadius
+          hideSpinner
           style={{
             width: imageHeight,
             height: imageHeight,

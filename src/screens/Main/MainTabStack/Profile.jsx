@@ -141,21 +141,21 @@ const ProfileScreen = () => {
     setShowPostOptions(post);
   };
 
-  const renderItem = ({ item }) => {
-    if (!item.deleted)
-      return (
-        <PostCard
-          isVisible={visibleItems.includes(item._id)}
-          post={item}
-          setShowPostOptions={triggerOptionsModal}
-        />
-      );
-  };
-
-  const keyExtractor = useCallback(
-    (item) => item?.customKey || item?._id,
+  const renderItem = useCallback(
+    ({ item }) => {
+      if (!item.deleted)
+        return (
+          <PostCard
+            isVisible={visibleItems.includes(item._id)}
+            post={item}
+            setShowPostOptions={triggerOptionsModal}
+          />
+        );
+    },
     [userPosts]
   );
+
+  const keyExtractor = (item) => item?.customKey || item?._id;
 
   const renderHeaderComponent = useCallback(
     () => <ProfileScreenHeader userData={userData} navigation={navigation} />,
@@ -205,9 +205,9 @@ const ProfileScreen = () => {
       {userData ? (
         <FlatList
           ref={flatlistRef}
-          // viewabilityConfigCallbackPairs={
-          //   viewabilityConfigCallbackPairs.current
-          // }
+          viewabilityConfigCallbackPairs={
+            viewabilityConfigCallbackPairs.current
+          }
           data={userPosts}
           renderItem={renderItem}
           keyExtractor={keyExtractor}

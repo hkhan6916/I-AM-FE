@@ -20,7 +20,7 @@ const ImageWithCache = ({
   isFullScreen,
   toggleFullScreen,
   removeBorderRadius,
-  showContentLoader = false,
+  hideSpinner = false,
   style,
 }) => {
   const { width: screenWidth } = Dimensions.get("window");
@@ -74,14 +74,7 @@ const ImageWithCache = ({
       ]}
     >
       <View>
-        {showContentLoader && !ready ? (
-          <ContentLoader
-            customBackground={themeStyle.colors.grayscale.higher}
-            active
-            listSize={1}
-            isSquare
-          />
-        ) : !ready ? (
+        {!ready && hideSpinner ? (
           <View
             style={{
               position: "absolute",

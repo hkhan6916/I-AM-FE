@@ -1,6 +1,12 @@
-module.exports = function(api) {
-  api.cache(true);
+module.exports = function (api) {
+  const babelEnv = api.env();
+  const plugins = [];
+  //change to 'production' to check if this is working in 'development' mode
+  if (babelEnv !== "production") {
+    plugins.push(["transform-remove-console", { exclude: ["error", "warn"] }]);
+  }
   return {
-    presets: ['babel-preset-expo'],
+    presets: ["module:metro-react-native-babel-preset", "babel-preset-expo"],
+    plugins,
   };
 };

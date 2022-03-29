@@ -109,7 +109,7 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
                 borderColor: themeStyle.colors.primary.default,
                 borderRadius: isFullWidth ? 0 : 10,
                 backgroundColor: themeStyle.colors.grayscale.lowest,
-                opacity: 0.4,
+                opacity: 0.7,
                 padding: 2,
               }}
             >
@@ -121,7 +121,8 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
                     fontSize: 20,
                     textAlign: "center",
                     width: screenWidth,
-                    color: themeStyle.colors.grayscale.lowest,
+                    color: themeStyle.colors.primary.light,
+                    opacity: 0.7,
                   }}
                 >
                   {previewText || "Tap to preview"}
