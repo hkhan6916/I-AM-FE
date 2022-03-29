@@ -483,17 +483,17 @@ const ChatScreen = (props) => {
               height: 48,
               // height: "100%",
               justifyContent: "center",
-              backgroundColor: themeStyle.colors.grayscale.higher,
+              backgroundColor: themeStyle.colors.grayscale.high,
             }}
           >
-            <TextInput
+            <TextInput // TODO: create a stand alone component for this for less re renders like searchbar. Could just clone searchbar and make some changes
               style={{
-                // minHeight:
                 color: themeStyle.colors.grayscale.lowest,
-                backgroundColor: themeStyle.colors.grayscale.higher,
+                backgroundColor: themeStyle.colors.grayscale.high,
                 paddingHorizontal: 10,
               }}
               value={messageBody}
+              placeholderTextColor={themeStyle.colors.grayscale.lower}
               multiline
               placeholder="Type a message..."
               onChangeText={(v) => setMessageBody(v)}

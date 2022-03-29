@@ -80,7 +80,7 @@ const VideoPlayer = ({
           {!readyForDisplay || isUploading || isCancelled || preventPlay ? (
             <View
               style={{
-                position: "absolute",
+                position: !preventPlay ? "absolute" : "relative",
                 top: 0,
                 width: "100%",
                 height: "100%",

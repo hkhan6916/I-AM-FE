@@ -22,7 +22,15 @@ const MessageBox = ({ belongsToSender, message }) => {
         <View
           style={[
             styles.message,
-            belongsToSender ? { marginLeft: 50 } : { marginRight: 50 },
+            belongsToSender
+              ? {
+                  marginLeft: 50,
+                  backgroundColor: themeStyle.colors.primary.default,
+                }
+              : {
+                  marginRight: 50,
+                  backgroundColor: themeStyle.colors.secondary.default,
+                },
           ]}
         >
           {mediaUrl && mediaType === "image" ? (
@@ -41,7 +49,6 @@ const MessageBox = ({ belongsToSender, message }) => {
               onPress={() => videoRef.current.presentFullscreenPlayer()}
             >
               <View style={{ alignItems: "center", justifyContent: "center" }}>
-                {console.log(mediaUrl)}
                 <Video
                   ref={videoRef}
                   style={{
@@ -59,11 +66,12 @@ const MessageBox = ({ belongsToSender, message }) => {
                   mediaUrl={mediaUrl}
                   mediaHeaders={mediaHeaders}
                   aspectRatio={1 / 1}
+                  style={{ width: "80%" }}
                 />
                 <View
                   style={{
                     position: "absolute",
-                    backgroundColor: themeStyle.colors.grayscale.lowest,
+                    backgroundColor: themeStyle.colors.secondary.light,
                     borderRadius: 100,
                   }}
                 >
@@ -101,10 +109,7 @@ const MessageBox = ({ belongsToSender, message }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 10,
-    marginLeft: 10,
+    marginVertical: 20,
   },
   senderName: {
     color: themeStyle.colors.grayscale.lowest,
@@ -112,9 +117,9 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   message: {
-    backgroundColor: themeStyle.colors.primary.default,
     borderRadius: 10,
     padding: 5,
+    // margin: 20,
   },
   subContainer: {
     marginHorizontal: 10,
