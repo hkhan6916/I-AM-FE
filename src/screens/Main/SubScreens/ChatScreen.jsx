@@ -26,6 +26,7 @@ import get12HourTime from "../../../helpers/get12HourTime";
 import getNameDate from "../../../helpers/getNameDate";
 import themeStyle from "../../../theme.style";
 import CameraStandard from "../../../components/CameraStandard";
+import MessageContainer from "../../../components/MessageContainer";
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -261,6 +262,7 @@ const ChatScreen = (props) => {
   }, [chat]);
 
   useEffect(() => {
+    // TODO: implement navigation listener here to prevent notifications from being received
     let isMounted = true;
 
     if (socket && isMounted && authInfo) {
@@ -348,46 +350,25 @@ const ChatScreen = (props) => {
           renderItem={(
             { item: message, index: i } // change to be more performant like home and profile screen
           ) => (
-            <View key={`message-${i}`}>
-              {messages[i - 1] &&
-              message.stringDate !== messages[i - 1].stringDate ? (
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <View style={styles.horizontalLines} />
-                  <Text
-                    style={{
-                      textAlign: "center",
-                      marginHorizontal: 10,
-                      color: themeStyle.colors.grayscale.high,
-                    }}
-                  >
-                    {messages[i - 1].stringDate}
-                  </Text>
-                  <View style={styles.horizontalLines} />
-                </View>
-              ) : null}
-              {allMessagesLoaded && i === messages.length - 1 ? (
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <View style={styles.horizontalLines} />
-                  <Text
-                    style={{
-                      textAlign: "center",
-                      marginHorizontal: 10,
-                      color: themeStyle.colors.grayscale.high,
-                    }}
-                  >
-                    {messages[i].stringDate}
-                  </Text>
-                  <View style={styles.horizontalLines} />
-                </View>
-              ) : null}
-              <MessageBox
-                message={message}
-                belongsToSender={
-                  authInfo.senderId === message.user._id ||
-                  message.user === "sender"
-                }
-              />
-            </View>
+            <MessageContainer
+              firstMessageDate={
+                allMessagesLoaded && i === messages.length - 1
+                  ? messages[i].stringDate
+                  : null
+              }
+              messageDate={
+                i !== messages.length - 1 &&
+                messages[i + 1] &&
+                message.stringDate !== messages[i + 1].stringDate
+                  ? messages[i].stringDate
+                  : null
+              }
+              message={message}
+              belongsToSender={
+                authInfo.senderId === message.user._id ||
+                message.user === "sender"
+              }
+            />
           )}
           onEndReached={() => getChatMessages()}
           onEndReachedThreshold={0.9}
