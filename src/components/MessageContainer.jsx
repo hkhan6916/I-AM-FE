@@ -54,4 +54,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MessageContainer;
+export default React.memo(MessageContainer);

@@ -64,7 +64,7 @@ const CommentReplyCard = ({
         >
           <View style={styles.profileInfoContainer}>
             <Avatar
-              hasBorder
+              // hasBorder
               userId={reply.userId}
               navigation={navigation}
               size={35}

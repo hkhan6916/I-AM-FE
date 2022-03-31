@@ -1,21 +1,24 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   ScrollView,
   Text,
   View,
   StyleSheet,
   TouchableOpacity,
+  FlatList,
+  RefreshControl,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Entypo } from "@expo/vector-icons";
 import apiCall from "../../../helpers/apiCall";
 import ChatCard from "../../../components/ChatCard";
 import themeStyle from "../../../theme.style";
+import ContentLoader from "../../../components/ContentLoader";
 
 const ChatListScreen = () => {
   const [chats, setChats] = useState([]);
   const [error, setError] = useState(false);
-  const isMounted = useRef(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const navigation = useNavigation();
 
@@ -24,66 +27,69 @@ const ChatListScreen = () => {
       "GET",
       `/user/chats/${chats.length}`
     );
-    if (isMounted.current) {
-      setError(false);
-      if (success) {
-        setChats(response);
-      } else if (isMounted.current) {
-        setError(true);
-      }
+    setError(false);
+    if (success) {
+      setChats([...chats, ...response]);
     }
   };
 
-  const isCloseToBottom = ({
-    layoutMeasurement,
-    contentOffset,
-    contentSize,
-  }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await getUserChats();
+    setRefreshing(false);
+  }, []);
+
+  const renderItem = useCallback(
+    ({ item: chat }) => (
+      <ChatCard
+        chat={chat}
+        onPress={() =>
+          navigation.navigate("ChatScreen", { existingChat: chat })
+        }
+      />
+    ),
+    [chats.length]
+  );
+
+  const keyExtractor = useCallback((item) => item._id, [chats.length]); //TODO: append index to this incase duplicates appear for whatever reason
 
   useEffect(() => {
-    isMounted.current = true;
-    (async () => {
-      await getUserChats();
-    })();
-    navigation.addListener("focus", async () => {
+    const focusListener = navigation.addListener("focus", async () => {
       await getUserChats();
     });
 
     return () => {
-      isMounted.current = false;
+      navigation.removeListener(focusListener);
     };
   }, [navigation]);
   return (
     <View style={styles.container}>
+      {console.log(chats.length)}
+      {!chats.length && !error ? (
+        <View>
+          <ContentLoader active showAvatar hideExtraText avatarSize={50} />
+          <ContentLoader active showAvatar hideExtraText avatarSize={50} />
+          <ContentLoader active showAvatar hideExtraText avatarSize={50} />
+          <ContentLoader active showAvatar hideExtraText avatarSize={50} />
+          <ContentLoader active showAvatar hideExtraText avatarSize={50} />
+          <ContentLoader active showAvatar hideExtraText avatarSize={50} />
+          <ContentLoader active showAvatar hideExtraText avatarSize={50} />
+        </View>
+      ) : null}
       {!error ? (
-        <ScrollView
-          onScroll={({ nativeEvent }) => {
-            if (isCloseToBottom(nativeEvent)) {
-              getUserChats();
-            }
-          }}
-        >
-          {chats.length
-            ? chats.map((chat) => (
-                <TouchableOpacity
-                  key={chat._id}
-                  onPress={() =>
-                    navigation.navigate("ChatScreen", { existingChat: chat })
-                  }
-                >
-                  <View>
-                    {chat.users.length ? <ChatCard chat={chat} /> : null}
-                  </View>
-                </TouchableOpacity>
-              ))
-            : null}
-        </ScrollView>
+        <FlatList
+          data={chats}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          refreshControl={
+            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+          }
+          contentContainerStyle={{ flexGrow: 1 }}
+          onEndReached={() => getUserChats()}
+          onEndReachedThreshold={0.5}
+          initialNumToRender={10}
+          maxToRenderPerBatch={5}
+        />
       ) : (
         <View>
           <Text>Oops, something went wrong</Text>

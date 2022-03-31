@@ -1,10 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TouchableHighlight, TouchableOpacity } from "react-native";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import Avatar from "./Avatar";
 import themeStyle from "../theme.style";
+import apiCall from "../helpers/apiCall";
 
-const Thumbnail = ({ avatarSize, user, navigation, fontSize }) => (
+const Thumbnail = ({
+  avatarSize,
+  user,
+  navigation,
+  fontSize,
+  isRequest,
+  acceptFriendRequest,
+  rejectFriendRequest,
+}) => (
   <View
     style={{
       flexDirection: "row",
@@ -21,9 +30,10 @@ const Thumbnail = ({ avatarSize, user, navigation, fontSize }) => (
     />
     <View
       style={{
-        display: "flex",
         justifyContent: "center",
         marginLeft: 20,
+        flex: 1,
+        paddingRight: 10,
       }}
     >
       <Text
@@ -60,10 +70,54 @@ const Thumbnail = ({ avatarSize, user, navigation, fontSize }) => (
         </Text>
       )}
     </View>
+    {isRequest ? (
+      <View
+        style={{
+          flexDirection: "row",
+          flex: 1,
+          justifyContent: "flex-end",
+          alignItems: "center",
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => rejectFriendRequest()}
+          style={{
+            marginHorizontal: 10,
+            borderWidth: 1,
+            borderColor: themeStyle.colors.grayscale.lowest,
+            padding: 2,
+            borderRadius: 5,
+          }}
+        >
+          <Text style={{ color: themeStyle.colors.white }}>Remove</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => acceptFriendRequest()}
+          style={{
+            marginHorizontal: 10,
+            backgroundColor: themeStyle.colors.secondary.default,
+            paddingVertical: 2,
+            paddingHorizontal: 10,
+            borderRadius: 5,
+          }}
+        >
+          <Text style={{ color: themeStyle.colors.white }}>Add</Text>
+        </TouchableOpacity>
+      </View>
+    ) : null}
   </View>
 );
 
-const UserThumbnail = ({ user, avatarSize, preventClicks, fontSize }) => {
+const UserThumbnail = ({
+  user,
+  avatarSize,
+  preventClicks,
+  fontSize,
+  isRequest,
+  acceptFriendRequest,
+  rejectFriendRequest,
+}) => {
+  const [hide, setHide] = useState(false);
   const navigation = useNavigation();
 
   const handleUserProfileNavigation = () => {
@@ -75,7 +129,25 @@ const UserThumbnail = ({ user, avatarSize, preventClicks, fontSize }) => {
     navigation.dispatch(pushScreen);
   };
 
+  const handleReject = async () => {
+    setHide(true);
+    const success = await rejectFriendRequest(user);
+    if (!success) {
+      setHide(false);
+    }
+  };
+  const handleAccept = async () => {
+    setHide(true);
+    const success = await acceptFriendRequest(user);
+    if (!success) {
+      setHide(false);
+    }
+  };
+
   if (!user) return <View />;
+  if (hide) {
+    return <View />;
+  }
   return (
     <View>
       {!preventClicks ? (
@@ -90,10 +162,21 @@ const UserThumbnail = ({ user, avatarSize, preventClicks, fontSize }) => {
             user={user}
             navigation={navigation}
             fontSize={fontSize}
+            isRequest={isRequest}
+            acceptFriendRequest={handleAccept}
+            rejectFriendRequest={handleReject}
           />
         </TouchableOpacity>
       ) : (
-        <Thumbnail />
+        <Thumbnail
+          avatarSize={avatarSize}
+          user={user}
+          navigation={navigation}
+          fontSize={fontSize}
+          isRequest={isRequest}
+          acceptFriendRequest={handleAccept}
+          rejectFriendRequest={handleReject}
+        />
       )}
     </View>
   );

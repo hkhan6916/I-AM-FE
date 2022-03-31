@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   RefreshControl,
+  FlatList,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../../../../theme.style";
@@ -23,8 +24,11 @@ const FriendRequestsScreen = () => {
     const { success, response } = await apiCall("GET", "/user/friend/requests");
 
     if (success) {
-      setFriendRequestsReceived(response.received || {});
-      setFriendRequestsSent(response.sent || {});
+      setFriendRequestsReceived([
+        ...friendRequestsReceived,
+        ...response.received,
+      ]);
+      setFriendRequestsSent([...friendRequestsSent, ...response.sent]);
     }
   };
 
@@ -33,14 +37,20 @@ const FriendRequestsScreen = () => {
     setRefreshing(false);
   }, []);
 
+  const renderItem = useCallback(
+    ({ item: friend }) => <UserThumbnail user={friend} avatarSize={50} />,
+    [friendRequestsReceived.length, friendRequestsSent.length]
+  );
+
+  const keyExtractor = useCallback(
+    (item) => item._id,
+    [friendRequestsReceived.length, friendRequestsSent.length]
+  );
+
   useEffect(() => {
-    navigation.addListener("focus", async () => {
+    (async () => {
       await getFriendRequests();
-    });
-    return () => {
-      setFriendRequestsReceived([]);
-      setFriendRequestsSent([]);
-    };
+    })();
   }, [navigation]);
 
   return (
@@ -65,23 +75,23 @@ const FriendRequestsScreen = () => {
           <Text style={styles.requestsTabText}>Sent</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView
+      <FlatList
+        data={
+          currentTab === "received"
+            ? friendRequestsReceived
+            : friendRequestsSent
+        }
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
         refreshControl={
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
-      >
-        {currentTab === "received"
-          ? friendRequestsReceived.map((received) => (
-              <UserThumbnail
-                avatarSize={50}
-                key={received._id}
-                user={received}
-              />
-            ))
-          : friendRequestsSent.map((sent) => (
-              <UserThumbnail avatarSize={50} key={sent._id} user={sent} />
-            ))}
-      </ScrollView>
+        contentContainerStyle={{ flexGrow: 1 }}
+        onEndReached={() => getFriendRequests()}
+        onEndReachedThreshold={0.5}
+        initialNumToRender={10}
+        maxToRenderPerBatch={5}
+      />
     </View>
   );
 };

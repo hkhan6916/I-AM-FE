@@ -33,6 +33,7 @@ const ContentLoader = ({
   secondaryColor,
   customBackground,
   children,
+  hideExtraText,
 }) => {
   const [animation, setAnimation] = useState(new Animated.Value(0));
   const startAnimation = () => {
@@ -168,19 +169,21 @@ const ContentLoader = ({
           />
         </View>
       </View>
-      <View style={styles.paragraphContainer}>
-        {[...Array(pRows)].map((_, index) => (
-          <Animated.View
-            key={index}
-            style={[
-              styles.paragraph,
-              paragraphInitialStyles(index, pHeight, pWidth),
-              paragraphStyles,
-              { backgroundColor: customBackground || interpolatedBackground },
-            ]}
-          />
-        ))}
-      </View>
+      {!hideExtraText ? (
+        <View style={styles.paragraphContainer}>
+          {[...Array(pRows)].map((_, index) => (
+            <Animated.View
+              key={index}
+              style={[
+                styles.paragraph,
+                paragraphInitialStyles(index, pHeight, pWidth),
+                paragraphStyles,
+                { backgroundColor: customBackground || interpolatedBackground },
+              ]}
+            />
+          ))}
+        </View>
+      ) : null}
     </View>
   ));
 };

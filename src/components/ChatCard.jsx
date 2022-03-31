@@ -1,37 +1,43 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import themeStyle from "../theme.style";
 import Avatar from "./Avatar";
 
-const ChatCard = ({ chat }) => {
-  const user = chat.users[0];
+const ChatCard = ({ chat, onPress }) => {
+  const user = chat.users?.[0];
+
   return (
-    <View style={styles.container}>
-      <Avatar
-        preventClicks
-        size={50}
-        avatarUrl={user.profileGifUrl}
-        profileGifHeaders={user.profileGifHeaders}
-      />
-      <View style={styles.chatInfo}>
-        <Text
-          numberOfLines={1}
-          style={{
-            fontWeight: "600",
-            fontSize: 16,
-            color: themeStyle.colors.grayscale.lowest,
-          }}
-        >
-          {user.firstName} {user.lastName}
-        </Text>
-        <Text
-          style={{ color: themeStyle.colors.grayscale.lowest }}
-          numberOfLines={1}
-        >
-          {chat.previewMessage}
-        </Text>
+    <TouchableOpacity
+      onPress={onPress ? () => onPress() : null}
+      disabled={!onPress}
+    >
+      <View style={styles.container}>
+        <Avatar
+          preventClicks
+          size={50}
+          avatarUrl={user.profileGifUrl || ""}
+          profileGifHeaders={user.profileGifHeaders}
+        />
+        <View style={styles.chatInfo}>
+          <Text
+            numberOfLines={1}
+            style={{
+              fontWeight: "600",
+              fontSize: 16,
+              color: themeStyle.colors.grayscale.lowest,
+            }}
+          >
+            {user.firstName} {user.lastName}
+          </Text>
+          <Text
+            style={{ color: themeStyle.colors.grayscale.lowest }}
+            numberOfLines={1}
+          >
+            {chat.previewMessage}
+          </Text>
+        </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

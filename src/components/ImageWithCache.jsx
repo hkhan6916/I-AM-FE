@@ -21,6 +21,7 @@ const ImageWithCache = ({
   toggleFullScreen,
   removeBorderRadius,
   hideSpinner = false,
+  onLoad,
   style,
 }) => {
   const { width: screenWidth } = Dimensions.get("window");
@@ -74,7 +75,7 @@ const ImageWithCache = ({
       ]}
     >
       <View>
-        {!ready && hideSpinner ? (
+        {!ready && !hideSpinner ? (
           <View
             style={{
               position: "absolute",
@@ -93,7 +94,12 @@ const ImageWithCache = ({
           </View>
         ) : null}
         <FastImage
-          onLoad={() => setReady(true)}
+          onLoad={() => {
+            if (onLoad) {
+              onLoad();
+            }
+            setReady(true);
+          }}
           resizeMode={
             resizeMode === "cover"
               ? FastImage.resizeMode.cover

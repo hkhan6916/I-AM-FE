@@ -24,12 +24,10 @@ const CreateChatScreen = () => {
       "GET",
       `/user/friend/fetch/all/${friends.length}`
     );
-    if (isMounted.current) {
-      if (success) {
-        setFriends(response);
-      } else {
-        setError(true);
-      }
+    if (success) {
+      setFriends([...friends, ...response.friends]);
+    } else {
+      setError(true);
     }
   };
 

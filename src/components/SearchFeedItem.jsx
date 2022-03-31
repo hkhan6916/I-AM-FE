@@ -7,6 +7,8 @@ import { Feather } from "@expo/vector-icons";
 import { StackActions, useNavigation } from "@react-navigation/native";
 
 const SearchFeedItem = ({ post }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   const { width: screenWidth } = Dimensions.get("window");
   const imageHeight = screenWidth <= 340 ? screenWidth / 2 : screenWidth / 3;
   const navigation = useNavigation();
@@ -23,6 +25,7 @@ const SearchFeedItem = ({ post }) => {
         style={{
           flex: 1,
           flexDirection: "column",
+          opacity: imageLoaded ? 1 : 0,
         }}
       >
         {post.mediaType === "video" ? (
@@ -38,6 +41,7 @@ const SearchFeedItem = ({ post }) => {
           </View>
         ) : null}
         <ImageWithCache
+          onLoad={() => setImageLoaded(true)}
           resizeMode={"cover"}
           mediaUrl={post.thumbnailUrl || post.mediaUrl}
           mediaHeaders={post.thumbnailHeaders || post.mediaHeaders}
@@ -46,6 +50,7 @@ const SearchFeedItem = ({ post }) => {
           style={{
             width: imageHeight,
             height: imageHeight,
+            borderWidth: 2,
           }}
         />
         <View

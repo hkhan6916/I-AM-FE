@@ -554,10 +554,7 @@ const ChatScreen = (props) => {
             </TouchableOpacity>
           ) : null}
           {showMediaSizeError ? (
-            <Text>
-              We can&apos;t send the chosen media file as it exceeds our 50MB
-              limit. Please choose a smaller file.
-            </Text>
+            <Text>Please send a file smaller than 50MB.</Text>
           ) : null}
         </View>
       </KeyboardAvoidingView>

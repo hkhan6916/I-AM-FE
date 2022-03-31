@@ -24,13 +24,17 @@ const SearchScreen = () => {
   const [showAllResults, setShowAllResults] = useState(false);
   const [hideFeedAndSuggestions, setHideFeedAndSuggestions] = useState(false);
   const [userSearchHistory, setUserSearchHistory] = useState([]);
+  const [lastSuccessfullSearchQuery, setLastSuccessfullSearchQuery] =
+    useState("");
 
   const db = SQLite.openDatabase("localdb");
 
   const onUserSearch = async (searchQuery) => {
+    setLastSuccessfullSearchQuery(searchQuery);
     if (!results.length) {
       return;
     }
+
     await createUserSearchHistoryTable(db);
 
     await insertUserSearchHistory({
@@ -90,9 +94,9 @@ const SearchScreen = () => {
     const keyboardDidHideListener = Keyboard.addListener(
       "keyboardDidHide",
       () => {
-        // if (!results.length) {
-        //   setHideFeedAndSuggestions(false);
-        // }
+        if (!results.length && !lastSuccessfullSearchQuery) {
+          setHideFeedAndSuggestions(false);
+        }
       }
     );
 
