@@ -35,7 +35,7 @@ const FriendsScreen = () => {
       setSections([
         response.requests.length
           ? {
-              title: "Requests",
+              title: "Requests received",
               name: "requests",
               data: response.requests,
             }
@@ -118,10 +118,25 @@ const FriendsScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Button
-        title="Friend Requests"
+      <TouchableOpacity
+        style={{
+          alignSelf: "flex-end",
+          marginHorizontal: 20,
+          marginTop: 20,
+          marginBottom: 10,
+        }}
         onPress={() => navigation.navigate("FriendRequestsScreen")}
-      />
+      >
+        <Text
+          style={{
+            color: themeStyle.colors.secondary.default,
+            fontSize: 16,
+            fontWeight: "700",
+          }}
+        >
+          All requests
+        </Text>
+      </TouchableOpacity>
       <SectionList
         sections={sections}
         renderItem={renderItem}
@@ -131,16 +146,18 @@ const FriendsScreen = () => {
         }
         renderSectionHeader={({ section: { title } }) =>
           title && (
-            <Text
-              style={{
-                color: themeStyle.colors.grayscale.lowest,
-                marginVertical: 10,
-                marginHorizontal: 10,
-                fontWeight: "700",
-              }}
-            >
-              {title}
-            </Text>
+            <View>
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.lowest,
+                  marginVertical: 10,
+                  marginHorizontal: 10,
+                  fontWeight: "700",
+                }}
+              >
+                {title}
+              </Text>
+            </View>
           )
         }
         renderSectionFooter={({ section: { name } }) =>

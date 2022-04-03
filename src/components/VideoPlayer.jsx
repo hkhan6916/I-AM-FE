@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../theme.style";
 import ImageWithCache from "./ImageWithCache";
 import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const VideoPlayer = ({
@@ -14,6 +15,7 @@ const VideoPlayer = ({
   mediaIsSelfie,
   // mediaHeaders,
   shouldPlay,
+  isMuted,
   showToggle,
   isLocalMedia,
   thumbnailUrl,
@@ -102,7 +104,7 @@ const VideoPlayer = ({
                 // setVideoDimensions(params.naturalSize);
                 setReadyForDisplay(true);
               }}
-              isMuted={!showToggle}
+              isMuted={!showToggle || isMuted}
               shouldPlay={shouldPlay || false}
               ref={video}
               isLooping={true}
@@ -124,6 +126,14 @@ const VideoPlayer = ({
                 name={videoStatus?.isPlaying ? "pause" : "play"}
                 size={48}
                 color={themeStyle.colors.white}
+              />
+            </View>
+          ) : isMuted ? (
+            <View style={{ position: "absolute", right: 10, top: 10 }}>
+              <Ionicons
+                name="ios-volume-mute-outline"
+                size={24}
+                color={themeStyle.colors.black}
               />
             </View>
           ) : null}

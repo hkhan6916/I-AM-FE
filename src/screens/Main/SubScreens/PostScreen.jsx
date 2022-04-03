@@ -219,6 +219,7 @@ const PostScreen = (props) => {
                     isUploading={post.ready === false}
                     isCancelled={post.cancelled}
                     showToggle
+                    isMuted
                   />
                 </View>
               ) : post.mediaType === "image" ? (

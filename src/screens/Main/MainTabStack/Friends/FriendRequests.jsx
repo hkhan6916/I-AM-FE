@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   RefreshControl,
   FlatList,
 } from "react-native";
@@ -21,6 +20,8 @@ const FriendRequestsScreen = () => {
   const navigation = useNavigation();
 
   const getFriendRequests = async () => {
+    setRefreshing(true);
+
     const { success, response } = await apiCall("GET", "/user/friend/requests");
 
     if (success) {
@@ -30,11 +31,11 @@ const FriendRequestsScreen = () => {
       ]);
       setFriendRequestsSent([...friendRequestsSent, ...response.sent]);
     }
+    setRefreshing(false);
   };
 
   const onRefresh = useCallback(async () => {
     await getFriendRequests();
-    setRefreshing(false);
   }, []);
 
   const renderItem = useCallback(
@@ -63,7 +64,16 @@ const FriendRequestsScreen = () => {
           ]}
           onPress={() => setCurrentTab("received")}
         >
-          <Text style={styles.requestsTabText}>Received</Text>
+          <Text
+            style={[
+              styles.requestsTabText,
+              currentTab === "received" && {
+                color: themeStyle.colors.secondary.default,
+              },
+            ]}
+          >
+            Received
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -72,7 +82,16 @@ const FriendRequestsScreen = () => {
           ]}
           onPress={() => setCurrentTab("sent")}
         >
-          <Text style={styles.requestsTabText}>Sent</Text>
+          <Text
+            style={[
+              styles.requestsTabText,
+              currentTab === "sent" && {
+                color: themeStyle.colors.secondary.default,
+              },
+            ]}
+          >
+            Sent
+          </Text>
         </TouchableOpacity>
       </View>
       <FlatList
@@ -106,7 +125,7 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: "row",
-    backgroundColor: themeStyle.colors.grayscale.low,
+    // backgroundColor: themeStyle.colors.grayscale.higher,
   },
   requestsTab: {
     marginHorizontal: 10,
@@ -117,6 +136,7 @@ const styles = StyleSheet.create({
   },
   requestsTabText: {
     fontWeight: "700",
+    color: themeStyle.colors.grayscale.lowest,
   },
 });
 
