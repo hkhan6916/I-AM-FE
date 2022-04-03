@@ -91,7 +91,7 @@ const ProfileScreenHeader = ({ userData }) => {
             size={16}
             color={themeStyle.colors.grayscale.lower}
           />
-          Your activity is only visible to friends
+          Activity is only visible to contacts
         </Text>
       ) : null}
       <View style={{ padding: 5, marginTop: 20 }}>

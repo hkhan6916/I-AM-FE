@@ -38,6 +38,7 @@ const RepostCard = ({ postContent, isPreview }) => {
       onPress={() => handleNavigation()}
       underlayColor={themeStyle.colors.grayscale.high}
       disabled={isPreview}
+      delayPressIn={200}
     >
       <View>
         <View

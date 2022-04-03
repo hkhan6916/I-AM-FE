@@ -74,7 +74,6 @@ const PostCommentCard = ({
         >
           <View style={styles.headerContainer}>
             <Avatar
-              // hasBorder
               userId={comment.userId}
               navigation={navigation}
               avatarUrl={comment.commentAuthor.profileGifUrl}

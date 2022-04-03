@@ -2,11 +2,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
-  Button,
   RefreshControl,
-  ScrollView,
   Text,
-  FlatList,
   SectionList,
   TouchableOpacity,
 } from "react-native";
@@ -18,7 +15,6 @@ const FriendsScreen = () => {
   const [friends, setFriends] = useState([]);
   const [requests, setRequests] = useState([]);
   const [sections, setSections] = useState([]);
-  const [showRequests, setShowRequests] = useState(true);
 
   const navigation = useNavigation();
   const [refreshing, setRefreshing] = useState(false);
@@ -30,8 +26,6 @@ const FriendsScreen = () => {
       `/user/friend/fetch/all/${friends.length}`
     );
     if (success) {
-      // setFriends([...friends, ...response.friends]);
-      // setRequests(response.requests);
       setSections([
         response.requests.length
           ? {
@@ -40,7 +34,7 @@ const FriendsScreen = () => {
               data: response.requests,
             }
           : { data: response.requests },
-        { title: "Contacts", name: "contacts", data: response.friends },
+        { title: "My contacts", name: "contacts", data: response.friends },
       ]);
       setFriends([...friends, ...response.friends]);
       setRequests([requests, response.requests]);
@@ -77,7 +71,6 @@ const FriendsScreen = () => {
     );
     if (success) {
       const index = sections[0].data.map((e) => e._id).indexOf(user._id);
-      console.log(index);
       const updatedSections = [
         sections[0].data?.length - 1 !== 0
           ? { ...sections[0], data: [...sections[0].data.splice(index, 1)] }

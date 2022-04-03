@@ -1,4 +1,4 @@
-import { Dimensions, StatusBar, View } from "react-native";
+import { Dimensions } from "react-native";
 import { Video } from "expo-av";
 import React, { useCallback, useRef } from "react";
 import VideoPlayer from "expo-video-player";

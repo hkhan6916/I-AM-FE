@@ -24,7 +24,6 @@ const Thumbnail = ({
       size={avatarSize}
       avatarUrl={user.profileGifUrl}
       profileGifHeaders={user.profileGifHeaders}
-      hasBorder
       preventClicks
     />
     <View
