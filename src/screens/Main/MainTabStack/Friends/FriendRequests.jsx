@@ -20,8 +20,6 @@ const FriendRequestsScreen = () => {
   const navigation = useNavigation();
 
   const getFriendRequests = async () => {
-    setRefreshing(true);
-
     const { success, response } = await apiCall("GET", "/user/friend/requests");
 
     if (success) {
@@ -31,11 +29,12 @@ const FriendRequestsScreen = () => {
       ]);
       setFriendRequestsSent([...friendRequestsSent, ...response.sent]);
     }
-    setRefreshing(false);
   };
 
   const onRefresh = useCallback(async () => {
+    setRefreshing(true);
     await getFriendRequests();
+    setRefreshing(false);
   }, []);
 
   const renderItem = useCallback(

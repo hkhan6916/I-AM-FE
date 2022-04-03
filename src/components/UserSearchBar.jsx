@@ -72,11 +72,12 @@ const UserSearchBar = ({
       }
     } else {
       const result = dataToSearchWithin.filter((friend) => {
+        const lowerSearchTerm = searchTerm?.toLowerCase();
         return (
-          friend.firstName?.includes(searchTerm) ||
-          friend.lastName?.includes(searchTerm) ||
-          friend.username?.includes(searchTerm) ||
-          friend.jobTitle?.includes(searchTerm)
+          friend.firstName?.toLowerCase().includes(lowerSearchTerm) ||
+          friend.lastName?.toLowerCase().includes(lowerSearchTerm) ||
+          friend.username?.toLowerCase().includes(lowerSearchTerm) ||
+          friend.jobTitle?.toLowerCase().includes(lowerSearchTerm)
         );
       });
       // if empty search, return empty array, if no results found return "none" else return result

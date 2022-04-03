@@ -60,7 +60,9 @@ const OtherUserFriendsScreen = (props) => {
       title: firstName ? `${firstName}'s contacts` : "",
     });
     (async () => {
+      setRefreshing(true);
       await getFriends();
+      setRefreshing(false);
     })();
   }, []);
 

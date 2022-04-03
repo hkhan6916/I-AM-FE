@@ -6,21 +6,23 @@ import {
   Text,
   SectionList,
   TouchableOpacity,
+  Keyboard,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import apiCall from "../../../../helpers/apiCall";
 import UserThumbnail from "../../../../components/UserThumbnail";
 import themeStyle from "../../../../theme.style";
+import UserSearchBar from "../../../../components/UserSearchBar";
 const FriendsScreen = () => {
   const [friends, setFriends] = useState([]);
   const [requests, setRequests] = useState([]);
   const [sections, setSections] = useState([]);
+  const [searchedFriends, setSearchedFriends] = useState([]);
 
   const navigation = useNavigation();
   const [refreshing, setRefreshing] = useState(false);
 
   const getFriends = async () => {
-    setRefreshing(true);
     const { success, response } = await apiCall(
       "GET",
       `/user/friend/fetch/all/${friends.length}`
@@ -37,9 +39,20 @@ const FriendsScreen = () => {
         { title: "My contacts", name: "contacts", data: response.friends },
       ]);
       setFriends([...friends, ...response.friends]);
-      setRequests([requests, response.requests]);
+      setRequests([...requests, ...response.requests]);
     }
-    setRefreshing(false);
+  };
+
+  const handleSearch = (result) => {
+    const updatedSections = [
+      sections[0],
+      {
+        ...sections[1],
+        data: result === "none" ? [] : result?.length ? result : friends,
+      },
+    ];
+
+    setSections(updatedSections);
   };
 
   const acceptFriendRequest = async (user) => {
@@ -93,22 +106,23 @@ const FriendsScreen = () => {
         rejectFriendRequest={rejectFriendRequest}
       />
     ),
-    [sections]
+    [sections[0]?.data?.length, sections[1]?.data?.length]
   );
-
-  const keyExtractor = useCallback((item, i) => item._id + i, []);
+  const keyExtractor = useCallback((item, i) => item._id + i, [sections]);
 
   const onRefresh = useCallback(async () => {
+    setRefreshing(true);
     await getFriends();
     setRefreshing(false);
   }, []);
 
   useEffect(() => {
     (async () => {
+      setRefreshing(true);
       await getFriends();
+      setRefreshing(false);
     })();
   }, []);
-
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -137,7 +151,7 @@ const FriendsScreen = () => {
         refreshControl={
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
-        renderSectionHeader={({ section: { title } }) =>
+        renderSectionHeader={({ section: { title, name } }) =>
           title && (
             <View>
               <Text
@@ -150,6 +164,13 @@ const FriendsScreen = () => {
               >
                 {title}
               </Text>
+              {name === "contacts" ? (
+                <UserSearchBar
+                  setResults={handleSearch}
+                  dataToSearchWithin={friends}
+                  onSubmitEditing={() => Keyboard.dismiss()}
+                />
+              ) : null}
             </View>
           )
         }
@@ -171,7 +192,7 @@ const FriendsScreen = () => {
           ) : null
         }
         contentContainerStyle={{ flexGrow: 1 }}
-        onEndReached={() => getFriends()}
+        // onEndReached={() => getFriends()}
         onEndReachedThreshold={0.5}
         initialNumToRender={10}
         maxToRenderPerBatch={5}
