@@ -10,6 +10,7 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  Dimensions,
 } from "react-native";
 import { getItemAsync } from "expo-secure-store";
 import { io } from "socket.io-client";
@@ -50,6 +51,11 @@ const ChatScreen = (props) => {
 
   const { chatUserId, existingChat } = props.route.params;
   const navigation = useNavigation();
+
+  const { width: screenWidth } = Dimensions.get("window");
+
+  const mediaSize = screenWidth / 1.5;
+
   const createChat = async () => {
     // If the chat doesn't exist, send request
     if (!existingChat) {
@@ -351,6 +357,7 @@ const ChatScreen = (props) => {
             { item: message, index: i } // change to be more performant like home and profile screen
           ) => (
             <MessageContainer
+              mediaSize={mediaSize}
               firstMessageDate={
                 allMessagesLoaded && i === messages.length - 1
                   ? messages[i].stringDate

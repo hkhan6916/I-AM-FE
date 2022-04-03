@@ -29,7 +29,10 @@ const ImageWithCache = ({
 
   if (isFullScreen) {
     return (
-      <Modal presentationStyle="pageSheet">
+      <Modal
+        presentationStyle="pageSheet"
+        onRequestClose={() => isFullScreen && toggleFullScreen()}
+      >
         <View
           style={{
             backgroundColor: themeStyle.colors.grayscale.lowest,
@@ -48,7 +51,7 @@ const ImageWithCache = ({
               <AntDesign
                 name="closecircleo"
                 size={24}
-                color={themeStyle.colors.grayscale.lowest}
+                color={themeStyle.colors.secondary.default}
               />
             </TouchableOpacity>
           </View>
@@ -108,7 +111,6 @@ const ImageWithCache = ({
           source={{
             uri: mediaUrl,
             headers: mediaHeaders || {},
-            priority: "high",
           }}
           style={[
             {

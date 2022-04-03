@@ -43,7 +43,6 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
       return unsubscribe;
     }
   }, [navigation]);
-  console.log("i am here ");
   return (
     <View>
       <LinearGradient

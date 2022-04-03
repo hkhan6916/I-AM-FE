@@ -14,14 +14,17 @@ import { useNavigation } from "@react-navigation/native";
 import apiCall from "../../../../helpers/apiCall";
 import UserThumbnail from "../../../../components/UserThumbnail";
 import themeStyle from "../../../../theme.style";
-
 const FriendsScreen = () => {
   const [friends, setFriends] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [sections, setSections] = useState([]);
+  const [showRequests, setShowRequests] = useState(true);
+
   const navigation = useNavigation();
   const [refreshing, setRefreshing] = useState(false);
 
   const getFriends = async () => {
+    setRefreshing(true);
     const { success, response } = await apiCall(
       "GET",
       `/user/friend/fetch/all/${friends.length}`
@@ -39,29 +42,52 @@ const FriendsScreen = () => {
           : { data: response.requests },
         { title: "Contacts", name: "contacts", data: response.friends },
       ]);
-      setFriends([friends, ...response.friends]);
+      setFriends([...friends, ...response.friends]);
+      setRequests([requests, response.requests]);
     }
+    setRefreshing(false);
   };
 
   const acceptFriendRequest = async (user) => {
     const { success } = await apiCall(
       "GET",
-      `/user/friend/request/accept/${user}`
+      `/user/friend/request/accept/${user._id}`
     );
     if (success) {
-      // TODO: move accepted request to friends array
-      // setSections([...sections])
+      const index = sections[0].data.map((e) => e._id).indexOf(user._id);
+
+      const updatedSections = [
+        sections[0].data?.length - 1 !== 0
+          ? { ...sections[0], data: [...sections[0].data.splice(index, 1)] }
+          : { name: "", data: [] },
+        {
+          ...sections[1],
+          data: [...sections[1].data, { ...user, accepted: true }],
+        },
+      ];
+      setSections(updatedSections);
     }
-    return success;
+    return true;
   };
 
-  const rejectFriendRequest = async (userId) => {
+  const rejectFriendRequest = async (user) => {
     const { success } = await apiCall(
       "GET",
-      `/user/friend/request/reject/${userId}`
+      `/user/friend/request/reject/${user._id}`
     );
+    if (success) {
+      const index = sections[0].data.map((e) => e._id).indexOf(user._id);
+      console.log(index);
+      const updatedSections = [
+        sections[0].data?.length - 1 !== 0
+          ? { ...sections[0], data: [...sections[0].data.splice(index, 1)] }
+          : { name: "", data: [] },
+        sections[1],
+      ];
+      setSections(updatedSections);
+    }
 
-    return success;
+    return true;
   };
 
   const renderItem = useCallback(
@@ -74,7 +100,7 @@ const FriendsScreen = () => {
         rejectFriendRequest={rejectFriendRequest}
       />
     ),
-    []
+    [sections]
   );
 
   const keyExtractor = useCallback((item, i) => item._id + i, []);
@@ -96,28 +122,6 @@ const FriendsScreen = () => {
         title="Friend Requests"
         onPress={() => navigation.navigate("FriendRequestsScreen")}
       />
-      {/* <FlatList
-        data={requests}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        refreshControl={
-          <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-        }
-        contentContainerStyle={{ flexGrow: 1 }}
-        onEndReachedThreshold={0.5}
-        initialNumToRender={10}
-        maxToRenderPerBatch={5}
-      />
-      <FlatList
-        data={friends}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        contentContainerStyle={{ flexGrow: 1 }}
-        onEndReached={() => getFriends()}
-        onEndReachedThreshold={0.5}
-        initialNumToRender={10}
-        maxToRenderPerBatch={5}
-      /> */}
       <SectionList
         sections={sections}
         renderItem={renderItem}
@@ -125,17 +129,20 @@ const FriendsScreen = () => {
         refreshControl={
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
-        renderSectionHeader={({ section: { title } }) => (
-          <Text
-            style={{
-              color: themeStyle.colors.grayscale.lowest,
-              margin: 10,
-              fontWeight: "700",
-            }}
-          >
-            {title}
-          </Text>
-        )}
+        renderSectionHeader={({ section: { title } }) =>
+          title && (
+            <Text
+              style={{
+                color: themeStyle.colors.grayscale.lowest,
+                marginVertical: 10,
+                marginHorizontal: 10,
+                fontWeight: "700",
+              }}
+            >
+              {title}
+            </Text>
+          )
+        }
         renderSectionFooter={({ section: { name } }) =>
           name === "requests" ? (
             <TouchableOpacity
@@ -148,7 +155,7 @@ const FriendsScreen = () => {
                   marginVertical: 20,
                 }}
               >
-                View all requests{" "}
+                View all requests
               </Text>
             </TouchableOpacity>
           ) : null

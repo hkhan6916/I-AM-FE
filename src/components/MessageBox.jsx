@@ -1,18 +1,34 @@
-import React, { useRef, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Video } from "expo-av";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ImageWithCache from "./ImageWithCache";
 import themeStyle from "../theme.style";
+import ExpoVideoPlayer from "./ExpoVideoPlayer";
 
-const MessageBox = ({ belongsToSender, message }) => {
+const MessageBox = ({ belongsToSender, message, mediaSize }) => {
   const { body, mediaUrl, mediaHeaders, stringTime, mediaType } = message;
-  const [imageFullScreen, setImageFullScreen] = useState(false);
-
-  const videoRef = useRef(null);
+  const [mediaFullScreen, setMediaFullScreen] = useState(false);
 
   return (
     <View style={styles.container}>
+      {mediaType === "video" ? ( // render video in fullcsreen, for image this is handled inside imagewithcache component.
+        <Modal
+          presentationStyle="pageSheet"
+          onRequestClose={() => setMediaFullScreen(false)}
+          visible={mediaFullScreen}
+        >
+          <View
+            style={{
+              flex: 1,
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: themeStyle.colors.black,
+            }}
+          >
+            <ExpoVideoPlayer uri={mediaUrl} />
+          </View>
+        </Modal>
+      ) : null}
       <View
         style={[
           styles.subContainer,
@@ -33,40 +49,43 @@ const MessageBox = ({ belongsToSender, message }) => {
                 },
           ]}
         >
+          <Text
+            style={{
+              fontSize: 12,
+              fontWeight: "700",
+              textAlign: "right",
+              color: themeStyle.colors.white,
+              alignSelf: belongsToSender ? "flex-end" : "flex-start",
+            }}
+          >
+            {stringTime}
+          </Text>
           {mediaUrl && mediaType === "image" ? (
-            <TouchableOpacity onPress={() => setImageFullScreen(true)}>
+            <TouchableOpacity onPress={() => setMediaFullScreen(true)}>
               <ImageWithCache
                 resizeMode="cover"
                 mediaUrl={mediaUrl}
                 mediaHeaders={mediaHeaders}
                 aspectRatio={1 / 1}
-                toggleFullScreen={setImageFullScreen}
-                isFullScreen={imageFullScreen}
+                toggleFullScreen={setMediaFullScreen}
+                isFullScreen={mediaFullScreen}
+                style={{
+                  width: mediaSize || 200,
+                  height: mediaSize || 200,
+                }}
               />
             </TouchableOpacity>
           ) : mediaUrl && mediaType === "video" ? (
-            <TouchableOpacity
-              onPress={() => videoRef.current.presentFullscreenPlayer()}
-            >
+            <TouchableOpacity onPress={() => setMediaFullScreen(true)}>
               <View style={{ alignItems: "center", justifyContent: "center" }}>
-                <Video
-                  ref={videoRef}
-                  style={{
-                    display: "none",
-                  }}
-                  source={{
-                    uri: mediaUrl,
-                    headers: mediaHeaders,
-                  }}
-                  useNativeControls={false}
-                  resizeMode="cover"
-                />
                 <ImageWithCache
                   resizeMode="cover"
                   mediaUrl={mediaUrl}
-                  mediaHeaders={mediaHeaders}
-                  aspectRatio={1 / 1}
-                  style={{ width: "80%" }}
+                  mediaHeaders={mediaHeaders} // TODO:change to thumbnailHeaders and thumbnailUrl once set up alongside media uploads again In Shaa Allah
+                  style={{
+                    width: mediaSize || 200,
+                    height: mediaSize || 200,
+                  }}
                 />
                 <View
                   style={{
@@ -89,18 +108,6 @@ const MessageBox = ({ belongsToSender, message }) => {
               {body}
             </Text>
           ) : null}
-          <Text
-            style={{
-              fontSize: 12,
-              fontWeight: "700",
-              textAlign: "right",
-              color: themeStyle.colors.grayscale.lowest,
-              alignSelf: belongsToSender ? "flex-end" : "flex-start",
-              marginVertical: 5,
-            }}
-          >
-            {stringTime}
-          </Text>
         </View>
       </View>
     </View>

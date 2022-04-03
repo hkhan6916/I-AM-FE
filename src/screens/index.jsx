@@ -13,8 +13,11 @@ import FeedContext from "../Context";
 import registerNotifications from "../helpers/registerNotifications";
 import { hideAsync, preventAutoHideAsync } from "expo-splash-screen";
 import { useColorScheme } from "react-native";
+import { LogBox } from "react-native";
 
 const Screens = () => {
+  LogBox.ignoreLogs(["NativeEventEmitter", "fontFamily"]); // Ignore log notification by message
+
   const [loggedIn, setLoggedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [feed, setFeed] = useState([]);

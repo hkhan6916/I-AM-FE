@@ -1,9 +1,8 @@
-import React, { useState } from "react";
-import { View, Text, TouchableHighlight, TouchableOpacity } from "react-native";
+import React from "react";
+import { View, Text, TouchableOpacity } from "react-native";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import Avatar from "./Avatar";
 import themeStyle from "../theme.style";
-import apiCall from "../helpers/apiCall";
 
 const Thumbnail = ({
   avatarSize,
@@ -80,7 +79,7 @@ const Thumbnail = ({
         }}
       >
         <TouchableOpacity
-          onPress={() => rejectFriendRequest()}
+          onPress={() => rejectFriendRequest(user)}
           style={{
             marginHorizontal: 10,
             borderWidth: 1,
@@ -92,7 +91,7 @@ const Thumbnail = ({
           <Text style={{ color: themeStyle.colors.white }}>Remove</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => acceptFriendRequest()}
+          onPress={() => acceptFriendRequest(user)}
           style={{
             marginHorizontal: 10,
             backgroundColor: themeStyle.colors.secondary.default,
@@ -117,7 +116,6 @@ const UserThumbnail = ({
   acceptFriendRequest,
   rejectFriendRequest,
 }) => {
-  const [hide, setHide] = useState(false);
   const navigation = useNavigation();
 
   const handleUserProfileNavigation = () => {
@@ -130,24 +128,13 @@ const UserThumbnail = ({
   };
 
   const handleReject = async () => {
-    setHide(true);
-    const success = await rejectFriendRequest(user);
-    if (!success) {
-      setHide(false);
-    }
+    await rejectFriendRequest(user);
   };
   const handleAccept = async () => {
-    setHide(true);
-    const success = await acceptFriendRequest(user);
-    if (!success) {
-      setHide(false);
-    }
+    await acceptFriendRequest(user);
   };
 
   if (!user) return <View />;
-  if (hide) {
-    return <View />;
-  }
   return (
     <View>
       {!preventClicks ? (
@@ -163,8 +150,8 @@ const UserThumbnail = ({
             navigation={navigation}
             fontSize={fontSize}
             isRequest={isRequest}
-            acceptFriendRequest={handleAccept}
-            rejectFriendRequest={handleReject}
+            acceptFriendRequest={acceptFriendRequest}
+            rejectFriendRequest={rejectFriendRequest}
           />
         </TouchableOpacity>
       ) : (

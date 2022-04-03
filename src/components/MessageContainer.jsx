@@ -8,6 +8,7 @@ const MessageContainer = ({
   messageDate,
   firstMessageDate,
   belongsToSender,
+  mediaSize,
 }) => {
   return (
     <View>
@@ -41,7 +42,11 @@ const MessageContainer = ({
           <View style={styles.horizontalLines} />
         </View>
       ) : null}
-      <MessageBox message={message} belongsToSender={belongsToSender} />
+      <MessageBox
+        message={message}
+        belongsToSender={belongsToSender}
+        mediaSize={mediaSize}
+      />
     </View>
   );
 };

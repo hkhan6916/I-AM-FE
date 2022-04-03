@@ -24,10 +24,10 @@ const VideoPlayer = ({
 }) => {
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
-  const [videoDimensions, setVideoDimensions] = useState({});
+  // const [videoDimensions, setVideoDimensions] = useState({});
   const [readyForDisplay, setReadyForDisplay] = useState(false);
 
-  const navigation = useNavigation();
+  // const navigation = useNavigation();
 
   const handleVideoDuration = (duration) => {
     if (!duration) {
@@ -46,18 +46,18 @@ const VideoPlayer = ({
 
   const aspectRatio = 1 / 1;
 
-  useEffect(() => {
-    let isMounted = true;
-    if (isMounted) {
-      const unsubscribe = navigation.addListener("blur", async () => {
-        if (video) {
-          await video.current?.pauseAsync();
-        }
-      });
-      isMounted = false;
-      return unsubscribe;
-    }
-  }, [navigation]);
+  // useEffect(() => {
+  //   let isMounted = true;
+  //   if (isMounted) {
+  //     const unsubscribe = navigation.addListener("blur", async () => {
+  //       if (video) {
+  //         await video.current?.pauseAsync();
+  //       }
+  //     });
+  //     isMounted = false;
+  //     return unsubscribe;
+  //   }
+  // }, [navigation]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -99,7 +99,7 @@ const VideoPlayer = ({
           {!preventPlay ? (
             <Video
               onReadyForDisplay={(params) => {
-                setVideoDimensions(params.naturalSize);
+                // setVideoDimensions(params.naturalSize);
                 setReadyForDisplay(true);
               }}
               isMuted={!showToggle}

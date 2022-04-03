@@ -4,6 +4,7 @@ import FriendsScreen from "./Friends";
 import FriendRequestsScreen from "./FriendRequests";
 
 const Stack = createNativeStackNavigator();
+// TODO: TEST friends and requests screens With loads of friends on old device.
 
 const FriendsStack = () => (
   <Stack.Navigator
@@ -19,4 +20,5 @@ const FriendsStack = () => (
     />
   </Stack.Navigator>
 );
+
 export default FriendsStack;
