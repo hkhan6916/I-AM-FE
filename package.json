@@ -10,6 +10,7 @@
   "dependencies": {
     "@expo/vector-icons": "^12.0.0",
     "@expo/videoplayer": "^0.4.0",
+    "@flyerhq/react-native-link-preview": "^1.6.0",
     "@react-native-community/cli": "^6.1.0",
     "@react-native-community/slider": "4.1.7",
     "@react-navigation/bottom-tabs": "^6.0.7",
