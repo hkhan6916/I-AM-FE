@@ -18,16 +18,21 @@ const FriendsScreen = () => {
   const [requests, setRequests] = useState([]);
   const [sections, setSections] = useState([]);
   const [searchedFriends, setSearchedFriends] = useState([]);
-
+  const [offsets, setOffsets] = useState({});
   const navigation = useNavigation();
   const [refreshing, setRefreshing] = useState(false);
 
   const getFriends = async () => {
     const { success, response } = await apiCall(
-      "GET",
-      `/user/friend/fetch/all/${friends.length}`
+      "POST",
+      `/user/friend/fetch/all`,
+      offsets
     );
+
+    const { friendsAsSenderOffset, friendsAsReceiverOffset } = response;
+    setOffsets({ friendsAsSenderOffset, friendsAsReceiverOffset });
     if (success) {
+      const currentContacts = sections[1]?.data || [];
       setSections([
         response.requests.length
           ? {
@@ -36,7 +41,11 @@ const FriendsScreen = () => {
               data: response.requests,
             }
           : { data: response.requests },
-        { title: "My contacts", name: "contacts", data: response.friends },
+        {
+          title: "My contacts",
+          name: "contacts",
+          data: [...currentContacts, ...response.friends],
+        },
       ]);
       setFriends([...friends, ...response.friends]);
       setRequests([...requests, ...response.requests]);
@@ -192,7 +201,7 @@ const FriendsScreen = () => {
           ) : null
         }
         contentContainerStyle={{ flexGrow: 1 }}
-        // onEndReached={() => getFriends()}
+        onEndReached={() => getFriends()}
         onEndReachedThreshold={0.5}
         initialNumToRender={10}
         maxToRenderPerBatch={5}

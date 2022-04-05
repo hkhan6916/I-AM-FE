@@ -128,9 +128,6 @@ const SearchScreen = () => {
             setShowAllResults(false);
             setHideFeedAndSuggestions(true);
           }}
-          onEndEditing={() =>
-            !results.length && setHideFeedAndSuggestions(false)
-          }
           onSubmitEditing={(searchQuery) => onUserSearch(searchQuery)}
           setResults={setResults}
           userSearchHistory={userSearchHistory}

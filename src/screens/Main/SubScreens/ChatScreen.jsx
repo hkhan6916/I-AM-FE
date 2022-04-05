@@ -33,7 +33,6 @@ const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
   const [socket, setSocket] = useState(null);
 
-  const [roomJoined, setRoomJoined] = useState(false);
   const [height, setHeight] = useState(1);
 
   const [media, setMedia] = useState({});
@@ -85,7 +84,6 @@ const ChatScreen = (props) => {
         "GET",
         `/chat/${chat._id}/messages/${messages.length}`
       );
-      console.log(message);
       if (success) {
         setMessages([...messages, ...response]);
         if (messages.length && response.length === 0) {
@@ -101,7 +99,7 @@ const ChatScreen = (props) => {
     const token = await getItemAsync("authToken");
     const senderId = await getItemAsync("userId");
     setAuthInfo({ token, senderId });
-    const connection = io.connect("ws://192.168.5.101:5000", {
+    const connection = io.connect("ws://192.168.5.101:3000", {
       auth: {
         token,
       },
@@ -303,7 +301,6 @@ const ChatScreen = (props) => {
             setShowError(true);
           } else {
             setMessages((prevMessages) => [
-              ...prevMessages,
               {
                 body,
                 chatId,
@@ -316,6 +313,7 @@ const ChatScreen = (props) => {
                 stringTime,
                 _id: nanoid(),
               },
+              ...prevMessages,
             ]);
           }
         }

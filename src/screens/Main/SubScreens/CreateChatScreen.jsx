@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigation } from "@react-navigation/native";
 import {
   ScrollView,
@@ -7,25 +7,31 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
+  Keyboard,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
-
+import UserSearchBar from "../../../components/UserSearchBar";
 const CreateChatScreen = () => {
   const isMounted = useRef(null);
 
-  const [friends, setFriends] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [error, setError] = useState(false);
+  const [searchedContacts, setSearchedContacts] = useState([]);
+  const [offsets, setOffsets] = useState({});
 
   const navigation = useNavigation();
 
-  const getUserFriends = async () => {
+  const getUserContacts = async () => {
     const { success, response } = await apiCall(
-      "GET",
-      `/user/friend/fetch/all/${friends.length}`
+      "POST",
+      `/user/friend/fetch/all`,
+      offsets
     );
+    const { friendsAsSenderOffset, friendsAsReceiverOffset } = response;
+    setOffsets({ friendsAsSenderOffset, friendsAsReceiverOffset });
     if (success) {
-      setFriends([...friends, ...response.friends]);
+      setContacts([...contacts, ...response.friends]); // TODO: rename to contacts in BE
     } else {
       setError(true);
     }
@@ -47,22 +53,26 @@ const CreateChatScreen = () => {
     }
   };
 
-  const isCloseToBottom = ({
-    layoutMeasurement,
-    contentOffset,
-    contentSize,
-  }) => {
-    const paddingToBottom = 20;
-    return (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    );
-  };
+  const renderItem = useCallback(
+    ({ item: contact }) => (
+      <TouchableOpacity onPress={() => handleChatNavigation(contact._id)}>
+        <View
+          style={{
+            padding: 20,
+          }}
+        >
+          <UserThumbnail preventClicks user={contact} avatarSize={50} />
+        </View>
+      </TouchableOpacity>
+    ),
+    [contacts]
+  );
 
+  const keyExtractor = useCallback((item, i) => item._id, [contacts]);
   useEffect(() => {
     isMounted.current = true;
     (async () => {
-      await getUserFriends();
+      await getUserContacts();
     })();
     return () => {
       isMounted.current = false;
@@ -70,29 +80,27 @@ const CreateChatScreen = () => {
   }, []);
   return (
     <View style={styles.container}>
+      <UserSearchBar
+        setResults={setSearchedContacts}
+        dataToSearchWithin={contacts}
+        onSubmitEditing={() => Keyboard.dismiss()}
+      />
+
       {!error ? (
-        <ScrollView
-          onScroll={({ nativeEvent }) => {
-            if (isCloseToBottom(nativeEvent)) {
-              getUserFriends();
-            }
-          }}
-        >
-          {friends.map((friend) => (
-            <TouchableOpacity
-              key={friend._id}
-              onPress={() => handleChatNavigation(friend._id)}
-            >
-              <View
-                style={{
-                  padding: 20,
-                }}
-              >
-                <UserThumbnail preventClicks user={friend} avatarSize={50} />
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+        <FlatList
+          data={
+            searchedContacts === "none"
+              ? []
+              : searchedContacts?.length
+              ? searchedContacts
+              : contacts
+          }
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          keyboardShouldPersistTaps={"always"}
+          onEndReached={() => getUserContacts()}
+          // onEndReachedThreshold={0.5}
+        />
       ) : (
         <View>
           <Text>Oops, something went wrong</Text>

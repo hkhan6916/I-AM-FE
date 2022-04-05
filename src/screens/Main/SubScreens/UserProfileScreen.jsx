@@ -141,11 +141,10 @@ const UserProfileScreen = (props) => {
     const userRequestRejected = { ...user, requestReceived: false };
 
     setUser(userRequestRejected);
-    const { success, error, message } = await apiCall(
+    const { success, error } = await apiCall(
       "GET",
       `/user/friend/request/reject/${userId}`
     );
-    console.log(message);
     if (!success || error === "CONNECTION_FAILED") {
       const userRequestRemoved = { ...user, requestReceived: true };
       setUser(userRequestRemoved);
@@ -213,14 +212,8 @@ const UserProfileScreen = (props) => {
   ]);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    const { success, response } = await apiCall(
-      "GET",
-      `/user/${userId}/posts/${userPosts.length}`
-    );
+    await initializeData();
     setRefreshing(false);
-    if (success) {
-      setUserPosts(response);
-    }
   }, []);
 
   const triggerOptionsModal = (post) => {
@@ -255,6 +248,25 @@ const UserProfileScreen = (props) => {
     );
   }
 
+  const initializeData = async () => {
+    const { success, response } = await apiCall("GET", `/user/${userId}`);
+    if (success) {
+      setUser(response.otherUser);
+      navigation.setOptions({
+        title: response.otherUser.isSameUser
+          ? "Me"
+          : `${response.otherUser.firstName} ${response.otherUser.lastName}`,
+      });
+      if (
+        !response.otherUser?.private ||
+        (response.otherUser?.private && response.otherUser.isFriend) ||
+        response.otherUser.isSameUser
+      ) {
+        await getUserPosts();
+      }
+    }
+  };
+
   const keyExtractor = useCallback(
     (item) => item?.customKey || item?._id,
     [userPosts]
@@ -264,22 +276,7 @@ const UserProfileScreen = (props) => {
     let isMounted = true;
     (async () => {
       if (isMounted) {
-        const { success, response } = await apiCall("GET", `/user/${userId}`);
-        if (success) {
-          setUser(response.otherUser);
-          navigation.setOptions({
-            title: response.otherUser.isSameUser
-              ? "Me"
-              : `${response.otherUser.firstName} ${response.otherUser.lastName}`,
-          });
-          if (
-            !response.otherUser?.private ||
-            (response.otherUser?.private && response.otherUser.isFriend) ||
-            response.otherUser.isSameUser
-          ) {
-            await getUserPosts();
-          }
-        }
+        await initializeData();
       }
     })();
     return () => {
