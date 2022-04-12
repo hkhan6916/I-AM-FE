@@ -32,7 +32,6 @@ import MessageContainer from "../../../components/MessageContainer";
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
   const [socket, setSocket] = useState(null);
-
   const [height, setHeight] = useState(1);
 
   const [media, setMedia] = useState({});
@@ -95,14 +94,15 @@ const ChatScreen = (props) => {
     }
   };
 
-  const initSocket = async () => {
+  const initSocket = async (port) => {
     const token = await getItemAsync("authToken");
     const senderId = await getItemAsync("userId");
     setAuthInfo({ token, senderId });
-    const connection = io.connect("ws://192.168.5.101:3000", {
+    const connection = io(`https://i-am-be.onrender.com`, {
       auth: {
         token,
       },
+      withCredentials: true,
     });
 
     setSocket(connection);
@@ -348,6 +348,24 @@ const ChatScreen = (props) => {
         keyboardVerticalOffset={93}
         style={{ flex: 1 }}
       >
+        <TouchableOpacity
+          style={{ backgroundColor: "red", margin: 20 }}
+          onPress={() => initSocket("5000")}
+        >
+          <Text style={{ color: "white" }}>5000</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{ backgroundColor: "green", margin: 20 }}
+          onPress={() => initSocket("5001")}
+        >
+          <Text style={{ color: "white" }}>5001</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{ backgroundColor: "blue", margin: 20 }}
+          onPress={() => initSocket("5002")}
+        >
+          <Text style={{ color: "white" }}>5002</Text>
+        </TouchableOpacity>
         {showError ? <Text>An unknown error occurred</Text> : null}
         <FlatList
           data={messages}

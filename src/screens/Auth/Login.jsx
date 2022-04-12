@@ -46,7 +46,7 @@ const LoginScreen = () => {
       setLoginError(
         error === "CONNECTION_FAILED"
           ? "Cannot connect to server. Please check your connection."
-          : "Whoops, your credentials do not match. Please try again."
+          : "Unable to sign in. Please check your login details and try again."
       );
     }
     setLoading(false);

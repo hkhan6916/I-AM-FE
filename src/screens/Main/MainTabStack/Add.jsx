@@ -151,7 +151,7 @@ const AddScreen = () => {
       : file?.uri;
     const options = {
       url: "http://192.168.5.101:5000/posts/new",
-      path: url,
+      path: url, // path to file
       method: "POST",
       type: "multipart",
       maxRetries: 2, // set retry count (Android only). Default 2
