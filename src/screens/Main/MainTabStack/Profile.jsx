@@ -224,9 +224,9 @@ const ProfileScreen = () => {
           )}
           contentContainerStyle={{ flexGrow: 1 }}
           onEndReached={() => getUserPosts()}
-          onEndReachedThreshold={0.5}
+          onEndReachedThreshold={0.8}
           initialNumToRender={10}
-          maxToRenderPerBatch={5}
+          // maxToRenderPerBatch={5}
           // windowSize={5}
         />
       ) : null}

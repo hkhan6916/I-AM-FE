@@ -24,6 +24,7 @@ const SearchScreen = () => {
   const [showAllResults, setShowAllResults] = useState(false);
   const [hideFeedAndSuggestions, setHideFeedAndSuggestions] = useState(false);
   const [userSearchHistory, setUserSearchHistory] = useState([]);
+  const [searchItemsVisible, setSearchItemsVisible] = useState(false);
   const [lastSuccessfullSearchQuery, setLastSuccessfullSearchQuery] =
     useState("");
 
@@ -54,13 +55,17 @@ const SearchScreen = () => {
       `/posts/searchfeed/${searchFeed.length}`
     );
     if (success) {
+      const newFeed = [...searchFeed, ...response];
       setSearchFeed([...searchFeed, ...response]);
+      if (!searchItemsVisible && newFeed.length >= 20) {
+        setTimeout(() => setSearchItemsVisible(true), 400);
+      }
     }
   };
 
   const renderSearchFeed = useCallback(
-    ({ item }) => <SearchFeedItem post={item} />,
-    []
+    ({ item }) => <SearchFeedItem visible={searchItemsVisible} post={item} />,
+    [searchItemsVisible]
   );
 
   const renderThumbnail = useCallback(
@@ -104,6 +109,7 @@ const SearchScreen = () => {
       await createUserSearchHistoryTable(db);
 
       await getSearchFeed();
+
       const history = await getUserSearchHistory(db);
       setUserSearchHistory(history || []);
     })();

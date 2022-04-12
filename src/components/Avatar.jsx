@@ -25,6 +25,7 @@ const Avatar = ({
         overflow: "hidden",
         borderWidth: hasBorder || initials ? 2 : 0,
         borderColor: themeStyle.colors.primary.default,
+        backgroundColor: themeStyle.colors.grayscale.higher,
       },
       style && style,
     ]}

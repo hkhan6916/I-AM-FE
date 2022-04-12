@@ -67,7 +67,7 @@ const ChatScreen = (props) => {
         a joinRoomSuccess event from the backend */
         socket.emit("joinRoom", {
           chatId: response._id,
-          userId: authInfo.senderId,
+          userId: authInfo?.senderId,
         });
       } else {
         setShowError(true);
@@ -94,11 +94,11 @@ const ChatScreen = (props) => {
     }
   };
 
-  const initSocket = async (port) => {
+  const initSocket = async () => {
     const token = await getItemAsync("authToken");
     const senderId = await getItemAsync("userId");
     setAuthInfo({ token, senderId });
-    const connection = io(`https://i-am-be.onrender.com`, {
+    const connection = io(`http://192.168.5.101:5000`, {
       auth: {
         token,
       },
@@ -150,7 +150,7 @@ const ChatScreen = (props) => {
         socket.emit("sendMessage", {
           body: messageBody,
           chatId,
-          senderId: authInfo.senderId,
+          senderId: authInfo?.senderId,
           mediaUrl: response.fileUrl,
           mediaType: media.type?.split("/")[0],
           mediaHeaders: response.fileHeaders,
@@ -160,7 +160,7 @@ const ChatScreen = (props) => {
           {
             body: messageBody,
             chatId,
-            senderId: authInfo.senderId,
+            senderId: authInfo?.senderId,
             user: "sender",
             mediaUrl: response.fileUrl,
             mediaHeaders: response.fileHeaders,
@@ -184,13 +184,13 @@ const ChatScreen = (props) => {
       socket.emit("sendMessage", {
         body: messageBody,
         chatId,
-        senderId: authInfo.senderId,
+        senderId: authInfo?.senderId,
       });
       setMessages([
         {
           body: messageBody,
           chatId,
-          senderId: authInfo.senderId,
+          senderId: authInfo?.senderId,
           user: "sender",
           stringTime: get12HourTime(new Date()),
           stringDate: getNameDate(new Date()),
@@ -273,7 +273,7 @@ const ChatScreen = (props) => {
       if (chat) {
         socket.emit("joinRoom", {
           chatId: chat?._id,
-          userId: authInfo.senderId,
+          userId: authInfo?.senderId,
         });
       }
 
@@ -388,7 +388,7 @@ const ChatScreen = (props) => {
               }
               message={message}
               belongsToSender={
-                authInfo.senderId === message.user._id ||
+                authInfo?.senderId === message.user._id ||
                 message.user === "sender"
               }
             />

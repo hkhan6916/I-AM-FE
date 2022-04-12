@@ -77,7 +77,11 @@ const ImageWithCache = ({
         },
       ]}
     >
-      <View>
+      <View
+        style={{
+          backgroundColor: themeStyle.colors.grayscale.higher,
+        }}
+      >
         {!ready && !hideSpinner ? (
           <View
             style={{
