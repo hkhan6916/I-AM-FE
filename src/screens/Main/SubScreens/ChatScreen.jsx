@@ -94,15 +94,17 @@ const ChatScreen = (props) => {
     }
   };
 
-  const initSocket = async () => {
+  const initSocket = async (port) => {
     const token = await getItemAsync("authToken");
     const senderId = await getItemAsync("userId");
     setAuthInfo({ token, senderId });
-    const connection = io(`http://192.168.5.101:5000`, {
+    console.log(port);
+    const connection = io(`ws://192.168.5.101:${port || 5000}`, {
       auth: {
         token,
       },
       withCredentials: true,
+      transports: ["websocket"],
     });
 
     setSocket(connection);
@@ -359,12 +361,6 @@ const ChatScreen = (props) => {
           onPress={() => initSocket("5001")}
         >
           <Text style={{ color: "white" }}>5001</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ backgroundColor: "blue", margin: 20 }}
-          onPress={() => initSocket("5002")}
-        >
-          <Text style={{ color: "white" }}>5002</Text>
         </TouchableOpacity>
         {showError ? <Text>An unknown error occurred</Text> : null}
         <FlatList

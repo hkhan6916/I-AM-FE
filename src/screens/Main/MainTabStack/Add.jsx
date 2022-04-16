@@ -133,6 +133,7 @@ const AddScreen = () => {
       setGif("");
       return response.post;
     } else {
+      setLoading(false);
       setError(
         "An error occurred creating your post. Please try again, or check your connection."
       );
@@ -325,7 +326,7 @@ const AddScreen = () => {
               }}
             >
               <TouchableOpacity
-                disabled={!file.uri && !postBody && !gif}
+                disabled={(!file.uri && !postBody && !gif) || loading}
                 onPress={() => createPost()}
               >
                 {loading ? (
