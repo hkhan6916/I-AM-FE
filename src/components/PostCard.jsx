@@ -60,8 +60,8 @@ const PostCard = ({
   };
   return (
     <View>
-      {/* {console.log(post._id)}
-        <Text style={{ color: "white" }}>{post._id}</Text> */}
+      {console.log(post._id)}
+      <Text style={{ color: "white" }}>{post._id}</Text>
       {adsManager ? (
         <AdCard
           adsManager={adsManager}

@@ -25,7 +25,7 @@ const MediaScreen = (props) => {
   const [liked, setLiked] = useState(initialPost.liked);
   const [likes, setLikes] = useState(initialPost.likes);
   const [post, setPost] = useState(initialPost);
-
+  console.log(post.mediaUrl);
   const navigation = useNavigation();
 
   const getAdditionalPostData = async () => {
