@@ -19,6 +19,7 @@ const ChatListScreen = () => {
   const [chats, setChats] = useState([]);
   const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   const navigation = useNavigation();
 
@@ -56,6 +57,7 @@ const ChatListScreen = () => {
   useEffect(() => {
     const focusListener = navigation.addListener("focus", async () => {
       await getUserChats();
+      setLoaded(true);
     });
 
     return () => {
@@ -64,16 +66,15 @@ const ChatListScreen = () => {
   }, [navigation]);
   return (
     <View style={styles.container}>
-      {console.log(chats.length)}
-      {!chats.length && !error ? (
+      {!loaded && !error ? (
         <View>
-          <ContentLoader active showAvatar hideExtraText avatarSize={50} />
-          <ContentLoader active showAvatar hideExtraText avatarSize={50} />
-          <ContentLoader active showAvatar hideExtraText avatarSize={50} />
-          <ContentLoader active showAvatar hideExtraText avatarSize={50} />
-          <ContentLoader active showAvatar hideExtraText avatarSize={50} />
-          <ContentLoader active showAvatar hideExtraText avatarSize={50} />
-          <ContentLoader active showAvatar hideExtraText avatarSize={50} />
+          <ContentLoader
+            listSize={6}
+            active
+            showAvatar
+            hideExtraText
+            avatarSize={50}
+          />
         </View>
       ) : null}
       {!error ? (

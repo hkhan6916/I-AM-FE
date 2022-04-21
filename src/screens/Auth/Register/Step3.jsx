@@ -69,14 +69,19 @@ const Step1Screen = () => {
     Object.keys(payload).forEach((key) => {
       formData.append(key, payload[key]);
     });
-    const { success } = await apiCall("POST", "/user/register", formData);
-    // if (success) {
-    //   dispatch({
-    //     type: "SET_USER_DATA",
-    //     payload: {},
-    //   });
-    //   navigation.navigate("Login");
-    // }
+    const { success, message } = await apiCall(
+      "POST",
+      "/user/register",
+      formData
+    );
+    // console.log(message);
+    if (success) {
+      dispatch({
+        type: "SET_USER_DATA",
+        payload: {},
+      });
+      navigation.navigate("Login");
+    }
     return success;
   };
 

@@ -30,10 +30,13 @@ const ChatCard = ({ chat, onPress }) => {
             {user.firstName} {user.lastName}
           </Text>
           <Text
-            style={{ color: themeStyle.colors.grayscale.lowest }}
+            style={{
+              color: themeStyle.colors.grayscale.low,
+              marginTop: 10,
+            }}
             numberOfLines={1}
           >
-            {chat.previewMessage}
+            {chat.lastMessage.body}
           </Text>
         </View>
       </View>
