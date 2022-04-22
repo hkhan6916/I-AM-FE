@@ -46,6 +46,7 @@ const ChatScreen = (props) => {
   const [chat, setChat] = useState(props.route.params.existingChat);
   const [allMessagesLoaded, setAllMessagesLoaded] = useState(false);
   const [showActions, setShowActions] = useState(false);
+  const [recipient, setRecipient] = useState(null);
 
   const { chatUserId, existingChat } = props.route.params;
   const navigation = useNavigation();
@@ -156,6 +157,7 @@ const ChatScreen = (props) => {
           mediaUrl: response.fileUrl,
           mediaType: media.type?.split("/")[0],
           mediaHeaders: response.fileHeaders,
+          notifyUser: recipient?.online || true,
         });
 
         setMessages([
@@ -187,6 +189,7 @@ const ChatScreen = (props) => {
         body: messageBody,
         chatId,
         senderId: authInfo?.senderId,
+        notifyUser: recipient?.online || true,
       });
       setMessages([
         {
@@ -284,6 +287,14 @@ const ChatScreen = (props) => {
         if ((messageBody || media?.uri) && !existingChat) {
           await handleMessageSend(chatId);
         }
+      });
+
+      socket.on("userJoinedRoom", async ({ userId }) => {
+        setRecipient({ userId, online: true });
+      });
+
+      socket.on("userLeftRoom", async ({ userId }) => {
+        setRecipient({ userId, online: false });
       });
 
       socket.on(

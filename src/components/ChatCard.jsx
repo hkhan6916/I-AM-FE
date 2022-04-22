@@ -5,7 +5,7 @@ import Avatar from "./Avatar";
 
 const ChatCard = ({ chat, onPress }) => {
   const user = chat.users?.[0];
-
+  console.log({ updateToDateUsers: chat.upToDateUsers });
   return (
     <TouchableOpacity
       onPress={onPress ? () => onPress() : null}
