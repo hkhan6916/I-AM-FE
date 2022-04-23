@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import themeStyle from "../theme.style";
 import Avatar from "./Avatar";
 
-const ChatCard = ({ chat, onPress }) => {
+const ChatCard = ({ chat, onPress, userId }) => {
   const user = chat.users?.[0];
-  console.log({ updateToDateUsers: chat.upToDateUsers });
+  console.log(userId, chat.upToDateUsers);
   return (
     <TouchableOpacity
       onPress={onPress ? () => onPress() : null}
@@ -19,21 +19,47 @@ const ChatCard = ({ chat, onPress }) => {
           profileGifHeaders={user.profileGifHeaders}
         />
         <View style={styles.chatInfo}>
-          <Text
-            numberOfLines={1}
+          <View
             style={{
-              fontWeight: "600",
-              fontSize: 16,
-              color: themeStyle.colors.grayscale.lowest,
+              flexDirection: "row",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
             }}
           >
-            {user.firstName} {user.lastName}
-          </Text>
+            <Text
+              numberOfLines={1}
+              style={{
+                fontWeight: "600",
+                fontSize: 16,
+                color: themeStyle.colors.grayscale.lowest,
+                flex: 1,
+              }}
+            >
+              {user.firstName} {user.lastName}
+            </Text>
+            {!chat?.upToDateUsers?.includes(userId) ? (
+              <View
+                style={{
+                  backgroundColor: themeStyle.colors.primary.default,
+                  width: 20,
+                  height: 20,
+                  borderRadius: 20,
+                }}
+              />
+            ) : null}
+          </View>
           <Text
-            style={{
-              color: themeStyle.colors.grayscale.low,
-              marginTop: 10,
-            }}
+            style={[
+              {
+                color: themeStyle.colors.grayscale.low,
+                marginTop: 10,
+                marginRight: 20,
+              },
+              !chat?.upToDateUsers?.includes(userId) && {
+                fontWeight: "700",
+                color: themeStyle.colors.primary.default,
+              },
+            ]}
             numberOfLines={1}
           >
             {chat.lastMessage.body}
@@ -56,7 +82,9 @@ const styles = StyleSheet.create({
   },
   chatInfo: {
     marginHorizontal: 20,
+    flex: 1,
+    justifyContent: "space-between",
   },
 });
 
-export default ChatCard;
+export default React.memo(ChatCard);

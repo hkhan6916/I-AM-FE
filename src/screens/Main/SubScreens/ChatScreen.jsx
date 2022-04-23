@@ -157,7 +157,8 @@ const ChatScreen = (props) => {
           mediaUrl: response.fileUrl,
           mediaType: media.type?.split("/")[0],
           mediaHeaders: response.fileHeaders,
-          notifyUser: recipient?.online || true,
+          online: !!recipient?.online,
+          recipientId: recipient?.userId,
         });
 
         setMessages([
@@ -189,7 +190,8 @@ const ChatScreen = (props) => {
         body: messageBody,
         chatId,
         senderId: authInfo?.senderId,
-        notifyUser: recipient?.online || true,
+        online: !!recipient?.online,
+        recipientId: recipient?.userId,
       });
       setMessages([
         {
@@ -259,6 +261,8 @@ const ChatScreen = (props) => {
         }
 
         if (chat?.users?.length) {
+          console.log(chat.users);
+          setRecipient({ userId: chat.users[0]._id, online: false });
           navigation.setOptions({
             title: chat.users[0].firstName,
           });
@@ -269,6 +273,12 @@ const ChatScreen = (props) => {
       isMounted = false;
     };
   }, [chat]);
+
+  useEffect(() => {
+    navigation.setOptions({
+      title: `${chat.users[0].firstName} ${recipient?.online ? "online" : ""}`,
+    });
+  }, [recipient]);
 
   useEffect(() => {
     // TODO: implement navigation listener here to prevent notifications from being received
@@ -291,10 +301,12 @@ const ChatScreen = (props) => {
 
       socket.on("userJoinedRoom", async ({ userId }) => {
         setRecipient({ userId, online: true });
+        console.log("joined");
       });
 
       socket.on("userLeftRoom", async ({ userId }) => {
         setRecipient({ userId, online: false });
+        console.log("left");
       });
 
       socket.on(
@@ -313,6 +325,7 @@ const ChatScreen = (props) => {
           if (!socket.connected) {
             setShowError(true);
           } else {
+            setRecipient({ userId: user?._id, online: true });
             setMessages((prevMessages) => [
               {
                 body,
@@ -361,7 +374,7 @@ const ChatScreen = (props) => {
         keyboardVerticalOffset={93}
         style={{ flex: 1 }}
       >
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={{ backgroundColor: "red", margin: 20 }}
           onPress={() => initSocket("5000")}
         >
@@ -372,7 +385,7 @@ const ChatScreen = (props) => {
           onPress={() => initSocket("5001")}
         >
           <Text style={{ color: "white" }}>5001</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         {showError ? <Text>An unknown error occurred</Text> : null}
         <FlatList
           data={messages}

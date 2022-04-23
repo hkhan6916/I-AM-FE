@@ -14,6 +14,7 @@ import apiCall from "../../../helpers/apiCall";
 import ChatCard from "../../../components/ChatCard";
 import themeStyle from "../../../theme.style";
 import ContentLoader from "../../../components/ContentLoader";
+import { useSelector } from "react-redux";
 
 const ChatListScreen = () => {
   const [chats, setChats] = useState([]);
@@ -22,6 +23,7 @@ const ChatListScreen = () => {
   const [loaded, setLoaded] = useState(false);
 
   const navigation = useNavigation();
+  const userData = useSelector((state) => state.userData);
 
   const getUserChats = async () => {
     const { response, success } = await apiCall(
@@ -43,6 +45,7 @@ const ChatListScreen = () => {
   const renderItem = useCallback(
     ({ item: chat }) => (
       <ChatCard
+        userId={userData.state?._id}
         chat={chat}
         onPress={() =>
           navigation.navigate("ChatScreen", { existingChat: chat })
