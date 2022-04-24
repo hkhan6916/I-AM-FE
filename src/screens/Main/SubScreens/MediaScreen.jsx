@@ -67,6 +67,7 @@ const MediaScreen = (props) => {
       }
     }
   };
+
   useEffect(() => {
     (async () => {
       await getAdditionalPostData();

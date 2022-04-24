@@ -47,6 +47,7 @@ const PostScreen = (props) => {
       navigation.goBack();
     }
   };
+  console.log(post);
 
   const onTextLayout = (e) => {
     setIsCollapsible(e.nativeEvent.lines.length >= 3);

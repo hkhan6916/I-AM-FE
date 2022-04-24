@@ -63,6 +63,7 @@ const MessageBox = ({ belongsToSender, message, mediaSize }) => {
           {mediaUrl && mediaType === "image" ? (
             <TouchableOpacity onPress={() => setMediaFullScreen(true)}>
               <ImageWithCache
+                removeBorderRadius
                 resizeMode="cover"
                 mediaUrl={mediaUrl}
                 mediaHeaders={mediaHeaders}
@@ -79,6 +80,7 @@ const MessageBox = ({ belongsToSender, message, mediaSize }) => {
             <TouchableOpacity onPress={() => setMediaFullScreen(true)}>
               <View style={{ alignItems: "center", justifyContent: "center" }}>
                 <ImageWithCache
+                  removeBorderRadius
                   resizeMode="cover"
                   mediaUrl={mediaUrl}
                   mediaHeaders={mediaHeaders} // TODO:change to thumbnailHeaders and thumbnailUrl once set up alongside media uploads again In Shaa Allah

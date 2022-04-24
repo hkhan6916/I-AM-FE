@@ -62,7 +62,7 @@ const ChatCard = ({ chat, onPress, userId }) => {
             ]}
             numberOfLines={1}
           >
-            {chat.lastMessage.body}
+            {chat.lastMessage.body || chat.lastMessage.mediaType.toUpperCase()}
           </Text>
         </View>
       </View>

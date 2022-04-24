@@ -26,7 +26,11 @@ import getNameDate from "../../../helpers/getNameDate";
 import themeStyle from "../../../theme.style";
 import CameraStandard from "../../../components/CameraStandard";
 import MessageContainer from "../../../components/MessageContainer";
-
+import Upload from "react-native-background-upload";
+import {
+  Video as VideoCompress,
+  Image as ImageCompress,
+} from "react-native-compressor";
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
   const [socket, setSocket] = useState(null);
@@ -110,6 +114,61 @@ const ChatScreen = (props) => {
     setSocket(connection);
   };
 
+  const handleBackgroundUpload = async (compressedUrl, body) => {
+    const token = await getItemAsync("authToken");
+    const url = compressedUrl
+      ? Platform.OS == "android"
+        ? compressedUrl?.replace("file://", "/")
+        : compressedUrl
+      : Platform.OS == "android"
+      ? media?.uri.replace("file://", "")
+      : media?.uri;
+    const options = {
+      url: "http://192.168.5.101:5000/chat/message/upload",
+      path: url, // path to file
+      method: "POST",
+      type: "multipart",
+      maxRetries: 2, // set retry count (Android only). Default 2
+      headers: {
+        "content-type": "multipart/form-data", // Customize content-type
+        Authorization: `Bearer ${token}`,
+      },
+      parameters: body,
+      field: "file",
+      // Below are options only supported on Android
+      notification: {
+        enabled: false,
+      },
+      useUtf8Charset: true,
+      // customUploadId: post?._id,
+    };
+
+    Upload.startUpload(options)
+      .then((uploadId) => {
+        console.log("Upload started");
+        Upload.addListener("progress", uploadId, (data) => {
+          console.log(`Progress: ${data.progress}%`);
+          console.log(data);
+        });
+        Upload.addListener("error", uploadId, async (data) => {
+          console.log({ data });
+          console.log(`Error: ${data.error}%`);
+          // await apiCall("GET", "/posts/fail/" + post?._id);
+        });
+        Upload.addListener("cancelled", uploadId, async (data) => {
+          console.log(`Cancelled!`);
+          // await apiCall("GET", "/posts/fail/" + post?._id);
+        });
+        Upload.addListener("completed", uploadId, (data) => {
+          console.log(data);
+          console.log("Completed!");
+        });
+      })
+      .catch((err) => {
+        console.log("Upload error!", err);
+      });
+  };
+
   const handleMessage = async () => {
     /* If first message, first create chat. The actual message will be sent on
     the joinRoomSuccess event. */
@@ -130,19 +189,16 @@ const ChatScreen = (props) => {
 
       const formData = new FormData();
       const mediaExtension = media.uri.split(".").pop();
-      if (media.type?.split("/").length === 2) {
-        formData.append("file", {
-          uri: media.uri,
-          name: media.uri,
-          type: `${media.type}`,
-        });
-      } else {
-        formData.append("file", {
-          uri: media.uri,
-          name: media.uri,
-          type: `${media.type}/${mediaExtension}`,
-        });
-      }
+
+      formData.append("file", {
+        uri: media.uri,
+        name: media.uri,
+        type:
+          media.type?.split("/").length === 2
+            ? media.type
+            : `${media.type}/${mediaExtension}`,
+      });
+
       const message = {
         body: messageBody,
         chatId,
@@ -150,44 +206,89 @@ const ChatScreen = (props) => {
         // mediaUrl: response.fileUrl,
         mediaType: media.type?.split("/")[0],
         // mediaHeaders: response.fileHeaders,
-        online: !!recipient?.online,
+        online: (!!recipient?.online).toString(),
         recipientId: recipient?.userId,
         auth: authInfo?.token,
       };
       Object.keys(message).forEach((key) => {
         formData.append(key, message[key]);
       });
-      const { response, success } = await apiCall(
-        "POST",
-        "/chat/upload",
-        formData
-      );
-      if (success) {
-        // socket.emit("sendMessage", message);
-        const mediaType = media.type?.split("/")[0];
-        setMessages([
+      // const { response, success } = await apiCall(
+      //   "POST",
+      //   "/chat/message/upload",
+      //   formData
+      // );
+      if (media.type?.split("/")[0] === "video") {
+        await VideoCompress.compress(
+          media.uri,
           {
-            body: messageBody,
-            chatId,
-            senderId: authInfo?.senderId,
-            user: "sender",
-            mediaUrl:
-              mediaType === "video" ? response.signedUrl : response.fileUrl,
-            mediaHeaders: response.fileHeaders, // recieved as null if media is video
-            mediaType,
-            stringTime: get12HourTime(new Date()),
-            stringDate: getNameDate(new Date()),
-            _id: nanoid(),
+            compressionMethod: "auto",
           },
-          ...messages,
-        ]);
-        setMessageBody("");
-        setMedia({});
-      } else {
-        setMediaSendFail(true);
-        setMediaSending(false);
-        setShowActions(false);
+          (progress) => {
+            console.log({ compression: progress });
+          }
+        ).then(async (compressedUrl) => {
+          await handleBackgroundUpload(compressedUrl, message);
+        });
       }
+
+      if (media.type?.split("/")[0] === "image") {
+        await ImageCompress.compress(
+          media.uri,
+          {
+            compressionMethod: "auto",
+          },
+          (progress) => {
+            console.log({ compression: progress });
+          }
+        ).then(async (compressedUrl) => {
+          await handleBackgroundUpload(compressedUrl, message).then(() => {
+            const mediaType = media.type?.split("/")[0];
+            setMessages([
+              {
+                body: messageBody,
+                chatId,
+                senderId: authInfo?.senderId,
+                user: "sender",
+                mediaUrl: media.uri,
+                mediaHeaders: {}, // recieved as null if media is video
+                mediaType,
+                stringTime: get12HourTime(new Date()),
+                stringDate: getNameDate(new Date()),
+                _id: nanoid(),
+              },
+              ...messages,
+            ]);
+            setMessageBody("");
+            setMedia({});
+          });
+        });
+      }
+      // if (success) {
+      //   // socket.emit("sendMessage", message);
+      //   const mediaType = media.type?.split("/")[0];
+      //   setMessages([
+      //     {
+      //       body: messageBody,
+      //       chatId,
+      //       senderId: authInfo?.senderId,
+      //       user: "sender",
+      //       mediaUrl: media.uri,
+      //       mediaHeaders: {}, // recieved as null if media is video
+      //       mediaType,
+      //       stringTime: get12HourTime(new Date()),
+      //       stringDate: getNameDate(new Date()),
+      //       _id: nanoid(),
+      //     },
+      //     ...messages,
+      //   ]);
+      //   setMessageBody("");
+      //   setMedia({});
+      // } else {
+      //   setMediaSendFail(true);
+      //   setMediaSending(false);
+      //   setShowActions(false);
+      // }
       return true;
     }
     if (socket.connected) {
