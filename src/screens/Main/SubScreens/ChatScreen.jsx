@@ -20,8 +20,6 @@ import { getInfoAsync } from "expo-file-system";
 import { useNavigation } from "@react-navigation/native";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { nanoid } from "nanoid/non-secure";
-import sendMessage from "../../../helpers/sendMessage";
-import MessageBox from "../../../components/MessageBox";
 import apiCall from "../../../helpers/apiCall";
 import get12HourTime from "../../../helpers/get12HourTime";
 import getNameDate from "../../../helpers/getNameDate";
@@ -101,6 +99,7 @@ const ChatScreen = (props) => {
     setAuthInfo({ token, senderId });
     console.log(port);
     const connection = io(`ws://192.168.5.101:${port || 5000}`, {
+      // TODO store the connection url securely and then use
       auth: {
         token,
       },
@@ -144,32 +143,38 @@ const ChatScreen = (props) => {
           type: `${media.type}/${mediaExtension}`,
         });
       }
+      const message = {
+        body: messageBody,
+        chatId,
+        senderId: authInfo?.senderId,
+        // mediaUrl: response.fileUrl,
+        mediaType: media.type?.split("/")[0],
+        // mediaHeaders: response.fileHeaders,
+        online: !!recipient?.online,
+        recipientId: recipient?.userId,
+        auth: authInfo?.token,
+      };
+      Object.keys(message).forEach((key) => {
+        formData.append(key, message[key]);
+      });
       const { response, success } = await apiCall(
         "POST",
-        "/files/upload",
+        "/chat/upload",
         formData
       );
       if (success) {
-        socket.emit("sendMessage", {
-          body: messageBody,
-          chatId,
-          senderId: authInfo?.senderId,
-          mediaUrl: response.fileUrl,
-          mediaType: media.type?.split("/")[0],
-          mediaHeaders: response.fileHeaders,
-          online: !!recipient?.online,
-          recipientId: recipient?.userId,
-        });
-
+        // socket.emit("sendMessage", message);
+        const mediaType = media.type?.split("/")[0];
         setMessages([
           {
             body: messageBody,
             chatId,
             senderId: authInfo?.senderId,
             user: "sender",
-            mediaUrl: response.fileUrl,
-            mediaHeaders: response.fileHeaders,
-            mediaType: media.type?.split("/")[0],
+            mediaUrl:
+              mediaType === "video" ? response.signedUrl : response.fileUrl,
+            mediaHeaders: response.fileHeaders, // recieved as null if media is video
+            mediaType,
             stringTime: get12HourTime(new Date()),
             stringDate: getNameDate(new Date()),
             _id: nanoid(),
@@ -261,7 +266,6 @@ const ChatScreen = (props) => {
         }
 
         if (chat?.users?.length) {
-          console.log(chat.users);
           setRecipient({ userId: chat.users[0]._id, online: false });
           navigation.setOptions({
             title: chat.users[0].firstName,
@@ -276,7 +280,9 @@ const ChatScreen = (props) => {
 
   useEffect(() => {
     navigation.setOptions({
-      title: `${chat.users[0].firstName} ${recipient?.online ? "online" : ""}`,
+      title: `${chat.users[0].firstName} ${
+        recipient?.online ? "- online" : ""
+      }`,
     });
   }, [recipient]);
 
@@ -322,6 +328,7 @@ const ChatScreen = (props) => {
           stringDate,
           stringTime,
         }) => {
+          if (senderId === authInfo.senderId) return;
           if (!socket.connected) {
             setShowError(true);
           } else {
