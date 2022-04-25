@@ -31,6 +31,7 @@ import {
   Video as VideoCompress,
   Image as ImageCompress,
 } from "react-native-compressor";
+import { getThumbnailAsync } from "expo-video-thumbnails";
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
   const [socket, setSocket] = useState(null);
@@ -114,7 +115,18 @@ const ChatScreen = (props) => {
     setSocket(connection);
   };
 
-  const handleBackgroundUpload = async (compressedUrl, body) => {
+  const generateThumbnail = async () => {
+    try {
+      const { uri } = await getThumbnailAsync(media?.uri, {
+        time: 0,
+      });
+      return uri;
+    } catch (e) {
+      console.warn(e);
+    }
+  };
+
+  const handleBackgroundUpload = async (compressedUrl, body, messageId) => {
     const token = await getItemAsync("authToken");
     const url = compressedUrl
       ? Platform.OS == "android"
@@ -133,7 +145,7 @@ const ChatScreen = (props) => {
         "content-type": "multipart/form-data", // Customize content-type
         Authorization: `Bearer ${token}`,
       },
-      parameters: body,
+      parameters: { ...body, _id: messageId },
       field: "file",
       // Below are options only supported on Android
       notification: {
@@ -188,24 +200,18 @@ const ChatScreen = (props) => {
       setMediaSending(true);
 
       const formData = new FormData();
-      const mediaExtension = media.uri.split(".").pop();
-
+      const thumbnailUrl = await generateThumbnail();
       formData.append("file", {
-        uri: media.uri,
-        name: media.uri,
-        type:
-          media.type?.split("/").length === 2
-            ? media.type
-            : `${media.type}/${mediaExtension}`,
+        uri: thumbnailUrl,
+        name: `mediaThumbnail.${thumbnailUrl.split(".").pop()}`,
+        type: `image/${thumbnailUrl.split(".").pop()}`,
       });
 
       const message = {
         body: messageBody,
         chatId,
         senderId: authInfo?.senderId,
-        // mediaUrl: response.fileUrl,
         mediaType: media.type?.split("/")[0],
-        // mediaHeaders: response.fileHeaders,
         online: (!!recipient?.online).toString(),
         recipientId: recipient?.userId,
         auth: authInfo?.token,
@@ -213,11 +219,32 @@ const ChatScreen = (props) => {
       Object.keys(message).forEach((key) => {
         formData.append(key, message[key]);
       });
-      // const { response, success } = await apiCall(
-      //   "POST",
-      //   "/chat/message/upload",
-      //   formData
-      // );
+      const { response, success } = await apiCall(
+        "POST",
+        "/chat/message/upload",
+        formData
+      );
+      if (success) {
+        setMessages([
+          {
+            body: messageBody,
+            chatId,
+            senderId: authInfo?.senderId,
+            user: "sender",
+            mediaUrl: "",
+            mediaHeaders: {}, // recieved as null if media is video
+            mediaType: "video",
+            thumbnailUrl,
+            stringTime: get12HourTime(new Date()),
+            stringDate: getNameDate(new Date()),
+            _id: nanoid(),
+            ready: false,
+          },
+          ...messages,
+        ]);
+        setMessageBody("");
+        setMedia({});
+      }
       if (media.type?.split("/")[0] === "video") {
         await VideoCompress.compress(
           media.uri,
@@ -228,7 +255,30 @@ const ChatScreen = (props) => {
             console.log({ compression: progress });
           }
         ).then(async (compressedUrl) => {
-          await handleBackgroundUpload(compressedUrl, message);
+          await handleBackgroundUpload(
+            compressedUrl,
+            message,
+            response._id
+          ).then(() => {
+            const mediaType = media.type?.split("/")[0];
+            setMessages([
+              {
+                body: messageBody,
+                chatId,
+                senderId: authInfo?.senderId,
+                user: "sender",
+                mediaUrl: media.uri,
+                mediaHeaders: {},
+                mediaType,
+                stringTime: get12HourTime(new Date()),
+                stringDate: getNameDate(new Date()),
+                _id: nanoid(),
+              },
+              ...messages,
+            ]);
+            setMessageBody("");
+            setMedia({});
+          });
         });
       }
 
@@ -242,7 +292,11 @@ const ChatScreen = (props) => {
             console.log({ compression: progress });
           }
         ).then(async (compressedUrl) => {
-          await handleBackgroundUpload(compressedUrl, message).then(() => {
+          await handleBackgroundUpload(
+            compressedUrl,
+            message,
+            response._id
+          ).then(() => {
             const mediaType = media.type?.split("/")[0];
             setMessages([
               {

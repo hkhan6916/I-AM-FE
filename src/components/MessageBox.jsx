@@ -6,11 +6,21 @@ import themeStyle from "../theme.style";
 import ExpoVideoPlayer from "./ExpoVideoPlayer";
 
 const MessageBox = ({ belongsToSender, message, mediaSize }) => {
-  const { body, mediaUrl, mediaHeaders, stringTime, mediaType } = message;
+  const {
+    body,
+    mediaUrl,
+    mediaHeaders,
+    stringTime,
+    mediaType,
+    thumbnailUrl,
+    thumbnailHeaders,
+    ready,
+  } = message;
   const [mediaFullScreen, setMediaFullScreen] = useState(false);
 
   return (
     <View style={styles.container}>
+      {!ready ? <Text style={{ color: "red" }}>Uploading...</Text> : null}
       {mediaType === "video" ? ( // render video in fullcsreen, for image this is handled inside imagewithcache component.
         <Modal
           presentationStyle="pageSheet"
@@ -76,14 +86,14 @@ const MessageBox = ({ belongsToSender, message, mediaSize }) => {
                 }}
               />
             </TouchableOpacity>
-          ) : mediaUrl && mediaType === "video" ? (
+          ) : thumbnailUrl && mediaType === "video" ? (
             <TouchableOpacity onPress={() => setMediaFullScreen(true)}>
               <View style={{ alignItems: "center", justifyContent: "center" }}>
                 <ImageWithCache
                   removeBorderRadius
                   resizeMode="cover"
-                  mediaUrl={mediaUrl}
-                  mediaHeaders={mediaHeaders} // TODO:change to thumbnailHeaders and thumbnailUrl once set up alongside media uploads again In Shaa Allah
+                  mediaUrl={thumbnailUrl}
+                  mediaHeaders={thumbnailHeaders || {}}
                   style={{
                     width: mediaSize || 200,
                     height: mediaSize || 200,
