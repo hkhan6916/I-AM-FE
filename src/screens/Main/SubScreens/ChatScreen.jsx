@@ -51,7 +51,7 @@ const ChatScreen = (props) => {
   const [showActions, setShowActions] = useState(false);
   const [recipient, setRecipient] = useState(null);
 
-  const { chatUserId, existingChat } = props.route.params;
+  const { chatUserId, chatUserFirstName, existingChat } = props.route.params;
   const navigation = useNavigation();
 
   const { width: screenWidth } = Dimensions.get("window");
@@ -102,7 +102,7 @@ const ChatScreen = (props) => {
     const token = await getItemAsync("authToken");
     const senderId = await getItemAsync("userId");
     setAuthInfo({ token, senderId });
-    console.log(port);
+    // console.log(port);
     const connection = io(`ws://192.168.5.101:${port || 5000}`, {
       // TODO store the connection url securely and then use
       auth: {
@@ -157,23 +157,23 @@ const ChatScreen = (props) => {
 
     Upload.startUpload(options)
       .then((uploadId) => {
-        console.log("Upload started");
+        // console.log("Upload started");
         Upload.addListener("progress", uploadId, (data) => {
-          console.log(`Progress: ${data.progress}%`);
-          console.log(data);
+          // console.log(`Progress: ${data.progress}%`);
+          // console.log(data);
         });
         Upload.addListener("error", uploadId, async (data) => {
-          console.log({ data });
-          console.log(`Error: ${data.error}%`);
+          // console.log({ data });
+          // console.log(`Error: ${data.error}%`);
           // await apiCall("GET", "/posts/fail/" + post?._id);
         });
         Upload.addListener("cancelled", uploadId, async (data) => {
-          console.log(`Cancelled!`);
+          // console.log(`Cancelled!`);
           // await apiCall("GET", "/posts/fail/" + post?._id);
         });
         Upload.addListener("completed", uploadId, (data) => {
-          console.log(data);
-          console.log("Completed!");
+          // console.log(data);
+          // console.log("Completed!");
         });
       })
       .catch((err) => {
@@ -237,13 +237,15 @@ const ChatScreen = (props) => {
             thumbnailUrl,
             stringTime: get12HourTime(new Date()),
             stringDate: getNameDate(new Date()),
-            _id: nanoid(),
+            _id: response._id,
             ready: false,
           },
           ...messages,
         ]);
         setMessageBody("");
         setMedia({});
+      } else {
+        console.log("fail");
       }
       if (media.type?.split("/")[0] === "video") {
         await VideoCompress.compress(
@@ -262,17 +264,19 @@ const ChatScreen = (props) => {
           ).then(() => {
             const mediaType = media.type?.split("/")[0];
             setMessages([
+              // update message with id once uploaded full media
               {
                 body: messageBody,
                 chatId,
                 senderId: authInfo?.senderId,
                 user: "sender",
                 mediaUrl: media.uri,
+                thumbnailUrl,
                 mediaHeaders: {},
                 mediaType,
                 stringTime: get12HourTime(new Date()),
                 stringDate: getNameDate(new Date()),
-                _id: nanoid(),
+                _id: response._id,
               },
               ...messages,
             ]);
@@ -305,11 +309,12 @@ const ChatScreen = (props) => {
                 senderId: authInfo?.senderId,
                 user: "sender",
                 mediaUrl: media.uri,
+                thumbnailUrl,
                 mediaHeaders: {}, // recieved as null if media is video
                 mediaType,
                 stringTime: get12HourTime(new Date()),
                 stringDate: getNameDate(new Date()),
-                _id: nanoid(),
+                _id: response._id,
               },
               ...messages,
             ]);
@@ -421,9 +426,13 @@ const ChatScreen = (props) => {
         }
 
         if (chat?.users?.length) {
-          setRecipient({ userId: chat.users[0]._id, online: false });
+          setRecipient({ userId: chat?.users?.[0]._id, online: false });
           navigation.setOptions({
-            title: chat.users[0].firstName,
+            title: chat?.users?.[0].firstName,
+          });
+        } else {
+          navigation.setOptions({
+            title: chatUserFirstName,
           });
         }
       })();
@@ -435,7 +444,7 @@ const ChatScreen = (props) => {
 
   useEffect(() => {
     navigation.setOptions({
-      title: `${chat.users[0].firstName} ${
+      title: `${chat?.users?.[0].firstName} ${
         recipient?.online ? "- online" : ""
       }`,
     });
@@ -482,8 +491,27 @@ const ChatScreen = (props) => {
           mediaType,
           stringDate,
           stringTime,
+          _id,
         }) => {
-          if (senderId === authInfo.senderId) return;
+          if (senderId === authInfo.senderId && mediaUrl) {
+            setMessages((messages) => {
+              return messages.map((message) => {
+                if (message.mediaType && message._id === _id) {
+                  return {
+                    ...message,
+                    mediaHeaders,
+                    mediaUrl,
+                    ready: true,
+                  };
+                }
+                console.log("hey", message.mediaType, message._id, _id);
+                return message;
+              });
+            });
+            // console.log({ newMessages, messages });
+            // setMessages([...newMessages]);
+            return;
+          }
           if (!socket.connected) {
             setShowError(true);
           } else {
@@ -499,7 +527,7 @@ const ChatScreen = (props) => {
                 mediaType,
                 stringDate,
                 stringTime,
-                _id: nanoid(),
+                _id,
               },
               ...prevMessages,
             ]);

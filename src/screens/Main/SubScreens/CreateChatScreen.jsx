@@ -37,14 +37,14 @@ const CreateChatScreen = () => {
     }
   };
 
-  const handleChatNavigation = async (chatUserId) => {
+  const handleChatNavigation = async (chatUserId, chatUserFirstName) => {
     setError(false);
     const { response, success } = await apiCall("POST", "/chat/exists", {
       participants: [chatUserId],
     });
     if (success) {
       if (response === null) {
-        navigation.navigate("ChatScreen", { chatUserId });
+        navigation.navigate("ChatScreen", { chatUserId, chatUserFirstName });
       } else {
         navigation.navigate("ChatScreen", { existingChat: response });
       }
@@ -55,7 +55,9 @@ const CreateChatScreen = () => {
 
   const renderItem = useCallback(
     ({ item: contact }) => (
-      <TouchableOpacity onPress={() => handleChatNavigation(contact._id)}>
+      <TouchableOpacity
+        onPress={() => handleChatNavigation(contact._id, contact.firstName)}
+      >
         <View
           style={{
             padding: 20,
