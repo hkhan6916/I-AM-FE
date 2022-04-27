@@ -20,6 +20,8 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
 
   return (
     <View style={styles.container}>
+      <Text style={{ color: "red" }}>{message._id}</Text>
+      {console.log(message._id)}
       {mediaType === "video" ? ( // render video in fullcsreen, for image this is handled inside imagewithcache component.
         <Modal
           presentationStyle="pageSheet"

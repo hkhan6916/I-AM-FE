@@ -156,23 +156,23 @@ const ChatScreen = (props) => {
 
     Upload.startUpload(options)
       .then((uploadId) => {
-        console.log("Upload started");
+        // console.log("Upload started");
         Upload.addListener("progress", uploadId, (data) => {
-          console.log(`Progress: ${data.progress}%`);
+          // console.log(`Progress: ${data.progress}%`);
           // console.log(data);
         });
         Upload.addListener("error", uploadId, async (data) => {
           // console.log({ data });
-          console.log(`Error: ${data.error}%`);
+          // console.log(`Error: ${data.error}%`);
           // await apiCall("GET", "/posts/fail/" + post?._id);
         });
         Upload.addListener("cancelled", uploadId, async (data) => {
-          console.log(`Cancelled!`);
+          // console.log(`Cancelled!`);
           // await apiCall("GET", "/posts/fail/" + post?._id);
         });
         Upload.addListener("completed", uploadId, (data) => {
           // console.log(data);
-          console.log("Completed!");
+          // console.log("Completed!");
         });
       })
       .catch((err) => {
@@ -254,84 +254,87 @@ const ChatScreen = (props) => {
         ]);
         setMessageBody("");
         setMedia({});
+
+        if (media.type?.split("/")[0] === "video") {
+          await VideoCompress.compress(
+            media.uri,
+            {
+              compressionMethod: "auto",
+            },
+            (progress) => {
+              // console.log({ compression: progress });
+            }
+          ).then(async (compressedUrl) => {
+            await handleBackgroundUpload(
+              compressedUrl,
+              message,
+              response._id
+            ).then(() => {
+              const mediaType = media.type?.split("/")[0];
+              setMessages([
+                // update message with id once uploaded full media
+                {
+                  body: messageBody,
+                  chatId,
+                  senderId: authInfo?.senderId,
+                  user: "sender",
+                  mediaUrl: media.uri,
+                  thumbnailUrl,
+                  mediaHeaders: response.mediaHeaders,
+                  mediaType,
+                  stringTime: get12HourTime(new Date()),
+                  stringDate: getNameDate(new Date()),
+                  _id: response._id,
+                },
+                ...messages,
+              ]);
+              setMessageBody("");
+              setMedia({});
+            });
+          });
+          return;
+        }
+
+        if (media.type?.split("/")[0] === "image") {
+          await ImageCompress.compress(
+            media.uri,
+            {
+              compressionMethod: "auto",
+            },
+            (progress) => {
+              // console.log({ compression: progress });
+            }
+          ).then(async (compressedUrl) => {
+            await handleBackgroundUpload(
+              compressedUrl,
+              message,
+              response._id
+            ).then(() => {
+              const mediaType = media.type?.split("/")[0];
+              setMessages([
+                {
+                  body: messageBody,
+                  chatId,
+                  senderId: authInfo?.senderId,
+                  user: "sender",
+                  mediaUrl: media.uri,
+                  thumbnailUrl,
+                  mediaHeaders: {}, // recieved as null if media is video
+                  mediaType,
+                  stringTime: get12HourTime(new Date()),
+                  stringDate: getNameDate(new Date()),
+                  _id: response._id,
+                },
+                ...messages,
+              ]);
+              setMessageBody("");
+              setMedia({});
+            });
+          });
+          return;
+        }
       } else {
         console.log("fail");
-      }
-      if (media.type?.split("/")[0] === "video") {
-        await VideoCompress.compress(
-          media.uri,
-          {
-            compressionMethod: "auto",
-          },
-          (progress) => {
-            console.log({ compression: progress });
-          }
-        ).then(async (compressedUrl) => {
-          await handleBackgroundUpload(
-            compressedUrl,
-            message,
-            response._id
-          ).then(() => {
-            const mediaType = media.type?.split("/")[0];
-            setMessages([
-              // update message with id once uploaded full media
-              {
-                body: messageBody,
-                chatId,
-                senderId: authInfo?.senderId,
-                user: "sender",
-                mediaUrl: media.uri,
-                thumbnailUrl,
-                mediaHeaders: response.mediaHeaders,
-                mediaType,
-                stringTime: get12HourTime(new Date()),
-                stringDate: getNameDate(new Date()),
-                _id: response._id,
-              },
-              ...messages,
-            ]);
-            setMessageBody("");
-            setMedia({});
-          });
-        });
-      }
-
-      if (media.type?.split("/")[0] === "image") {
-        await ImageCompress.compress(
-          media.uri,
-          {
-            compressionMethod: "auto",
-          },
-          (progress) => {
-            console.log({ compression: progress });
-          }
-        ).then(async (compressedUrl) => {
-          await handleBackgroundUpload(
-            compressedUrl,
-            message,
-            response._id
-          ).then(() => {
-            const mediaType = media.type?.split("/")[0];
-            setMessages([
-              {
-                body: messageBody,
-                chatId,
-                senderId: authInfo?.senderId,
-                user: "sender",
-                mediaUrl: media.uri,
-                thumbnailUrl,
-                mediaHeaders: {}, // recieved as null if media is video
-                mediaType,
-                stringTime: get12HourTime(new Date()),
-                stringDate: getNameDate(new Date()),
-                _id: response._id,
-              },
-              ...messages,
-            ]);
-            setMessageBody("");
-            setMedia({});
-          });
-        });
       }
 
       return true;
@@ -368,7 +371,7 @@ const ChatScreen = (props) => {
       `/chat/message/cancel/${messageId}`
     );
 
-    console.log(message);
+    // console.log(message);
 
     if (success) {
       setMessages((messages) => {
@@ -492,24 +495,27 @@ const ChatScreen = (props) => {
           user,
           mediaHeaders,
           mediaUrl,
+          thumbnailUrl,
+          thumbnailHeaders,
           mediaType,
           stringDate,
           stringTime,
           _id,
         }) => {
-          if (senderId === authInfo.senderId && mediaUrl) {
+          if (senderId === authInfo.senderId) {
             setMessages((messages) => {
-              return messages.map((message) => {
+              return messages?.map((message) => {
+                console.log(message.mediaType && message._id === _id);
                 if (message.mediaType && message._id === _id) {
                   return {
                     ...message,
-                    mediaHeaders,
-                    mediaUrl,
+                    // mediaHeaders,
+                    // mediaUrl,
                     ready: true,
                   };
+                } else {
+                  return message;
                 }
-                console.log("hey", message.mediaType, message._id, _id);
-                return message;
               });
             });
             return;
@@ -517,23 +523,36 @@ const ChatScreen = (props) => {
           if (!socket.connected) {
             setShowError(true);
           } else {
-            setRecipient({ userId: user?._id, online: true });
-            setMessages((prevMessages) => [
-              {
-                body,
-                chatId,
-                senderId,
-                user,
-                mediaHeaders,
-                mediaUrl,
-                mediaType,
-                stringDate,
-                stringTime,
-                _id,
-                ready: true,
-              },
-              ...prevMessages,
-            ]);
+            if (senderId !== authInfo.senderId) {
+              setRecipient({ userId: user?._id, online: true });
+            }
+
+            setMessages((prevMessages) => {
+              if (senderId !== authInfo.senderId) {
+                if (!prevMessages.find((message) => message._id === _id)) {
+                  return [
+                    {
+                      body,
+                      chatId,
+                      senderId,
+                      user,
+                      mediaHeaders,
+                      mediaUrl,
+                      mediaType,
+                      thumbnailUrl,
+                      thumbnailHeaders,
+                      stringDate,
+                      stringTime,
+                      _id,
+                      ready: true,
+                    },
+                    ...prevMessages,
+                  ];
+                } else {
+                  return prevMessages;
+                }
+              }
+            });
           }
         }
       );
