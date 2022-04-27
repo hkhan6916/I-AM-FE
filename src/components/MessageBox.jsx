@@ -5,7 +5,7 @@ import ImageWithCache from "./ImageWithCache";
 import themeStyle from "../theme.style";
 import ExpoVideoPlayer from "./ExpoVideoPlayer";
 
-const MessageBox = ({ belongsToSender, message, mediaSize }) => {
+const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
   const {
     body,
     mediaUrl,
@@ -20,7 +20,6 @@ const MessageBox = ({ belongsToSender, message, mediaSize }) => {
 
   return (
     <View style={styles.container}>
-      {!ready ? <Text style={{ color: "red" }}>Uploading...</Text> : null}
       {mediaType === "video" ? ( // render video in fullcsreen, for image this is handled inside imagewithcache component.
         <Modal
           presentationStyle="pageSheet"
@@ -59,17 +58,46 @@ const MessageBox = ({ belongsToSender, message, mediaSize }) => {
                 },
           ]}
         >
-          <Text
-            style={{
-              fontSize: 12,
-              fontWeight: "700",
-              textAlign: "right",
-              color: themeStyle.colors.white,
-              alignSelf: belongsToSender ? "flex-end" : "flex-start",
-            }}
-          >
-            {stringTime}
-          </Text>
+          {!ready ? (
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <TouchableOpacity onPress={() => cancelUpload(message?._id)}>
+                <Text
+                  style={{
+                    color: themeStyle.colors.error.default,
+                    fontWeight: "700",
+                  }}
+                >
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  textAlign: "right",
+                  color: themeStyle.colors.white,
+                  alignSelf: belongsToSender ? "flex-end" : "flex-start",
+                  marginBottom: 5,
+                }}
+              >
+                Sending...
+              </Text>
+            </View>
+          ) : (
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: "700",
+                textAlign: "right",
+                color: themeStyle.colors.white,
+                alignSelf: belongsToSender ? "flex-end" : "flex-start",
+              }}
+            >
+              {stringTime}
+            </Text>
+          )}
           {mediaUrl && mediaType === "image" ? (
             <TouchableOpacity onPress={() => setMediaFullScreen(true)}>
               <ImageWithCache

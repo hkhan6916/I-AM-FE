@@ -9,6 +9,7 @@ const MessageContainer = ({
   firstMessageDate,
   belongsToSender,
   mediaSize,
+  cancelUpload,
 }) => {
   return (
     <View>
@@ -46,6 +47,7 @@ const MessageContainer = ({
         message={message}
         belongsToSender={belongsToSender}
         mediaSize={mediaSize}
+        cancelUpload={cancelUpload}
       />
     </View>
   );

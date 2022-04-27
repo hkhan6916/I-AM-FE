@@ -40,7 +40,6 @@ const ChatScreen = (props) => {
   const [media, setMedia] = useState({});
   const [mediaSendFail, setMediaSendFail] = useState(false);
   const [showMediaSizeError, setShowMediaSizeError] = useState(false);
-  const [mediaSending, setMediaSending] = useState(false);
   const [messageBody, setMessageBody] = useState("");
   const [messages, setMessages] = useState([]);
   const [showError, setShowError] = useState(false);
@@ -157,23 +156,23 @@ const ChatScreen = (props) => {
 
     Upload.startUpload(options)
       .then((uploadId) => {
-        // console.log("Upload started");
+        console.log("Upload started");
         Upload.addListener("progress", uploadId, (data) => {
-          // console.log(`Progress: ${data.progress}%`);
+          console.log(`Progress: ${data.progress}%`);
           // console.log(data);
         });
         Upload.addListener("error", uploadId, async (data) => {
           // console.log({ data });
-          // console.log(`Error: ${data.error}%`);
+          console.log(`Error: ${data.error}%`);
           // await apiCall("GET", "/posts/fail/" + post?._id);
         });
         Upload.addListener("cancelled", uploadId, async (data) => {
-          // console.log(`Cancelled!`);
+          console.log(`Cancelled!`);
           // await apiCall("GET", "/posts/fail/" + post?._id);
         });
         Upload.addListener("completed", uploadId, (data) => {
           // console.log(data);
-          // console.log("Completed!");
+          console.log("Completed!");
         });
       })
       .catch((err) => {
@@ -196,16 +195,26 @@ const ChatScreen = (props) => {
   };
 
   const handleMessageSend = async (chatId) => {
+    if (!socket?.connected) return;
     if (media?.uri && media?.type && socket.connected) {
-      setMediaSending(true);
-
       const formData = new FormData();
-      const thumbnailUrl = await generateThumbnail();
-      formData.append("file", {
-        uri: thumbnailUrl,
-        name: `mediaThumbnail.${thumbnailUrl.split(".").pop()}`,
-        type: `image/${thumbnailUrl.split(".").pop()}`,
-      });
+      const thumbnailUrl =
+        media.type?.split("/")[0] === "video"
+          ? await generateThumbnail()
+          : null;
+      if (thumbnailUrl) {
+        formData.append("file", {
+          uri: thumbnailUrl,
+          name: `mediaThumbnail.${thumbnailUrl.split(".").pop()}`,
+          type: `image/${thumbnailUrl.split(".").pop()}`,
+        });
+      } else if (media.type?.split("/")[0] === "image") {
+        formData.append("file", {
+          uri: media.uri,
+          name: `image.${media.uri.split(".").pop()}`,
+          type: `image/${media.uri.split(".").pop()}`,
+        });
+      }
 
       const message = {
         body: messageBody,
@@ -233,8 +242,9 @@ const ChatScreen = (props) => {
             user: "sender",
             mediaUrl: "",
             mediaHeaders: {}, // recieved as null if media is video
-            mediaType: "video",
-            thumbnailUrl,
+            mediaType: media.type?.split("/")[0],
+            thumbnailUrl:
+              media.type?.split("/")[0] === "video" ? thumbnailUrl : null,
             stringTime: get12HourTime(new Date()),
             stringDate: getNameDate(new Date()),
             _id: response._id,
@@ -272,7 +282,7 @@ const ChatScreen = (props) => {
                 user: "sender",
                 mediaUrl: media.uri,
                 thumbnailUrl,
-                mediaHeaders: {},
+                mediaHeaders: response.mediaHeaders,
                 mediaType,
                 stringTime: get12HourTime(new Date()),
                 stringDate: getNameDate(new Date()),
@@ -323,57 +333,51 @@ const ChatScreen = (props) => {
           });
         });
       }
-      // if (success) {
-      //   // socket.emit("sendMessage", message);
-      //   const mediaType = media.type?.split("/")[0];
-      //   setMessages([
-      //     {
-      //       body: messageBody,
-      //       chatId,
-      //       senderId: authInfo?.senderId,
-      //       user: "sender",
-      //       mediaUrl: media.uri,
-      //       mediaHeaders: {}, // recieved as null if media is video
-      //       mediaType,
-      //       stringTime: get12HourTime(new Date()),
-      //       stringDate: getNameDate(new Date()),
-      //       _id: nanoid(),
-      //     },
-      //     ...messages,
-      //   ]);
-      //   setMessageBody("");
-      //   setMedia({});
-      // } else {
-      //   setMediaSendFail(true);
-      //   setMediaSending(false);
-      //   setShowActions(false);
-      // }
+
       return true;
     }
-    if (socket.connected) {
-      socket.emit("sendMessage", {
+
+    socket.emit("sendMessage", {
+      body: messageBody,
+      chatId,
+      senderId: authInfo?.senderId,
+      online: !!recipient?.online,
+      recipientId: recipient?.userId,
+    });
+    setMessages([
+      {
         body: messageBody,
         chatId,
         senderId: authInfo?.senderId,
-        online: !!recipient?.online,
-        recipientId: recipient?.userId,
-      });
-      setMessages([
-        {
-          body: messageBody,
-          chatId,
-          senderId: authInfo?.senderId,
-          user: "sender",
-          stringTime: get12HourTime(new Date()),
-          stringDate: getNameDate(new Date()),
-          _id: nanoid(),
-        },
-        ...messages,
-      ]);
-      setMessageBody("");
-      setMediaSending(false);
+        user: "sender",
+        stringTime: get12HourTime(new Date()),
+        stringDate: getNameDate(new Date()),
+        _id: nanoid(),
+        ready: true,
+      },
+      ...messages,
+    ]);
+    setMessageBody("");
 
-      return true;
+    return true;
+  };
+
+  const cancelUpload = async (messageId) => {
+    const { success, response, message } = await apiCall(
+      "GET",
+      `/chat/message/cancel/${messageId}`
+    );
+
+    console.log(message);
+
+    if (success) {
+      setMessages((messages) => {
+        return messages.filter((message) => {
+          if (message._id !== messageId) {
+            return message;
+          }
+        });
+      });
     }
   };
 
@@ -508,8 +512,6 @@ const ChatScreen = (props) => {
                 return message;
               });
             });
-            // console.log({ newMessages, messages });
-            // setMessages([...newMessages]);
             return;
           }
           if (!socket.connected) {
@@ -528,6 +530,7 @@ const ChatScreen = (props) => {
                 stringDate,
                 stringTime,
                 _id,
+                ready: true,
               },
               ...prevMessages,
             ]);
@@ -583,6 +586,7 @@ const ChatScreen = (props) => {
             { item: message, index: i } // change to be more performant like home and profile screen
           ) => (
             <MessageContainer
+              cancelUpload={cancelUpload}
               mediaSize={mediaSize}
               firstMessageDate={
                 allMessagesLoaded && i === messages.length - 1
@@ -750,7 +754,6 @@ const ChatScreen = (props) => {
           style={[
             { alignItems: "center", position: "relative" },
             media.uri && { margin: 20 },
-            mediaSending && { backgroundColor: "grey" },
           ]}
         >
           {media?.type?.includes("image") ? (
