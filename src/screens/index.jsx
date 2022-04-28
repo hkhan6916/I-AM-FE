@@ -1,5 +1,9 @@
-import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
+import {
+  NavigationContainer,
+  DefaultTheme,
+  useNavigation,
+} from "@react-navigation/native";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Platform } from "react-native";
 import { useSelector } from "react-redux";
 import Constants from "expo-constants";
@@ -14,6 +18,7 @@ import registerNotifications from "../helpers/registerNotifications";
 import { hideAsync, preventAutoHideAsync } from "expo-splash-screen";
 import { useColorScheme } from "react-native";
 import { LogBox } from "react-native";
+// import messaging from "@react-native-firebase/messaging";
 
 const Screens = () => {
   LogBox.ignoreLogs(["NativeEventEmitter", "fontFamily"]); // Ignore log notification by message
@@ -34,7 +39,7 @@ const Screens = () => {
           : themeStyle.colors.grayscale.higher,
     },
   };
-
+  const navigationContainerRef = useRef();
   const getUserFeed = async () => {
     const { success, response } = await apiCall("POST", "/user/feed");
     if (success) {
@@ -65,10 +70,9 @@ const Screens = () => {
         alert("Failed to get push token for push notification!");
         return;
       }
-      // TODO: Change experience id in production
       token = (
         await Notifications.getExpoPushTokenAsync({
-          experienceId: "@hkhan6916/I-Am-FE",
+          experienceId: "@hkhan6916/I-Am-FE", // TODO: Change experience id in production
         })
       ).data;
     } else {
@@ -101,10 +105,46 @@ const Screens = () => {
   }, [loginAttemptStatus]);
 
   useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        const chatId = response.notification.request.content.data.chatId;
+
+        navigationContainerRef.current?.navigate("ChatScreen", {
+          chatId,
+        });
+        console.log(chatId);
+      }
+    );
+    // messaging().onNotificationOpenedApp((remoteMessage) => {
+    //   console.log(
+    //     "Notification caused app to open from background state:",
+    //     remoteMessage.notification
+    //   );
+    //   navigationContainerRef.current.navigate(
+    //     "ChatScreen",
+    //     remoteMessage.data.chatId
+    //   );
+    // });
+
+    // // Check whether an initial notification is available
+    // messaging()
+    //   .getInitialNotification()
+    //   .then((remoteMessage) => {
+    //     if (remoteMessage) {
+    //       console.log(
+    //         "Notification caused app to open from quit state:",
+    //         remoteMessage.notification
+    //       );
+    //       // setInitialRoute(remoteMessage.data.type); // e.g. "Settings"
+    //     }
+    //     // setLoading(false);
+    //   });
+
     if (!notificationToken && loaded) {
       registerForPushNotificationsAsync().then(async (token) => {
         try {
           if (token) {
+            console.log(token);
             const { success } = await apiCall(
               "POST",
               "/user/notifications/token/update",
@@ -128,10 +168,11 @@ const Screens = () => {
         await hideAsync();
       }
     })();
+    return () => subscription.remove();
   }, [loaded, notificationToken]);
 
   return (
-    <NavigationContainer theme={Theme}>
+    <NavigationContainer theme={Theme} ref={navigationContainerRef}>
       {!loaded || !notificationToken ? (
         // just so the app has something to render always even if it's an empty view
         <View />

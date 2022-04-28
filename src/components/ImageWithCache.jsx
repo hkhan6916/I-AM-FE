@@ -9,7 +9,6 @@ import {
 import FastImage from "react-native-fast-image";
 import { AntDesign } from "@expo/vector-icons";
 import themeStyle from "../theme.style";
-import ContentLoader from "../components/ContentLoader";
 
 const ImageWithCache = ({
   resizeMode,
@@ -35,7 +34,7 @@ const ImageWithCache = ({
       >
         <View
           style={{
-            backgroundColor: themeStyle.colors.grayscale.lowest,
+            backgroundColor: themeStyle.colors.grayscale.highest,
             flex: 1,
           }}
         >

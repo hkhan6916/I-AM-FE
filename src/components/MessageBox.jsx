@@ -20,8 +20,6 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={{ color: "red" }}>{message._id}</Text>
-      {console.log(message._id)}
       {mediaType === "video" ? ( // render video in fullcsreen, for image this is handled inside imagewithcache component.
         <Modal
           presentationStyle="pageSheet"
@@ -33,7 +31,7 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
               flex: 1,
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: themeStyle.colors.black,
+              backgroundColor: themeStyle.colors.grayscale.highest,
             }}
           >
             <ExpoVideoPlayer uri={mediaUrl} />

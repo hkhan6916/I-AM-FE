@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Dimensions,
+  ScrollView,
 } from "react-native";
 import { getItemAsync } from "expo-secure-store";
 import { io } from "socket.io-client";
@@ -86,6 +87,7 @@ const ChatScreen = (props) => {
         "GET",
         `/chat/${chat._id}/messages/${messages.length}`
       );
+      console.log(chat._id);
       if (success) {
         setMessages([...messages, ...response]);
         if (messages.length && response.length === 0) {
@@ -253,6 +255,7 @@ const ChatScreen = (props) => {
           ...messages,
         ]);
         setMessageBody("");
+        setHeight(0);
         setMedia({});
 
         if (media.type?.split("/")[0] === "video") {
@@ -289,6 +292,7 @@ const ChatScreen = (props) => {
                 ...messages,
               ]);
               setMessageBody("");
+              setHeight(0);
               setMedia({});
             });
           });
@@ -328,6 +332,7 @@ const ChatScreen = (props) => {
                 ...messages,
               ]);
               setMessageBody("");
+              setHeight(0);
               setMedia({});
             });
           });
@@ -361,6 +366,7 @@ const ChatScreen = (props) => {
       ...messages,
     ]);
     setMessageBody("");
+    setHeight(0);
 
     return true;
   };
@@ -423,10 +429,40 @@ const ChatScreen = (props) => {
     }
   };
 
+  const renderItem = useCallback(
+    (
+      { item: message, index: i } // change to be more performant like home and profile screen
+    ) => (
+      <MessageContainer
+        cancelUpload={cancelUpload}
+        mediaSize={mediaSize}
+        firstMessageDate={
+          allMessagesLoaded && i === messages.length - 1
+            ? messages[i].stringDate
+            : null
+        }
+        messageDate={
+          i !== messages.length - 1 &&
+          messages[i + 1] &&
+          message.stringDate !== messages[i + 1].stringDate
+            ? messages[i].stringDate
+            : null
+        }
+        message={message}
+        belongsToSender={
+          authInfo?.senderId === message.senderId || message.user === "sender"
+        }
+      />
+    ),
+    [messages]
+  );
   useEffect(() => {
     let isMounted = true;
     if (isMounted) {
       (async () => {
+        if (!chat && props.route.params.chatId) {
+          const chat = 
+        } 
         await initSocket();
         if (chat) {
           await getChatMessages();
@@ -505,7 +541,6 @@ const ChatScreen = (props) => {
           if (senderId === authInfo.senderId) {
             setMessages((messages) => {
               return messages?.map((message) => {
-                console.log(message.mediaType && message._id === _id);
                 if (message.mediaType && message._id === _id) {
                   return {
                     ...message,
@@ -601,31 +636,7 @@ const ChatScreen = (props) => {
         {showError ? <Text>An unknown error occurred</Text> : null}
         <FlatList
           data={messages}
-          renderItem={(
-            { item: message, index: i } // change to be more performant like home and profile screen
-          ) => (
-            <MessageContainer
-              cancelUpload={cancelUpload}
-              mediaSize={mediaSize}
-              firstMessageDate={
-                allMessagesLoaded && i === messages.length - 1
-                  ? messages[i].stringDate
-                  : null
-              }
-              messageDate={
-                i !== messages.length - 1 &&
-                messages[i + 1] &&
-                message.stringDate !== messages[i + 1].stringDate
-                  ? messages[i].stringDate
-                  : null
-              }
-              message={message}
-              belongsToSender={
-                authInfo?.senderId === message.user._id ||
-                message.user === "sender"
-              }
-            />
-          )}
+          renderItem={renderItem}
           onEndReached={() => getChatMessages()}
           onEndReachedThreshold={0.9}
           inverted
@@ -635,86 +646,86 @@ const ChatScreen = (props) => {
         <View
           style={{
             flexDirection: "row",
-            minHeight: Math.max(height, 48),
-            maxHeight: 100,
-            alignItems: "center",
+            height: Math.max(height, 70),
+            // maxHeight: 100,
+            alignItems: "flex-end",
             paddingVertical: 10,
           }}
         >
           <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              height: "100%",
-            }}
+            style={[
+              {
+                flexDirection: "column",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                height: "100%",
+              },
+            ]}
           >
-            <View
+            <TouchableOpacity
               style={[
                 {
-                  flexDirection: "row",
-                  justifyContent: "flex-end",
-                  alignItems: "flex-end",
-                  height: "100%",
+                  marginHorizontal: 5,
+                  width: 48,
+                  height: 48,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: themeStyle.colors.secondary.default,
+                  borderRadius: 50,
+                  marginBottom: 5,
                 },
-                !showActions && { width: 0 },
+                !showActions && { display: "none" },
               ]}
+              onPress={() => pickImage()}
             >
-              <TouchableOpacity
-                style={{
+              <FontAwesome
+                name="photo"
+                size={24}
+                color={themeStyle.colors.grayscale.lowest}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                {
                   marginHorizontal: 5,
                   width: 48,
                   height: 48,
                   justifyContent: "center",
                   alignItems: "center",
-                }}
-                onPress={() => pickImage()}
-              >
-                <FontAwesome
-                  name="photo"
-                  size={24}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  marginHorizontal: 5,
-                  width: 48,
-                  height: 48,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-                onPress={() => handleActivateCamera(true)}
-              >
-                <Ionicons
-                  name="camera-outline"
-                  size={26}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
-              </TouchableOpacity>
-            </View>
-            <View>
-              <TouchableOpacity
-                style={{
-                  width: 48,
-                  height: 48,
-                  marginHorizontal: 10,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  borderRadius: 100,
-                  backgroundColor: themeStyle.colors.secondary.light,
-                }}
-                onPress={() => setShowActions(!showActions)}
-              >
-                <Ionicons
-                  name={showActions ? "close" : "add"}
-                  size={26}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
-              </TouchableOpacity>
-            </View>
+                  backgroundColor: themeStyle.colors.secondary.default,
+                  borderRadius: 50,
+                  marginBottom: 5,
+                },
+                !showActions && { display: "none" },
+              ]}
+              onPress={() => handleActivateCamera(true)}
+            >
+              <Ionicons
+                name="camera-outline"
+                size={26}
+                color={themeStyle.colors.grayscale.lowest}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                width: 48,
+                height: 48,
+                marginHorizontal: 10,
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: 100,
+                backgroundColor: themeStyle.colors.secondary.default,
+              }}
+              onPress={() => setShowActions(!showActions)}
+            >
+              <Ionicons
+                name={showActions ? "close" : "add"}
+                size={26}
+                color={themeStyle.colors.grayscale.lowest}
+              />
+            </TouchableOpacity>
           </View>
-          <View
+          {/* <View
             style={{
               flex: 1,
               height: 48,
@@ -723,11 +734,12 @@ const ChatScreen = (props) => {
               backgroundColor: themeStyle.colors.grayscale.high,
             }}
           >
-            <TextInput // TODO: create a stand alone component for this for less re renders like searchbar. Could just clone searchbar and make some changes
+            <TextInput
               style={{
                 color: themeStyle.colors.grayscale.lowest,
                 backgroundColor: themeStyle.colors.grayscale.high,
                 paddingHorizontal: 10,
+                height: height,
               }}
               value={messageBody}
               placeholderTextColor={themeStyle.colors.grayscale.lower}
@@ -743,10 +755,54 @@ const ChatScreen = (props) => {
                 );
               }}
             />
+          </View> */}
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingHorizontal: 10,
+              backgroundColor: themeStyle.colors.grayscale.higher,
+              borderWidth: 0.5,
+              borderColor: themeStyle.colors.grayscale.low,
+              borderRadius: 5,
+              flex: 1,
+            }}
+          >
+            <ScrollView scrollEnabled={height > 48}>
+              <TextInput
+                maxLength={2000}
+                style={[
+                  {
+                    paddingVertical: 10,
+                    color: themeStyle.colors.grayscale.lowest,
+                  },
+                  {
+                    height: height < 48 ? 48 : height,
+                    paddingTop: height < 48 ? 0 : 10,
+                    paddingBottom: height < 48 ? 0 : 10,
+                  },
+                ]}
+                value={messageBody}
+                placeholderTextColor={themeStyle.colors.grayscale.lower}
+                multiline
+                placeholder="Type a message..."
+                onChangeText={(v) => setMessageBody(v)}
+                scrollEnabled
+                onContentSizeChange={(event) => {
+                  setHeight(
+                    event.nativeEvent.contentSize.height < 150
+                      ? event.nativeEvent.contentSize.height
+                      : 150
+                  );
+                }}
+              />
+            </ScrollView>
           </View>
           <View
             style={{
-              justifyContent: "center",
+              justifyContent: "flex-end",
               height: "100%",
             }}
           >
@@ -759,6 +815,7 @@ const ChatScreen = (props) => {
                 height: 48,
                 width: 48,
               }}
+              disabled={(!media?.uri || !media.type) && !messageBody}
               onPress={() => handleMessage()}
             >
               <Ionicons
