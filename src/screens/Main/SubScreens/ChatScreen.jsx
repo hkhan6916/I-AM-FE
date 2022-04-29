@@ -87,7 +87,7 @@ const ChatScreen = (props) => {
         "GET",
         `/chat/${chat._id}/messages/${messages.length}`
       );
-      console.log(chat._id);
+      console.log(message);
       if (success) {
         setMessages([...messages, ...response]);
         if (messages.length && response.length === 0) {
@@ -460,9 +460,6 @@ const ChatScreen = (props) => {
     let isMounted = true;
     if (isMounted) {
       (async () => {
-        if (!chat && props.route.params.chatId) {
-          const chat = 
-        } 
         await initSocket();
         if (chat) {
           await getChatMessages();

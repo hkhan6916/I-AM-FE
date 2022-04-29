@@ -18,7 +18,6 @@ import registerNotifications from "../helpers/registerNotifications";
 import { hideAsync, preventAutoHideAsync } from "expo-splash-screen";
 import { useColorScheme } from "react-native";
 import { LogBox } from "react-native";
-// import messaging from "@react-native-firebase/messaging";
 
 const Screens = () => {
   LogBox.ignoreLogs(["NativeEventEmitter", "fontFamily"]); // Ignore log notification by message
@@ -106,39 +105,18 @@ const Screens = () => {
 
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        const chatId = response.notification.request.content.data.chatId;
-
+      async (notificationRes) => {
+        const chatId = notificationRes.notification.request.content.data.chatId;
+        const { success, response } = await apiCall(
+          "GET",
+          `/user/chat/${chatId}`
+        );
+        console.log(response);
         navigationContainerRef.current?.navigate("ChatScreen", {
-          chatId,
+          existingChat: response,
         });
-        console.log(chatId);
       }
     );
-    // messaging().onNotificationOpenedApp((remoteMessage) => {
-    //   console.log(
-    //     "Notification caused app to open from background state:",
-    //     remoteMessage.notification
-    //   );
-    //   navigationContainerRef.current.navigate(
-    //     "ChatScreen",
-    //     remoteMessage.data.chatId
-    //   );
-    // });
-
-    // // Check whether an initial notification is available
-    // messaging()
-    //   .getInitialNotification()
-    //   .then((remoteMessage) => {
-    //     if (remoteMessage) {
-    //       console.log(
-    //         "Notification caused app to open from quit state:",
-    //         remoteMessage.notification
-    //       );
-    //       // setInitialRoute(remoteMessage.data.type); // e.g. "Settings"
-    //     }
-    //     // setLoading(false);
-    //   });
 
     if (!notificationToken && loaded) {
       registerForPushNotificationsAsync().then(async (token) => {
