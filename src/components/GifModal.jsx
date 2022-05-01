@@ -74,7 +74,7 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
               justifyContent: "center",
               alignItems: "center",
               height: imageHeight,
-              width: imageHeight,
+              width: "100%",
             }}
             source={{ uri: item.media[0].tinygif.url }}
           />

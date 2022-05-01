@@ -83,11 +83,11 @@ const ChatScreen = (props) => {
   const getChatMessages = async () => {
     if (chat && existingChat) {
       setShowError(false);
-      const { response, success, message } = await apiCall(
+      const { response, success } = await apiCall(
         "GET",
         `/chat/${chat._id}/messages/${messages.length}`
       );
-      console.log(message);
+      console.log({ response: response[1] });
       if (success) {
         setMessages([...messages, ...response]);
         if (messages.length && response.length === 0) {
@@ -99,11 +99,7 @@ const ChatScreen = (props) => {
     }
   };
 
-  const initSocket = async (port) => {
-    const token = await getItemAsync("authToken");
-    const senderId = await getItemAsync("userId");
-    setAuthInfo({ token, senderId });
-    // console.log(port);
+  const initSocket = async (port, token) => {
     const connection = io(`ws://192.168.5.101:${port || 5000}`, {
       // TODO store the connection url securely and then use
       auth: {
@@ -450,17 +446,22 @@ const ChatScreen = (props) => {
         }
         message={message}
         belongsToSender={
-          authInfo?.senderId === message.senderId || message.user === "sender"
+          authInfo?.senderId === message.senderId.toString() ||
+          message.user === "sender"
         }
       />
     ),
-    [messages]
+    [messages, authInfo]
   );
   useEffect(() => {
     let isMounted = true;
     if (isMounted) {
+      // TODO: remove isMounted and implement better cleanup that works
       (async () => {
-        await initSocket();
+        const token = await getItemAsync("authToken");
+        const senderId = await getItemAsync("userId");
+        setAuthInfo({ token, senderId });
+
         if (chat) {
           await getChatMessages();
         }
@@ -475,6 +476,8 @@ const ChatScreen = (props) => {
             title: chatUserFirstName,
           });
         }
+        // below needs to be last so we can init all other data before opening a socket connection and having things change due to incoming messages
+        await initSocket(null, token);
       })();
     }
     return () => {
@@ -483,17 +486,8 @@ const ChatScreen = (props) => {
   }, [chat]);
 
   useEffect(() => {
-    navigation.setOptions({
-      title: `${chat?.users?.[0].firstName} ${
-        recipient?.online ? "- online" : ""
-      }`,
-    });
-  }, [recipient]);
-
-  useEffect(() => {
     // TODO: implement navigation listener here to prevent notifications from being received
     let isMounted = true;
-
     if (socket && isMounted && authInfo) {
       if (chat) {
         socket.emit("joinRoom", {
@@ -511,12 +505,30 @@ const ChatScreen = (props) => {
 
       socket.on("userJoinedRoom", async ({ userId }) => {
         setRecipient({ userId, online: true });
-        console.log("joined");
+        navigation.setOptions({
+          title: `${chat?.users?.[0].firstName} - online`,
+        });
+        socket.emit("sendUserOnlineStatus", {
+          chatId: chat?._id,
+          userId: authInfo?.senderId,
+        });
       });
 
       socket.on("userLeftRoom", async ({ userId }) => {
         setRecipient({ userId, online: false });
-        console.log("left");
+        // console.log(userId, "left");
+        navigation.setOptions({
+          title: `${chat?.users?.[0].firstName}`,
+        });
+      });
+
+      socket.on("receiveUserOnlineStatus", async ({ userId }) => {
+        if (userId !== authInfo?.senderId) {
+          setRecipient({ userId, online: true });
+          navigation.setOptions({
+            title: `${chat?.users?.[0].firstName} - online`,
+          });
+        }
       });
 
       socket.on(
@@ -555,7 +567,7 @@ const ChatScreen = (props) => {
           if (!socket.connected) {
             setShowError(true);
           } else {
-            if (senderId !== authInfo.senderId) {
+            if (senderId !== authInfo.senderId && !recipient?.online) {
               setRecipient({ userId: user?._id, online: true });
             }
 

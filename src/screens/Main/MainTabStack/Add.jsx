@@ -218,9 +218,11 @@ const AddScreen = () => {
         (progress) => {
           console.log({ compression: progress });
         }
-      ).then(async (compressedUrl) => {
-        await handleBackgroundUpload(compressedUrl, post);
-      });
+      )
+        .then(async (compressedUrl) => {
+          await handleBackgroundUpload(compressedUrl, post);
+        })
+        .catch(() => console.log("flop"));
     }
   };
 
