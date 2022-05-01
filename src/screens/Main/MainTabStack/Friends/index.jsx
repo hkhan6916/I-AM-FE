@@ -10,7 +10,17 @@ const Stack = createNativeStackNavigator();
 const FriendsStack = () => (
   <Stack.Navigator initialRouteName="FriendsScreen">
     <Stack.Screen
-      options={{ headerShown: false }}
+      options={{
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        },
+        title: "Contacts",
+      }}
       name="FriendsScreen"
       component={FriendsScreen}
     />

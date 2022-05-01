@@ -154,6 +154,7 @@ const FriendsScreen = () => {
         </Text>
       </TouchableOpacity>
       <SectionList
+        stickySectionHeadersEnabled={true}
         sections={sections}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
@@ -162,7 +163,9 @@ const FriendsScreen = () => {
         }
         renderSectionHeader={({ section: { title, name } }) =>
           title && (
-            <View>
+            <View
+              style={{ backgroundColor: themeStyle.colors.grayscale.highest }}
+            >
               <Text
                 style={{
                   color: themeStyle.colors.grayscale.lowest,
@@ -174,11 +177,17 @@ const FriendsScreen = () => {
                 {title}
               </Text>
               {name === "contacts" ? (
-                <UserSearchBar
-                  setResults={handleSearch}
-                  dataToSearchWithin={friends}
-                  onSubmitEditing={() => Keyboard.dismiss()}
-                />
+                <View
+                  style={{
+                    backgroundColor: themeStyle.colors.grayscale.highest,
+                  }}
+                >
+                  <UserSearchBar
+                    setResults={handleSearch}
+                    dataToSearchWithin={friends}
+                    onSubmitEditing={() => Keyboard.dismiss()}
+                  />
+                </View>
               ) : null}
             </View>
           )
