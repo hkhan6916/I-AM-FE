@@ -516,7 +516,7 @@ const ChatScreen = (props) => {
 
       socket.on("userLeftRoom", async ({ userId }) => {
         setRecipient({ userId, online: false });
-        // console.log(userId, "left");
+        console.log(userId, "left");
         navigation.setOptions({
           title: `${chat?.users?.[0].firstName}`,
         });

@@ -107,11 +107,7 @@ const Screens = () => {
     const subscription = Notifications.addNotificationResponseReceivedListener(
       async (notificationRes) => {
         const chatId = notificationRes.notification.request.content.data.chatId;
-        const { success, response } = await apiCall(
-          "GET",
-          `/user/chat/${chatId}`
-        );
-        console.log(response);
+        const { response } = await apiCall("GET", `/user/chat/${chatId}`);
         navigationContainerRef.current?.navigate("ChatScreen", {
           existingChat: response,
         });

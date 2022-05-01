@@ -110,6 +110,7 @@ const MediaScreen = (props) => {
                 mediaHeaders={post.mediaHeaders}
                 mediaUrl={post.mediaUrl}
                 removeBorderRadius
+                style={{ backgroundColor: themeStyle.colors.grayscale.highest }}
               />
             </View>
           ) : null}

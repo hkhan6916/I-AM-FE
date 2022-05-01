@@ -38,9 +38,11 @@ const { statusBarHeight } = Constants;
 const HomeScreen = () => {
   const dispatch = useDispatch();
   const newPostCreated = useSelector((state) => state.postCreated);
+
   const initialFeed = useContext(FeedContext);
   const [feed, setFeed] = useState(initialFeed);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
+  const [userData, setUserData] = useState({});
   const [postIds, setPostIds] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [visibleItems, setVisibleItems] = useState([]);
@@ -219,11 +221,16 @@ const HomeScreen = () => {
           style={{ padding: 10, marginRight: 10 }}
           onPress={() => navigation.navigate("ChatListScreen")}
         >
-          <Ionicons
-            name="paper-plane-outline"
-            size={24}
-            color={themeStyle.colors.grayscale.lowest}
-          />
+          <View>
+            <Text style={{ color: themeStyle.colors.white }}>
+              {userData?.unreadChatsCount}
+            </Text>
+            <Ionicons
+              name="paper-plane-outline"
+              size={24}
+              color={themeStyle.colors.grayscale.lowest}
+            />
+          </View>
         </TouchableOpacity>
       </View>
     </View>
@@ -250,6 +257,15 @@ const HomeScreen = () => {
     setError("");
     setShowPostOptions(post);
   };
+
+  useEffect(() => {
+    navigation.addListener("focus", async () => {
+      const { success, response } = await apiCall("GET", "/user/data");
+      if (success) {
+        setUserData(response);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     const ids = [...postIds, ...feed.map((post) => post._id.toString())];
