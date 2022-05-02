@@ -218,18 +218,78 @@ const HomeScreen = () => {
           <Logo fill={themeStyle.colors.grayscale.lowest} />
         </View>
         <TouchableOpacity
-          style={{ padding: 10, marginRight: 10 }}
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+          }}
           onPress={() => navigation.navigate("ChatListScreen")}
         >
-          <View>
-            <Text style={{ color: themeStyle.colors.white }}>
-              {userData?.unreadChatsCount}
-            </Text>
+          <View style={{ flexDirection: "row" }}>
+            {/* {userData?.unreadChatsCount ? (
+              <View
+                style={{
+                  backgroundColor: themeStyle.colors.primary.default,
+                  borderRadius: 100,
+                  minWidth: 20,
+                  height: 20,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginRight: -5,
+                  zIndex: 10,
+                  paddingHorizontal: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    color: themeStyle.colors.white,
+                    textAlign: "center",
+                    fontSize: 12,
+                    maxWidth: 50,
+                  }}
+                  numberOfLines={1}
+                >
+                  3333333333333333333
+                </Text>
+              </View>
+            ) : null} */}
             <Ionicons
               name="paper-plane-outline"
               size={24}
               color={themeStyle.colors.grayscale.lowest}
+              style={{ marginRight: 22, paddingVertical: 10 }}
             />
+            {userData?.unreadChatsCount ? (
+              <View
+                style={{
+                  backgroundColor: themeStyle.colors.primary.default,
+                  borderRadius: 100,
+                  minWidth: 20,
+                  height: 20,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginRight: -5,
+                  zIndex: 10,
+                  paddingHorizontal: 5,
+                  position: "absolute",
+                  left: 15,
+                  top: 0,
+                }}
+              >
+                <Text
+                  style={{
+                    color: themeStyle.colors.white,
+                    textAlign: "center",
+                    fontSize: 12,
+                    maxWidth: 50,
+                  }}
+                  numberOfLines={1}
+                >
+                  {userData.unreadChatsCount >= 10
+                    ? "10+"
+                    : userData.unreadChatsCount}
+                </Text>
+              </View>
+            ) : null}
           </View>
         </TouchableOpacity>
       </View>
