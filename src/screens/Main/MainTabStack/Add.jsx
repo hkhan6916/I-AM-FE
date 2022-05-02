@@ -200,8 +200,9 @@ const AddScreen = () => {
           console.log("Completed!");
         });
       })
-      .catch((err) => {
+      .catch(async (err) => {
         console.log("Upload error!", err);
+        await apiCall("GET", "/posts/fail/" + post?._id);
       });
   };
 
