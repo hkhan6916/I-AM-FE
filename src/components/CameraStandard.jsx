@@ -4,21 +4,19 @@ import {
   View,
   TouchableOpacity,
   Dimensions,
-  Linking,
-  Platform,
   BackHandler,
   StatusBar,
 } from "react-native";
 import { Camera } from "expo-camera";
 import { Ionicons, EvilIcons } from "@expo/vector-icons";
 import { useDispatch } from "react-redux";
-import { useNavigation } from "@react-navigation/native";
 import { manipulateAsync } from "expo-image-manipulator";
-import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
-import Constants from "expo-constants";
 import themeStyle from "../theme.style";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
 import * as ScreenOrientation from "expo-screen-orientation";
+import openAppSettings from "../helpers/openAppSettings";
+
+openAppSettings;
 const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 const CameraStandard = ({
   setCameraActive,
@@ -31,7 +29,6 @@ const CameraStandard = ({
   const cameraRef = useRef();
   const [type, setType] = useState(Camera.Constants.Type.back);
   const dispatch = useDispatch();
-  const navigation = useNavigation();
 
   const screenOrientation = useScreenOrientation(true);
 
@@ -58,20 +55,6 @@ const CameraStandard = ({
           marginTop: (screenHeight - screenWidth * 1.33) / 2,
           marginBottom: (screenHeight - screenWidth * 1.33) / 2,
         };
-
-  const packageName = Constants.manifest.releaseChannel
-    ? Constants.manifest.android.package
-    : "host.exp.exponent";
-
-  const openAppSettings = () => {
-    if (Platform.OS === "ios") {
-      Linking.openURL("app-settings:");
-    } else {
-      startActivityAsync(ActivityAction.APPLICATION_DETAILS_SETTINGS, {
-        data: `package:${packageName}`,
-      });
-    }
-  };
 
   useEffect(() => {
     (async () => {
@@ -116,12 +99,12 @@ const CameraStandard = ({
           flex: 1,
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: themeStyle.colors.primary.default,
+          backgroundColor: themeStyle.colors.grayscale.highest,
         }}
       >
         <View
           style={{
-            borderColor: themeStyle.colors.grayscale.lowest,
+            borderColor: themeStyle.colors.primary.default,
             borderWidth: 3,
             padding: 20,
             width: 150,
@@ -134,28 +117,28 @@ const CameraStandard = ({
           <EvilIcons
             name="camera"
             size={104}
-            color={themeStyle.colors.grayscale.lowest}
+            color={themeStyle.colors.primary.default}
           />
         </View>
         <Text
           style={{
             margin: 20,
             textAlign: "center",
-            color: themeStyle.colors.grayscale.lowest,
+            color: themeStyle.colors.primary.default,
           }}
         >
-          Well...? No worries, this should be easy. Please enable{" "}
+          Please grant{" "}
           {!hasCameraPermission && !hasMicrophonePermission
             ? "camera and microphone permissions"
             : !hasMicrophonePermission
-            ? "microphone permission"
+            ? "microphone permissions"
             : !hasCameraPermission
-            ? "camera permission"
+            ? "camera permissions"
             : null}{" "}
-          in device settings. That way you can post cool photos and videos!
+          in device settings. That way you can share cool photos and videos!
         </Text>
         <View style={{ display: "flex", flexDirection: "row" }}>
-          <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+          <TouchableOpacity onPress={() => setCameraActive(false)}>
             <View
               style={{
                 display: "flex",
@@ -165,7 +148,7 @@ const CameraStandard = ({
                 padding: 5,
                 borderRadius: 5,
                 borderWidth: 2,
-                borderColor: themeStyle.colors.grayscale.lowest,
+                borderColor: themeStyle.colors.primary.default,
               }}
             >
               <Text
@@ -173,9 +156,10 @@ const CameraStandard = ({
                   textAlign: "center",
                   color: themeStyle.colors.grayscale.lowest,
                   fontWeight: "700",
+                  width: 70,
                 }}
               >
-                Go to Home{" "}
+                Back{" "}
               </Text>
             </View>
           </TouchableOpacity>
@@ -189,17 +173,18 @@ const CameraStandard = ({
                 padding: 5,
                 borderRadius: 5,
                 borderWidth: 2,
-                borderColor: themeStyle.colors.grayscale.lowest,
+                backgroundColor: themeStyle.colors.secondary.default,
               }}
             >
               <Text
                 style={{
                   textAlign: "center",
-                  color: themeStyle.colors.grayscale.lowest,
+                  color: themeStyle.colors.white,
                   fontWeight: "700",
+                  width: 70,
                 }}
               >
-                Go to Settings{" "}
+                Settings{" "}
               </Text>
             </View>
           </TouchableOpacity>

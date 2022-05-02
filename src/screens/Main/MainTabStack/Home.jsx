@@ -392,7 +392,7 @@ const HomeScreen = () => {
             onEndReached={() => getUserFeed()}
             onEndReachedThreshold={0.5}
             initialNumToRender={10}
-            maxToRenderPerBatch={5}
+            maxToRenderPerBatch={20}
           />
           <PostOptionsModal
             showOptions={!!showPostOptions}

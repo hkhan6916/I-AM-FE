@@ -238,6 +238,7 @@ const PostCard = ({
                       resizeMode="cover"
                       mediaUrl={post.mediaUrl}
                       aspectRatio={1 / 1}
+                      hideSpinner
                     />
                   </View>
                 ) : null}

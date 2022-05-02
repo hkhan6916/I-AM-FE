@@ -12,6 +12,7 @@ import {
   Dimensions,
   Image,
   KeyboardAvoidingView,
+  Alert,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
@@ -35,6 +36,7 @@ import { getItemAsync } from "expo-secure-store";
 import { StatusBar } from "expo-status-bar";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import GifModal from "../../../components/GifModal";
+import openAppSettings from "../../../helpers/openAppSettings";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -247,7 +249,19 @@ const AddScreen = () => {
   const pickMedia = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      alert("Sorry, we need camera roll permissions to make this work.");
+      Alert.alert(
+        "Unable access camera roll",
+        "Please storage permissions to post media files.",
+        [
+          {
+            text: "Cancel",
+          },
+          {
+            text: "Settings",
+            onPress: () => openAppSettings(),
+          },
+        ]
+      );
     }
 
     if (status === "granted") {

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import ImageWithCache from "./ImageWithCache";
 import themeStyle from "../theme.style";
 import ExpoVideoPlayer from "./ExpoVideoPlayer";
@@ -15,9 +15,9 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
     thumbnailUrl,
     thumbnailHeaders,
     ready,
+    failed,
   } = message;
   const [mediaFullScreen, setMediaFullScreen] = useState(false);
-
   return (
     <View style={styles.container}>
       {mediaType === "video" ? ( // render video in fullcsreen, for image this is handled inside imagewithcache component.
@@ -34,6 +34,22 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
               backgroundColor: themeStyle.colors.grayscale.highest,
             }}
           >
+            <View
+              style={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+                zIndex: 10,
+              }}
+            >
+              <TouchableOpacity onPress={() => setMediaFullScreen(false)}>
+                <AntDesign
+                  name="closecircleo"
+                  size={24}
+                  color={themeStyle.colors.secondary.default}
+                />
+              </TouchableOpacity>
+            </View>
             <ExpoVideoPlayer uri={mediaUrl} />
           </View>
         </Modal>
@@ -58,7 +74,34 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
                 },
           ]}
         >
-          {!ready ? (
+          {failed && !ready ? (
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <TouchableOpacity onPress={() => cancelUpload(message?._id)}>
+                <Text
+                  style={{
+                    color: themeStyle.colors.error.default,
+                    fontWeight: "700",
+                  }}
+                >
+                  Delete
+                </Text>
+              </TouchableOpacity>
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontWeight: "700",
+                  textAlign: "right",
+                  color: themeStyle.colors.white,
+                  alignSelf: belongsToSender ? "flex-end" : "flex-start",
+                  padding: 5,
+                }}
+              >
+                Failed to send message.
+              </Text>
+            </View>
+          ) : !ready ? (
             <View
               style={{ flexDirection: "row", justifyContent: "space-between" }}
             >

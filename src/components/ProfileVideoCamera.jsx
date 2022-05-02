@@ -108,7 +108,7 @@ const ProfileVideoCamera = ({
           flex: 1,
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: themeStyle.colors.primary.default,
+          backgroundColor: themeStyle.colors.grayscale.lowest,
         }}
       >
         <View
@@ -136,18 +136,18 @@ const ProfileVideoCamera = ({
             color: themeStyle.colors.grayscale.lowest,
           }}
         >
-          Well...? No worries, this should be easy. Please enable{" "}
+          Please grant{" "}
           {!hasCameraPermission && !hasAudioPermission
             ? "camera and microphone permissions"
             : !hasAudioPermission
-            ? "microphone permission"
+            ? "microphone permissions"
             : !hasCameraPermission
-            ? "camera permission"
+            ? "camera permissions"
             : null}{" "}
-          in device settings. That way you can post cool photos and videos!
+          in device settings to create a profile video.
         </Text>
         <View style={{ display: "flex", flexDirection: "row" }}>
-          <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+          <TouchableOpacity onPress={() => setCameraActivated(false)}>
             <View
               style={{
                 display: "flex",
@@ -167,7 +167,7 @@ const ProfileVideoCamera = ({
                   fontWeight: "700",
                 }}
               >
-                Go to Home{" "}
+                Cancel{" "}
               </Text>
             </View>
           </TouchableOpacity>

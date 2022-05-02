@@ -12,6 +12,7 @@ import {
   Platform,
   Dimensions,
   ScrollView,
+  Alert,
 } from "react-native";
 import { getItemAsync } from "expo-secure-store";
 import { io } from "socket.io-client";
@@ -33,6 +34,7 @@ import {
   Image as ImageCompress,
 } from "react-native-compressor";
 import { getThumbnailAsync } from "expo-video-thumbnails";
+import openAppSettings from "../../../helpers/openAppSettings";
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
   const [socket, setSocket] = useState(null);
@@ -87,7 +89,6 @@ const ChatScreen = (props) => {
         "GET",
         `/chat/${chat._id}/messages/${messages.length}`
       );
-      console.log({ response: response[1] });
       if (success) {
         setMessages([...messages, ...response]);
         if (messages.length && response.length === 0) {
@@ -134,7 +135,7 @@ const ChatScreen = (props) => {
       : media?.uri;
     const options = {
       url: "http://192.168.5.101:5000/chat/message/upload",
-      path: url, // path to file
+      path: "lol", // path to file
       method: "POST",
       type: "multipart",
       maxRetries: 2, // set retry count (Android only). Default 2
@@ -154,27 +155,27 @@ const ChatScreen = (props) => {
 
     Upload.startUpload(options)
       .then((uploadId) => {
-        // console.log("Upload started");
+        console.log("Upload started");
         Upload.addListener("progress", uploadId, (data) => {
-          // console.log(`Progress: ${data.progress}%`);
-          // console.log(data);
+          console.log(`Progress: ${data.progress}%`);
+          console.log(data);
         });
         Upload.addListener("error", uploadId, async (data) => {
-          // console.log({ data });
-          // console.log(`Error: ${data.error}%`);
-          // await apiCall("GET", "/posts/fail/" + post?._id);
+          console.log({ data });
+          console.log(`Error: ${data.error}%`);
+          await apiCall("GET", `/chat/message/fail/${messageId}`);
         });
         Upload.addListener("cancelled", uploadId, async (data) => {
-          // console.log(`Cancelled!`);
-          // await apiCall("GET", "/posts/fail/" + post?._id);
+          await apiCall("GET", `/chat/message/fail/${messageId}`);
         });
         Upload.addListener("completed", uploadId, (data) => {
-          // console.log(data);
-          // console.log("Completed!");
+          console.log(data);
+          console.log("Completed!");
         });
       })
-      .catch((err) => {
+      .catch(async (err) => {
         console.log("Upload error!", err);
+        await apiCall("GET", `/chat/message/fail/${messageId}`);
       });
   };
 
@@ -261,7 +262,7 @@ const ChatScreen = (props) => {
               compressionMethod: "auto",
             },
             (progress) => {
-              // console.log({ compression: progress });
+              console.log({ compression: progress });
             }
           ).then(async (compressedUrl) => {
             await handleBackgroundUpload(
@@ -302,7 +303,7 @@ const ChatScreen = (props) => {
               compressionMethod: "auto",
             },
             (progress) => {
-              // console.log({ compression: progress });
+              console.log({ compression: progress });
             }
           ).then(async (compressedUrl) => {
             await handleBackgroundUpload(
@@ -389,7 +390,19 @@ const ChatScreen = (props) => {
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      alert("Sorry, we need camera roll permissions to make this work.");
+      Alert.alert(
+        "Unable access camera roll",
+        "Please storage permissions to post media files.",
+        [
+          {
+            text: "Cancel",
+          },
+          {
+            text: "Settings",
+            onPress: () => openAppSettings(),
+          },
+        ]
+      );
     }
 
     if (status === "granted") {

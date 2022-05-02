@@ -66,7 +66,7 @@ const Screens = () => {
         }),
       });
       if (finalStatus !== "granted") {
-        alert("Failed to get push token for push notification!");
+        console.log("Failed to get push token for push notification!");
         return;
       }
       token = (
@@ -80,7 +80,7 @@ const Screens = () => {
     if (Platform === "android") {
       Notifications.setNotificationChannelAsync("default", {
         name: "default",
-        importance: Notifications.AndroidImportance.MAX,
+        importance: Notifications.AndroidImportance.HIGH,
         vibrationPattern: [0, 250, 250, 250],
         lightColor: themeStyle.colors.primary.light,
       });
@@ -118,7 +118,6 @@ const Screens = () => {
       registerForPushNotificationsAsync().then(async (token) => {
         try {
           if (token) {
-            console.log(token);
             const { success } = await apiCall(
               "POST",
               "/user/notifications/token/update",
