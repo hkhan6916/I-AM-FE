@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useState } from "react";
 import {
   View,
   Text,
@@ -37,6 +37,7 @@ import { StatusBar } from "expo-status-bar";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import GifModal from "../../../components/GifModal";
 import openAppSettings from "../../../helpers/openAppSettings";
+import backgroundUpload from "../../../helpers/backgroundUpload";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -149,61 +150,21 @@ const AddScreen = () => {
   };
 
   const handleBackgroundUpload = async (compressedUrl, post) => {
-    const token = await getItemAsync("authToken");
-    const url = compressedUrl
+    const filePath = compressedUrl
       ? Platform.OS == "android"
         ? compressedUrl?.replace("file://", "/")
         : compressedUrl
       : Platform.OS == "android"
       ? file?.uri.replace("file://", "")
       : file?.uri;
-    const options = {
-      url: "http://192.168.5.101:5000/posts/new",
-      path: url, // path to file
-      method: "POST",
-      type: "multipart",
-      maxRetries: 2, // set retry count (Android only). Default 2
-      headers: {
-        "content-type": "multipart/form-data", // Customize content-type
-        Authorization: `Bearer ${token}`,
-      },
+    await backgroundUpload({
+      filePath,
+      apiRoute: "/posts/new",
+      failureRoute: `/posts/fail/${post?._id}`,
       parameters: {
         postId: post?._id,
       },
-      field: "file",
-      // Below are options only supported on Android
-      notification: {
-        enabled: false,
-      },
-      useUtf8Charset: true,
-      // customUploadId: post?._id,
-    };
-    // compress in background and .then (()=>startupload)
-    Upload.startUpload(options)
-      .then((uploadId) => {
-        console.log("Upload started");
-        Upload.addListener("progress", uploadId, (data) => {
-          console.log(`Progress: ${data.progress}%`);
-          console.log(data);
-        });
-        Upload.addListener("error", uploadId, async (data) => {
-          console.log({ data });
-          console.log(`Error: ${data.error}%`);
-          await apiCall("GET", "/posts/fail/" + post?._id);
-        });
-        Upload.addListener("cancelled", uploadId, async (data) => {
-          console.log(`Cancelled!`);
-          await apiCall("GET", "/posts/fail/" + post?._id);
-        });
-        Upload.addListener("completed", uploadId, (data) => {
-          console.log(data);
-          console.log("Completed!");
-        });
-      })
-      .catch(async (err) => {
-        console.log("Upload error!", err);
-        await apiCall("GET", "/posts/fail/" + post?._id);
-      });
+    });
   };
 
   const handleLargeFileUpload = async (post) => {
@@ -225,7 +186,7 @@ const AddScreen = () => {
         .then(async (compressedUrl) => {
           await handleBackgroundUpload(compressedUrl, post);
         })
-        .catch(() => console.log("flop"));
+        .catch((e) => console.log(e));
     }
   };
 

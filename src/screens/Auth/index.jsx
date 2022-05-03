@@ -7,7 +7,15 @@ import themeStyle from "../../theme.style";
 
 const Stack = createNativeStackNavigator();
 const AuthScreens = () => (
-  <Stack.Navigator>
+  <Stack.Navigator
+    screenOptions={{
+      headerStyle: {
+        elevation: 0,
+        backgroundColor: themeStyle.colors.grayscale.highest,
+      },
+      cardStyle: { backgroundColor: themeStyle.colors.grayscale.highest },
+    }}
+  >
     <Stack.Screen
       name="Login"
       options={{ headerShown: false }}

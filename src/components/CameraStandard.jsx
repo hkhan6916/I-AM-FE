@@ -15,6 +15,7 @@ import themeStyle from "../theme.style";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
 import * as ScreenOrientation from "expo-screen-orientation";
 import openAppSettings from "../helpers/openAppSettings";
+import secondsToHms from "../helpers/secondsToHoursAndMinutes";
 
 openAppSettings;
 const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
@@ -26,7 +27,9 @@ const CameraStandard = ({
 }) => {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [hasMicrophonePermission, setHasMicrophonePermission] = useState(null);
+  const [recordingLength, setRecordingLength] = useState(0);
   const cameraRef = useRef();
+  const maxLength = 3600;
   const [type, setType] = useState(Camera.Constants.Type.back);
   const dispatch = useDispatch();
 
@@ -89,6 +92,23 @@ const CameraStandard = ({
       BackHandler.removeEventListener("hardwareBackPress", deactivateCamera);
     };
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (isMounted) {
+      let length = recordingLength;
+      const interval = setInterval(() => {
+        if (recording && length < maxLength) {
+          length += 1;
+          setRecordingLength(length);
+        }
+      }, 1000);
+      return () => {
+        isMounted = false;
+        clearInterval(interval);
+      };
+    }
+  }, [recording]);
   if (hasCameraPermission === null || hasMicrophonePermission === null) {
     return <View />;
   }
@@ -229,6 +249,26 @@ const CameraStandard = ({
           </Text>
         </View>
       </TouchableOpacity>
+      {recordingLength ? (
+        <Text
+          style={{
+            color:
+              recordingLength < maxLength - 10
+                ? themeStyle.colors.white
+                : themeStyle.colors.error.default,
+            padding: 5,
+            backgroundColor: themeStyle.colors.grayscale.low,
+            position: "absolute",
+            top: 20,
+            right: 20,
+            borderRadius: 20,
+            width: 60,
+            textAlign: "center",
+          }}
+        >
+          {secondsToHms(recordingLength)}
+        </Text>
+      ) : null}
       <Camera style={cameraStyles} ratio="4:3" type={type} ref={cameraRef}>
         <View
           style={{
@@ -334,6 +374,7 @@ const CameraStandard = ({
                     // mirror: false,
                     mirror: true,
                   });
+
                   if (video) {
                     setFile({
                       type: "video/mp4",

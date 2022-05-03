@@ -140,7 +140,7 @@ const EditPostScreen = (props) => {
               color: themeStyle.colors.grayscale.lowest,
             }}
             value={postBody}
-            placeholder="What's on your mind?"
+            placeholder=""
             placeholderTextColor={themeStyle.colors.grayscale.lower}
             multiline
             maxLength={2000}

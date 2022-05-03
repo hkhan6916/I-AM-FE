@@ -35,6 +35,7 @@ import {
 } from "react-native-compressor";
 import { getThumbnailAsync } from "expo-video-thumbnails";
 import openAppSettings from "../../../helpers/openAppSettings";
+import backgroundUpload from "../../../helpers/backgroundUpload";
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
   const [socket, setSocket] = useState(null);
@@ -125,58 +126,20 @@ const ChatScreen = (props) => {
   };
 
   const handleBackgroundUpload = async (compressedUrl, body, messageId) => {
-    const token = await getItemAsync("authToken");
-    const url = compressedUrl
+    const filePath = compressedUrl
       ? Platform.OS == "android"
         ? compressedUrl?.replace("file://", "/")
         : compressedUrl
       : Platform.OS == "android"
       ? media?.uri.replace("file://", "")
       : media?.uri;
-    const options = {
-      url: "http://192.168.5.101:5000/chat/message/upload",
-      path: "lol", // path to file
-      method: "POST",
-      type: "multipart",
-      maxRetries: 2, // set retry count (Android only). Default 2
-      headers: {
-        "content-type": "multipart/form-data", // Customize content-type
-        Authorization: `Bearer ${token}`,
-      },
-      parameters: { ...body, _id: messageId },
-      field: "file",
-      // Below are options only supported on Android
-      notification: {
-        enabled: false,
-      },
-      useUtf8Charset: true,
-      // customUploadId: post?._id,
-    };
 
-    Upload.startUpload(options)
-      .then((uploadId) => {
-        console.log("Upload started");
-        Upload.addListener("progress", uploadId, (data) => {
-          console.log(`Progress: ${data.progress}%`);
-          console.log(data);
-        });
-        Upload.addListener("error", uploadId, async (data) => {
-          console.log({ data });
-          console.log(`Error: ${data.error}%`);
-          await apiCall("GET", `/chat/message/fail/${messageId}`);
-        });
-        Upload.addListener("cancelled", uploadId, async (data) => {
-          await apiCall("GET", `/chat/message/fail/${messageId}`);
-        });
-        Upload.addListener("completed", uploadId, (data) => {
-          console.log(data);
-          console.log("Completed!");
-        });
-      })
-      .catch(async (err) => {
-        console.log("Upload error!", err);
-        await apiCall("GET", `/chat/message/fail/${messageId}`);
-      });
+    await backgroundUpload({
+      filePath,
+      apiRoute: "/chat/message/upload",
+      failureRoute: `/chat/message/fail/${messageId}`,
+      parameters: { ...body, _id: messageId },
+    });
   };
 
   const handleMessage = async () => {
@@ -271,26 +234,28 @@ const ChatScreen = (props) => {
               response._id
             ).then(() => {
               const mediaType = media.type?.split("/")[0];
-              setMessages([
-                // update message with id once uploaded full media
-                {
-                  body: messageBody,
-                  chatId,
-                  senderId: authInfo?.senderId,
-                  user: "sender",
-                  mediaUrl: media.uri,
-                  thumbnailUrl,
-                  mediaHeaders: response.mediaHeaders,
-                  mediaType,
-                  stringTime: get12HourTime(new Date()),
-                  stringDate: getNameDate(new Date()),
-                  _id: response._id,
-                },
-                ...messages,
-              ]);
-              setMessageBody("");
-              setHeight(0);
-              setMedia({});
+              if (socket) {
+                setMessages([
+                  // update message with id once uploaded full media
+                  {
+                    body: messageBody,
+                    chatId,
+                    senderId: authInfo?.senderId,
+                    user: "sender",
+                    mediaUrl: media.uri,
+                    thumbnailUrl,
+                    mediaHeaders: response.mediaHeaders,
+                    mediaType,
+                    stringTime: get12HourTime(new Date()),
+                    stringDate: getNameDate(new Date()),
+                    _id: response._id,
+                  },
+                  ...messages,
+                ]);
+                setMessageBody("");
+                setHeight(0);
+                setMedia({});
+              }
             });
           });
           return;
@@ -312,25 +277,27 @@ const ChatScreen = (props) => {
               response._id
             ).then(() => {
               const mediaType = media.type?.split("/")[0];
-              setMessages([
-                {
-                  body: messageBody,
-                  chatId,
-                  senderId: authInfo?.senderId,
-                  user: "sender",
-                  mediaUrl: media.uri,
-                  thumbnailUrl,
-                  mediaHeaders: {}, // recieved as null if media is video
-                  mediaType,
-                  stringTime: get12HourTime(new Date()),
-                  stringDate: getNameDate(new Date()),
-                  _id: response._id,
-                },
-                ...messages,
-              ]);
-              setMessageBody("");
-              setHeight(0);
-              setMedia({});
+              if (socket) {
+                setMessages([
+                  {
+                    body: messageBody,
+                    chatId,
+                    senderId: authInfo?.senderId,
+                    user: "sender",
+                    mediaUrl: media.uri,
+                    thumbnailUrl,
+                    mediaHeaders: {}, // recieved as null if media is video
+                    mediaType,
+                    stringTime: get12HourTime(new Date()),
+                    stringDate: getNameDate(new Date()),
+                    _id: response._id,
+                  },
+                  ...messages,
+                ]);
+                setMessageBody("");
+                setHeight(0);
+                setMedia({});
+              }
             });
           });
           return;
@@ -466,6 +433,7 @@ const ChatScreen = (props) => {
     ),
     [messages, authInfo]
   );
+
   useEffect(() => {
     let isMounted = true;
     if (isMounted) {
@@ -620,6 +588,11 @@ const ChatScreen = (props) => {
       if (socket) {
         socket.disconnect();
         socket.off("receiveMessage");
+        socket.off("joinRoomSuccess");
+        socket.off("userJoinedRoom");
+        socket.off("userLeftRoom");
+        socket.off("receiveUserOnlineStatus");
+        setSocket(null);
       }
     };
   }, [socket, authInfo, chat]);

@@ -69,11 +69,7 @@ const Step1Screen = () => {
     Object.keys(payload).forEach((key) => {
       formData.append(key, payload[key]);
     });
-    const { success, message } = await apiCall(
-      "POST",
-      "/user/register",
-      formData
-    );
+    const { success } = await apiCall("POST", "/user/register", formData);
     // console.log(message);
     if (success) {
       dispatch({
@@ -152,6 +148,15 @@ const Step1Screen = () => {
           }}
         >
           Creating your account
+        </Text>
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: 12,
+            color: themeStyle.colors.grayscale.lowest,
+          }}
+        >
+          This usually takes less than 15 seconds...
         </Text>
         <View style={{ width: 200, height: 200 }}>
           <AnimatedLottieView

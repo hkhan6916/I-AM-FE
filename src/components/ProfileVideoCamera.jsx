@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { Camera } from "expo-camera";
 import { Ionicons, EvilIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import Constants from "expo-constants";
 import themeStyle from "../theme.style";
@@ -29,7 +28,6 @@ const ProfileVideoCamera = ({
   hasAudioPermission,
 }) => {
   const [cameraRef, setCameraRef] = useState(null);
-  const navigation = useNavigation();
 
   const packageName = Constants.manifest.releaseChannel
     ? Constants.manifest.android.package

@@ -19,7 +19,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.hkhan6916.I-Am-FE"
+      "bundleIdentifier": "com.magnetapp.magnet"
     },
     "android": {
       "adaptiveIcon": {
