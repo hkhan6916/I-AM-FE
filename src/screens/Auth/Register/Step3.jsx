@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Modal,
   SafeAreaView,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera";
@@ -22,6 +23,9 @@ import PreviewVideo from "../../../components/PreviewVideo";
 import { detectFacesAsync } from "expo-face-detector";
 import { getThumbnailAsync } from "expo-video-thumbnails";
 import AnimatedLottieView from "lottie-react-native";
+import backgroundUpload from "../../../helpers/backgroundUpload";
+import Upload from "react-native-background-upload";
+import { getItemAsync } from "expo-secure-store";
 
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
@@ -54,47 +58,77 @@ const Step1Screen = () => {
   };
 
   const sendUserData = async () => {
-    const payload = {
-      ...existingInfo.state,
-      notificationToken: await getExpoPushTokenAsync({
-        experienceId: "@hkhan6916/I-Am-FE",
-      }).data,
-      file: {
-        uri: profileVideo,
-        name: "profileVideo.mp4",
-        type: "video/mp4",
-      },
-    };
-    const formData = new FormData();
-    Object.keys(payload).forEach((key) => {
-      formData.append(key, payload[key]);
+    setLoading(true);
+    const filePath =
+      Platform.OS == "android"
+        ? profileVideo.replace("file://", "")
+        : profileVideo;
+    const { data: notificationToken } = await getExpoPushTokenAsync({
+      experienceId: "@hkhan6916/I-Am-FE",
     });
-    const { success } = await apiCall("POST", "/user/register", formData);
-    // console.log(message);
-    if (success) {
-      dispatch({
-        type: "SET_USER_DATA",
-        payload: {},
-      });
-      navigation.navigate("Login");
+    if (notificationToken) {
+      const token = await getItemAsync("authToken");
+
+      const options = {
+        url: `http://192.168.5.101:5000/user/register`,
+        path: filePath, // path to file
+        method: "POST",
+        type: "multipart",
+        maxRetries: 2, // set retry count (Android only). Default 2
+        headers: {
+          "content-type": "multipart/form-data", // Customize content-type
+          Authorization: `Bearer ${token}`,
+        },
+        parameters: {
+          ...existingInfo.state,
+          notificationToken,
+        },
+        field: "file",
+        // Below are options only supported on Android
+        notification: {
+          enabled: false,
+        },
+        useUtf8Charset: true,
+        // customUploadId: post?._id,
+      };
+      // compress in background and .then (()=>startupload)
+      Upload.startUpload(options)
+        .then((uploadId) => {
+          Upload.addListener("progress", uploadId, () => {});
+          Upload.addListener("error", uploadId, async () => {
+            setLoading(false);
+
+            setRegisterationError("An error occurred. Please try again.");
+          });
+          Upload.addListener("cancelled", uploadId, async () => {
+            setLoading(false);
+
+            setRegisterationError("An error occurred. Please try again.");
+          });
+          Upload.addListener("completed", uploadId, (data) => {
+            setLoading(false);
+
+            if (JSON.parse(data.responseBody)?.success) {
+              dispatch({
+                type: "SET_USER_DATA",
+                payload: {},
+              });
+              setTimeout(() => navigation.navigate("Login"), 500);
+            } else {
+              setRegisterationError("An error occurred. Please try again.");
+            }
+          });
+        })
+        .catch(async () => {
+          return;
+        });
     }
-    return success;
   };
 
   const registerUser = async () => {
     setRegisterationError("");
-    setLoading(true);
 
-    const success = await sendUserData();
-
-    if (!success) {
-      // re-attempt request
-      const reAttemptSuccess = await sendUserData();
-      if (!reAttemptSuccess) {
-        setRegisterationError("An error occurred. Please try again.");
-      }
-    }
-    setLoading(false);
+    await sendUserData();
   };
 
   const handleFaceDetection = async (profileVideoUrl) => {

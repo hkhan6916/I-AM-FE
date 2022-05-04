@@ -43,13 +43,18 @@ const Step1Screen = () => {
       <View
         style={{
           flexDirection: "row",
-          justifyContent: "space-between",
-          borderBottomWidth: 0.2,
-          borderBottomColor: themeStyle.colors.grayscale.higher,
           paddingBottom: 5,
+          height: 60,
+          paddingHorizontal: 10,
         }}
       >
-        <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            flex: 1,
+          }}
+        >
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Feather
@@ -60,31 +65,15 @@ const Step1Screen = () => {
               <Text
                 style={{
                   color: themeStyle.colors.primary.default,
-                  fontSize: 16,
+                  fontSize: 20,
+                  marginLeft: 30,
+                  fontWeight: "700",
                 }}
               >
-                Login
+                Back to login
               </Text>
             </View>
           </TouchableOpacity>
-        </View>
-        <View
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-            flex: 1,
-          }}
-        >
-          <Text
-            style={{
-              color: themeStyle.colors.primary.default,
-              fontSize: 18,
-              textAlign: "center",
-              fontWeight: "600",
-            }}
-          >
-            About you
-          </Text>
         </View>
         <View style={{ flex: 1 }} />
       </View>

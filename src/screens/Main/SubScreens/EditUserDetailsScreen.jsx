@@ -26,6 +26,8 @@ import InputNoBorder from "../../../components/InputNoBorder";
 import validateEmail from "../../../helpers/validateEmail";
 import validatePassword from "../../../helpers/validatePassword";
 import PasswordInputNoBorder from "../../../components/PasswordInputNoBorder";
+import { detectFacesAsync } from "expo-face-detector";
+import { getThumbnailAsync } from "expo-video-thumbnails";
 
 const { statusBarHeight } = Constants;
 const EditUserDetailsScreen = () => {
@@ -43,6 +45,7 @@ const EditUserDetailsScreen = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const [initialProfileData, setInitialProfileData] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+  const [detectingFaces, setDetectingFaces] = useState(false);
 
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [hasAudioPermission, setHasAudioPermission] = useState(null);
@@ -62,15 +65,31 @@ const EditUserDetailsScreen = () => {
 
   const navigation = useNavigation();
 
-  const handleFacesDetected = (obj) => {
-    try {
-      if (recording && obj.faces.length !== 0 && !faceDetected) {
-        setFaceDetected(true);
-      }
-    } catch (error) {
-      console.log(error);
+  const handleFaceDetection = async (profileVideoPath) => {
+    setDetectingFaces(true);
+
+    const { uri } = await getThumbnailAsync(profileVideoPath, {
+      time: 500,
+    }); // TODO detect face at end too
+    const { faces } = await detectFacesAsync(uri);
+    if (faces?.length) {
+      setFaceDetected(true);
+    } else {
+      setFaceDetected(false);
     }
+    setDetectingFaces(false);
+    setProfileVideo(profileVideoPath);
   };
+
+  // const handleFacesDetected = (obj) => {
+  //   try {
+  //     if (recording && obj.faces.length !== 0 && !faceDetected) {
+  //       setFaceDetected(true);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   const validateInfo = async () => {
     const emailValid = email ? await validateEmail(email) : true;
@@ -123,6 +142,7 @@ const EditUserDetailsScreen = () => {
         : null,
     };
     const formData = new FormData();
+    const validData = {};
     const validValues = Object.keys(payload).filter((key) => {
       if (payload[key] === initialProfileData[key]) {
         return false;
@@ -130,6 +150,7 @@ const EditUserDetailsScreen = () => {
       // check if value is not null. Don't want to send null data to BE
       if (payload[key] !== null) {
         formData.append(key, payload[key]);
+        validData[key] = payload[key];
         return true;
       }
     });
@@ -232,10 +253,9 @@ const EditUserDetailsScreen = () => {
     return (
       <ProfileVideoCamera
         setRecording={setRecording}
-        setProfileVideo={setProfileVideo}
+        setProfileVideo={handleFaceDetection}
         setCameraActivated={setCameraActivated}
         setRecordingLength={setRecordingLength}
-        handleFacesDetected={handleFacesDetected}
         recording={recording}
         recordingLength={recordingLength}
         hasCameraPermission={hasCameraPermission}
@@ -273,20 +293,37 @@ const EditUserDetailsScreen = () => {
             <View style={styles.formContainer}>
               {(profileVideo && faceDetected) ||
               (!profileVideo && initialProfileData.profileVideoUrl) ? (
-                <PreviewVideo
-                  isFullWidth
-                  uri={profileVideo || initialProfileData?.profileVideoUrl}
-                  headers={initialProfileData?.profileVideoHeaders}
-                />
+                <View>
+                  <PreviewVideo
+                    isFullWidth
+                    uri={profileVideo || initialProfileData?.profileVideoUrl}
+                    headers={initialProfileData?.profileVideoHeaders}
+                  />
+                  {!profileVideo ? (
+                    <TouchableOpacity
+                      style={{ marginVertical: 10 }}
+                      onPress={() => setProfileVideo("")}
+                    >
+                      <Text style={styles.resetProfileVideoText}>
+                        Reset Profile Video
+                      </Text>
+                    </TouchableOpacity>
+                  ) : null}
+                </View>
               ) : profileVideo ? (
                 <View>
                   <PreviewVideo isFullWidth uri={profileVideo} />
                   <View style={styles.faceDetectionError}>
-                    <Text style={styles.faceDetectionErrorText}>
-                      No face detected. Make sure your face is shown at the
-                      start and end of your profile video.
-                    </Text>
-                    <TouchableOpacity onPress={() => setProfileVideo("")}>
+                    {!detectingFaces ? (
+                      <Text style={styles.faceDetectionErrorText}>
+                        No face detected. Make sure your face is shown at the
+                        start and end of your profile video.
+                      </Text>
+                    ) : null}
+                    <TouchableOpacity
+                      style={{ marginVertical: 10 }}
+                      onPress={() => setProfileVideo("")}
+                    >
                       <Text style={styles.resetProfileVideoText}>
                         Reset Profile Video
                       </Text>
@@ -409,7 +446,6 @@ const EditUserDetailsScreen = () => {
                       let newValidationErrorsObj = validationErrors;
                       delete newValidationErrorsObj.password;
                       setValidationErrors(newValidationErrorsObj);
-                      console.log(newValidationErrorsObj);
                     }
                   }}
                 />
@@ -438,8 +474,9 @@ const EditUserDetailsScreen = () => {
           <View
             style={[
               styles.submitButtonContainer,
-              (profileVideo && !faceDetected) ||
-                (Object.keys(validationErrors).length && { opacity: 0.3 }),
+              ((profileVideo && !faceDetected) ||
+                Object.keys(validationErrors).length ||
+                detectingFaces) && { opacity: 0.3 },
             ]}
           >
             <TouchableOpacity
@@ -447,7 +484,8 @@ const EditUserDetailsScreen = () => {
               onPress={() => updateProfile()}
               disabled={
                 (profileVideo && !faceDetected) ||
-                Object.keys(validationErrors).length
+                Object.keys(validationErrors).length ||
+                detectingFaces
               }
             >
               {isUpdating ? (
@@ -505,7 +543,7 @@ const styles = StyleSheet.create({
   },
   resetProfileVideoText: {
     textAlign: "center",
-    color: themeStyle.colors.grayscale.lowest,
+    color: themeStyle.colors.secondary.default,
   },
   faceDetectionError: {
     marginVertical: 20,
