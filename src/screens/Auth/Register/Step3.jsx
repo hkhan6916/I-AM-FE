@@ -107,6 +107,7 @@ const Step1Screen = () => {
           });
           Upload.addListener("completed", uploadId, (data) => {
             setLoading(false);
+            console.log(data, existingInfo);
 
             if (JSON.parse(data.responseBody)?.success) {
               dispatch({

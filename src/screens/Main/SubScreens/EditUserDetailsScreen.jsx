@@ -28,6 +28,8 @@ import validatePassword from "../../../helpers/validatePassword";
 import PasswordInputNoBorder from "../../../components/PasswordInputNoBorder";
 import { detectFacesAsync } from "expo-face-detector";
 import { getThumbnailAsync } from "expo-video-thumbnails";
+import Upload from "react-native-background-upload";
+import { getExpoPushTokenAsync } from "expo-notifications";
 
 const { statusBarHeight } = Constants;
 const EditUserDetailsScreen = () => {
@@ -35,6 +37,7 @@ const EditUserDetailsScreen = () => {
   const [loading, setLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [userId, setUserId] = useState("");
+  const [unFocussed, setUnFocussed] = useState(false);
 
   const [email, setEmail] = useState(null);
   const [username, setUsername] = useState(null);
@@ -133,15 +136,7 @@ const EditUserDetailsScreen = () => {
       password,
       username,
       jobTitle,
-      file: profileVideo
-        ? {
-            uri: profileVideo,
-            name: "profileVideo.mp4",
-            type: "video/mp4",
-          }
-        : null,
     };
-    const formData = new FormData();
     const validData = {};
     const validValues = Object.keys(payload).filter((key) => {
       if (payload[key] === initialProfileData[key]) {
@@ -149,17 +144,16 @@ const EditUserDetailsScreen = () => {
       }
       // check if value is not null. Don't want to send null data to BE
       if (payload[key] !== null) {
-        formData.append(key, payload[key]);
         validData[key] = payload[key];
         return true;
       }
     });
-    if (validValues.length) {
+    if (validValues.length || (profileVideo && faceDetected)) {
       setIsUpdating(true);
       const { success, other, response } = await apiCall(
         "POST",
         "/user/update/details",
-        formData
+        validData
       );
       setIsUpdating(false);
 
@@ -181,6 +175,98 @@ const EditUserDetailsScreen = () => {
           );
         }
       }
+
+      const filePath =
+        Platform.OS == "android"
+          ? profileVideo.replace("file://", "")
+          : profileVideo;
+
+      const token = await getItemAsync("authToken");
+
+      const options = {
+        url: `http://192.168.5.101:5000/user/update/details`,
+        path: filePath, // path to file
+        method: "POST",
+        type: "multipart",
+        maxRetries: 2, // set retry count (Android only). Default 2
+        headers: {
+          "content-type": "multipart/form-data", // Customize content-type
+          Authorization: `Bearer ${token}`,
+        },
+        parameters: validData,
+        field: "file",
+        // Below are options only supported on Android
+        notification: {
+          enabled: false,
+        },
+        useUtf8Charset: true,
+        // customUploadId: post?._id,
+      };
+      // compress in background and .then (()=>startupload)
+      Upload.startUpload(options)
+        .then((uploadId) => {
+          Upload.addListener("progress", uploadId, () => {});
+          Upload.addListener("error", uploadId, async (data) => {
+            if (!unFocussed) {
+              setIsUpdating(false);
+              const other = JSON.parse(data.responseBody)?.other;
+
+              if (other?.validationErrors) {
+                setValidationErrors(other.validationErrors);
+              } else {
+                setupdateError(
+                  "Sorry, we couldn't update your details. Please check your connection and try again."
+                );
+              }
+            }
+          });
+          Upload.addListener("cancelled", uploadId, async (data) => {
+            if (!unFocussed) {
+              setIsUpdating(false);
+              const other = JSON.parse(data.responseBody)?.other;
+
+              if (other?.validationErrors) {
+                setValidationErrors(other.validationErrors);
+              } else {
+                setupdateError(
+                  "Sorry, we couldn't update your details. Please check your connection and try again."
+                );
+              }
+            }
+          });
+          Upload.addListener("completed", uploadId, (data) => {
+            console.log(data);
+            const success = JSON.parse(data.responseBody)?.success;
+            const other = JSON.parse(data.responseBody)?.other;
+            const response = JSON.parse(data.responseBody);
+            const message = JSON.parse(data.responseBody)?.message;
+            if (!unFocussed) {
+              setIsUpdating(false);
+
+              if (success && response) {
+                setShowUpdatedPill(true);
+
+                setTimeout(() => {
+                  setShowUpdatedPill(false);
+                }, 3000);
+
+                setInitialProfileData(response);
+              }
+              if (!success) {
+                if (other?.validationErrors) {
+                  setValidationErrors(other.validationErrors);
+                } else {
+                  setupdateError(
+                    "Sorry, we couldn't update your details. Please check your connection and try again."
+                  );
+                }
+              }
+            }
+          });
+        })
+        .catch(async () => {
+          return;
+        });
     }
   };
 
@@ -238,6 +324,7 @@ const EditUserDetailsScreen = () => {
     return () => {
       setHasCameraPermission(false);
       setHasAudioPermission(false);
+      setUnFocussed(true);
     };
   }, []);
 
@@ -336,12 +423,14 @@ const EditUserDetailsScreen = () => {
                 onPress={() => {
                   setFaceDetected(false);
                   setCameraActivated(true);
+                  setRecordingLength(recordingLength);
                 }}
               >
                 <Text style={styles.takeVideoButtonText}>
                   <Ionicons name="videocam" size={14} /> Retake profile video
                 </Text>
               </TouchableOpacity>
+              {console.log(initialProfileData)}
               <InputNoBorder
                 label="Job title"
                 value={
@@ -351,10 +440,9 @@ const EditUserDetailsScreen = () => {
                 onChangeText={(v) => {
                   setJobTitle(v);
                   if (validationErrors.jobTitle) {
-                    setValidationErrors({
-                      ...validationErrors,
-                      jobTitle: null,
-                    });
+                    const updatedValidationErrors = validationErrors;
+                    delete updatedValidationErrors.jobTitle;
+                    setValidationErrors(updatedValidationErrors);
                   }
                 }}
                 error={validationErrors?.jobTitle}
@@ -369,10 +457,9 @@ const EditUserDetailsScreen = () => {
                 onChangeText={(v) => {
                   setFirstName(v);
                   if (validationErrors.firstName) {
-                    setValidationErrors({
-                      ...validationErrors,
-                      firstName: null,
-                    });
+                    const updatedValidationErrors = validationErrors;
+                    delete updatedValidationErrors.firstName;
+                    setValidationErrors(updatedValidationErrors);
                   }
                 }}
               />
@@ -386,10 +473,9 @@ const EditUserDetailsScreen = () => {
                 onChangeText={(v) => {
                   setLastName(v);
                   if (validationErrors.lastName) {
-                    setValidationErrors({
-                      ...validationErrors,
-                      lastName: null,
-                    });
+                    const updatedValidationErrors = validationErrors;
+                    delete updatedValidationErrors.lastName;
+                    setValidationErrors(updatedValidationErrors);
                   }
                 }}
               />
@@ -407,10 +493,9 @@ const EditUserDetailsScreen = () => {
                 onChangeText={(v) => {
                   setUsername(v);
                   if (validationErrors.username) {
-                    setValidationErrors({
-                      ...validationErrors,
-                      username: null,
-                    });
+                    const updatedValidationErrors = validationErrors;
+                    delete updatedValidationErrors.username;
+                    setValidationErrors(updatedValidationErrors);
                   }
                 }}
                 onEndEditing={(e) =>
@@ -429,7 +514,9 @@ const EditUserDetailsScreen = () => {
                 onChangeText={(v) => {
                   setEmail(v);
                   if (validationErrors.email) {
-                    setValidationErrors({ ...validationErrors, email: null });
+                    const updatedValidationErrors = validationErrors;
+                    delete updatedValidationErrors.email;
+                    setValidationErrors(updatedValidationErrors);
                   }
                 }}
                 onEndEditing={(e) =>
@@ -488,7 +575,11 @@ const EditUserDetailsScreen = () => {
                 detectingFaces
               }
             >
-              {isUpdating ? (
+              {isUpdating && profileVideo ? (
+                <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                  Updating...
+                </Text>
+              ) : isUpdating ? (
                 <ActivityIndicator
                   size="large"
                   color={themeStyle.colors.primary.default}
