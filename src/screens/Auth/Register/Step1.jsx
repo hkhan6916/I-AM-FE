@@ -6,19 +6,26 @@ import {
   ScrollView,
   StyleSheet,
   SafeAreaView,
+  FlatList,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../../../theme.style";
 import Input from "../../../components/Input";
 import { useSelector, useDispatch } from "react-redux";
 import { Entypo, Feather } from "@expo/vector-icons";
+import apiCall from "../../../helpers/apiCall";
 
 const Step1Screen = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
-
+  const [jobTitleOptions, setJobTitleOptions] = useState([]);
   const [validationErrors, setValidationErrors] = useState({});
+  const [typingStatus, setTypingStatus] = useState({
+    name: "",
+    typing: false,
+    typingTimeout: 0,
+  });
 
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -36,6 +43,28 @@ const Step1Screen = () => {
       payload: { ...existingInfo.state, firstName, lastName, jobTitle },
     });
     navigation.navigate("Step2");
+  };
+
+  const getJobTitles = async (query) => {
+    if (typingStatus.typingTimeout) {
+      clearTimeout(typingStatus.typingTimeout);
+    }
+    setTypingStatus({
+      name: query,
+      typing: false,
+      typingTimeout: setTimeout(async () => {
+        const { response } = await apiCall("GET", `/jobs/search/${query}`);
+        if (response?.length) {
+          response.map((jobTitle) => {
+            jobTitle.title = jobTitle?.title.replace(
+              /(^\w{1})|(\s+\w{1})/g,
+              (letter) => letter.toUpperCase()
+            );
+          });
+          setJobTitleOptions(response.length <= 5 ? response : []);
+        }
+      }, 200),
+    });
   };
 
   return (
@@ -77,8 +106,11 @@ const Step1Screen = () => {
         </View>
         <View style={{ flex: 1 }} />
       </View>
-      <View>
-        <ScrollView style={{ marginBottom: 48 }}>
+      <View style={{ height: "100%" }}>
+        <ScrollView
+          style={{ marginBottom: 48 }}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.formContainer}>
             <Text style={styles.titleText}>A bit about you</Text>
             <Input
@@ -113,14 +145,64 @@ const Step1Screen = () => {
                 }
               }}
             />
+            {jobTitleOptions?.length ? (
+              <ScrollView
+                style={{
+                  // alignSelf: "flex-start",
+                  position: "absolute",
+                  bottom: 185,
+                  zIndex: 111,
+                  // left: 20,
+                  backgroundColor: themeStyle.colors.grayscale.higher,
+                  paddingHorizontal: 10,
+                  width: "100%",
+                }}
+                keyboardShouldPersistTaps="handled"
+              >
+                <View>
+                  {jobTitleOptions.map((item, i) => (
+                    <TouchableOpacity
+                      style={{
+                        // marginVertical: 10,
+                        height: 48,
+                        justifyContent: "center",
+                        borderTopColor: themeStyle.colors.grayscale.highest,
+                        borderTopWidth: i > 0 ? 1 : 0,
+                        zIndex: 999,
+                      }}
+                      key={`${item._id}-${i}`}
+                      onPress={() => {
+                        setJobTitle(item.title);
+                        setJobTitleOptions([]);
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: themeStyle.colors.grayscale.lowest,
+                        }}
+                      >
+                        {item.title}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
+            ) : null}
             <Input
               isOutlined
               error={validationErrors?.jobTitle}
               label="Job Title/Education"
               value={jobTitle}
               setValue={setJobTitle}
+              onBlur={() => setJobTitleOptions([])}
+              onEndEditing={() => setJobTitleOptions([])}
+              onClear={() => setJobTitleOptions([])}
               onChangeText={(v) => {
+                if (!v) {
+                  setJobTitleOptions([]);
+                }
                 setJobTitle(v);
+                getJobTitles(v);
                 if (validationErrors.jobTitle) {
                   setValidationErrors({
                     ...validationErrors,
