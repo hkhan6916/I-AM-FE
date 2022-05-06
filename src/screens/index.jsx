@@ -18,6 +18,8 @@ import registerNotifications from "../helpers/registerNotifications";
 import { hideAsync, preventAutoHideAsync } from "expo-splash-screen";
 import { useColorScheme } from "react-native";
 import { LogBox } from "react-native";
+import { deleteUserSearchHistoryTable } from "../helpers/sqlite/userSearchHistory";
+import { openDatabase } from "expo-sqlite";
 
 const Screens = () => {
   LogBox.ignoreLogs(["NativeEventEmitter", "fontFamily"]); // Ignore log notification by message
@@ -99,6 +101,8 @@ const Screens = () => {
       // if loaded, but not authenticated. This is used for logging out a user.
       if (loaded && !loginAttemptStatus.state) {
         setLoggedIn(false);
+        const db = openDatabase("localdb");
+        await deleteUserSearchHistoryTable(db);
       }
     })();
   }, [loginAttemptStatus]);

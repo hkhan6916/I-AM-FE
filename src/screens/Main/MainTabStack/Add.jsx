@@ -81,35 +81,30 @@ const AddScreen = () => {
         });
       } else {
         const mediaInfo = await getInfoAsync(uri);
-        const mediaSizeInMb = mediaInfo?.size / 1000000;
-        if (mediaSizeInMb >= 14) {
-          // if image size is more than or equal to 14mb then compress it
-          const format = uri.split(".").pop();
-          const compressedUri = await ImageCompress.compress(
-            uri,
-            {
-              compressionMethod: "auto",
-            },
-            (progress) => {
-              console.log({ compression: progress });
-            }
-          );
-          postData.append("file", {
-            type: type.split("/").length > 1 ? type : `${type}/${format}`,
-            name: name || `media.${format}`,
-            compressedUri,
-          });
-          postData.append("mediaIsSelfie", isSelfie || false);
-        } else {
-          // otherwise we just send the image without compression
-          const format = uri.split(".").pop();
-          postData.append("file", {
-            type: type.split("/").length > 1 ? type : `${type}/${format}`,
-            name: name || `media.${format}`,
-            uri,
-          });
-          postData.append("mediaIsSelfie", isSelfie || false);
+        const mediaSizeInMb = mediaInfo?.size / 100000;
+
+        const format = uri.split(".").pop();
+        const compressedUri = await ImageCompress.compress(
+          uri,
+          {
+            compressionMethod: "auto",
+          },
+          (progress) => {
+            console.log({ compression: progress });
+          }
+        );
+        const compressedInfo = await getInfoAsync(compressedUri);
+        console.log({ mediaInfo, compressedInfo });
+        if (mediaSizeInMb >= 100) {
+          return null;
         }
+
+        postData.append("file", {
+          type: type.split("/").length > 1 ? type : `${type}/${format}`,
+          name: name || `media.${format}`,
+          uri: compressedUri,
+        });
+        postData.append("mediaIsSelfie", isSelfie || false);
       }
     }
 
@@ -120,6 +115,7 @@ const AddScreen = () => {
     try {
       const { uri } = await getThumbnailAsync(file.uri, {
         time: 0,
+        quality: 0.5,
       });
       return uri;
     } catch (e) {
@@ -130,12 +126,8 @@ const AddScreen = () => {
   const handlePostCreation = async () => {
     setLoading(true);
     const postData = await createPostData();
-    const { success, response, message } = await apiCall(
-      "POST",
-      "/posts/new",
-      postData
-    );
-    console.log(message);
+    if (!postData) return null;
+    const { success, response } = await apiCall("POST", "/posts/new", postData);
     setLoading(false);
     if (success) {
       setGif("");

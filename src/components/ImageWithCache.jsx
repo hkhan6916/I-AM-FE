@@ -81,7 +81,7 @@ const ImageWithCache = ({
           backgroundColor: themeStyle.colors.grayscale.higher,
         }}
       >
-        {!ready && !hideSpinner ? (
+        {/* {!ready && !hideSpinner ? (
           <View
             style={{
               position: "absolute",
@@ -98,8 +98,9 @@ const ImageWithCache = ({
               color={themeStyle.colors.primary.default}
             />
           </View>
-        ) : null}
+        ) : null} */}
         <FastImage
+          fallback
           onLoad={() => {
             if (onLoad) {
               onLoad();

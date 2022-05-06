@@ -380,6 +380,7 @@ const ChatScreen = (props) => {
       if (!result.cancelled) {
         const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
+        setShowActions(false);
         if (mediaSizeInMb > 50) {
           setShowMediaSizeError(true);
         } else {

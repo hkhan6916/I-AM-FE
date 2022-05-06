@@ -94,6 +94,10 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
             source={{
               uri,
             }}
+            // onError={() => {
+            //   profileVideoRef?.current?.playAsync(uri);
+            //   console.log("error");
+            // }}
             isLooping
             resizeMode="cover"
           />

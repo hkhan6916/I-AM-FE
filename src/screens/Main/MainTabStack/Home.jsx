@@ -153,7 +153,7 @@ const HomeScreen = () => {
         }
       } else if (feed.length) {
         setFeedError(
-          "Sorry... I could not any load posts, please try again later."
+          "Sorry... Magnet could not any load posts, please try again later."
         );
         setAllPostsLoaded(true);
       }
@@ -225,33 +225,6 @@ const HomeScreen = () => {
           onPress={() => navigation.navigate("ChatListScreen")}
         >
           <View style={{ flexDirection: "row" }}>
-            {/* {userData?.unreadChatsCount ? (
-              <View
-                style={{
-                  backgroundColor: themeStyle.colors.primary.default,
-                  borderRadius: 100,
-                  minWidth: 20,
-                  height: 20,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginRight: -5,
-                  zIndex: 10,
-                  paddingHorizontal: 5,
-                }}
-              >
-                <Text
-                  style={{
-                    color: themeStyle.colors.white,
-                    textAlign: "center",
-                    fontSize: 12,
-                    maxWidth: 50,
-                  }}
-                  numberOfLines={1}
-                >
-                  3333333333333333333
-                </Text>
-              </View>
-            ) : null} */}
             <Ionicons
               name="paper-plane-outline"
               size={24}
