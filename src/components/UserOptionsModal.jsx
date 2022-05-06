@@ -16,6 +16,8 @@ const UserOptionsModal = ({
   reportUser,
   error,
   onHide,
+  user,
+  removeConnection,
 }) => {
   const [showReportOptions, setShowReportOptions] = useState(false);
 
@@ -51,8 +53,10 @@ const UserOptionsModal = ({
             <View
               style={{
                 width: "100%",
-                padding: 20,
+                paddingVertical: 10,
                 backgroundColor: themeStyle.colors.grayscale.higher,
+                borderTopColor: "white",
+                borderTopWidth: 1,
               }}
             >
               {error ? (
@@ -69,16 +73,58 @@ const UserOptionsModal = ({
               ) : null}
               {!showReportOptions ? (
                 <View style={{ alignItems: "center" }}>
-                  <TouchableOpacity onPress={() => setShowReportOptions(true)}>
-                    <Text
+                  {user.isFriend ? (
+                    <TouchableOpacity
+                      onPress={() => removeConnection()}
+                      style={{ width: "100%" }}
+                    >
+                      <View
+                        style={{
+                          padding: 10,
+                          borderRadius: 5,
+                          width: "100%",
+                          height: 60,
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: themeStyle.colors.error.default,
+                            textAlign: "center",
+                          }}
+                        >
+                          Remove Contact
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ) : null}
+                  <TouchableOpacity
+                    onPress={() => setShowReportOptions(true)}
+                    style={{ width: "100%" }}
+                  >
+                    <View
                       style={{
-                        color: themeStyle.colors.grayscale.lowest,
-                        textAlign: "center",
-                        marginBottom: 20,
+                        padding: 10,
+                        borderRadius: 5,
+                        width: "100%",
+                        height: 60,
+                        borderTopWidth: user.isFriend ? 1 : 0,
+                        borderColor: themeStyle.colors.grayscale.lowest,
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
-                      Report
-                    </Text>
+                      <Text
+                        style={{
+                          fontWeight: "700",
+                          color: themeStyle.colors.grayscale.lowest,
+                          textAlign: "center",
+                        }}
+                      >
+                        Report User
+                      </Text>
+                    </View>
                   </TouchableOpacity>
                 </View>
               ) : (

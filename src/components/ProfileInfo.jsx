@@ -73,6 +73,8 @@ const ProfileInfo = ({
         }}
         error={reportError}
         onHide={() => setReportError("")}
+        user={user}
+        removeConnection={removeConnection}
       />
       <PreviewVideo
         uri={user.profileVideoUrl}
@@ -150,33 +152,20 @@ const ProfileInfo = ({
           </TouchableOpacity>
         </View>
       ) : null}
-      {!user.isSameUser ? (
+      {!user.isSameUser && !user.isFriend ? (
         <View>
-          {user.isFriend ? (
-            <TouchableOpacity onPress={() => removeConnection()}>
-              <View
+          {user.requestReceived ? (
+            <View style={{ flexDirection: "column", paddingHorizontal: 20 }}>
+              <Text
                 style={{
-                  borderColor: themeStyle.colors.primary.default,
-                  borderWidth: 1,
-                  padding: 10,
-                  borderRadius: 5,
+                  color: themeStyle.colors.grayscale.lowest,
+                  fontWeight: "700",
                 }}
               >
-                <Text
-                  style={{
-                    fontWeight: "700",
-                    color: themeStyle.colors.grayscale.lowest,
-                    textAlign: "center",
-                  }}
-                >
-                  Remove Contact
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ) : user.requestReceived ? (
-            <View style={{ flexDirection: "column" }}>
+                I would like to add you as a contact
+              </Text>
               <TouchableOpacity
-                style={{ margin: 10 }}
+                style={{ marginVertical: 10 }}
                 onPress={() => acceptFriendRequest()}
               >
                 <View
@@ -187,7 +176,6 @@ const ProfileInfo = ({
                     borderRadius: 5,
                     alignItems: "center",
                     justifyContent: "center",
-                    marginHorizontal: 10,
                     flexDirection: "row",
                   }}
                 >
@@ -209,7 +197,7 @@ const ProfileInfo = ({
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
-                style={{ margin: 10 }}
+                style={{ marginVertical: 10 }}
                 onPress={() => rejectFriendRequest()}
               >
                 <View
@@ -220,7 +208,6 @@ const ProfileInfo = ({
                     borderRadius: 5,
                     alignItems: "center",
                     justifyContent: "center",
-                    marginHorizontal: 10,
                     flexDirection: "row",
                   }}
                 >
@@ -285,7 +272,8 @@ const ProfileInfo = ({
             </TouchableOpacity>
           )}
         </View>
-      ) : (
+      ) : null}
+      {user.isSameUser ? (
         <Text
           style={{
             color: themeStyle.colors.grayscale.lowest,
@@ -294,7 +282,7 @@ const ProfileInfo = ({
         >
           Viewing your public profile.
         </Text>
-      )}
+      ) : null}
       <View style={{ padding: 5, marginTop: 10 }}>
         <View
           style={{
