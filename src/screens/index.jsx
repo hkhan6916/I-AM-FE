@@ -101,6 +101,7 @@ const Screens = () => {
       // if loaded, but not authenticated. This is used for logging out a user.
       if (loaded && !loginAttemptStatus.state) {
         setLoggedIn(false);
+        await apiCall("GET", "/user/notifications/token/delete");
         const db = openDatabase("localdb");
         await deleteUserSearchHistoryTable(db);
       }

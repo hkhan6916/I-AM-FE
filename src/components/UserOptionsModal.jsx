@@ -15,6 +15,7 @@ const UserOptionsModal = ({
   setShowUserOptions,
   reportUser,
   error,
+  onHide,
 }) => {
   const [showReportOptions, setShowReportOptions] = useState(false);
 
@@ -36,6 +37,7 @@ const UserOptionsModal = ({
           onPress={() => {
             setShowUserOptions(null);
             setShowReportOptions(false);
+            if (onHide) onHide();
           }}
         >
           <View

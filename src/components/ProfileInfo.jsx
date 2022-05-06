@@ -47,12 +47,13 @@ const ProfileInfo = ({
     }
   };
   const reportUser = async (reason) => {
-    const { response, success } = await apiCall("POST", "/user/report", {
+    const { success } = await apiCall("POST", "/user/report", {
       reason,
       userToReport: user._id,
     });
-    console.log(response, success);
-    if (!success) {
+    if (success) {
+      setShowUserOptions(false);
+    } else {
       setReportError(
         "There was an issue reporting this user. Please try again later."
       );
@@ -66,72 +67,235 @@ const ProfileInfo = ({
       <UserOptionsModal
         reportUser={reportUser}
         showOptions={showUserOptions}
-        setShowUserOptions={setShowUserOptions}
+        setShowUserOptions={(value) => {
+          setShowUserOptions(value);
+          setReportError("");
+        }}
         error={reportError}
+        onHide={() => setReportError("")}
       />
       <PreviewVideo
         uri={user.profileVideoUrl}
         isFullWidth
         previewText={"Tap to play"}
       />
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          marginTop: 10,
-          marginBottom: 20,
-        }}
-      >
-        {!user.private || user.isFriend ? (
-          <TouchableOpacity
-            style={{
-              borderWidth: 1,
-              backgroundColor: themeStyle.colors.secondary.default,
-              padding: 10,
-              borderRadius: 10,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              flex: 1,
-            }}
-            onPress={() => handleChatNavigation()}
-          >
-            <Ionicons
-              name="paper-plane-outline"
-              size={16}
-              color={themeStyle.colors.grayscale.lowest}
-            />
-            <Text
-              style={{
-                color: themeStyle.colors.white,
-                textAlign: "center",
-              }}
-            >
-              {" "}
-              Message
-            </Text>
-          </TouchableOpacity>
-        ) : null}
-        <TouchableOpacity
-          onPress={() => setShowUserOptions(true)}
+      {!user.isSameUser ? (
+        <View
           style={{
-            height: 40,
-            width: 40,
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: themeStyle.colors.secondary.default,
-            borderRadius: 100,
-            marginLeft: 5,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginTop: 10,
+            marginBottom: 20,
           }}
         >
-          <Entypo
-            name="dots-three-vertical"
-            size={16}
-            color={themeStyle.colors.grayscale.lowest}
-          />
-        </TouchableOpacity>
-      </View>
-      <View style={{ padding: 5 }}>
+          <TouchableOpacity
+            disabled={user.private && !user.isFriend}
+            onPress={() => handleChatNavigation()}
+            style={{ flex: 1 }}
+          >
+            <View
+              style={{
+                borderColor: themeStyle.colors.grayscale.lowest,
+                borderWidth: 1,
+                padding: 10,
+                borderRadius: 20,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                opacity: user.private && !user.isFriend ? 0.5 : 1,
+                width: "100%",
+              }}
+            >
+              {user.private && !user.isFriend ? (
+                <AntDesign
+                  name="lock"
+                  size={16}
+                  color={themeStyle.colors.grayscale.lowest}
+                />
+              ) : (
+                <Ionicons
+                  name="paper-plane-outline"
+                  size={16}
+                  color={themeStyle.colors.grayscale.lowest}
+                />
+              )}
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.lowest,
+                  textAlign: "center",
+                }}
+              >
+                {" "}
+                Message
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setShowUserOptions(true)}
+            style={{
+              height: 40,
+              width: 40,
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: themeStyle.colors.grayscale.lowest,
+              borderRadius: 100,
+              marginLeft: 5,
+            }}
+          >
+            <Entypo
+              name="dots-three-vertical"
+              size={16}
+              color={themeStyle.colors.grayscale.highest}
+            />
+          </TouchableOpacity>
+        </View>
+      ) : null}
+      {!user.isSameUser ? (
+        <View>
+          {user.isFriend ? (
+            <TouchableOpacity onPress={() => removeConnection()}>
+              <View
+                style={{
+                  borderColor: themeStyle.colors.primary.default,
+                  borderWidth: 1,
+                  padding: 10,
+                  borderRadius: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    fontWeight: "700",
+                    color: themeStyle.colors.grayscale.lowest,
+                    textAlign: "center",
+                  }}
+                >
+                  Remove Contact
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ) : user.requestReceived ? (
+            <View style={{ flexDirection: "column" }}>
+              <TouchableOpacity
+                style={{ margin: 10 }}
+                onPress={() => acceptFriendRequest()}
+              >
+                <View
+                  style={{
+                    borderColor: themeStyle.colors.success.default,
+                    borderWidth: 1,
+                    padding: 10,
+                    borderRadius: 5,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginHorizontal: 10,
+                    flexDirection: "row",
+                  }}
+                >
+                  <AntDesign
+                    name="check"
+                    size={20}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                  <Text
+                    style={{
+                      fontWeight: "700",
+                      color: themeStyle.colors.grayscale.lowest,
+                      textAlign: "center",
+                    }}
+                  >
+                    {" "}
+                    Accept
+                  </Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ margin: 10 }}
+                onPress={() => rejectFriendRequest()}
+              >
+                <View
+                  style={{
+                    borderColor: themeStyle.colors.grayscale.lowest,
+                    borderWidth: 1,
+                    padding: 10,
+                    borderRadius: 5,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginHorizontal: 10,
+                    flexDirection: "row",
+                  }}
+                >
+                  <AntDesign
+                    name="close"
+                    size={20}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                  <Text
+                    style={{
+                      fontWeight: "700",
+                      color: themeStyle.colors.grayscale.lowest,
+                    }}
+                  >
+                    {" "}
+                    Delete
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          ) : user.requestSent ? (
+            <TouchableOpacity onPress={() => recallFriendRequest()}>
+              <View
+                style={{
+                  borderColor: themeStyle.colors.primary.default,
+                  borderWidth: 1,
+                  padding: 10,
+                  borderRadius: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    fontWeight: "700",
+                    textAlign: "center",
+                    color: themeStyle.colors.grayscale.lowest,
+                  }}
+                >
+                  Request sent
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={() => sendFriendRequest()}>
+              <View
+                style={{
+                  borderColor: themeStyle.colors.primary.default,
+                  borderWidth: 1,
+                  padding: 10,
+                  borderRadius: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    fontWeight: "700",
+                    color: themeStyle.colors.grayscale.lowest,
+                    textAlign: "center",
+                  }}
+                >
+                  Add User
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        </View>
+      ) : (
+        <Text
+          style={{
+            color: themeStyle.colors.grayscale.lowest,
+            textAlign: "center",
+          }}
+        >
+          Viewing your public profile.
+        </Text>
+      )}
+      <View style={{ padding: 5, marginTop: 10 }}>
         <View
           style={{
             flexDirection: "row",
@@ -155,7 +319,9 @@ const ProfileInfo = ({
           </Text>
         </View>
         {user.jobTitle ? (
-          <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+          <Text
+            style={{ color: themeStyle.colors.grayscale.lowest, marginTop: 10 }}
+          >
             {user.jobTitle}
           </Text>
         ) : null}
@@ -197,142 +363,6 @@ const ProfileInfo = ({
             </Text>
           )}
         </View>
-        {!user.isSameUser ? (
-          <View>
-            {user.isFriend ? (
-              <TouchableOpacity onPress={() => removeConnection()}>
-                <View
-                  style={{
-                    borderColor: themeStyle.colors.primary.default,
-                    borderWidth: 1,
-                    padding: 10,
-                    borderRadius: 5,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontWeight: "700",
-                      color: themeStyle.colors.grayscale.lowest,
-                      textAlign: "center",
-                    }}
-                  >
-                    Remove Contact
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ) : user.requestReceived ? (
-              <View style={{ flexDirection: "column" }}>
-                <TouchableOpacity
-                  style={{ margin: 10 }}
-                  onPress={() => acceptFriendRequest()}
-                >
-                  <View
-                    style={{
-                      borderColor: themeStyle.colors.success.default,
-                      borderWidth: 1,
-                      padding: 10,
-                      borderRadius: 5,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginHorizontal: 10,
-                      flexDirection: "row",
-                    }}
-                  >
-                    <AntDesign
-                      name="check"
-                      size={20}
-                      color={themeStyle.colors.grayscale.lowest}
-                    />
-                    <Text
-                      style={{
-                        fontWeight: "700",
-                        color: themeStyle.colors.grayscale.lowest,
-                        textAlign: "center",
-                      }}
-                    >
-                      {" "}
-                      Accept
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{ margin: 10 }}
-                  onPress={() => rejectFriendRequest()}
-                >
-                  <View
-                    style={{
-                      borderColor: themeStyle.colors.grayscale.lowest,
-                      borderWidth: 1,
-                      padding: 10,
-                      borderRadius: 5,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginHorizontal: 10,
-                      flexDirection: "row",
-                    }}
-                  >
-                    <AntDesign
-                      name="close"
-                      size={20}
-                      color={themeStyle.colors.grayscale.lowest}
-                    />
-                    <Text
-                      style={{
-                        fontWeight: "700",
-                        color: themeStyle.colors.grayscale.lowest,
-                      }}
-                    >
-                      {" "}
-                      Delete
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            ) : user.requestSent ? (
-              <TouchableOpacity onPress={() => recallFriendRequest()}>
-                <View
-                  style={{
-                    borderColor: themeStyle.colors.primary.default,
-                    borderWidth: 1,
-                    padding: 10,
-                    borderRadius: 5,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontWeight: "700",
-                      textAlign: "center",
-                      color: themeStyle.colors.grayscale.lowest,
-                    }}
-                  >
-                    Request sent
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity onPress={() => sendFriendRequest()}>
-                <View
-                  style={{
-                    borderColor: themeStyle.colors.primary.default,
-                    borderWidth: 1,
-                    padding: 10,
-                    borderRadius: 5,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontWeight: "700",
-                      color: themeStyle.colors.grayscale.lowest,
-                      textAlign: "center",
-                    }}
-                  >
-                    Add User
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
-          </View>
-        ) : null}
       </View>
     </View>
   );
