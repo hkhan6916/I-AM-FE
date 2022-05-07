@@ -54,9 +54,9 @@ const UserOptionsModal = ({
               style={{
                 width: "100%",
                 paddingVertical: 10,
-                backgroundColor: themeStyle.colors.grayscale.higher,
-                borderTopColor: "white",
-                borderTopWidth: 1,
+                backgroundColor: themeStyle.colors.grayscale.highest,
+                borderTopColor: themeStyle.colors.grayscale.high,
+                borderTopWidth: 2,
               }}
             >
               {error ? (
@@ -72,10 +72,14 @@ const UserOptionsModal = ({
                 </Text>
               ) : null}
               {!showReportOptions ? (
-                <View style={{ alignItems: "center" }}>
+                <View style={{ alignItems: "center", paddingHorizontal: 15 }}>
                   {user.isFriend ? (
                     <TouchableOpacity
-                      onPress={() => removeConnection()}
+                      onPress={() => {
+                        setShowUserOptions(false);
+                        setShowReportOptions(false);
+                        removeConnection();
+                      }}
                       style={{ width: "100%" }}
                     >
                       <View
@@ -109,8 +113,8 @@ const UserOptionsModal = ({
                         borderRadius: 5,
                         width: "100%",
                         height: 60,
-                        borderTopWidth: user.isFriend ? 1 : 0,
-                        borderColor: themeStyle.colors.grayscale.lowest,
+                        borderTopWidth: user.isFriend ? 0.5 : 0,
+                        borderColor: themeStyle.colors.grayscale.low,
                         alignItems: "center",
                         justifyContent: "center",
                       }}
