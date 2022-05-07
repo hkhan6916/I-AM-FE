@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "I-Am-FE",
-    "slug": "I-Am-FE",
+    "name": "Magnet",
+    "slug": "Magnet",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -28,7 +28,7 @@
       },
       "useNextNotificationsApi": true,
       "googleServicesFile": "./google-services.json",
-      "package": "com.hkhan6916.IAmFE"
+      "package": "com.magnetapp.magnet"
     },
     "web": {
       "favicon": "./assets/favicon.png"
