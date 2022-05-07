@@ -89,7 +89,7 @@ const MediaScreen = (props) => {
       <SafeAreaView
         style={{
           flex: 0,
-          backgroundColor: themeStyle.colors.grayscale.highest,
+          backgroundColor: themeStyle.colors.black,
         }}
       />
       <StatusBar hidden />
@@ -110,7 +110,7 @@ const MediaScreen = (props) => {
                 mediaHeaders={post.mediaHeaders}
                 mediaUrl={post.mediaUrl}
                 removeBorderRadius
-                style={{ backgroundColor: themeStyle.colors.grayscale.highest }}
+                style={{ backgroundColor: themeStyle.colors.black }}
               />
             </View>
           ) : null}
@@ -168,14 +168,18 @@ const MediaScreen = (props) => {
               >
                 <Text
                   style={{
-                    color: themeStyle.colors.grayscale.lowest,
+                    color: themeStyle.colors.white,
                     margin: 20,
+                    width: 30,
+                    height: 30,
+                    textAlign: "center",
                   }}
                 >
                   <FontAwesome
+                    style={styles.iconShadow}
                     name="comment-o"
                     size={24}
-                    color={themeStyle.colors.grayscale.lowest}
+                    // color={themeStyle.colors.white}
                   />
                 </Text>
               </TouchableOpacity>
@@ -190,8 +194,11 @@ const MediaScreen = (props) => {
                   >
                     <Text
                       style={{
-                        color: themeStyle.colors.grayscale.lowest,
+                        color: themeStyle.colors.white,
                         marginHorizontal: 20,
+                        width: 30,
+                        height: 30,
+                        textAlign: "center",
                       }}
                     >
                       <MaterialCommunityIcons
@@ -200,13 +207,13 @@ const MediaScreen = (props) => {
                         color={
                           liked
                             ? themeStyle.colors.secondary.default
-                            : themeStyle.colors.grayscale.lowest
+                            : themeStyle.colors.white
                         }
                       />
                     </Text>
                     <Text
                       style={{
-                        color: themeStyle.colors.grayscale.lowest,
+                        color: themeStyle.colors.white,
                         marginHorizontal: 20,
                       }}
                     >
@@ -222,7 +229,7 @@ const MediaScreen = (props) => {
       <SafeAreaView
         style={{
           flex: 0,
-          backgroundColor: themeStyle.colors.grayscale.highest,
+          backgroundColor: themeStyle.colors.black,
         }}
       />
     </Fragment>
@@ -234,7 +241,30 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: themeStyle.colors.grayscale.highest,
+    backgroundColor: themeStyle.colors.black,
+  },
+  text: {
+    // not used but here in case
+    textShadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    textShadowRadius: 10,
+    textShadowColor: "#333",
+
+    marginTop: 2,
+    fontFamily: "Roboto",
+    fontWeight: "bold",
+    color: "white",
+  },
+  iconShadow: {
+    color: themeStyle.colors.white,
+    textShadowOffset: {
+      width: 1,
+      height: 1,
+    },
+    textShadowRadius: 8,
+    textShadowColor: themeStyle.colors.black,
   },
 });
 
