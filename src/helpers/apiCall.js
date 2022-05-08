@@ -2,9 +2,11 @@ import axios from "axios";
 import { getItemAsync } from "expo-secure-store";
 
 const apiCall = async (method, route, payload = null) => {
-  const apiUrl = "http://192.168.5.101:5000";
+  const apiUrl = __DEV__
+    ? "http://192.168.5.101:5000"
+    : "https://magnet-be.herokuapp.com"; //TODO update this and store in secure store
+
   if (!route) return;
-  // const apiUrl = "https://magnet-be.herokuapp.com"; //TODO update this and store in secure store
   const callConfig = {
     method,
     url: `${apiUrl}${route}`,

@@ -9,9 +9,11 @@ const backgroundUpload = async ({
   failureRoute,
 }) => {
   const token = await getItemAsync("authToken");
-
+  const apiUrl = __DEV__
+    ? "http://192.168.5.101:5000"
+    : "https://magnet-be.herokuapp.com";
   const options = {
-    url: `http://192.168.5.101:5000${apiRoute}`,
+    url: `${apiUrl}${apiRoute}`,
     path: filePath, // path to file
     method: "POST",
     type: "multipart",

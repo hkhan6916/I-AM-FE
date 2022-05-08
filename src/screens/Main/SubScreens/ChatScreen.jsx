@@ -42,7 +42,6 @@ const ChatScreen = (props) => {
   const [height, setHeight] = useState(1);
 
   const [media, setMedia] = useState({});
-  const [mediaSendFail, setMediaSendFail] = useState(false);
   const [showMediaSizeError, setShowMediaSizeError] = useState(false);
   const [messageBody, setMessageBody] = useState("");
   const [messages, setMessages] = useState([]);
@@ -100,9 +99,11 @@ const ChatScreen = (props) => {
       }
     }
   };
-
+  const apiUrl = __DEV__
+    ? "ws://192.168.5.101:5000"
+    : "wss://magnet-be.herokuapp.com";
   const initSocket = async (port, token) => {
-    const connection = io(`ws://192.168.5.101:${port || 5000}`, {
+    const connection = io(`${apiUrl}`, {
       // TODO store the connection url securely and then use
       auth: {
         token,
@@ -145,20 +146,20 @@ const ChatScreen = (props) => {
   const handleMessage = async () => {
     /* If first message, first create chat. The actual message will be sent on
     the joinRoomSuccess event. */
-    if (socket.connected && !messages.length) {
+    if (socket?.connected && !messages.length) {
       await createChat();
       return;
     }
 
     // Not the first message, emit the message as standard
-    if (socket.connected && chat?._id) {
+    if (socket?.connected && chat?._id) {
       await handleMessageSend(chat._id);
     }
   };
 
   const handleMessageSend = async (chatId) => {
     if (!socket?.connected) return;
-    if (media?.uri && media?.type && socket.connected) {
+    if (media?.uri && media?.type && socket?.connected) {
       const formData = new FormData();
       const thumbnailUrl =
         media.type?.split("/")[0] === "video"
@@ -195,6 +196,7 @@ const ChatScreen = (props) => {
         "/chat/message/upload",
         formData
       );
+
       if (success) {
         setMessages([
           {
@@ -223,9 +225,11 @@ const ChatScreen = (props) => {
             media.uri,
             {
               compressionMethod: "auto",
+              // getCancellationId: (cancellationId) =>
+              //   (cancelId = cancellationId),
             },
             (progress) => {
-              console.log({ compression: progress });
+              console.log({ videocompression: progress });
             }
           ).then(async (compressedUrl) => {
             await handleBackgroundUpload(
@@ -303,7 +307,7 @@ const ChatScreen = (props) => {
           return;
         }
       } else {
-        console.log("fail");
+        console.log("Failed to upload message media");
       }
 
       return true;
@@ -340,6 +344,13 @@ const ChatScreen = (props) => {
       "GET",
       `/chat/message/cancel/${messageId}`
     );
+    // if (media.type?.split("/")[0] === "video" && cancelId) {
+    //   VideoCompress.cancelCompression(cancelId);
+    // }
+
+    // if (media.type?.split("/")[0] === "image" && cancelId) {
+    //   ImageCompress.cancelCompression(cancelId);
+    // }
 
     // console.log(message);
 
@@ -355,6 +366,7 @@ const ChatScreen = (props) => {
   };
 
   const pickImage = async () => {
+    setShowMediaSizeError(false);
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
@@ -383,6 +395,7 @@ const ChatScreen = (props) => {
         setShowActions(false);
         if (mediaSizeInMb > 50) {
           setShowMediaSizeError(true);
+          setMedia(result);
         } else {
           if (showMediaSizeError) {
             setShowMediaSizeError(false);
@@ -546,7 +559,7 @@ const ChatScreen = (props) => {
             });
             return;
           }
-          if (!socket.connected) {
+          if (!socket?.connected) {
             setShowError(true);
           } else {
             if (senderId !== authInfo.senderId && !recipient?.online) {
