@@ -15,7 +15,17 @@ const InputNoBorder = ({
   error,
   onEndEditing,
   setValue,
+  onClear,
+  onBlur,
 }) => {
+  const handleClear = () => {
+    if (setValue) {
+      setValue("");
+    }
+    if (onClear) {
+      onClear();
+    }
+  };
   return (
     <View style={styles.textInputContainer}>
       <Text style={styles.label}>{label}</Text>
@@ -40,9 +50,10 @@ const InputNoBorder = ({
           value={value}
           onChangeText={onChangeText ? (v) => onChangeText(v) : null}
           onEndEditing={onEndEditing ? (e) => onEndEditing(e) : null}
+          onBlur={onBlur ? (e) => onBlur(e) : null}
         />
         {value ? (
-          <TouchableOpacity onPress={setValue ? () => setValue("") : null}>
+          <TouchableOpacity onPress={() => handleClear()}>
             <AntDesign
               name="closecircle"
               size={16}

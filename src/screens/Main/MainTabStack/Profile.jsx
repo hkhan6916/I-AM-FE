@@ -29,7 +29,6 @@ const ProfileScreen = () => {
   const [showPostOptions, setShowPostOptions] = useState(null);
   const [error, setError] = useState("");
 
-  const updatedPost = useSelector((state) => state.updatedPost);
   const globalUserData = useSelector((state) => state.userData);
 
   const navigation = useNavigation();
@@ -119,22 +118,22 @@ const ProfileScreen = () => {
     setRefreshing(false);
   };
 
-  const onViewableItemsChanged = ({ viewableItems }) => {
-    viewableItems.forEach((item) => {
-      if (item.isViewable) {
-        setVisibleItems([item.item._id]);
-      }
-    });
-  };
-  const viewabilityConfig = {
-    waitForInteraction: true,
-    viewAreaCoveragePercentThreshold: 50,
-    minimumViewTime: 1500,
-  };
+  // const onViewableItemsChanged = ({ viewableItems }) => {
+  //   viewableItems.forEach((item) => {
+  //     if (item.isViewable) {
+  //       setVisibleItems([item.item._id]);
+  //     }
+  //   });
+  // };
+  // const viewabilityConfig = {
+  //   waitForInteraction: true,
+  //   viewAreaCoveragePercentThreshold: 50,
+  //   minimumViewTime: 1500,
+  // };
 
-  const viewabilityConfigCallbackPairs = useRef([
-    { onViewableItemsChanged, viewabilityConfig },
-  ]);
+  // const viewabilityConfigCallbackPairs = useRef([
+  //   { onViewableItemsChanged, viewabilityConfig },
+  // ]);
 
   const triggerOptionsModal = (post) => {
     setError("");
@@ -204,10 +203,10 @@ const ProfileScreen = () => {
       </View>
       {userData ? (
         <FlatList
-          ref={flatlistRef}
-          viewabilityConfigCallbackPairs={
-            viewabilityConfigCallbackPairs.current
-          }
+          // ref={flatlistRef}
+          // viewabilityConfigCallbackPairs={
+          //   viewabilityConfigCallbackPairs.current
+          // }
           data={userPosts}
           renderItem={renderItem}
           keyExtractor={keyExtractor}

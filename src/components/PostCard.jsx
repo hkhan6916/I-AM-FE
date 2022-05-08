@@ -27,9 +27,7 @@ const PostCard = ({
   const [post, setPost] = useState(initialPost);
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
   const [isCollapsible, setIsCollapsible] = useState(false);
-
   const navigation = useNavigation();
-
   const lottieRef = useRef(null);
 
   const onTextLayout = (e) => {
@@ -194,6 +192,23 @@ const PostCard = ({
                       flexDirection: "column",
                     }}
                   >
+                    <View
+                      style={{
+                        position: "absolute",
+                        zIndex: 1,
+                        bottom: 0,
+                        right: 0,
+                      }}
+                    >
+                      <Image
+                        resizeMode={"contain"}
+                        style={{
+                          width: 70,
+                          height: 20,
+                        }}
+                        source={require("../../assets/via_tenor_logo_blue.png")}
+                      />
+                    </View>
                     <Image
                       resizeMode={"contain"}
                       style={{
@@ -215,7 +230,7 @@ const PostCard = ({
                   >
                     <VideoPlayer
                       preventPlay
-                      // shouldPlay={isVisible}
+                      shouldPlay={isVisible}
                       mediaIsSelfie={post.mediaIsSelfie}
                       url={post.mediaUrl}
                       thumbnailUrl={post.thumbnailUrl}
@@ -465,5 +480,6 @@ export default React.memo(
   (prevProps, nextProps) =>
     prevProps.isVisible === nextProps.isVisible &&
     prevProps.post === nextProps.post &&
-    prevProps.deleted === nextProps.deleted
+    prevProps.deleted === nextProps.deleted &&
+    prevProps.isVisible === nextProps.isVisible
 );

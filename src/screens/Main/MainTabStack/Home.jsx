@@ -167,15 +167,15 @@ const HomeScreen = () => {
       }
     });
   };
-  // const viewabilityConfig = {
-  //   waitForInteraction: true,
-  //   viewAreaCoveragePercentThreshold: 100,
-  //   minimumViewTime: 1000,
-  // };
+  const viewabilityConfig = {
+    waitForInteraction: true,
+    viewAreaCoveragePercentThreshold: 100,
+    minimumViewTime: 1000,
+  };
 
-  // const viewabilityConfigCallbackPairs = useRef([
-  //   { onViewableItemsChanged, viewabilityConfig },
-  // ]);
+  const viewabilityConfigCallbackPairs = useRef([
+    { onViewableItemsChanged, viewabilityConfig },
+  ]);
 
   const onRefresh = useCallback(async () => {
     setAllPostsLoaded(false);
@@ -268,7 +268,6 @@ const HomeScreen = () => {
       </View>
     </View>
   );
-
   const renderItem = useCallback(
     ({ item, index }) => {
       return (
@@ -281,7 +280,7 @@ const HomeScreen = () => {
         />
       );
     },
-    [postIds]
+    [postIds, visibleItems]
   );
 
   const keyExtractor = useCallback((item) => item._id, []);
@@ -315,7 +314,8 @@ const HomeScreen = () => {
     return (
       <SafeAreaView style={styles.container}>
         {/* <Button title="test" onPress={() => navigation.navigate("Test")} /> */}
-        <View>
+        <HomeHeading />
+        <View style={{ alignItems: "center" }}>
           {newPostCreated.state ? (
             <View style={styles.newPostPill}>
               <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
@@ -323,12 +323,11 @@ const HomeScreen = () => {
               </Text>
             </View>
           ) : null}
-          <HomeHeading />
           <FlatList
             ref={flatlistRef}
-            // viewabilityConfigCallbackPairs={
-            //   viewabilityConfigCallbackPairs.current
-            // }
+            viewabilityConfigCallbackPairs={
+              viewabilityConfigCallbackPairs.current
+            }
             extraData={postIds.length}
             data={feed}
             renderItem={renderItem}
@@ -464,6 +463,7 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    // backgroundColor: themeStyle.colors.grayscale.higher,
   },
   newPostPill: {
     zIndex: 3, // works on ios

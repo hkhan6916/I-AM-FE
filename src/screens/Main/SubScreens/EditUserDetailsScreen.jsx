@@ -29,7 +29,6 @@ import PasswordInputNoBorder from "../../../components/PasswordInputNoBorder";
 import { detectFacesAsync } from "expo-face-detector";
 import { getThumbnailAsync } from "expo-video-thumbnails";
 import Upload from "react-native-background-upload";
-import { getExpoPushTokenAsync } from "expo-notifications";
 
 const { statusBarHeight } = Constants;
 const EditUserDetailsScreen = () => {
@@ -45,9 +44,10 @@ const EditUserDetailsScreen = () => {
   const [firstName, setFirstName] = useState(null);
   const [lastName, setLastName] = useState(null);
   const [jobTitle, setJobTitle] = useState(null);
+  const [jobTitleOptions, setJobTitleOptions] = useState([]);
+
   const [validationErrors, setValidationErrors] = useState({});
   const [initialProfileData, setInitialProfileData] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
   const [detectingFaces, setDetectingFaces] = useState(false);
 
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
@@ -65,6 +65,12 @@ const EditUserDetailsScreen = () => {
   const [updateError, setupdateError] = useState("");
 
   const [showUpdatedPill, setShowUpdatedPill] = useState(false);
+
+  const [typingStatus, setTypingStatus] = useState({
+    name: "",
+    typing: false,
+    typingTimeout: 0,
+  });
 
   const navigation = useNavigation();
 
@@ -84,15 +90,27 @@ const EditUserDetailsScreen = () => {
     setProfileVideo(profileVideoPath);
   };
 
-  // const handleFacesDetected = (obj) => {
-  //   try {
-  //     if (recording && obj.faces.length !== 0 && !faceDetected) {
-  //       setFaceDetected(true);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+  const getJobTitles = async (query) => {
+    if (typingStatus.typingTimeout) {
+      clearTimeout(typingStatus.typingTimeout);
+    }
+    setTypingStatus({
+      name: query,
+      typing: false,
+      typingTimeout: setTimeout(async () => {
+        const { response } = await apiCall("GET", `/jobs/search/${query}`);
+        if (response?.length) {
+          response.map((jobTitle) => {
+            jobTitle.title = jobTitle?.title.replace(
+              /(^\w{1})|(\s+\w{1})/g,
+              (letter) => letter.toUpperCase()
+            );
+          });
+          setJobTitleOptions(response.length <= 5 ? response : []);
+        }
+      }, 200),
+    });
+  };
 
   const validateInfo = async () => {
     const emailValid = email ? await validateEmail(email) : true;
@@ -372,11 +390,14 @@ const EditUserDetailsScreen = () => {
         behavior={Platform.OS === "ios" && "padding"}
         style={{ flex: 1 }}
       >
-        <View>
+        <View style={{ height: "100%" }}>
           {showUpdatedPill ? (
             <Text style={styles.newPostPill}>Profile Updated</Text>
           ) : null}
-          <ScrollView style={{ marginBottom: 48 }}>
+          <ScrollView
+            style={{ marginBottom: 48 }}
+            keyboardShouldPersistTaps="handled"
+          >
             <View style={styles.formContainer}>
               {(profileVideo && faceDetected) ||
               (!profileVideo && initialProfileData.profileVideoUrl) ? (
@@ -386,7 +407,7 @@ const EditUserDetailsScreen = () => {
                     uri={profileVideo || initialProfileData?.profileVideoUrl}
                     headers={initialProfileData?.profileVideoHeaders}
                   />
-                  {!profileVideo ? (
+                  {profileVideo ? (
                     <TouchableOpacity
                       style={{ marginVertical: 10 }}
                       onPress={() => setProfileVideo("")}
@@ -430,23 +451,7 @@ const EditUserDetailsScreen = () => {
                   <Ionicons name="videocam" size={14} /> Retake profile video
                 </Text>
               </TouchableOpacity>
-              {console.log(initialProfileData)}
-              <InputNoBorder
-                label="Job title"
-                value={
-                  jobTitle !== null ? jobTitle : initialProfileData.jobTitle
-                }
-                setValue={setJobTitle}
-                onChangeText={(v) => {
-                  setJobTitle(v);
-                  if (validationErrors.jobTitle) {
-                    const updatedValidationErrors = validationErrors;
-                    delete updatedValidationErrors.jobTitle;
-                    setValidationErrors(updatedValidationErrors);
-                  }
-                }}
-                error={validationErrors?.jobTitle}
-              />
+
               <InputNoBorder
                 error={validationErrors?.firstName}
                 label="First Name"
@@ -479,6 +484,71 @@ const EditUserDetailsScreen = () => {
                   }
                 }}
               />
+              <View style={{ width: "100%" }}>
+                {jobTitleOptions?.length ? (
+                  <ScrollView
+                    style={{
+                      position: "absolute",
+                      bottom: 90,
+                      zIndex: 999,
+                      backgroundColor: themeStyle.colors.grayscale.higher,
+                      paddingHorizontal: 10,
+                      width: "100%",
+                    }}
+                    keyboardShouldPersistTaps="handled"
+                  >
+                    <View>
+                      {jobTitleOptions.map((item, i) => (
+                        <TouchableOpacity
+                          style={{
+                            height: 48,
+                            justifyContent: "center",
+                            borderTopColor: themeStyle.colors.grayscale.highest,
+                            borderTopWidth: i > 0 ? 1 : 0,
+                            zIndex: 999,
+                          }}
+                          key={`${item._id}-${i}`}
+                          onPress={() => {
+                            setJobTitle(item.title);
+                            setJobTitleOptions([]);
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: themeStyle.colors.grayscale.lowest,
+                            }}
+                          >
+                            {item.title}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </ScrollView>
+                ) : null}
+                <InputNoBorder
+                  label="Job title"
+                  value={
+                    jobTitle !== null ? jobTitle : initialProfileData.jobTitle
+                  }
+                  setValue={setJobTitle}
+                  onChangeText={(v) => {
+                    if (!v) {
+                      setJobTitleOptions([]);
+                    }
+                    setJobTitle(v);
+                    getJobTitles(v);
+                    if (validationErrors.jobTitle) {
+                      const updatedValidationErrors = validationErrors;
+                      delete updatedValidationErrors.jobTitle;
+                      setValidationErrors(updatedValidationErrors);
+                    }
+                  }}
+                  error={validationErrors?.jobTitle}
+                  onBlur={() => setJobTitleOptions([])}
+                  onEndEditing={() => setJobTitleOptions([])}
+                  onClear={() => setJobTitleOptions([])}
+                />
+              </View>
               <InputNoBorder
                 error={
                   validationErrors?.username?.exists

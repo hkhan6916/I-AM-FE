@@ -31,12 +31,13 @@ const ExpoVideoPlayer = ({ uri }) => {
         source: {
           uri: uri,
         },
+        style: {
+          width: screenWidth,
+          height: screenHeight / 1.1,
+          transform: [{ scaleX: -1 }],
+        },
       }}
       fullscreen
-      style={{
-        width: screenWidth,
-        height: screenHeight / 1.1,
-      }}
     />
   );
 };

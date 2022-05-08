@@ -40,6 +40,20 @@ const MediaScreen = (props) => {
     }
   };
 
+  const intToString = (value) => {
+    var suffixes = ["", "k", "m", "b", "t"];
+    var suffixNum = Math.floor(("" + value).length / 3);
+    var shortValue = parseFloat(
+      (suffixNum != 0 ? value / Math.pow(1000, suffixNum) : value).toPrecision(
+        2
+      )
+    );
+    if (shortValue % 1 != 0) {
+      shortValue = shortValue.toFixed(1);
+    }
+    return shortValue + suffixes[suffixNum];
+  };
+
   const handleReaction = async () => {
     if (liked) {
       setLikes(likes - 1);
@@ -179,7 +193,6 @@ const MediaScreen = (props) => {
                     style={styles.iconShadow}
                     name="comment-o"
                     size={24}
-                    // color={themeStyle.colors.white}
                   />
                 </Text>
               </TouchableOpacity>
@@ -204,20 +217,23 @@ const MediaScreen = (props) => {
                       <MaterialCommunityIcons
                         name={liked ? "thumb-up" : "thumb-up-outline"}
                         size={24}
-                        color={
-                          liked
-                            ? themeStyle.colors.secondary.default
-                            : themeStyle.colors.white
-                        }
+                        style={[
+                          styles.iconShadow,
+                          {
+                            color: liked
+                              ? themeStyle.colors.secondary.default
+                              : themeStyle.colors.white,
+                          },
+                        ]}
                       />
                     </Text>
                     <Text
-                      style={{
-                        color: themeStyle.colors.white,
-                        marginHorizontal: 20,
-                      }}
+                      style={[
+                        styles.text,
+                        { minWidth: 20, textAlign: "center" },
+                      ]}
                     >
-                      {likes}
+                      {intToString(likes)}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -244,18 +260,13 @@ const styles = StyleSheet.create({
     backgroundColor: themeStyle.colors.black,
   },
   text: {
-    // not used but here in case
     textShadowOffset: {
-      width: 2,
-      height: 2,
+      width: 1,
+      height: 1,
     },
-    textShadowRadius: 10,
-    textShadowColor: "#333",
-
-    marginTop: 2,
-    fontFamily: "Roboto",
-    fontWeight: "bold",
-    color: "white",
+    textShadowRadius: 5,
+    textShadowColor: themeStyle.colors.black,
+    color: themeStyle.colors.white,
   },
   iconShadow: {
     color: themeStyle.colors.white,

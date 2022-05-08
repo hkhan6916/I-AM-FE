@@ -17,7 +17,6 @@ const VideoPlayer = ({
   shouldPlay,
   isMuted,
   showToggle,
-  isLocalMedia,
   thumbnailUrl,
   thumbnailHeaders,
   isUploading,
@@ -30,7 +29,6 @@ const VideoPlayer = ({
   const [readyForDisplay, setReadyForDisplay] = useState(false);
 
   // const navigation = useNavigation();
-
   const handleVideoDuration = (duration) => {
     if (!duration) {
       return "";
@@ -47,19 +45,6 @@ const VideoPlayer = ({
   };
 
   const aspectRatio = 1 / 1;
-
-  // useEffect(() => {
-  //   let isMounted = true;
-  //   if (isMounted) {
-  //     const unsubscribe = navigation.addListener("blur", async () => {
-  //       if (video) {
-  //         await video.current?.pauseAsync();
-  //       }
-  //     });
-  //     isMounted = false;
-  //     return unsubscribe;
-  //   }
-  // }, [navigation]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -82,7 +67,7 @@ const VideoPlayer = ({
           {!readyForDisplay || isUploading || isCancelled || preventPlay ? (
             <View
               style={{
-                position: !preventPlay ? "absolute" : "relative",
+                position: !preventPlay || shouldPlay ? "absolute" : "relative",
                 top: 0,
                 width: "100%",
                 height: "100%",
@@ -98,14 +83,14 @@ const VideoPlayer = ({
               />
             </View>
           ) : null}
-          {!preventPlay ? (
+          {!preventPlay || shouldPlay ? (
             <Video
               onReadyForDisplay={(params) => {
                 // setVideoDimensions(params.naturalSize);
                 setReadyForDisplay(true);
               }}
               isMuted={!showToggle || isMuted}
-              shouldPlay={shouldPlay || false}
+              shouldPlay={!!shouldPlay}
               ref={video}
               isLooping={true}
               style={{
@@ -123,9 +108,18 @@ const VideoPlayer = ({
           {!showToggle ? (
             <View style={{ position: "absolute", right: 0 }}>
               <Feather
-                name={videoStatus?.isPlaying ? "pause" : "play"}
+                name={shouldPlay ? "pause" : "play"}
                 size={48}
                 color={themeStyle.colors.white}
+                style={{
+                  color: themeStyle.colors.white,
+                  textShadowOffset: {
+                    width: 1,
+                    height: 1,
+                  },
+                  textShadowRadius: 20,
+                  textShadowColor: themeStyle.colors.black,
+                }}
               />
             </View>
           ) : isMuted ? (

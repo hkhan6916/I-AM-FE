@@ -79,6 +79,7 @@ const AddScreen = () => {
           name: `mediaThumbnail.${thumbnailFormat}`,
           uri: thumbnailUri,
         });
+        postData.append("mediaIsSelfie", isSelfie || false);
       } else {
         const mediaInfo = await getInfoAsync(uri);
         const mediaSizeInMb = mediaInfo?.size / 100000;
@@ -393,6 +394,7 @@ const AddScreen = () => {
                         source: {
                           uri: file.uri,
                         },
+                        style: { transform: [{ scaleX: -1 }], height: "100%" },
                       }}
                       style={{ height: 300 }}
                     />
