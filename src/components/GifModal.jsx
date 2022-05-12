@@ -17,7 +17,7 @@ import axios from "axios";
 import SearchBar from "./SearchBar";
 
 const GifModal = ({ setShowModal, selectGif, active }) => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); //TODO i dont think we're searching for what the user actually has typed. noticed the search seems to miss out some letters the user has typed e.g. hello seems to search for hell?
   const [error, setError] = useState("");
   const [gifs, setGifs] = useState([]);
 
