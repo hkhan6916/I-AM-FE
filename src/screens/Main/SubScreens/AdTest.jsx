@@ -1,7 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Button, Platform, View, FlatList } from "react-native";
 import React from "react";
-import * as FacebookAds from "expo-ads-facebook";
+// import * as FacebookAds from "expo-ads-facebook";
 import AdCard from "../../../components/AdCard";
 
 export default function AdScreen() {
@@ -27,9 +27,9 @@ export default function AdScreen() {
   // console.log({ id });
 
   let [isLoaded, setIsLoaded] = React.useState(false);
-  FacebookAds.AdSettings.addTestDevice(
-    FacebookAds.AdSettings.currentDeviceHash
-  );
+  // FacebookAds.AdSettings.addTestDevice(
+  //   FacebookAds.AdSettings.currentDeviceHash
+  // );
   function getPlacementId(bannerAd) {
     let placementId;
     if (bannerAd) {
@@ -51,16 +51,16 @@ export default function AdScreen() {
     return placementId;
   }
 
-  const adsManager = new FacebookAds.NativeAdsManager(
-    "3130380047243958_3167702336845062",
-    1
-  );
+  // const adsManager = new FacebookAds.NativeAdsManager(
+  //   "3130380047243958_3167702336845062",
+  //   1
+  // );
 
-  console.log({ adsManager });
+  // console.log({ adsManager });
 
   return (
     <View style={styles.container}>
-      {adsManager ? (
+      {/* {adsManager ? (
         <AdCard
           adsManager={adsManager}
           onAdLoaded={(e) => console.log({ e })}
@@ -74,7 +74,7 @@ export default function AdScreen() {
       //     );
       //   }}
       // />
-      null}
+      null} */}
     </View>
   );
 }

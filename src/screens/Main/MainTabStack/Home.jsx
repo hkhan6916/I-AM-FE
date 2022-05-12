@@ -31,7 +31,7 @@ import apiCall from "../../../helpers/apiCall";
 import Logo from "../../../Logo";
 import { useScrollToTop } from "@react-navigation/native";
 import PostOptionsModal from "../../../components/PostOptionsModal";
-import * as FacebookAds from "expo-ads-facebook";
+// import * as FacebookAds from "expo-ads-facebook";
 
 const { statusBarHeight } = Constants;
 
@@ -61,10 +61,10 @@ const HomeScreen = () => {
 
   useScrollToTop(flatlistRef);
 
-  const adsManager = new FacebookAds.NativeAdsManager(
-    "3130380047243958_3167702336845062",
-    10
-  );
+  // const adsManager = new FacebookAds.NativeAdsManager(
+  //   "3130380047243958_3167702336845062",
+  //   10
+  // );
 
   const calculateOffsets = async () => {
     if (!feed.length) {
@@ -276,7 +276,7 @@ const HomeScreen = () => {
           loadingMore={loading && index === feed.length - 1}
           isVisible={visibleItems.includes(item._id)}
           post={item}
-          adsManager={index && index % 5 === 0 ? adsManager : null}
+          // adsManager={index && index % 5 === 0 ? adsManager : null}
         />
       );
     },

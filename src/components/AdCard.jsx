@@ -1,12 +1,12 @@
 import React from "react";
 import { View, Text } from "react-native";
-import {
-  withNativeAd,
-  AdTriggerView,
-  AdMediaView,
-  AdIconView,
-  AdOptionsView,
-} from "expo-ads-facebook";
+// import {
+//   withNativeAd,
+//   AdTriggerView,
+//   AdMediaView,
+//   AdIconView,
+//   AdOptionsView,
+// } from "expo-ads-facebook";
 import themeStyle from "../theme.style";
 
 const AdCard = (props) => {
@@ -20,7 +20,7 @@ const AdCard = (props) => {
         padding: 5,
       }}
     >
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+      {/* <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
           <AdIconView style={{ width: 30, height: 30, margin: 5 }} />
           <View
@@ -81,9 +81,9 @@ const AdCard = (props) => {
         >
           {props.nativeAd.callToActionText}
         </Text>
-      </AdTriggerView>
+      </AdTriggerView> */}
     </View>
   );
 };
 
-export default withNativeAd(AdCard);
+// export default withNativeAd(AdCard);
