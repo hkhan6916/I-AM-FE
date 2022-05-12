@@ -1,5 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, TouchableOpacity, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  Platform,
+} from "react-native";
 import { Video } from "expo-av";
 import themeStyle from "../theme.style";
 import { LinearGradient } from "expo-linear-gradient";
@@ -79,15 +85,17 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
         >
           <Video
             positionMillis={100}
-            style={{
-              transform: [{ scaleX: -1 }],
-              alignSelf: "center",
-              width: "100%",
-              height: "100%",
-              borderColor: themeStyle.colors.primary.default,
-              borderRadius: isFullWidth ? 0 : 10,
-              aspectRatio: 1,
-            }}
+            style={[
+              {
+                alignSelf: "center",
+                width: "100%",
+                height: "100%",
+                borderColor: themeStyle.colors.primary.default,
+                borderRadius: isFullWidth ? 0 : 10,
+                aspectRatio: 1,
+              },
+              Platform.OS === "android" && { transform: [{ scaleX: -1 }] },
+            ]}
             onReadyForDisplay={() => setReady(true)}
             onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
             ref={profileVideoRef}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import {
   Text,
   View,
@@ -8,8 +8,10 @@ import {
   Platform,
   BackHandler,
   SafeAreaView,
+  StyleSheet,
 } from "react-native";
-import { Camera } from "expo-camera";
+// import { Camera } from "expo-camera";
+import { Camera, useCameraDevices } from "react-native-vision-camera";
 import { Ionicons, EvilIcons } from "@expo/vector-icons";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import Constants from "expo-constants";
@@ -27,8 +29,7 @@ const ProfileVideoCamera = ({
   hasCameraPermission,
   hasAudioPermission,
 }) => {
-  const [cameraRef, setCameraRef] = useState(null);
-
+  const cameraRef = useRef();
   const packageName = Constants.manifest.releaseChannel
     ? Constants.manifest.android.package
     : "host.exp.exponent";
@@ -43,18 +44,21 @@ const ProfileVideoCamera = ({
     }
   };
 
+  const devices = useCameraDevices();
+  const device = devices.front;
+
   const handleRecordClick = async () => {
     if (!recording) {
       setRecordingLength(15);
       setRecording(true);
-      const video = await cameraRef.recordAsync({
-        quality: Camera.Constants.VideoQuality["720p"],
-        mirror: false,
+      await cameraRef?.current?.startRecording({
+        onRecordingFinished: (video) => setProfileVideo(video.path),
+        onRecordingError: (error) => console.error(error),
       });
-      setProfileVideo(video.uri);
     } else {
+      // cameraRef?.current?.stopRecording();
+      const video = await cameraRef.current.stopRecording();
       setRecording(false);
-      cameraRef.stopRecording();
       setCameraActivated(false);
     }
   };
@@ -71,7 +75,7 @@ const ProfileVideoCamera = ({
 
         if (recording && length === 0) {
           setRecording(false);
-          cameraRef.stopRecording();
+          cameraRef?.current?.stopRecording();
           setCameraActivated(false);
         }
       }, 1000);
@@ -92,7 +96,6 @@ const ProfileVideoCamera = ({
     return () => {
       setRecording(false);
       setCameraActivated(false);
-      setCameraRef(null);
       BackHandler.removeEventListener("hardwareBackPress", deactivateCamera);
     };
   }, []);
@@ -145,7 +148,10 @@ const ProfileVideoCamera = ({
           in device settings to create a profile video.
         </Text>
         <View style={{ display: "flex", flexDirection: "row" }}>
-          <TouchableOpacity onPress={() => setCameraActivated(false)}>
+          <TouchableOpacity
+            disabled={!device}
+            onPress={() => setCameraActivated(false)}
+          >
             <View
               style={{
                 display: "flex",
@@ -235,112 +241,106 @@ const ProfileVideoCamera = ({
           </Text>
         </View>
       </TouchableOpacity>
-      <View>
-        <Camera
+      <View></View>
+      <View
+        style={{
+          backgroundColor: themeStyle.colors.grayscale.high,
+          alignSelf: "flex-end",
+          margin: 10,
+          paddingVertical: 2,
+          paddingHorizontal: 10,
+          borderRadius: 50,
+        }}
+      >
+        <Text
           style={{
-            width: screenWidth,
-            height: screenWidth * 1.33,
-            marginTop: (screenHeight - screenWidth * 1.33) / 2,
-            marginBottom: (screenHeight - screenWidth * 1.33) / 2,
-          }}
-          ratio="4:3"
-          type={Camera.Constants.Type.front}
-          ref={(ref) => {
-            setCameraRef(ref);
+            color: themeStyle.colors.grayscale.lowest,
+            fontSize: 14,
           }}
         >
-          <View
-            style={{
-              backgroundColor: themeStyle.colors.grayscale.high,
-              alignSelf: "flex-end",
-              margin: 10,
-              paddingVertical: 2,
-              paddingHorizontal: 10,
-              borderRadius: 50,
-            }}
-          >
-            <Text
-              style={{
-                color: themeStyle.colors.grayscale.lowest,
-                fontSize: 14,
-              }}
-            >
-              {recordingLength} seconds
-            </Text>
-          </View>
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "transparent",
-              justifyContent: "flex-end",
-            }}
-          >
-            {/* <View
+          {recordingLength} seconds
+        </Text>
+      </View>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "transparent",
+          justifyContent: "flex-end",
+          zIndex: 999,
+        }}
+      >
+        {/* <View
             style={{
               flexDirection: "row",
               justifyContent: "space-evenly",
             }}
           > */}
-            <TouchableOpacity
-              style={{
-                alignSelf: "center",
-                width: 50,
-                position: "absolute",
-                bottom: 20,
-              }}
-              disabled={recording && recordingLength > 12}
-              onPress={() => handleRecordClick()}
-            >
+        <TouchableOpacity
+          style={{
+            alignSelf: "center",
+            width: 50,
+            position: "absolute",
+            bottom: 20,
+          }}
+          disabled={recording && recordingLength > 12}
+          onPress={() => handleRecordClick()}
+        >
+          <View
+            style={{
+              borderWidth: 5,
+              borderRadius: 50,
+              borderColor:
+                recordingLength > 15 - 3
+                  ? themeStyle.colors.grayscale.high
+                  : themeStyle.colors.grayscale.lowest,
+              height: 60,
+              width: 60,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {recording ? (
               <View
                 style={{
-                  borderWidth: 5,
-                  borderRadius: 50,
+                  borderWidth: 2,
+                  borderRadius: 5,
                   borderColor:
                     recordingLength > 15 - 3
                       ? themeStyle.colors.grayscale.high
-                      : themeStyle.colors.grayscale.lowest,
-                  height: 60,
-                  width: 60,
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
+                      : themeStyle.colors.error.default,
+                  height: 25,
+                  width: 25,
+                  backgroundColor:
+                    recordingLength > 15 - 3
+                      ? themeStyle.colors.grayscale.high
+                      : themeStyle.colors.error.default,
                 }}
-              >
-                {recording ? (
-                  <View
-                    style={{
-                      borderWidth: 2,
-                      borderRadius: 5,
-                      borderColor:
-                        recordingLength > 15 - 3
-                          ? themeStyle.colors.grayscale.high
-                          : themeStyle.colors.error.default,
-                      height: 25,
-                      width: 25,
-                      backgroundColor:
-                        recordingLength > 15 - 3
-                          ? themeStyle.colors.grayscale.high
-                          : themeStyle.colors.error.default,
-                    }}
-                  />
-                ) : (
-                  <View
-                    style={{
-                      borderWidth: 2,
-                      borderRadius: 70,
-                      borderColor: themeStyle.colors.error.default,
-                      height: 50,
-                      width: 50,
-                      backgroundColor: themeStyle.colors.error.default,
-                    }}
-                  />
-                )}
-              </View>
-            </TouchableOpacity>
+              />
+            ) : (
+              <View
+                style={{
+                  borderWidth: 2,
+                  borderRadius: 70,
+                  borderColor: themeStyle.colors.error.default,
+                  height: 50,
+                  width: 50,
+                  backgroundColor: themeStyle.colors.error.default,
+                }}
+              />
+            )}
           </View>
-          {/* </View> */}
-        </Camera>
+        </TouchableOpacity>
       </View>
+      {device ? (
+        <Camera
+          video={true}
+          ref={cameraRef}
+          style={StyleSheet.absoluteFill}
+          device={device}
+          isActive={true}
+        />
+      ) : null}
     </SafeAreaView>
   );
 };
