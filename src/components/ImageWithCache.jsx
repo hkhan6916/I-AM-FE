@@ -21,6 +21,7 @@ const ImageWithCache = ({
   removeBorderRadius,
   hideSpinner = false,
   onLoad,
+  removeBackround,
   style,
 }) => {
   const { width: screenWidth } = Dimensions.get("window");
@@ -78,7 +79,8 @@ const ImageWithCache = ({
     >
       <View
         style={{
-          backgroundColor: themeStyle.colors.grayscale.higher,
+          backgroundColor:
+            !removeBackround && themeStyle.colors.grayscale.higher,
         }}
       >
         {/* {!ready && !hideSpinner ? (

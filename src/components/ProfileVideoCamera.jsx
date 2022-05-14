@@ -206,7 +206,7 @@ const ProfileVideoCamera = ({
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: themeStyle.colors.grayscale.highest,
+        backgroundColor: themeStyle.colors.black,
         alignItems: "center",
         justifyContent: "center",
       }}

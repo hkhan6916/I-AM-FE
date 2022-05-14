@@ -385,7 +385,8 @@ const AddScreen = () => {
                       padding: 5,
                     }}
                   >
-                    <VideoPlayer // TODO create new player as need to flip the media for selfie video without flipping the controls.
+                    {console.log({ file })}
+                    <VideoPlayer
                       autoHidePlayer={false}
                       fullscreen
                       mediaIsSelfie
@@ -395,7 +396,10 @@ const AddScreen = () => {
                         source: {
                           uri: file.uri,
                         },
-                        style: { transform: [{ scaleX: -1 }], height: "100%" },
+                        style: {
+                          transform: [{ scaleX: file.isSelfie ? -1 : 1 }],
+                          height: "100%",
+                        },
                       }}
                       style={{ height: 300 }}
                     />
@@ -409,6 +413,7 @@ const AddScreen = () => {
                     }}
                   >
                     <ImageWithCache
+                      removeBackround
                       mediaIsSelfie={file.isSelfie}
                       resizeMode="contain"
                       mediaUrl={file.uri}
