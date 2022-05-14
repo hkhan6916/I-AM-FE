@@ -4,7 +4,7 @@ import {
   useNavigation,
 } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
-import { View, Platform } from "react-native";
+import { View, Platform, LogBox } from "react-native";
 import { useSelector } from "react-redux";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
@@ -17,9 +17,12 @@ import FeedContext from "../Context";
 import registerNotifications from "../helpers/registerNotifications";
 import { hideAsync, preventAutoHideAsync } from "expo-splash-screen";
 import { useColorScheme } from "react-native";
-import { LogBox } from "react-native";
 import { deleteUserSearchHistoryTable } from "../helpers/sqlite/userSearchHistory";
 import { openDatabase } from "expo-sqlite";
+
+LogBox.ignoreLogs([
+  "ViewPropTypes will be removed from React Native. Migrate to ViewPropTypes exported from 'deprecated-react-native-prop-types'.",
+]);
 
 const Screens = () => {
   LogBox.ignoreLogs(["NativeEventEmitter", "fontFamily"]); // Ignore log notification by message

@@ -18,7 +18,6 @@ import Constants from "expo-constants";
 import themeStyle from "../theme.style";
 import { StatusBar } from "expo-status-bar";
 
-const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 const ProfileVideoCamera = ({
   recording,
   setRecording,
@@ -46,18 +45,18 @@ const ProfileVideoCamera = ({
 
   const devices = useCameraDevices();
   const device = devices.front;
+  const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
   const handleRecordClick = async () => {
     if (!recording) {
-      setRecordingLength(15);
+      setRecordingLength(20);
       setRecording(true);
       await cameraRef?.current?.startRecording({
         onRecordingFinished: (video) => setProfileVideo(video.path),
         onRecordingError: (error) => console.error(error),
       });
     } else {
-      // cameraRef?.current?.stopRecording();
-      const video = await cameraRef.current.stopRecording();
+      await cameraRef?.current?.stopRecording();
       setRecording(false);
       setCameraActivated(false);
     }
@@ -241,7 +240,6 @@ const ProfileVideoCamera = ({
           </Text>
         </View>
       </TouchableOpacity>
-      <View></View>
       <View
         style={{
           backgroundColor: themeStyle.colors.grayscale.high,
@@ -250,15 +248,19 @@ const ProfileVideoCamera = ({
           paddingVertical: 2,
           paddingHorizontal: 10,
           borderRadius: 50,
+          zIndex: 1,
         }}
       >
         <Text
           style={{
-            color: themeStyle.colors.grayscale.lowest,
+            color:
+              recording && recordingLength <= 5
+                ? themeStyle.colors.error.default
+                : themeStyle.colors.white,
             fontSize: 14,
           }}
         >
-          {recordingLength} seconds
+          {recording ? `${recordingLength} seconds` : "Ready to record"}
         </Text>
       </View>
       <View
@@ -269,20 +271,15 @@ const ProfileVideoCamera = ({
           zIndex: 999,
         }}
       >
-        {/* <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-evenly",
-            }}
-          > */}
         <TouchableOpacity
           style={{
             alignSelf: "center",
             width: 50,
             position: "absolute",
             bottom: 20,
+            zIndex: 2,
           }}
-          disabled={recording && recordingLength > 12}
+          disabled={recording && recordingLength > 17}
           onPress={() => handleRecordClick()}
         >
           <View
@@ -290,7 +287,7 @@ const ProfileVideoCamera = ({
               borderWidth: 5,
               borderRadius: 50,
               borderColor:
-                recordingLength > 15 - 3
+                recordingLength > 20 - 3
                   ? themeStyle.colors.grayscale.high
                   : themeStyle.colors.grayscale.lowest,
               height: 60,
@@ -306,13 +303,13 @@ const ProfileVideoCamera = ({
                   borderWidth: 2,
                   borderRadius: 5,
                   borderColor:
-                    recordingLength > 15 - 3
+                    recordingLength > 20 - 3
                       ? themeStyle.colors.grayscale.high
                       : themeStyle.colors.error.default,
                   height: 25,
                   width: 25,
                   backgroundColor:
-                    recordingLength > 15 - 3
+                    recordingLength > 20 - 3
                       ? themeStyle.colors.grayscale.high
                       : themeStyle.colors.error.default,
                 }}
@@ -332,6 +329,28 @@ const ProfileVideoCamera = ({
           </View>
         </TouchableOpacity>
       </View>
+      <View
+        style={{
+          position: "absolute",
+          zIndex: 1,
+          width: "100%",
+          backgroundColor: themeStyle.colors.black,
+          top: 0,
+          height: screenWidth / 2.3,
+          opacity: 0.7,
+        }}
+      />
+      <View
+        style={{
+          position: "absolute",
+          zIndex: 1,
+          width: "100%",
+          backgroundColor: themeStyle.colors.black,
+          bottom: 0,
+          height: screenWidth / 2.3,
+          opacity: 0.7,
+        }}
+      />
       {device ? (
         <Camera
           video={true}

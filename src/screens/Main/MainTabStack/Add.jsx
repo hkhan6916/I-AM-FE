@@ -28,7 +28,7 @@ import {
   Image as ImageCompress,
 } from "react-native-compressor";
 import VideoPlayer from "expo-video-player";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { getThumbnailAsync } from "expo-video-thumbnails";
 import Upload from "react-native-background-upload";
@@ -38,6 +38,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import GifModal from "../../../components/GifModal";
 import openAppSettings from "../../../helpers/openAppSettings";
 import backgroundUpload from "../../../helpers/backgroundUpload";
+import { gestureHandlerRootHOC } from "react-native-gesture-handler";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -484,7 +485,7 @@ const AddScreen = () => {
                 }}
               >
                 <TouchableOpacity onPress={() => setShowGifsModal(true)}>
-                  <MaterialCommunityIcons
+                  <MaterialIcons
                     name="gif"
                     size={24}
                     color={themeStyle.colors.grayscale.lowest}
@@ -518,4 +519,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddScreen;
+export default gestureHandlerRootHOC(AddScreen);

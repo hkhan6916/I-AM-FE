@@ -36,7 +36,7 @@ const Step1Screen = () => {
   const [cameraActivated, setCameraActivated] = useState(false);
 
   const [recording, setRecording] = useState(false);
-  const [recordingLength, setRecordingLength] = useState(15);
+  const [recordingLength, setRecordingLength] = useState(20);
   const [showHelpModal, setShowHelpModal] = useState(false);
 
   const { width: screenWidth } = Dimensions.get("window");
@@ -287,15 +287,15 @@ const Step1Screen = () => {
               </View>
             </SafeAreaView>
           </Modal>
-          {recordingLength <= 12 && detectingFaces ? (
+          {recordingLength <= 17 && detectingFaces ? (
             <ActivityIndicator
               animating
               size={"large"}
               color={themeStyle.colors.primary.default}
             />
-          ) : recordingLength <= 12 && profileVideo && faceDetected ? (
+          ) : recordingLength <= 17 && profileVideo && faceDetected ? (
             <PreviewVideo uri={profileVideo} isFullWidth />
-          ) : recordingLength <= 12 && profileVideo ? (
+          ) : recordingLength <= 17 && profileVideo ? (
             <Text style={styles.faceDetectionError}>
               No face detected. Make sure your face is shown at the start and
               end of your profile video.

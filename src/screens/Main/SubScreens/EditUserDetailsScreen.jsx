@@ -56,7 +56,7 @@ const EditUserDetailsScreen = () => {
   const [cameraActivated, setCameraActivated] = useState(false);
 
   const [recording, setRecording] = useState(false);
-  const [recordingLength, setRecordingLength] = useState(15);
+  const [recordingLength, setRecordingLength] = useState(20);
 
   const [faceDetected, setFaceDetected] = useState(false);
 
