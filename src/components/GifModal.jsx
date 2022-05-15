@@ -3,9 +3,7 @@ import {
   View,
   Modal,
   TouchableOpacity,
-  TextInput,
   FlatList,
-  Image,
   Text,
   Dimensions,
   SafeAreaView,
@@ -15,6 +13,7 @@ import themeStyle from "../theme.style";
 import { getItemAsync } from "expo-secure-store";
 import axios from "axios";
 import SearchBar from "./SearchBar";
+import FastImage from "react-native-fast-image";
 
 const GifModal = ({ setShowModal, selectGif, active }) => {
   const [error, setError] = useState("");
@@ -67,14 +66,19 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
             setShowModal(false);
           }}
         >
-          <Image
+          <FastImage
             style={{
               justifyContent: "center",
               alignItems: "center",
               height: imageHeight,
               width: "100%",
             }}
-            source={{ uri: item.media[0].tinygif.url }}
+            source={{
+              uri: item.media[0].tinygif.url,
+              cache: FastImage.cacheControl.web,
+            }}
+
+            // mediaUrl={item.media[0].tinygif.url}
           />
         </TouchableOpacity>
       </View>

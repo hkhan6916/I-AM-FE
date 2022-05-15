@@ -21,6 +21,7 @@ import RepostCard from "../../../components/RepostCard";
 import VideoPlayer from "expo-video-player";
 import { AntDesign } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
+import FastImage from "react-native-fast-image";
 
 const EditPostScreen = (props) => {
   const [postBody, setPostBody] = useState("");
@@ -196,10 +197,10 @@ const EditPostScreen = (props) => {
                     padding: 5,
                   }}
                 >
-                  <Image
+                  <FastImage
                     resizeMode="contain"
                     style={{ width: "100%", height: "100%" }}
-                    source={{ uri: existingPost?.gif }}
+                    source={{ uri: existingPost?.gif, cache: "web" }}
                   />
                 </View>
               ) : existingPost?.mediaType === "video" ? (

@@ -5,6 +5,7 @@ import Avatar from "./Avatar";
 import themeStyle from "../theme.style";
 import ImageWithCache from "./ImageWithCache";
 import { Feather } from "@expo/vector-icons";
+import FastImage from "react-native-fast-image";
 
 const RepostCard = ({ postContent, isPreview }) => {
   const navigation = useNavigation();
@@ -87,14 +88,14 @@ const RepostCard = ({ postContent, isPreview }) => {
               flexDirection: "column",
             }}
           >
-            <Image
+            <FastImage
               resizeMode={"contain"}
               style={{
                 aspectRatio: 1 / 1,
                 width: "100%",
                 height: "100%",
               }}
-              source={{ uri: postContent.gif }}
+              source={{ uri: postContent.gif, cache: "web" }}
             />
           </View>
         ) : postContent.mediaType === "video" ? (

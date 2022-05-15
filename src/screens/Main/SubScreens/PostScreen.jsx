@@ -24,6 +24,7 @@ import VideoPlayer from "../../../components/VideoPlayer";
 import AnimatedLottieView from "lottie-react-native";
 import { useDispatch } from "react-redux";
 import PostAge from "../../../components/PostAge";
+import FastImage from "react-native-fast-image";
 
 const PostScreen = (props) => {
   const { post: initialPost, prevScreen } = props.route.params;
@@ -192,14 +193,14 @@ const PostScreen = (props) => {
                     flexDirection: "column",
                   }}
                 >
-                  <Image
+                  <FastImage
                     resizeMode={"contain"}
                     style={{
                       aspectRatio: 1 / 1,
                       width: "100%",
                       height: "100%",
                     }}
-                    source={{ uri: post.gif }}
+                    source={{ uri: post.gif, cache: "web" }}
                   />
                 </View>
               ) : post.mediaType === "video" ? (

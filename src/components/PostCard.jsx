@@ -16,6 +16,7 @@ import RepostCard from "./RepostCard";
 import AnimatedLottieView from "lottie-react-native";
 import PostAge from "./PostAge";
 import AdCard from "./AdCard";
+import FastImage from "react-native-fast-image";
 
 const PostCard = ({
   post: initialPost,
@@ -209,14 +210,14 @@ const PostCard = ({
                         source={require("../../assets/via_tenor_logo_blue.png")}
                       />
                     </View>
-                    <Image
+                    <FastImage
                       resizeMode={"contain"}
                       style={{
                         aspectRatio: 1 / 1,
                         width: "100%",
                         height: "100%",
                       }}
-                      source={{ uri: post.gif }}
+                      source={{ uri: post.gif, cache: "web" }}
                     />
                   </View>
                 ) : post.mediaType === "video" ? (

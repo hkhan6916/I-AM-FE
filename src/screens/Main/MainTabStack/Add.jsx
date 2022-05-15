@@ -39,6 +39,7 @@ import GifModal from "../../../components/GifModal";
 import openAppSettings from "../../../helpers/openAppSettings";
 import backgroundUpload from "../../../helpers/backgroundUpload";
 import { gestureHandlerRootHOC } from "react-native-gesture-handler";
+import FastImage from "react-native-fast-image";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -430,10 +431,10 @@ const AddScreen = () => {
                   padding: 5,
                 }}
               >
-                <Image
-                  resizeMode="contain"
+                <FastImage
+                  resizeMode="cover"
                   style={{ width: "100%", height: "100%" }}
-                  source={{ uri: gif }}
+                  source={{ uri: gif, cache: "web" }}
                 />
               </View>
             ) : null}
