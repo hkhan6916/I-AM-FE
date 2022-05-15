@@ -17,7 +17,7 @@ import axios from "axios";
 import SearchBar from "./SearchBar";
 
 const GifModal = ({ setShowModal, selectGif, active }) => {
-  const [searchQuery, setSearchQuery] = useState(""); //TODO i dont think we're searching for what the user actually has typed. noticed the search seems to miss out some letters the user has typed e.g. hello seems to search for hell?
+  const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState("");
   const [gifs, setGifs] = useState([]);
 
@@ -32,7 +32,7 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
         const response = await axios({
           method: "POST",
           url: `https://g.tenor.com/v1/search?q=${
-            searchQuery || ""
+            searchInput || ""
           }&key=${tenorApiKey}&limit=20&media_filter=minimal&contentfilter=high&locale=en_US&ar_range=standard`,
         });
         if (error) {

@@ -108,7 +108,7 @@ const ProfileVideoCamera = ({
           flex: 1,
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: themeStyle.colors.grayscale.lowest,
+          backgroundColor: themeStyle.colors.highest,
         }}
       >
         <View
@@ -222,6 +222,7 @@ const ProfileVideoCamera = ({
           position: "absolute",
           top: 0,
           left: 0,
+          zIndex: 9999,
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -248,7 +249,7 @@ const ProfileVideoCamera = ({
           paddingVertical: 2,
           paddingHorizontal: 10,
           borderRadius: 50,
-          zIndex: 1,
+          zIndex: 9999,
         }}
       >
         <Text

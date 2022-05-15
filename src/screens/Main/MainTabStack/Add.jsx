@@ -385,7 +385,6 @@ const AddScreen = () => {
                       padding: 5,
                     }}
                   >
-                    {console.log({ file })}
                     <VideoPlayer
                       autoHidePlayer={false}
                       fullscreen

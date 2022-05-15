@@ -58,6 +58,7 @@ const PostOptionsModal = ({
                 width: "100%",
                 padding: 20,
                 backgroundColor: themeStyle.colors.grayscale.higher,
+                paddingBottom: 40,
               }}
             >
               {error ? (
@@ -91,12 +92,19 @@ const PostOptionsModal = ({
                   ) : null}
                   {belongsToUser ? (
                     <View>
-                      <TouchableOpacity onPress={() => editPost()}>
+                      <TouchableOpacity
+                        style={{
+                          height: 65,
+                          justifyContent: "center",
+                        }}
+                        onPress={() => editPost()}
+                      >
                         <Text
                           style={{
                             color: themeStyle.colors.grayscale.lowest,
                             textAlign: "center",
                             marginBottom: 20,
+                            paddingHorizontal: 40,
                           }}
                         >
                           Edit
@@ -104,12 +112,17 @@ const PostOptionsModal = ({
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() => setShowDeleteGuard(true)}
+                        style={{
+                          height: 48,
+                          justifyContent: "center",
+                        }}
                       >
                         <Text
                           style={{
                             color: themeStyle.colors.error.default,
                             textAlign: "center",
                             marginBottom: 20,
+                            paddingHorizontal: 40,
                           }}
                         >
                           Delete
@@ -124,6 +137,7 @@ const PostOptionsModal = ({
                     style={{
                       color: themeStyle.colors.grayscale.lowest,
                       marginBottom: 20,
+                      marginLeft: 20,
                     }}
                   >
                     Are you sure?
@@ -140,16 +154,26 @@ const PostOptionsModal = ({
                         await deletePost();
                         setShowDeleteGuard(false);
                       }}
+                      style={{ height: 48, justifyContent: "center" }}
                     >
-                      <Text style={{ color: themeStyle.colors.error.default }}>
+                      <Text
+                        style={{
+                          color: themeStyle.colors.error.default,
+                          paddingHorizontal: 20,
+                        }}
+                      >
                         Delete
                       </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setShowDeleteGuard(false)}>
+                    <TouchableOpacity
+                      onPress={() => setShowDeleteGuard(false)}
+                      style={{ height: 48, justifyContent: "center" }}
+                    >
                       <Text
                         style={{
                           color: themeStyle.colors.grayscale.lowest,
                           textAlign: "center",
+                          paddingHorizontal: 40,
                         }}
                       >
                         Cancel

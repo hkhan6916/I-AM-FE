@@ -128,7 +128,7 @@ const EditPostScreen = (props) => {
           <Text
             style={{ color: themeStyle.colors.success.default, margin: 10 }}
           >
-            Post updated.
+            Post updated
           </Text>
         ) : null}
         <ScrollView contentContainerStyle={{ padding: 10 }}>
@@ -140,8 +140,8 @@ const EditPostScreen = (props) => {
               color: themeStyle.colors.grayscale.lowest,
             }}
             value={postBody}
-            placeholder=""
-            placeholderTextColor={themeStyle.colors.grayscale.lower}
+            placeholder="What's on your mind?"
+            placeholderTextColor={themeStyle.colors.grayscale.low}
             multiline
             maxLength={2000}
             onChangeText={(v) => setPostBody(v)}
@@ -172,6 +172,8 @@ const EditPostScreen = (props) => {
             <View
               style={{
                 borderRadius: 5,
+                borderWidth: 1,
+                borderColor: themeStyle.colors.primary.default,
               }}
             >
               <TouchableOpacity
@@ -224,8 +226,9 @@ const EditPostScreen = (props) => {
                     />
                   ) : (
                     <ImageWithCache
+                      removeBackround
                       removeBorderRadius
-                      resizeMode="cover"
+                      resizeMode="contain"
                       mediaUrl={existingPost?.thumbnailUrl}
                       mediaHeaders={existingPost?.thumbnailHeaders}
                       aspectRatio={1 / 1}
@@ -242,11 +245,12 @@ const EditPostScreen = (props) => {
                   }}
                 >
                   <ImageWithCache
-                    mediaIsSelfie={existingPost?.isSelfie}
+                    removeBackround
+                    removeBorderRadius
                     resizeMode="contain"
+                    mediaIsSelfie={existingPost?.isSelfie}
                     mediaUrl={existingPost?.mediaUrl}
                     aspectRatio={1 / 1}
-                    removeBorderRadius
                     mediaHeaders={existingPost?.mediaHeaders}
                   />
                 </View>

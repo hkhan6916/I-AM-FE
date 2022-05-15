@@ -162,10 +162,10 @@ const Step1Screen = () => {
       setHasAudioPermission(audioStatus.status === "granted");
     })();
     return () => {
-      setHasCameraPermission(false);
-      setHasAudioPermission(false);
+      setHasCameraPermission(null);
+      setHasAudioPermission(null);
     };
-  }, []);
+  }, [cameraActivated]);
 
   useEffect(() => {
     if (cameraActivated || loading) {

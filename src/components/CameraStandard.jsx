@@ -7,6 +7,7 @@ import {
   View,
   StatusBar,
   SafeAreaView,
+  BackHandler,
 } from "react-native";
 import {
   PinchGestureHandler,
@@ -161,7 +162,6 @@ const CameraStandard = ({
     console.error({ error });
   }, []);
   const onInitialized = useCallback(() => {
-    console.log("Camera initialized!");
     setIsCameraInitialized(true);
   }, []);
   const onMediaCaptured = useCallback(
@@ -169,11 +169,6 @@ const CameraStandard = ({
       await ScreenOrientation.lockAsync(
         ScreenOrientation.OrientationLock.PORTRAIT_UP
       );
-      console.log(`Media captured! ${JSON.stringify(media)}`);
-      // navigation.navigate("MediaPage", {
-      //   path: media.path,
-      //   type: type,
-      // });
       const re = /(?:\.([^.]+))?$/;
       const fileExtension = re.exec(media.path)[1];
       const resizedPhoto =
@@ -190,7 +185,6 @@ const CameraStandard = ({
         isSelfie: cameraPosition === "front",
       });
       setCameraActive(false);
-      console.log(`${type === "photo" ? "image" : "video"}/${fileExtension}`);
     },
     [cameraPosition]
   );
@@ -200,12 +194,16 @@ const CameraStandard = ({
   const onFlashPressed = useCallback(() => {
     setFlash((f) => (f === "off" ? "on" : "off"));
   }, []);
-  //#endregion
 
-  //#region Tap Gesture
+  const deactivateCamera = () => {
+    setCameraActive(false);
+    return true;
+  };
+
   const onDoubleTap = useCallback(() => {
     onFlipCameraPressed();
   }, [onFlipCameraPressed]);
+
   //#endregion
   //#region Effects
   const neutralZoom = device?.neutralZoom ?? 1;
@@ -216,6 +214,7 @@ const CameraStandard = ({
 
   useEffect(() => {
     (async () => {
+      BackHandler.addEventListener("hardwareBackPress", deactivateCamera);
       await ScreenOrientation.unlockAsync();
 
       await Camera.requestMicrophonePermission().then((status) =>
@@ -228,17 +227,11 @@ const CameraStandard = ({
       dispatch({ type: "SET_CAMERA_ACTIVATED", payload: true });
     })();
     return async () => {
+      BackHandler.removeEventListener("hardwareBackPress", deactivateCamera);
       dispatch({ type: "SET_CAMERA_ACTIVATED", payload: false });
       setHasCameraPermission(false);
       setCameraActive(false);
     };
-
-    // Camera.getMicrophonePermissionStatus().then((status) =>
-    //   setHasMicrophonePermission(status === "authorized")
-    // );
-    // Camera.getCameraPermissionStatus().then((status) =>
-    //   setHasMicrophonePermission(status === "authorized")
-    // );
   }, []);
   //#endregion
 
