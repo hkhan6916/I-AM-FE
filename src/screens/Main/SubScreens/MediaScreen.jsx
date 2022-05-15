@@ -110,7 +110,7 @@ const MediaScreen = (props) => {
       <SafeAreaView style={styles.container}>
         <View>
           {post?.mediaType === "video" ? (
-            <ExpoVideoPlayer uri={post.mediaUrl} />
+            <ExpoVideoPlayer isSelfi={post.mediaIsSelfie} uri={post.mediaUrl} />
           ) : post?.mediaType === "image" ? (
             <View
               style={{

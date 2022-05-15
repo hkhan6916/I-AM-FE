@@ -12,6 +12,7 @@ import {
 import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
 import UserSearchBar from "../../../components/UserSearchBar";
+import themeStyle from "../../../theme.style";
 const CreateChatScreen = () => {
   const isMounted = useRef(null);
 
@@ -39,9 +40,13 @@ const CreateChatScreen = () => {
 
   const handleChatNavigation = async (chatUserId, chatUserFirstName) => {
     setError(false);
-    const { response, success } = await apiCall("POST", "/chat/exists", {
-      participants: [chatUserId],
-    });
+    const { response, success, message } = await apiCall(
+      "POST",
+      "/chat/exists",
+      {
+        participants: [chatUserId],
+      }
+    );
     if (success) {
       if (response === null) {
         navigation.navigate("ChatScreen", { chatUserId, chatUserFirstName });
@@ -105,7 +110,14 @@ const CreateChatScreen = () => {
         />
       ) : (
         <View>
-          <Text>Oops, something went wrong</Text>
+          <Text
+            style={{
+              textAlign: "center",
+              color: themeStyle.colors.grayscale.lowest,
+            }}
+          >
+            Something went wrong, please try again later.
+          </Text>
         </View>
       )}
     </View>

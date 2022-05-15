@@ -217,7 +217,7 @@ const EditPostScreen = (props) => {
                       mediaIsSelfie
                       videoProps={{
                         shouldPlay: false,
-                        resizeMode: Video.RESIZE_MODE_CONTAIN,
+                        resizeMode: "contain",
                         source: {
                           uri: existingPost?.mediaUrl,
                         },

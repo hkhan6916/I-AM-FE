@@ -2,7 +2,7 @@
   "expo": {
     "name": "Magnet",
     "slug": "Magnet",
-    "version": "1.0.2",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -37,6 +37,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "react-native-compressor",
       "react-native-vision-camera"
     ]
   }

@@ -207,7 +207,7 @@ const AddScreen = () => {
     if (status !== "granted") {
       Alert.alert(
         "Unable access camera roll",
-        "Please storage permissions to post media files.",
+        "Please enable storage permissions to post media files.",
         [
           {
             text: "Cancel",
@@ -391,7 +391,7 @@ const AddScreen = () => {
                       mediaIsSelfie
                       videoProps={{
                         shouldPlay: true,
-                        resizeMode: Video.RESIZE_MODE_CONTAIN,
+                        resizeMode: "contain",
                         source: {
                           uri: file.uri,
                         },

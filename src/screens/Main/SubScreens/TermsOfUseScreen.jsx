@@ -25,8 +25,9 @@ const TermsOfUseScreen = () => {
         Last updated January 08, 2022{"\n"}
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-        Magnet is licensed to You (End-User) by Magnet (hereinafter: Licensor),
-        for use only under the terms of this License Agreement.
+        Magnet is licensed to You (End-User) by MAGNET SOFTWARE LIMITED
+        (hereinafter: MAGNET SOFTWARE), for use only under the terms of this
+        License Agreement.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         By downloading the Application from the Google Play Store or Apple
@@ -39,15 +40,16 @@ const TermsOfUseScreen = () => {
         The parties of this License Agreement acknowledge that neither Apple nor
         Google is a Party to this License Agreement and is not bound by any
         provisions or obligations with regard to the Application, such as
-        warranty, liability, maintenance and support thereof. Magnet, not Apple
-        nor Google, is solely responsible for the licensed Application and the
-        content thereof.
+        warranty, liability, maintenance and support thereof. MAGNET SOFTWARE,
+        not Apple nor Google, is solely responsible for the licensed Application
+        and the content thereof.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         This License Agreement may not provide for usage rules for the
         Application that are in conflict with the latest App Store Terms of
-        Service. Magnet acknowledges that it had the opportunity to review said
-        terms and this License Agreement is not conflicting with them.
+        Service. MAGNET SOFTWARE acknowledges that it had the opportunity to
+        review said terms and this License Agreement is not conflicting with
+        them.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         All rights not expressly granted to You are reserved.
@@ -65,9 +67,9 @@ const TermsOfUseScreen = () => {
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         Magnet (hereinafter: Application) is a piece of software created to
-        Enable people to connect easily. - and customized for Android and Apple
+        enable people to connect easily and customized for Android and Apple
         mobile devices. It is used to create a network of people you can
-        communicate with using Magnet.
+        communicate directly with.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         The Application is not tailored to comply with industry-specific
@@ -100,9 +102,9 @@ const TermsOfUseScreen = () => {
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         2.2 This license will also govern any updates of the Application
-        provided by Licensor that replace, repair, and/or supplement the first
-        Application, unless a separate license is provided for such update in
-        which case the terms of that new license will govern.
+        provided by MAGNET SOFTWARE that replace, repair, and/or supplement the
+        first Application, unless a separate license is provided for such update
+        in which case the terms of that new license will govern.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         2.3 You may not reverse engineer, translate, disassemble, integrate,
@@ -126,8 +128,8 @@ const TermsOfUseScreen = () => {
         attempt of such infringement, may be subject to prosecution and damages.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-        2.6 Licensor reserves the right to modify the terms and conditions of
-        licensing.
+        2.6 MAGNET SOFTWARE reserves the right to modify the terms and
+        conditions of licensing.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         2.7 Nothing in this license should be interpreted to restrict
@@ -146,11 +148,11 @@ const TermsOfUseScreen = () => {
         3. TECHNICAL REQUIREMENTS
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-        3.1 The Application requires a firmware version 7.0.0 or higher.
-        Licensor recommends using the latest version of the firmware.
+        3.1 The Application requires a firmware version 7.0.0 or higher. MAGNET
+        SOFTWARE recommends using the latest version of the firmware.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-        3.2 Licensor attempts to keep the Application updated so that it
+        3.2 MAGNET SOFTWARE attempts to keep the Application updated so that it
         complies with modified/new versions of the firmware and new hardware.
         You are not granted rights to claim such an update.
       </Text>
@@ -160,8 +162,8 @@ const TermsOfUseScreen = () => {
         Application satisfies the technical specifications mentioned above.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-        3.4 Licensor reserves the right to modify the technical specifications
-        as it sees appropriate at any time.
+        3.4 MAGNET SOFTWARE reserves the right to modify the technical
+        specifications as it sees appropriate at any time.
       </Text>
       <Text
         style={{
@@ -175,10 +177,10 @@ const TermsOfUseScreen = () => {
         4. MAINTENANCE AND SUPPORT
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-        4.1 The Licensor is solely responsible for providing any maintenance and
-        support services for this licensed Application. You can reach the
-        Licensor at the email address listed in the App Store Overview for this
-        licensed Application.
+        4.1 MAGNET SOFTWARE is solely responsible for providing any maintenance
+        and support services for this licensed Application. You can reach the
+        MAGNET SOFTWARE at the email address listed in the App Store or Google
+        Play Store Overview for this licensed Application.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         4.2 Magnet and the End-User acknowledge that neither Google nor Apple
@@ -196,11 +198,12 @@ const TermsOfUseScreen = () => {
         {"\n"}5. USE OF DATA
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-        You acknowledge that Licensor will be able to access and adjust Your
-        downloaded licensed Application content and Your personal information,
-        and that Licensor&apos;s use of such material and information is subject
-        to Your legal agreements with Licensor and Licensor&apos;s privacy
-        policy: https://magnetapp.co.uk/#/privacypolicy.
+        You acknowledge that MAGNET SOFTWARE will be able to access and adjust
+        Your downloaded licensed Application content and Your personal
+        information, and that MAGNET SOFTWARE&apos;s use of such material and
+        information is subject to Your legal agreements with MAGNET SOFTWARE and
+        MAGNET SOFTWARE&apos;s privacy policy:
+        https://magnetapp.co.uk/#/privacypolicy.
       </Text>
       <Text
         style={{
@@ -366,8 +369,8 @@ const TermsOfUseScreen = () => {
         {"\n"}8. LIABILITY
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-        8.1 Licensor takes no accountability or responsibility for any damages
-        caused due to a breach of duties according to Section 2 of this
+        8.1 MAGNET SOFTWARE takes no accountability or responsibility for any
+        damages caused due to a breach of duties according to Section 2 of this
         Agreement. To avoid data loss, You are required to make use of backup
         functions of the Application to the extent allowed by applicable
         third-party terms and conditions of use. You are aware that in case of
@@ -385,10 +388,10 @@ const TermsOfUseScreen = () => {
         {"\n"}9. WARRANTY
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-        9.1 Licensor warrants that the Application is free of spyware, trojan
-        horses, viruses, or any other malware at the time of Your download.
-        Licensor warrants that the Application works as described in the user
-        documentation.
+        9.1 MAGNET SOFTWARE warrants that the Application is free of spyware,
+        trojan horses, viruses, or any other malware at the time of Your
+        download. MAGNET SOFTWARE warrants that the Application works as
+        described in the user documentation.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         9.2 No warranty is provided for the Application that is not executable

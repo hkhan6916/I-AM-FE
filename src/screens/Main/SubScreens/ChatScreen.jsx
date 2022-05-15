@@ -36,6 +36,8 @@ import {
 import { getThumbnailAsync } from "expo-video-thumbnails";
 import openAppSettings from "../../../helpers/openAppSettings";
 import backgroundUpload from "../../../helpers/backgroundUpload";
+import { gestureHandlerRootHOC } from "react-native-gesture-handler";
+
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
   const [socket, setSocket] = useState(null);
@@ -371,7 +373,7 @@ const ChatScreen = (props) => {
     if (status !== "granted") {
       Alert.alert(
         "Unable access camera roll",
-        "Please storage permissions to post media files.",
+        "Please enable storage permissions to post media files.",
         [
           {
             text: "Cancel",
@@ -891,4 +893,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatScreen;
+export default gestureHandlerRootHOC(ChatScreen);

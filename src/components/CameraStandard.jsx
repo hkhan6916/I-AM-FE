@@ -220,6 +220,12 @@ const CameraStandard = ({
       await Camera.requestMicrophonePermission().then((status) =>
         setHasMicrophonePermission(status === "authorized")
       );
+      await Camera.getCameraPermissionStatus().then((status) =>
+        setHasMicrophonePermission(status === "authorized")
+      );
+      await Camera.getMicrophonePermissionStatus().then((status) =>
+        setHasMicrophonePermission(status === "authorized")
+      );
 
       await Camera.requestMicrophonePermission().then((status) =>
         setHasCameraPermission(status === "authorized")

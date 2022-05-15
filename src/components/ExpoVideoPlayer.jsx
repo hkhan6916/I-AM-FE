@@ -5,7 +5,7 @@ import VideoPlayer from "expo-video-player";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
 import { useFocusEffect } from "@react-navigation/native";
 
-const ExpoVideoPlayer = ({ uri }) => {
+const ExpoVideoPlayer = ({ uri, isSelfie }) => {
   useScreenOrientation(true); // just forces a re render ONLY when screen rotates. Without this, video does not adjust for landscape viewing.
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
@@ -27,15 +27,15 @@ const ExpoVideoPlayer = ({ uri }) => {
       videoProps={{
         ref: videoRef,
         shouldPlay: true,
-        resizeMode: Video.RESIZE_MODE_CONTAIN,
+        resizeMode: "contain",
         source: {
           uri: uri,
         },
-        style: {
-          width: screenWidth,
-          height: screenHeight / 1.1,
-          transform: [{ scaleX: -1 }],
-        },
+        // style: {
+        //   width: screenWidth,
+        //   height: screenHeight / 1.1,
+        //   transform: [{ scaleX: isSelfie ? -1 : 1 }],
+        // },
       }}
       fullscreen
     />

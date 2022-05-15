@@ -150,7 +150,9 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
               style={{ width: "100%", height: "100%", position: "absolute" }}
             />
           ) : null}
-          {videoStatus?.durationMillis && videoStatus?.positionMillis ? (
+          {videoStatus?.durationMillis &&
+          videoStatus?.positionMillis &&
+          ready ? (
             <View
               style={{
                 position: "absolute",

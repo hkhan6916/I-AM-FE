@@ -17,7 +17,6 @@ import axios from "axios";
 import SearchBar from "./SearchBar";
 
 const GifModal = ({ setShowModal, selectGif, active }) => {
-  const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState("");
   const [gifs, setGifs] = useState([]);
 
@@ -27,7 +26,6 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
     let isCancelled = false;
     if (!isCancelled) {
       const tenorApiKey = await getItemAsync("tenorApiKey");
-      setSearchQuery(searchInput);
       try {
         const response = await axios({
           method: "POST",
