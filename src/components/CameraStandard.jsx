@@ -8,6 +8,7 @@ import {
   StatusBar,
   SafeAreaView,
   BackHandler,
+  Platform,
 } from "react-native";
 import {
   PinchGestureHandler,
@@ -182,7 +183,7 @@ const CameraStandard = ({
         type: `${type === "photo" ? "image" : "video"}/${fileExtension}`,
         name: `${"media."}${fileExtension}`,
         uri: type === "photo" ? resizedPhoto.uri : media.path,
-        isSelfie: cameraPosition === "front",
+        isSelfie: cameraPosition === "front" && Platform.OS === "android",
       });
       setCameraActive(false);
     },
@@ -217,19 +218,23 @@ const CameraStandard = ({
       BackHandler.addEventListener("hardwareBackPress", deactivateCamera);
       await ScreenOrientation.unlockAsync();
 
-      await Camera.requestMicrophonePermission().then((status) =>
-        setHasMicrophonePermission(status === "authorized")
-      );
-      await Camera.getCameraPermissionStatus().then((status) =>
-        setHasMicrophonePermission(status === "authorized")
-      );
-      await Camera.getMicrophonePermissionStatus().then((status) =>
-        setHasMicrophonePermission(status === "authorized")
-      );
+      await Camera.getCameraPermissionStatus().then(async (status) => {
+        setHasCameraPermission(status === "authorized");
+        if (status !== "authorized") {
+          await Camera.requestCameraPermission().then((status) =>
+            setHasCameraPermission(status === "authorized")
+          );
+        }
+      });
+      await Camera.getMicrophonePermissionStatus().then(async (status) => {
+        setHasMicrophonePermission(status === "authorized");
+        if (status !== "authorized") {
+          await Camera.requestMicrophonePermission().then((status) =>
+            setHasMicrophonePermission(status === "authorized")
+          );
+        }
+      });
 
-      await Camera.requestMicrophonePermission().then((status) =>
-        setHasCameraPermission(status === "authorized")
-      );
       dispatch({ type: "SET_CAMERA_ACTIVATED", payload: true });
     })();
     return async () => {

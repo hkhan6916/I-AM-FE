@@ -21,7 +21,9 @@ import { deleteUserSearchHistoryTable } from "../helpers/sqlite/userSearchHistor
 import { openDatabase } from "expo-sqlite";
 
 LogBox.ignoreLogs([
-  "ViewPropTypes will be removed from React Native. Migrate to ViewPropTypes exported from 'deprecated-react-native-prop-types'.",
+  "ViewPropTypes will be removed",
+  "NativeBase: The contrast ratio of",
+  "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
 ]);
 
 const Screens = () => {
@@ -76,7 +78,7 @@ const Screens = () => {
       }
       token = (
         await Notifications.getExpoPushTokenAsync({
-          experienceId: "@hkhan6916/I-Am-FE", // TODO: Change experience id in production
+          experienceId: "@haroonmagnet/Magnet", // TODO: Change experience id in production
         })
       ).data;
     } else {

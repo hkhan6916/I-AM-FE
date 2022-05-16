@@ -15,6 +15,7 @@ import PostCard from "../../../components/PostCard";
 import ProfileInfo from "../../../components/ProfileInfo";
 import ContentLoader from "../../../components/ContentLoader";
 import PostOptionsModal from "../../../components/PostOptionsModal";
+import { useSelector } from "react-redux";
 
 const UserProfileScreen = (props) => {
   const { userId } = props.route.params;
@@ -27,6 +28,8 @@ const UserProfileScreen = (props) => {
   const [loading, setLoading] = useState(false);
   const [showPostOptions, setShowPostOptions] = useState(null);
   const [error, setError] = useState("");
+
+  const userData = useSelector((state) => state.userData);
 
   const { width: screenWidth } = Dimensions.get("window");
 
@@ -244,6 +247,7 @@ const UserProfileScreen = (props) => {
         rejectFriendRequest={rejectFriendRequest}
         sendFriendRequest={sendFriendRequest}
         removeConnection={removeConnection}
+        canAdd={userData.state.profileVideoUrl}
       />
     );
   }

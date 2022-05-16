@@ -214,7 +214,10 @@ const EditUserDetailsScreen = () => {
           "content-type": "multipart/form-data", // Customize content-type
           Authorization: `Bearer ${token}`,
         },
-        parameters: validData,
+        parameters: {
+          ...validData,
+          flipProfileVideo: (Platform.OS === "android").toString(),
+        },
         field: "file",
         // Below are options only supported on Android
         notification: {
@@ -223,10 +226,11 @@ const EditUserDetailsScreen = () => {
         useUtf8Charset: true,
         // customUploadId: post?._id,
       };
-      // compress in background and .then (()=>startupload)
       Upload.startUpload(options)
         .then((uploadId) => {
-          Upload.addListener("progress", uploadId, () => {});
+          Upload.addListener("progress", uploadId, (progress) => {
+            console.log(progress);
+          });
           Upload.addListener("error", uploadId, async (data) => {
             if (!unFocussed) {
               setIsUpdating(false);
@@ -285,8 +289,8 @@ const EditUserDetailsScreen = () => {
             }
           });
         })
-        .catch(async () => {
-          return;
+        .catch(async (e) => {
+          console.log(e);
         });
     }
   };
@@ -406,6 +410,7 @@ const EditUserDetailsScreen = () => {
               (!profileVideo && initialProfileData.profileVideoUrl) ? (
                 <View>
                   <PreviewVideo
+                    flipProfileVideo={initialProfileData.flipProfileVideo}
                     isFullWidth
                     uri={profileVideo || initialProfileData?.profileVideoUrl}
                     headers={initialProfileData?.profileVideoHeaders}
@@ -423,7 +428,11 @@ const EditUserDetailsScreen = () => {
                 </View>
               ) : profileVideo ? (
                 <View>
-                  <PreviewVideo isFullWidth uri={profileVideo} />
+                  <PreviewVideo
+                    isFullWidth
+                    flipProfileVideo={Platform.OS === "android" && profileVideo}
+                    uri={profileVideo}
+                  />
                   <View style={styles.faceDetectionError}>
                     {!detectingFaces ? (
                       <Text style={styles.faceDetectionErrorText}>
@@ -451,7 +460,10 @@ const EditUserDetailsScreen = () => {
                 }}
               >
                 <Text style={styles.takeVideoButtonText}>
-                  <Ionicons name="videocam" size={14} /> Retake profile video
+                  <Ionicons name="videocam" size={14} />{" "}
+                  {initialProfileData.profileVideoUrl || profileVideo
+                    ? "Retake profile video"
+                    : "Add profile video"}
                 </Text>
               </TouchableOpacity>
 

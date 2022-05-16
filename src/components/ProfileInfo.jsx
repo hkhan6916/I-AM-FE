@@ -17,6 +17,7 @@ const ProfileInfo = ({
   rejectFriendRequest,
   removeConnection,
   acceptFriendRequest,
+  canAdd,
 }) => {
   const [showUserOptions, setShowUserOptions] = useState(false);
   const [reportError, setReportError] = useState("");
@@ -76,8 +77,10 @@ const ProfileInfo = ({
         user={user}
         removeConnection={removeConnection}
       />
+
       <PreviewVideo
         uri={user.profileVideoUrl}
+        flipProfileVideo={user.flipProfileVideo}
         isFullWidth
         previewText={"Tap to play"}
       />
@@ -250,17 +253,21 @@ const ProfileInfo = ({
                 </Text>
                 <TouchableOpacity
                   style={{ marginVertical: 10 }}
+                  disabled={!canAdd}
                   onPress={() => acceptFriendRequest()}
                 >
                   <View
                     style={{
-                      borderColor: themeStyle.colors.success.default,
+                      borderColor: canAdd
+                        ? themeStyle.colors.success.default
+                        : themeStyle.colors.grayscale.high,
                       borderWidth: 1,
                       padding: 10,
                       borderRadius: 5,
                       alignItems: "center",
                       justifyContent: "center",
                       flexDirection: "row",
+                      opacity: canAdd ? 1 : 0.5,
                     }}
                   >
                     <AntDesign
@@ -334,16 +341,22 @@ const ProfileInfo = ({
                 </View>
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity onPress={() => sendFriendRequest()}>
+              <TouchableOpacity
+                disabled={!canAdd}
+                onPress={() => sendFriendRequest()}
+              >
                 <View
                   style={{
-                    borderColor: themeStyle.colors.primary.default,
+                    borderColor: canAdd
+                      ? themeStyle.colors.success.default
+                      : themeStyle.colors.grayscale.high,
                     borderWidth: 1,
                     padding: 10,
                     borderRadius: 5,
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "center",
+                    opacity: canAdd ? 1 : 0.5,
                   }}
                 >
                   <Entypo

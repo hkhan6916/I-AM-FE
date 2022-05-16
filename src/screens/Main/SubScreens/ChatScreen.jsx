@@ -681,7 +681,7 @@ const ChatScreen = (props) => {
                   height: 48,
                   justifyContent: "center",
                   alignItems: "center",
-                  backgroundColor: themeStyle.colors.secondary.default,
+                  backgroundColor: "rgba(140, 140, 140, 0.3)",
                   borderRadius: 50,
                   marginBottom: 5,
                 },
@@ -703,7 +703,7 @@ const ChatScreen = (props) => {
                   height: 48,
                   justifyContent: "center",
                   alignItems: "center",
-                  backgroundColor: themeStyle.colors.secondary.default,
+                  backgroundColor: "rgba(140, 140, 140, 0.3)",
                   borderRadius: 50,
                   marginBottom: 5,
                 },
@@ -725,7 +725,7 @@ const ChatScreen = (props) => {
                 justifyContent: "center",
                 alignItems: "center",
                 borderRadius: 100,
-                backgroundColor: themeStyle.colors.secondary.default,
+                backgroundColor: "rgba(140, 140, 140, 0.3)",
               }}
               onPress={() => setShowActions(!showActions)}
             >
@@ -736,37 +736,6 @@ const ChatScreen = (props) => {
               />
             </TouchableOpacity>
           </View>
-          {/* <View
-            style={{
-              flex: 1,
-              height: 48,
-              // height: "100%",
-              justifyContent: "center",
-              backgroundColor: themeStyle.colors.grayscale.high,
-            }}
-          >
-            <TextInput
-              style={{
-                color: themeStyle.colors.grayscale.lowest,
-                backgroundColor: themeStyle.colors.grayscale.high,
-                paddingHorizontal: 10,
-                height: height,
-              }}
-              value={messageBody}
-              placeholderTextColor={themeStyle.colors.grayscale.lower}
-              multiline
-              placeholder="Type a message..."
-              onChangeText={(v) => setMessageBody(v)}
-              scrollEnabled
-              onContentSizeChange={(event) => {
-                setHeight(
-                  event.nativeEvent.contentSize.height < 150
-                    ? event.nativeEvent.contentSize.height
-                    : 150
-                );
-              }}
-            />
-          </View> */}
           <View
             style={{
               display: "flex",
@@ -782,11 +751,10 @@ const ChatScreen = (props) => {
             }}
           >
             <ScrollView scrollEnabled={height > 48}>
-              <TextInput
-                maxLength={2000}
+              <View
                 style={[
                   {
-                    paddingVertical: 10,
+                    justifyContent: "center",
                     color: themeStyle.colors.grayscale.lowest,
                   },
                   {
@@ -795,20 +763,33 @@ const ChatScreen = (props) => {
                     paddingBottom: height < 48 ? 0 : 10,
                   },
                 ]}
-                value={messageBody}
-                placeholderTextColor={themeStyle.colors.grayscale.lower}
-                multiline
-                placeholder="Type a message..."
-                onChangeText={(v) => setMessageBody(v)}
-                scrollEnabled
-                onContentSizeChange={(event) => {
-                  setHeight(
-                    event.nativeEvent.contentSize.height < 150
-                      ? event.nativeEvent.contentSize.height
-                      : 150
-                  );
-                }}
-              />
+              >
+                <TextInput
+                  maxLength={2000}
+                  style={[
+                    {
+                      color: themeStyle.colors.grayscale.lowest,
+                    },
+                    {
+                      paddingTop: height < 48 ? 0 : 10,
+                      paddingBottom: height < 48 ? 0 : 10,
+                    },
+                  ]}
+                  value={messageBody}
+                  placeholderTextColor={themeStyle.colors.grayscale.lower}
+                  multiline
+                  placeholder="Type a message..."
+                  onChangeText={(v) => setMessageBody(v)}
+                  scrollEnabled
+                  onContentSizeChange={(event) => {
+                    setHeight(
+                      event.nativeEvent.contentSize.height < 150
+                        ? event.nativeEvent.contentSize.height
+                        : 150
+                    );
+                  }}
+                />
+              </View>
             </ScrollView>
           </View>
           <View

@@ -253,7 +253,10 @@ const AddScreen = () => {
         cameraActive={cameraActive}
         recording={recording}
         setCameraActive={setCameraActive}
-        setFile={setFile}
+        setFile={(file) => {
+          setFile(file);
+          setGif("");
+        }}
         setRecording={setRecording}
       />
     );

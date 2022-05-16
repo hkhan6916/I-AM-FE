@@ -19,7 +19,7 @@ import {
   SafeAreaView,
   Button,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import Constants from "expo-constants";
@@ -395,66 +395,125 @@ const HomeScreen = () => {
             Post {newPostCreated.state.type}
           </Text>
         ) : null}
-        <View
-          style={{
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100%",
-          }}
-        >
-          <Feather
-            name="coffee"
-            size={100}
-            color={themeStyle.colors.grayscale.high}
-          />
+        {userData.profileVideoUrl ? (
           <View
             style={{
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
-              marginTop: 20,
+              height: "100%",
             }}
           >
-            <Text
+            <Feather
+              name="coffee"
+              size={100}
+              color={themeStyle.colors.grayscale.high}
+            />
+            <View
               style={{
-                fontWeight: "700",
-                color: themeStyle.colors.grayscale.lowest,
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: 20,
               }}
             >
-              It&apos;s quiet here...
-            </Text>
-            <Text
-              style={{
-                marginBottom: 20,
-                fontWeight: "700",
-                color: themeStyle.colors.grayscale.lowest,
-              }}
-            >
-              Try adding some people.
-            </Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Search")}>
-              <View
+              <Text
                 style={{
-                  paddingVertical: 5,
-                  paddingHorizontal: 10,
-                  borderWidth: 1,
-                  borderColor: themeStyle.colors.secondary.default,
-                  borderRadius: 5,
+                  fontWeight: "700",
+                  color: themeStyle.colors.grayscale.lowest,
                 }}
               >
-                <Text
+                It&apos;s quiet here...
+              </Text>
+              <Text
+                style={{
+                  marginBottom: 20,
+                  fontWeight: "700",
+                  color: themeStyle.colors.grayscale.lowest,
+                }}
+              >
+                Try adding some people.
+              </Text>
+              <TouchableOpacity onPress={() => navigation.navigate("Search")}>
+                <View
                   style={{
-                    fontWeight: "700",
-                    color: themeStyle.colors.grayscale.lowest,
+                    paddingVertical: 5,
+                    paddingHorizontal: 10,
+                    borderWidth: 1,
+                    borderColor: themeStyle.colors.secondary.default,
+                    borderRadius: 5,
                   }}
                 >
-                  Search
-                </Text>
-              </View>
-            </TouchableOpacity>
+                  <Text
+                    style={{
+                      fontWeight: "700",
+                      color: themeStyle.colors.grayscale.lowest,
+                    }}
+                  >
+                    Search
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        ) : (
+          <View
+            style={{
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <MaterialCommunityIcons
+              name="account-alert-outline"
+              size={150}
+              color={themeStyle.colors.grayscale.high}
+            />
+            <View
+              style={{
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: 20,
+              }}
+            >
+              <Text
+                style={{
+                  fontWeight: "700",
+                  marginBottom: 20,
+                  color: themeStyle.colors.grayscale.lowest,
+                  width: 250,
+                  textAlign: "center",
+                }}
+              >
+                Complete your profile by adding a profile video.
+              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("EditUserDetailsScreen")}
+              >
+                <View
+                  style={{
+                    paddingVertical: 5,
+                    paddingHorizontal: 10,
+                    borderWidth: 1,
+                    backgroundColor: themeStyle.colors.secondary.default,
+                    borderRadius: 5,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontWeight: "700",
+                      color: themeStyle.colors.grayscale.lowest,
+                    }}
+                  >
+                    Complete profile
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
     </ScrollView>
   );

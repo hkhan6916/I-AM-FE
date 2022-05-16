@@ -54,23 +54,20 @@ const Step1Screen = () => {
     if (profileVideo && faceDetected) {
       return true;
     }
+    if (!profileVideo) {
+      return true;
+    }
     return false;
   };
 
-  const sendUserData = async () => {
+  const sendUserData = async (apiUrl, notificationToken) => {
     setLoading(true);
     const filePath =
       Platform.OS == "android"
         ? profileVideo.replace("file://", "")
         : profileVideo;
-    const { data: notificationToken } = await getExpoPushTokenAsync({
-      experienceId: "@hkhan6916/I-Am-FE",
-    });
     if (notificationToken) {
       const token = await getItemAsync("authToken");
-      const apiUrl = __DEV__
-        ? "http://192.168.5.101:5000"
-        : "https://magnet-be.herokuapp.com";
 
       const options = {
         url: `${apiUrl}/user/register`,
@@ -85,6 +82,7 @@ const Step1Screen = () => {
         parameters: {
           ...existingInfo.state,
           notificationToken,
+          flipProfileVideo: Platform.OS === "android",
         },
         field: "file",
         // Below are options only supported on Android
@@ -100,17 +98,14 @@ const Step1Screen = () => {
           Upload.addListener("progress", uploadId, () => {});
           Upload.addListener("error", uploadId, async () => {
             setLoading(false);
-
             setRegisterationError("An error occurred. Please try again.");
           });
           Upload.addListener("cancelled", uploadId, async () => {
             setLoading(false);
-
             setRegisterationError("An error occurred. Please try again.");
           });
           Upload.addListener("completed", uploadId, (data) => {
             setLoading(false);
-            console.log(data, existingInfo);
 
             if (JSON.parse(data.responseBody)?.success) {
               dispatch({
@@ -123,16 +118,48 @@ const Step1Screen = () => {
             }
           });
         })
-        .catch(async () => {
-          return;
+        .catch(async (e) => {
+          setLoading(false);
+          setRegisterationError("An error occurred. Please try again.");
         });
     }
   };
 
   const registerUser = async () => {
-    setRegisterationError("");
+    const { data: notificationToken } = await getExpoPushTokenAsync({
+      experienceId: "@haroonmagnet/Magnet",
+    });
+    const apiUrl = __DEV__
+      ? "http://192.168.5.101:5000"
+      : "https://magnet-be.herokuapp.com";
 
-    await sendUserData();
+    setRegisterationError("");
+    if (profileVideo) {
+      await sendUserData(apiUrl, notificationToken);
+    } else {
+      setLoading(true);
+      const { response, success, message } = await apiCall(
+        "POST",
+        `/user/register`,
+        {
+          ...existingInfo.state,
+          notificationToken,
+          flipProfileVideo: Platform.OS === "android",
+        }
+      );
+      console.log(message);
+      setLoading(false);
+
+      if (success) {
+        dispatch({
+          type: "SET_USER_DATA",
+          payload: {},
+        });
+        setTimeout(() => navigation.navigate("Login"), 500);
+      } else {
+        setRegisterationError("An error occurred. Please try again.");
+      }
+    }
   };
 
   const handleFaceDetection = async (profileVideoUrl) => {
@@ -294,7 +321,11 @@ const Step1Screen = () => {
               color={themeStyle.colors.primary.default}
             />
           ) : recordingLength <= 17 && profileVideo && faceDetected ? (
-            <PreviewVideo uri={profileVideo} isFullWidth />
+            <PreviewVideo
+              uri={profileVideo}
+              isFullWidth
+              flipProfileVideo={Platform.OS === "android"}
+            />
           ) : recordingLength <= 17 && profileVideo ? (
             <Text style={styles.faceDetectionError}>
               No face detected. Make sure your face is shown at the start and
@@ -328,7 +359,7 @@ const Step1Screen = () => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={{ marginVertical: 20 }}
+            style={{ marginVertical: 20, width: "100%" }}
             onPress={() => setShowHelpModal(true)}
           >
             <Text

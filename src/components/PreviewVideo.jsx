@@ -12,12 +12,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import AnimatedLottieView from "lottie-react-native";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
+import { Octicons } from "@expo/vector-icons";
 
-const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
+const PreviewVideo = ({ uri, isFullWidth, previewText, flipProfileVideo }) => {
   const { width: screenWidth } = Dimensions.get("window");
   const [videoStatus, setVideoStatus] = useState({});
   const [ready, setReady] = useState(false);
-
+  console.log({ flipProfileVideo });
   const profileVideoRef = useRef(null);
   const navigation = useNavigation();
   useScreenOrientation(!!uri); // just forces a re render ONLY when screen rotates. Without this, video does not adjust for landscape viewing.
@@ -49,6 +50,39 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
       return unsubscribe;
     }
   }, [navigation]);
+
+  if (!uri) {
+    return (
+      <LinearGradient
+        start={[0, 0.5]}
+        end={[1, 0.5]}
+        style={{
+          padding: 2,
+          width: isFullWidth ? screenWidth : screenWidth / 1.5,
+          height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
+        }}
+        colors={[
+          ready
+            ? themeStyle.colors.primary.default
+            : themeStyle.colors.grayscale.highest,
+          ready
+            ? themeStyle.colors.grayscale.highest
+            : themeStyle.colors.grayscale.highest,
+          ready
+            ? themeStyle.colors.primary.light
+            : themeStyle.colors.grayscale.highest,
+        ]}
+      >
+        <AnimatedLottieView
+          source={require("../../assets/lotties/profileVideo.json")}
+          autoPlay={false}
+          loop={false}
+          progress={0.8}
+          style={{ width: "100%", height: "100%", position: "absolute" }}
+        />
+      </LinearGradient>
+    );
+  }
   return (
     <View>
       <LinearGradient
@@ -93,8 +127,8 @@ const PreviewVideo = ({ uri, isFullWidth, previewText }) => {
                 borderColor: themeStyle.colors.primary.default,
                 borderRadius: isFullWidth ? 0 : 10,
                 aspectRatio: 1,
+                transform: [{ scaleX: flipProfileVideo ? -1 : 1 }],
               },
-              Platform.OS === "android" && { transform: [{ scaleX: -1 }] },
             ]}
             onReadyForDisplay={() => setReady(true)}
             onPlaybackStatusUpdate={(status) => setVideoStatus(status)}

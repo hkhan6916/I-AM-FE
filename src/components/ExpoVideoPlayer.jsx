@@ -31,11 +31,6 @@ const ExpoVideoPlayer = ({ uri, isSelfie }) => {
         source: {
           uri: uri,
         },
-        // style: {
-        //   width: screenWidth,
-        //   height: screenHeight / 1.1,
-        //   transform: [{ scaleX: isSelfie ? -1 : 1 }],
-        // },
       }}
       fullscreen
     />
