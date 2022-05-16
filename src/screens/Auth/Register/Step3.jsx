@@ -44,6 +44,7 @@ const Step1Screen = () => {
   const [detectingFaces, setDetectingFaces] = useState(false);
 
   const [profileVideo, setProfileVideo] = useState("");
+  const [skipProfileVideo, setSkipProfileVideo] = useState(false);
 
   const [registerationError, setRegisterationError] = useState("");
   const navigation = useNavigation();
@@ -134,7 +135,7 @@ const Step1Screen = () => {
       : "https://magnet-be.herokuapp.com";
 
     setRegisterationError("");
-    if (profileVideo) {
+    if (profileVideo && !skipProfileVideo) {
       await sendUserData(apiUrl, notificationToken);
     } else {
       setLoading(true);
@@ -254,13 +255,18 @@ const Step1Screen = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView style={{ marginBottom: 48 }}>
         <View style={styles.formContainer}>
-          <Text style={styles.signupText}>Your Profile Video</Text>
+          <Text
+            style={[styles.signupText, skipProfileVideo && { opacity: 0.1 }]}
+          >
+            Your Profile Video
+          </Text>
           <Text
             style={{
               textAlign: "center",
               fontSize: 16,
               marginBottom: 20,
               color: themeStyle.colors.grayscale.lowest,
+              opacity: skipProfileVideo ? 0.1 : 1,
             }}
           >
             A profile video let&apos;s others know you better as well as your
@@ -274,7 +280,11 @@ const Step1Screen = () => {
               }}
             >
               <View style={{ alignSelf: "flex-end", margin: 20 }}>
-                <TouchableOpacity onPress={() => setShowHelpModal(false)}>
+                <TouchableOpacity
+                  disabled={skipProfileVideo}
+                  onPress={() => setShowHelpModal(false)}
+                  style={{ opacity: skipProfileVideo ? 0.1 : 1 }}
+                >
                   <Ionicons
                     name="close"
                     size={24}
@@ -320,30 +330,59 @@ const Step1Screen = () => {
               size={"large"}
               color={themeStyle.colors.primary.default}
             />
-          ) : recordingLength <= 17 && profileVideo && faceDetected ? (
+          ) : recordingLength <= 17 &&
+            profileVideo &&
+            faceDetected &&
+            !skipProfileVideo ? (
             <PreviewVideo
               uri={profileVideo}
               isFullWidth
               flipProfileVideo={Platform.OS === "android"}
             />
-          ) : recordingLength <= 17 && profileVideo ? (
+          ) : recordingLength <= 17 && profileVideo && !skipProfileVideo ? (
             <Text style={styles.faceDetectionError}>
               No face detected. Make sure your face is shown at the start and
               end of your profile video.
             </Text>
           ) : null}
           <TouchableOpacity
-            style={styles.takeVideoButton}
+            disabled={skipProfileVideo}
+            style={[
+              styles.takeVideoButton,
+              skipProfileVideo && { opacity: 0.1 },
+            ]}
             onPress={() => {
               setFaceDetected(false);
               setCameraActivated(true);
             }}
           >
-            <Text style={styles.takeVideoButtonText}>
+            <Text
+              style={[
+                styles.takeVideoButtonText,
+                skipProfileVideo && { opacity: 0.1 },
+              ]}
+            >
               <Ionicons name="videocam" size={14} />{" "}
               {profileVideo ? "Retake profile video" : "Take profile video"}
             </Text>
           </TouchableOpacity>
+          {!skipProfileVideo ? (
+            <TouchableOpacity
+              disabled={skipProfileVideo}
+              style={{ opacity: skipProfileVideo ? 0.1 : 1 }}
+              onPress={() => setSkipProfileVideo(true)}
+            >
+              <Text
+                style={{
+                  color: themeStyle.colors.secondary.default,
+                  fontWeight: "700",
+                  marginVertical: 20,
+                }}
+              >
+                Skip for now
+              </Text>
+            </TouchableOpacity>
+          ) : null}
           <TouchableOpacity
             style={[
               styles.registerationButton,
@@ -359,8 +398,13 @@ const Step1Screen = () => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={{ marginVertical: 20, width: "100%" }}
+            style={{
+              marginVertical: 20,
+              width: "100%",
+              opacity: skipProfileVideo ? 0.1 : 1,
+            }}
             onPress={() => setShowHelpModal(true)}
+            disabled={skipProfileVideo}
           >
             <Text
               style={{
