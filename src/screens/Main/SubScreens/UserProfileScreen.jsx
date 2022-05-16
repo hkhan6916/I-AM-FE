@@ -318,7 +318,7 @@ const UserProfileScreen = (props) => {
           refreshControl={
             <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
           }
-          ListHeaderComponent={renderHeader()}
+          ListHeaderComponent={renderHeader}
           ListFooterComponent={() => (
             <ActivityIndicator
               size="large"

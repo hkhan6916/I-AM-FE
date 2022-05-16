@@ -57,6 +57,7 @@ const RepostCard = ({ postContent, isPreview }) => {
             size={50}
             avatarUrl={postContent.postAuthor.profileGifUrl}
             profileGifHeaders={postContent.postAuthor.profileGifHeaders}
+            flipProfileVideo={postContent.postAuthor?.flipProfileVideo}
           />
           <View
             style={{

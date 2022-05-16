@@ -17,6 +17,7 @@ const ChatCard = ({ chat, onPress, userId }) => {
           size={50}
           avatarUrl={user.profileGifUrl || ""}
           profileGifHeaders={user.profileGifHeaders}
+          flipProfileVideo={user?.flipProfileVideo}
         />
         <View style={styles.chatInfo}>
           <View

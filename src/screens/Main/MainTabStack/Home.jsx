@@ -504,7 +504,7 @@ const HomeScreen = () => {
                   <Text
                     style={{
                       fontWeight: "700",
-                      color: themeStyle.colors.grayscale.lowest,
+                      color: themeStyle.colors.white,
                     }}
                   >
                     Complete profile

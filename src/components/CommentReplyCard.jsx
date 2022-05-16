@@ -67,8 +67,9 @@ const CommentReplyCard = ({
               userId={reply.userId}
               navigation={navigation}
               size={35}
-              avatarUrl={reply.replyAuthor.profileGifUrl}
-              profileGifHeaders={reply.replyAuthor.profileGifHeaders}
+              avatarUrl={reply.replyAuthor?.profileGifUrl}
+              profileGifHeaders={reply.replyAuthor?.profileGifHeaders}
+              flipProfileVideo={reply.replyAuthor?.flipProfileVideo}
             />
             <TouchableOpacity
               onPress={() =>

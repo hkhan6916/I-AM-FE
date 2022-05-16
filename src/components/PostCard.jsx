@@ -77,6 +77,7 @@ const PostCard = ({
                 size={50}
                 avatarUrl={post.postAuthor.profileGifUrl}
                 profileGifHeaders={post.postAuthor.profileGifHeaders}
+                flipProfileVideo={post.postAuthor.flipProfileVideo}
               />
               <View
                 style={{

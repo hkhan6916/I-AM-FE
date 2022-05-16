@@ -76,9 +76,10 @@ const PostCommentCard = ({
             <Avatar
               userId={comment.userId}
               navigation={navigation}
-              avatarUrl={comment.commentAuthor.profileGifUrl}
-              profileGifHeaders={comment.commentAuthor.profileGifHeaders}
+              avatarUrl={comment.commentAuthor?.profileGifUrl}
+              profileGifHeaders={comment.commentAuthor?.profileGifHeaders}
               size={40}
+              flipProfileVideo={comment.commentAuthor?.flipProfileVideo}
             />
             <TouchableOpacity
               onPress={() =>

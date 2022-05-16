@@ -68,6 +68,7 @@ const SearchFeedItem = ({ post, visible }) => {
             size={20}
             avatarUrl={post.postAuthor.profileGifUrl}
             profileGifHeaders={post.postAuthor.profileGifHeaders}
+            flipProfileVideo={post.postAuthor.flipProfileVideo}
           />
         </View>
       </View>

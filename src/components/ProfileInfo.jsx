@@ -93,9 +93,9 @@ const ProfileInfo = ({
           }}
         >
           <TouchableOpacity
-            disabled={user.private && !user.isFriend}
+            disabled={(user.private && !user.isFriend) || !canAdd}
             onPress={() => handleChatNavigation()}
-            style={{ flex: 1 }}
+            style={{ flex: 1, opacity: canAdd ? 1 : 0.5 }}
           >
             <View
               style={{
@@ -163,6 +163,48 @@ const ProfileInfo = ({
         >
           Viewing your public profile.
         </Text>
+      ) : !canAdd ? (
+        <View
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          <Text
+            style={{
+              color: themeStyle.colors.grayscale.lowest,
+              textAlign: "center",
+              marginTop: 20,
+            }}
+          >
+            Complete your profile so you can add other contacts.
+          </Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("EditUserDetailsScreen")}
+          >
+            <View
+              style={{
+                paddingVertical: 5,
+                paddingHorizontal: 10,
+                borderWidth: 1,
+                backgroundColor: themeStyle.colors.secondary.default,
+                borderRadius: 5,
+                marginTop: 10,
+              }}
+            >
+              <Text
+                style={{
+                  fontWeight: "700",
+                  color: themeStyle.colors.white,
+                  textAlign: "center",
+                }}
+              >
+                Complete my profile
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       ) : null}
       <View style={{ padding: 5, marginTop: 10 }}>
         <View

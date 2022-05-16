@@ -25,6 +25,7 @@ const ProfileScreenHeader = ({ userData }) => {
         uri={userData.profileVideoUrl}
         isFullWidth
         previewText={"Tap to play"}
+        flipProfileVideo={userData.flipProfileVideo}
       />
       {!userData.followersMode ? (
         <TouchableOpacity onPress={() => changeUserVisibility()}>
