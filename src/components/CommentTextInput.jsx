@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   ScrollView,
 } from "react-native";
+import { useSelector } from "react-redux";
 import themeStyle from "../theme.style";
 
 const CommentTextInput = forwardRef(
@@ -25,6 +26,9 @@ const CommentTextInput = forwardRef(
     const [commentBody, setCommentBody] = useState(initialCommentBody);
     const [loading, setLoading] = useState(false);
     const [height, setHeight] = useState(1);
+
+    const userData = useSelector((state) => state.userData);
+
     const undoReply = () => {
       setReplyingTo(null);
       setCommentBody("");
@@ -45,6 +49,15 @@ const CommentTextInput = forwardRef(
       replyingTo && replyingTo.firstName && replyingTo.lastName;
     return (
       <View>
+        <Text
+          style={{
+            color: themeStyle.colors.grayscale.lowest,
+            textAlign: "center",
+            marginBottom: 5,
+          }}
+        >
+          Complete your profile to comment on posts
+        </Text>
         {replyingToFieldsExists ? (
           <View style={styles.replyingToBanner}>
             <Text style={styles.replyingToBannerText}>
@@ -105,11 +118,16 @@ const CommentTextInput = forwardRef(
           >
             {!loading ? (
               <TouchableOpacity
-                disabled={!commentBody}
+                disabled={!commentBody || !userData.state?.profileVideoUrl}
                 onPress={() => handleSubmit()}
               >
                 <Text
-                  style={[styles.postTrigger, !commentBody && { opacity: 0.5 }]}
+                  style={[
+                    styles.postTrigger,
+                    (!commentBody || !userData.state?.profileVideoUrl) && {
+                      opacity: 0.5,
+                    },
+                  ]}
                 >
                   Post
                 </Text>
