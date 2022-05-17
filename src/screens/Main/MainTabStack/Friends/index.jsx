@@ -5,8 +5,6 @@ import FriendRequestsScreen from "./FriendRequests";
 import themeStyle from "../../../../theme.style";
 
 const Stack = createNativeStackNavigator();
-// TODO: TEST friends and requests screens With loads of friends on old device.
-
 const FriendsStack = () => (
   <Stack.Navigator initialRouteName="FriendsScreen">
     <Stack.Screen

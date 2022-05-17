@@ -4,7 +4,7 @@ import Constants from "expo-constants";
 
 const packageName = Constants.manifest.releaseChannel
   ? Constants.manifest.android.package
-  : "host.exp.exponent";
+  : "com.magnetapp.magnet";
 
 const openAppSettings = () => {
   if (Platform.OS === "ios") {

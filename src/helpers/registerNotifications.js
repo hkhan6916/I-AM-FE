@@ -12,7 +12,7 @@ const registerNotifications = async () => {
   if (Platform.OS === "android") {
     setNotificationChannelAsync("default", {
       name: "default",
-      importance: AndroidImportance.DEFAULT, // TODO: LOOK INTO PRIORITY
+      importance: AndroidImportance.DEFAULT,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: themeStyle.colors.primary.light,
     });

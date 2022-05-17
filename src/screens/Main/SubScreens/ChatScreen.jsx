@@ -106,7 +106,6 @@ const ChatScreen = (props) => {
     : "wss://magnet-be.herokuapp.com";
   const initSocket = async (port, token) => {
     const connection = io(`${apiUrl}`, {
-      // TODO store the connection url securely and then use
       auth: {
         token,
       },
@@ -483,7 +482,6 @@ const ChatScreen = (props) => {
   }, [chat]);
 
   useEffect(() => {
-    // TODO: implement navigation listener here to prevent notifications from being received
     let isMounted = true;
     if (socket && isMounted && authInfo) {
       if (chat) {

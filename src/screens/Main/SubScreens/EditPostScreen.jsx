@@ -120,20 +120,31 @@ const EditPostScreen = (props) => {
       />
       {Platform.OS === "ios" ? <StatusBar translucent={true} /> : null}
       <SafeAreaView style={styles.container}>
-        {postBody.length >= 2000 - 25 ? (
-          <Text style={styles.postLimitMessage}>
-            {2000 - postBody.length} Characters Remaining
-          </Text>
-        ) : null}
-        {success ? (
-          <Text
-            style={{ color: themeStyle.colors.success.default, margin: 10 }}
-          >
-            Post updated
-          </Text>
-        ) : null}
         <ScrollView contentContainerStyle={{ padding: 10 }}>
+          {postBody.length >= 2000 - 25 ? (
+            <Text style={styles.postLimitMessage}>
+              {2000 - postBody.length} Characters Remaining
+            </Text>
+          ) : existingPost?.hidden ? (
+            <Text
+              style={{
+                color: themeStyle.colors.grayscale.lowest,
+                textAlign: "center",
+                fontWeight: "700",
+              }}
+            >
+              This post is hidden and under review
+            </Text>
+          ) : null}
+          {success ? (
+            <Text
+              style={{ color: themeStyle.colors.success.default, margin: 10 }}
+            >
+              Post updated
+            </Text>
+          ) : null}
           <TextInput
+            editable={!existingPost?.hidden}
             style={{
               minHeight: 100,
               textAlignVertical: "top",
@@ -212,7 +223,7 @@ const EditPostScreen = (props) => {
                   }}
                 >
                   {existingPost?.ready ? (
-                    <VideoPlayer // TODO create new player as need to flip the media for selfie video without flipping the controls.
+                    <VideoPlayer
                       autoHidePlayer={false}
                       fullscreen
                       mediaIsSelfie
@@ -280,11 +291,11 @@ const EditPostScreen = (props) => {
               padding: 5,
               borderRadius: 20,
               width: 70,
-              opacity: validateInfo() ? 0.5 : 1,
+              opacity: validateInfo() || existingPost?.hidden ? 0.5 : 1,
             }}
           >
             <TouchableOpacity
-              disabled={validateInfo()}
+              disabled={validateInfo() || existingPost?.hidden}
               onPress={() => updatePost()}
             >
               <Text

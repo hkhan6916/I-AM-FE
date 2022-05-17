@@ -49,7 +49,7 @@ const MainTabStack = () => {
         tabBarShowLabel: false,
         tabBarStyle: [
           {
-            display: cameraActivated.state ? "none" : "flex", // TODO: remove this? I think we've hidden the tab inside a screen before so might be possible without using redux
+            display: cameraActivated.state ? "none" : "flex",
             backgroundColor: themeStyle.colors.grayscale.highest,
             // borderRadius: 20,
             // height: 75,

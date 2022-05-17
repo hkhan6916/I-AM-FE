@@ -78,9 +78,10 @@ const EditUserDetailsScreen = () => {
     setDetectingFaces(true);
 
     const { uri } = await getThumbnailAsync(profileVideoPath, {
-      time: 500,
-    }); // TODO detect face at end too
+      time: 2000,
+    });
     const { faces } = await detectFacesAsync(uri);
+
     if (faces?.length) {
       setFaceDetected(true);
     } else {
@@ -425,7 +426,11 @@ const EditUserDetailsScreen = () => {
               (!profileVideo && initialProfileData.profileVideoUrl) ? (
                 <View>
                   <PreviewVideo
-                    flipProfileVideo={initialProfileData.flipProfileVideo}
+                    flipProfileVideo={
+                      profileVideo
+                        ? !!(Platform.OS === "android" && profileVideo)
+                        : !!initialProfileData.flipProfileVideo
+                    }
                     isFullWidth
                     uri={profileVideo || initialProfileData?.profileVideoUrl}
                     headers={initialProfileData?.profileVideoHeaders}

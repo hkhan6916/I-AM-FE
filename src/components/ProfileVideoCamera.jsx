@@ -31,7 +31,7 @@ const ProfileVideoCamera = ({
   const cameraRef = useRef();
   const packageName = Constants.manifest.releaseChannel
     ? Constants.manifest.android.package
-    : "host.exp.exponent";
+    : "com.magnetapp.magnet";
 
   const openAppSettings = () => {
     if (Platform.OS === "ios") {

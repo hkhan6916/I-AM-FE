@@ -86,7 +86,6 @@ const _CaptureButton = ({
     try {
       if (camera.current == null) throw new Error("Camera ref is null!");
 
-      console.log("calling startRecording()...");
       camera.current.startRecording({
         flash: flash,
         onRecordingError: (error) => {
@@ -99,8 +98,6 @@ const _CaptureButton = ({
           onStoppedRecording();
         },
       });
-      // TODO: wait until startRecording returns to actually find out if the recording has successfully started
-      console.log("called startRecording()!");
       isRecording.current = true;
     } catch (e) {
       console.error("failed to start recording!", e, "camera");

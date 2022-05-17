@@ -11,6 +11,7 @@ import * as Notifications from "expo-notifications";
 import { setItemAsync } from "expo-secure-store";
 import apiCall from "../helpers/apiCall";
 import AuthScreens from "./Auth";
+import UtilityScreens from "./Utility";
 import MainScreens from "./Main";
 import themeStyle from "../theme.style";
 import FeedContext from "../Context";
@@ -33,6 +34,8 @@ const Screens = () => {
   const [loaded, setLoaded] = useState(false);
   const [feed, setFeed] = useState([]);
   const [notificationToken, setNotificationToken] = useState("");
+  const [connectionFailed, setConnectionFailed] = useState(false);
+
   const loginAttemptStatus = useSelector((state) => state.loggedIn);
   const colorScheme = useColorScheme();
   const Theme = {
@@ -47,10 +50,16 @@ const Screens = () => {
   };
   const navigationContainerRef = useRef();
   const getUserFeed = async () => {
-    const { success, response } = await apiCall("POST", "/user/feed");
+    const { success, response, message, error } = await apiCall(
+      "POST",
+      "/user/feed"
+    );
+    console.log({ message, response, success });
     if (success) {
       setFeed(response.feed);
       setLoggedIn(true);
+    } else if (error === "CONNECTION_FAILED" || message !== "Unauthorised") {
+      setConnectionFailed(true);
     }
     setLoaded(true);
   };
@@ -169,6 +178,8 @@ const Screens = () => {
         <FeedContext.Provider value={feed}>
           <MainScreens />
         </FeedContext.Provider>
+      ) : connectionFailed ? (
+        <UtilityScreens />
       ) : (
         <AuthScreens />
       )}
