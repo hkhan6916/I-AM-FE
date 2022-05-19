@@ -7,6 +7,8 @@ import {
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicatorBase,
+  ActivityIndicator,
 } from "react-native";
 import themeStyle from "../theme.style";
 
@@ -14,12 +16,16 @@ const UserOptionsModal = ({
   showOptions,
   setShowUserOptions,
   reportUser,
+  blockUser,
+  unblockUser,
   error,
   onHide,
   user,
+  loading,
   removeConnection,
 }) => {
   const [showReportOptions, setShowReportOptions] = useState(false);
+  const [showBlockUserGuard, setShowBlockUserGuard] = useState(false);
 
   const reportOptions = [
     "Profile is fake or contains spam",
@@ -39,6 +45,7 @@ const UserOptionsModal = ({
           onPress={() => {
             setShowUserOptions(null);
             setShowReportOptions(false);
+            setShowBlockUserGuard(false);
             if (onHide) onHide();
           }}
         >
@@ -62,7 +69,7 @@ const UserOptionsModal = ({
               {error ? (
                 <Text
                   style={{
-                    alignSelf: "flex-end",
+                    alignSelf: "center",
                     fontSize: 12,
                     color: themeStyle.colors.error.default,
                     fontWeight: "700",
@@ -71,7 +78,82 @@ const UserOptionsModal = ({
                   {error}
                 </Text>
               ) : null}
-              {!showReportOptions ? (
+
+              {loading ? (
+                <ActivityIndicator size={"large"} animating />
+              ) : showReportOptions ? (
+                <View>
+                  {reportOptions.map((option, i) => (
+                    <TouchableOpacity
+                      key={`report-option-${i}`}
+                      onPress={() => reportUser(i)}
+                    >
+                      <View
+                        style={{
+                          padding: 20,
+                          borderBottomWidth: 0.5,
+                          borderColor: themeStyle.colors.grayscale.low,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            textAlign: "center",
+                            color: themeStyle.colors.secondary.default,
+                            fontWeight: "700",
+                          }}
+                        >
+                          {option}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : showBlockUserGuard ? (
+                <View>
+                  <Text
+                    style={{
+                      color: themeStyle.colors.grayscale.lowest,
+                      fontWeight: "700",
+                      marginBottom: 10,
+                    }}
+                  >
+                    Are you sure?
+                  </Text>
+                  <Text
+                    style={{
+                      color: themeStyle.colors.grayscale.lowest,
+                      paddingRight: 20,
+                    }}
+                  >
+                    Blocking this user will remove them from your contacts if
+                    already added.
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      blockUser();
+                      setShowBlockUserGuard(false);
+                    }}
+                  >
+                    <View
+                      style={{
+                        padding: 20,
+                        borderBottomWidth: 0.5,
+                        borderColor: themeStyle.colors.grayscale.low,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          textAlign: "center",
+                          color: themeStyle.colors.secondary.default,
+                          fontWeight: "700",
+                        }}
+                      >
+                        Block user
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              ) : (
                 <View style={{ alignItems: "center", paddingHorizontal: 15 }}>
                   {user.isFriend ? (
                     <TouchableOpacity
@@ -104,7 +186,10 @@ const UserOptionsModal = ({
                     </TouchableOpacity>
                   ) : null}
                   <TouchableOpacity
-                    onPress={() => setShowReportOptions(true)}
+                    onPress={() => {
+                      setShowReportOptions(true);
+                      setShowBlockUserGuard(false);
+                    }}
                     style={{ width: "100%" }}
                   >
                     <View
@@ -130,33 +215,66 @@ const UserOptionsModal = ({
                       </Text>
                     </View>
                   </TouchableOpacity>
-                </View>
-              ) : (
-                <View>
-                  {reportOptions.map((option, i) => (
+                  {!user.isSameUser && !user.blocked ? (
                     <TouchableOpacity
-                      key={`report-option-${i}`}
-                      onPress={() => reportUser(i)}
+                      onPress={() => {
+                        setShowBlockUserGuard(true);
+                        setShowReportOptions(false);
+                      }}
+                      style={{ width: "100%" }}
                     >
                       <View
                         style={{
-                          padding: 20,
-                          borderBottomWidth: 0.5,
+                          padding: 10,
+                          borderRadius: 5,
+                          width: "100%",
+                          height: 60,
+                          borderTopWidth: user.isFriend ? 0.5 : 0,
                           borderColor: themeStyle.colors.grayscale.low,
+                          alignItems: "center",
+                          justifyContent: "center",
                         }}
                       >
                         <Text
                           style={{
-                            textAlign: "center",
-                            color: themeStyle.colors.secondary.default,
                             fontWeight: "700",
+                            color: themeStyle.colors.grayscale.lowest,
+                            textAlign: "center",
                           }}
                         >
-                          {option}
+                          Block User
                         </Text>
                       </View>
                     </TouchableOpacity>
-                  ))}
+                  ) : user.blocked ? (
+                    <TouchableOpacity
+                      onPress={() => unblockUser()}
+                      style={{ width: "100%" }}
+                    >
+                      <View
+                        style={{
+                          padding: 10,
+                          borderRadius: 5,
+                          width: "100%",
+                          height: 60,
+                          borderTopWidth: user.isFriend ? 0.5 : 0,
+                          borderColor: themeStyle.colors.grayscale.low,
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontWeight: "700",
+                            color: themeStyle.colors.grayscale.lowest,
+                            textAlign: "center",
+                          }}
+                        >
+                          Unblock User
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ) : null}
                 </View>
               )}
             </View>

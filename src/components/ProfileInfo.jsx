@@ -11,7 +11,7 @@ import apiCall from "../helpers/apiCall";
 import UserOptionsModal from "./UserOptionsModal";
 
 const ProfileInfo = ({
-  user,
+  user: initialUser,
   sendFriendRequest,
   recallFriendRequest,
   rejectFriendRequest,
@@ -20,7 +20,10 @@ const ProfileInfo = ({
   canAdd,
 }) => {
   const [showUserOptions, setShowUserOptions] = useState(false);
-  const [reportError, setReportError] = useState("");
+  const [modalLoading, setModalLoading] = useState(false);
+  const [modalError, setModalError] = useState("");
+  const [user, setUser] = useState(initialUser);
+
   const navigation = useNavigation();
 
   const handleUserFriendsNavigation = () => {
@@ -55,11 +58,42 @@ const ProfileInfo = ({
     if (success) {
       setShowUserOptions(false);
     } else {
-      setReportError(
+      setModalError(
         "There was an issue reporting this user. Please try again later."
       );
     }
   };
+
+  const blockUser = async () => {
+    setModalLoading(true);
+    setModalError("");
+    const { success } = await apiCall("GET", `/user/block/${user?._id}`);
+    setModalLoading(false);
+    if (!success) {
+      setModalError(
+        "There was an issue blocking this user. Please try again later."
+      );
+    } else {
+      setUser({ ...user, blocked: true });
+      setShowUserOptions(false);
+    }
+  };
+
+  const unblockUser = async () => {
+    setModalLoading(true);
+    setModalError("");
+    const { success } = await apiCall("GET", `/user/unblock/${user?._id}`);
+    setModalLoading(false);
+    if (!success) {
+      setModalError(
+        "There was an issue unblocking this user. Please try again later."
+      );
+    } else {
+      setUser({ ...user, blocked: false });
+      setShowUserOptions(false);
+    }
+  };
+
   if (!user) {
     return <View />;
   }
@@ -67,13 +101,16 @@ const ProfileInfo = ({
     <View>
       <UserOptionsModal
         reportUser={reportUser}
+        blockUser={blockUser}
+        unblockUser={unblockUser}
         showOptions={showUserOptions}
+        loading={modalLoading}
         setShowUserOptions={(value) => {
           setShowUserOptions(value);
-          setReportError("");
+          setModalError("");
         }}
-        error={reportError}
-        onHide={() => setReportError("")}
+        error={modalError}
+        onHide={() => setModalError("")}
         user={user}
         removeConnection={removeConnection}
       />
@@ -281,7 +318,11 @@ const ProfileInfo = ({
           )}
         </View>
 
-        {!user.isSameUser && !user.isFriend ? (
+        {user.blocked ? (
+          <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+            You have blocked this user
+          </Text>
+        ) : !user.isSameUser && !user.isFriend ? (
           <View>
             {user.requestReceived ? (
               <View style={{ flexDirection: "column", paddingHorizontal: 20 }}>
