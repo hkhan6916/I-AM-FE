@@ -235,13 +235,15 @@ const UserProfileScreen = (props) => {
           />
         );
     },
-    [userPosts, userId]
+    [userPosts, userId, user.blocked, user.isFriend]
   );
 
   function renderHeader() {
     return (
       <ProfileInfo
         user={user}
+        setUser={setUser}
+        setUserPosts={setUserPosts}
         recallFriendRequest={recallFriendRequest}
         acceptFriendRequest={acceptFriendRequest}
         rejectFriendRequest={rejectFriendRequest}

@@ -11,18 +11,19 @@ import apiCall from "../helpers/apiCall";
 import UserOptionsModal from "./UserOptionsModal";
 
 const ProfileInfo = ({
-  user: initialUser,
+  user,
   sendFriendRequest,
   recallFriendRequest,
   rejectFriendRequest,
   removeConnection,
   acceptFriendRequest,
+  setUser,
+  setUserPosts,
   canAdd,
 }) => {
   const [showUserOptions, setShowUserOptions] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [modalError, setModalError] = useState("");
-  const [user, setUser] = useState(initialUser);
 
   const navigation = useNavigation();
 
@@ -74,7 +75,10 @@ const ProfileInfo = ({
         "There was an issue blocking this user. Please try again later."
       );
     } else {
-      setUser({ ...user, blocked: true });
+      setUser({ ...user, blocked: true, isFriend: false });
+      if (user.private) {
+        setUserPosts([]);
+      }
       setShowUserOptions(false);
     }
   };
@@ -319,7 +323,12 @@ const ProfileInfo = ({
         </View>
 
         {user.blocked ? (
-          <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+          <Text
+            style={{
+              color: themeStyle.colors.grayscale.lowest,
+              textAlign: "center",
+            }}
+          >
             You have blocked this user
           </Text>
         ) : !user.isSameUser && !user.isFriend ? (

@@ -147,7 +147,7 @@ const ChatScreen = (props) => {
   const handleMessage = async () => {
     /* If first message, first create chat. The actual message will be sent on
     the joinRoomSuccess event. */
-    if (socket?.connected && !messages.length) {
+    if (socket?.connected && !messages.length && !existingChat) {
       await createChat();
       return;
     }
@@ -804,6 +804,7 @@ const ChatScreen = (props) => {
                 justifyContent: "center",
                 height: 48,
                 width: 48,
+                opacity: (!media?.uri || !media.type) && !messageBody ? 0.5 : 1,
               }}
               disabled={(!media?.uri || !media.type) && !messageBody}
               onPress={() => handleMessage()}
