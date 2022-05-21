@@ -6,7 +6,6 @@ import {
   SafeAreaView,
   Dimensions,
   ActivityIndicator,
-  Button,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import { useNavigation } from "@react-navigation/native";
@@ -226,7 +225,7 @@ const UserProfileScreen = (props) => {
 
   const renderItem = useCallback(
     ({ item }) => {
-      if (!item?.deleted)
+      if (!item?.deleted && !user.blockedByThem)
         return (
           <PostCard
             setShowPostOptions={triggerOptionsModal}
@@ -235,7 +234,7 @@ const UserProfileScreen = (props) => {
           />
         );
     },
-    [userPosts, userId, user.blocked, user.isFriend]
+    [userPosts, userId, user.blockedByUser, user.blockedByUser, user.isFriend]
   );
 
   function renderHeader() {

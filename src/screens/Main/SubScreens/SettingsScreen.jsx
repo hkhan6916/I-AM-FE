@@ -17,7 +17,6 @@ const SettingScreen = () => {
   const navigation = useNavigation();
 
   const logout = async () => {
-    await setItemAsync("authToken", "");
     dispatch({ type: "SET_USER_LOGGED_IN", payload: false });
   };
   return (

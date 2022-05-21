@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import themeStyle from "../../theme.style";
 import apiCall from "../../helpers/apiCall";
 import Logo from "../../Logo";
+import { getExpoPushTokenAsync } from "expo-notifications";
 const LoginScreen = () => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -42,7 +43,22 @@ const LoginScreen = () => {
       Object.keys(response.apiKeys)?.forEach(async (key) => {
         await setItemAsync(key, response.apiKeys[key]);
       });
-
+      const token = (
+        await getExpoPushTokenAsync({
+          experienceId: "@haroonmagnet/Magnet", // TODO: Change experience id in production
+        })
+      )?.data;
+      if (token) {
+        const { success, message } = await apiCall(
+          "POST",
+          "/user/notifications/token/update",
+          { notificationToken: token }
+        );
+        if (success) {
+          console.log(message);
+          await setItemAsync("notificationToken", token);
+        }
+      }
       dispatch({ type: "SET_USER_LOGGED_IN", payload: true });
     }
     if (!success) {

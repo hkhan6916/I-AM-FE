@@ -177,7 +177,6 @@ const ProfileScreen = () => {
   }, [globalUserData?.state]);
   return (
     <SafeAreaView style={styles.container}>
-      {console.log(userPosts)}
       <View
         style={{
           flexDirection: "row",

@@ -49,7 +49,7 @@ const ProfileVideoCamera = ({
 
   const handleRecordClick = async () => {
     if (!recording) {
-      setRecordingLength(20);
+      setRecordingLength(30);
       setRecording(true);
       await cameraRef?.current?.startRecording({
         onRecordingFinished: (video) => setProfileVideo(video.path),
@@ -280,7 +280,7 @@ const ProfileVideoCamera = ({
             bottom: 20,
             zIndex: 2,
           }}
-          disabled={recording && recordingLength > 17}
+          disabled={recording && recordingLength > 27}
           onPress={() => handleRecordClick()}
         >
           <View
@@ -288,7 +288,7 @@ const ProfileVideoCamera = ({
               borderWidth: 5,
               borderRadius: 50,
               borderColor:
-                recordingLength > 20 - 3
+                recordingLength > 30 - 3
                   ? themeStyle.colors.grayscale.high
                   : themeStyle.colors.grayscale.lowest,
               height: 60,
@@ -304,13 +304,13 @@ const ProfileVideoCamera = ({
                   borderWidth: 2,
                   borderRadius: 5,
                   borderColor:
-                    recordingLength > 20 - 3
+                    recordingLength > 30 - 3
                       ? themeStyle.colors.grayscale.high
                       : themeStyle.colors.error.default,
                   height: 25,
                   width: 25,
                   backgroundColor:
-                    recordingLength > 20 - 3
+                    recordingLength > 30 - 3
                       ? themeStyle.colors.grayscale.high
                       : themeStyle.colors.error.default,
                 }}

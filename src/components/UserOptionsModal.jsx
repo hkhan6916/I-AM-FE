@@ -215,7 +215,7 @@ const UserOptionsModal = ({
                       </Text>
                     </View>
                   </TouchableOpacity>
-                  {!user.isSameUser && !user.blocked ? (
+                  {!user.isSameUser && !user.blockedByUser ? (
                     <TouchableOpacity
                       onPress={() => {
                         setShowBlockUserGuard(true);
@@ -246,7 +246,7 @@ const UserOptionsModal = ({
                         </Text>
                       </View>
                     </TouchableOpacity>
-                  ) : user.blocked ? (
+                  ) : user.blockedByUser ? (
                     <TouchableOpacity
                       onPress={() => unblockUser()}
                       style={{ width: "100%" }}

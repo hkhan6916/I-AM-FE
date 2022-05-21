@@ -21,14 +21,14 @@ import { useColorScheme } from "react-native";
 import { deleteUserSearchHistoryTable } from "../helpers/sqlite/userSearchHistory";
 import { openDatabase } from "expo-sqlite";
 
-LogBox.ignoreLogs([
-  "ViewPropTypes will be removed",
-  "NativeBase: The contrast ratio of",
-  "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
-]);
-
 const Screens = () => {
-  LogBox.ignoreLogs(["NativeEventEmitter", "fontFamily"]); // Ignore log notification by message
+  LogBox.ignoreLogs([
+    "ViewPropTypes will be removed from React Native. Migrate to ViewPropTypes exported from 'deprecated-react-native-prop-types'.",
+    "NativeBase: The contrast ratio of",
+    "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
+    "NativeEventEmitter",
+    "fontFamily",
+  ]);
 
   const [loggedIn, setLoggedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -54,7 +54,6 @@ const Screens = () => {
       "POST",
       "/user/feed"
     );
-    console.log({ message, response, success });
     if (success) {
       setFeed(response.feed);
       setLoggedIn(true);
@@ -116,6 +115,7 @@ const Screens = () => {
       if (loaded && !loginAttemptStatus.state) {
         setLoggedIn(false);
         await apiCall("GET", "/user/notifications/token/delete");
+        await setItemAsync("authToken", "");
         const db = openDatabase("localdb");
         await deleteUserSearchHistoryTable(db);
       }

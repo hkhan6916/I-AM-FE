@@ -83,7 +83,7 @@ const Step1Screen = () => {
         parameters: {
           ...existingInfo.state,
           notificationToken,
-          flipProfileVideo: Platform.OS === "android",
+          flipProfileVideo: (Platform.OS === "android").toString(),
         },
         field: "file",
         // Below are options only supported on Android
@@ -97,11 +97,13 @@ const Step1Screen = () => {
       Upload.startUpload(options)
         .then((uploadId) => {
           Upload.addListener("progress", uploadId, () => {});
-          Upload.addListener("error", uploadId, async () => {
+          Upload.addListener("error", uploadId, async (error) => {
             setLoading(false);
+            console.log({ error });
             setRegisterationError("An error occurred. Please try again.");
           });
-          Upload.addListener("cancelled", uploadId, async () => {
+          Upload.addListener("cancelled", uploadId, async (cancelled) => {
+            console.log({ cancelled });
             setLoading(false);
             setRegisterationError("An error occurred. Please try again.");
           });
@@ -119,7 +121,8 @@ const Step1Screen = () => {
             }
           });
         })
-        .catch(async (e) => {
+        .catch(async (catched) => {
+          console.log({ catched });
           setLoading(false);
           setRegisterationError("An error occurred. Please try again.");
         });
@@ -324,13 +327,13 @@ const Step1Screen = () => {
               </View>
             </SafeAreaView>
           </Modal>
-          {recordingLength <= 17 && detectingFaces ? (
+          {recordingLength <= 27 && detectingFaces ? (
             <ActivityIndicator
               animating
               size={"large"}
               color={themeStyle.colors.primary.default}
             />
-          ) : recordingLength <= 17 &&
+          ) : recordingLength <= 27 &&
             profileVideo &&
             faceDetected &&
             !skipProfileVideo ? (
@@ -339,7 +342,7 @@ const Step1Screen = () => {
               isFullWidth
               flipProfileVideo={Platform.OS === "android"}
             />
-          ) : recordingLength <= 17 && profileVideo && !skipProfileVideo ? (
+          ) : recordingLength <= 27 && profileVideo && !skipProfileVideo ? (
             <Text style={styles.faceDetectionError}>
               No face detected. Make sure your face is shown at the start and
               end of your profile video.

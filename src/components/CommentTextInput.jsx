@@ -49,15 +49,17 @@ const CommentTextInput = forwardRef(
       replyingTo && replyingTo.firstName && replyingTo.lastName;
     return (
       <View>
-        <Text
-          style={{
-            color: themeStyle.colors.grayscale.lowest,
-            textAlign: "center",
-            marginBottom: 5,
-          }}
-        >
-          Complete your profile to comment on posts
-        </Text>
+        {!userData.state?.profileVideoUrl ? (
+          <Text
+            style={{
+              color: themeStyle.colors.grayscale.lowest,
+              textAlign: "center",
+              marginBottom: 5,
+            }}
+          >
+            Complete your profile to comment on posts
+          </Text>
+        ) : null}
         {replyingToFieldsExists ? (
           <View style={styles.replyingToBanner}>
             <Text style={styles.replyingToBannerText}>
@@ -72,10 +74,12 @@ const CommentTextInput = forwardRef(
           style={[
             styles.inputBoxContainer,
             hasBorderRadius && { borderRadius: 5 },
+            !userData.state?.profileVideoUrl && { opacity: 0.5 },
           ]}
         >
           <ScrollView scrollEnabled={height > 48}>
             <TextInput
+              editable={!!userData.state?.profileVideoUrl}
               maxLength={2000}
               ref={ref}
               multiline

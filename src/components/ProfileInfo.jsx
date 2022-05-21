@@ -75,7 +75,7 @@ const ProfileInfo = ({
         "There was an issue blocking this user. Please try again later."
       );
     } else {
-      setUser({ ...user, blocked: true, isFriend: false });
+      setUser({ ...user, blockedByUser: true, isFriend: false });
       if (user.private) {
         setUserPosts([]);
       }
@@ -93,7 +93,7 @@ const ProfileInfo = ({
         "There was an issue unblocking this user. Please try again later."
       );
     } else {
-      setUser({ ...user, blocked: false });
+      setUser({ ...user, blockedByUser: false });
       setShowUserOptions(false);
     }
   };
@@ -135,7 +135,7 @@ const ProfileInfo = ({
         >
           <TouchableOpacity
             disabled={
-              (user.private && !user.isFriend) || !canAdd || user.blocked
+              (user.private && !user.isFriend) || !canAdd || user.blockedByUser
             }
             onPress={() => handleChatNavigation()}
             style={{ flex: 1, opacity: canAdd ? 1 : 0.5 }}
@@ -150,7 +150,9 @@ const ProfileInfo = ({
                 alignItems: "center",
                 justifyContent: "center",
                 opacity:
-                  (user.private && !user.isFriend) || !canAdd || user.blocked
+                  (user.private && !user.isFriend) ||
+                  !canAdd ||
+                  user.blockedByUser
                     ? 0.5
                     : 1,
                 width: "100%",
@@ -327,7 +329,7 @@ const ProfileInfo = ({
           )}
         </View>
 
-        {user.blocked ? (
+        {user.blockedByUser ? (
           <Text
             style={{
               color: themeStyle.colors.grayscale.lowest,
@@ -336,8 +338,17 @@ const ProfileInfo = ({
           >
             You have blocked this user
           </Text>
+        ) : user.blockedByThem ? (
+          <Text
+            style={{
+              color: themeStyle.colors.grayscale.lowest,
+              textAlign: "center",
+            }}
+          >
+            This user has blocked you
+          </Text>
         ) : !user.isSameUser && !user.isFriend ? (
-          <View>
+          <View style={{ marginBottom: 20 }}>
             {user.requestReceived ? (
               <View style={{ flexDirection: "column", paddingHorizontal: 20 }}>
                 <Text
