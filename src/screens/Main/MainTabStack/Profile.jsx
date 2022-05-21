@@ -153,7 +153,6 @@ const ProfileScreen = () => {
     },
     [userPosts]
   );
-
   const keyExtractor = (item) => item?.customKey || item?._id;
 
   const renderHeaderComponent = useCallback(
@@ -178,6 +177,7 @@ const ProfileScreen = () => {
   }, [globalUserData?.state]);
   return (
     <SafeAreaView style={styles.container}>
+      {console.log(userPosts)}
       <View
         style={{
           flexDirection: "row",

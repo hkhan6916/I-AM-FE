@@ -134,7 +134,9 @@ const ProfileInfo = ({
           }}
         >
           <TouchableOpacity
-            disabled={(user.private && !user.isFriend) || !canAdd}
+            disabled={
+              (user.private && !user.isFriend) || !canAdd || user.blocked
+            }
             onPress={() => handleChatNavigation()}
             style={{ flex: 1, opacity: canAdd ? 1 : 0.5 }}
           >
@@ -147,7 +149,10 @@ const ProfileInfo = ({
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "center",
-                opacity: user.private && !user.isFriend ? 0.5 : 1,
+                opacity:
+                  (user.private && !user.isFriend) || !canAdd || user.blocked
+                    ? 0.5
+                    : 1,
                 width: "100%",
               }}
             >

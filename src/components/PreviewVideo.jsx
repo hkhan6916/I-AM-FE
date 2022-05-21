@@ -18,7 +18,6 @@ const PreviewVideo = ({ uri, isFullWidth, previewText, flipProfileVideo }) => {
   const { width: screenWidth } = Dimensions.get("window");
   const [videoStatus, setVideoStatus] = useState({});
   const [ready, setReady] = useState(false);
-  console.log({ flipProfileVideo });
   const profileVideoRef = useRef(null);
   const navigation = useNavigation();
   useScreenOrientation(!!uri); // just forces a re render ONLY when screen rotates. Without this, video does not adjust for landscape viewing.

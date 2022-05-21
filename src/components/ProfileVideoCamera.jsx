@@ -354,6 +354,7 @@ const ProfileVideoCamera = ({
       />
       {device ? (
         <Camera
+          audio
           video={true}
           ref={cameraRef}
           style={StyleSheet.absoluteFill}

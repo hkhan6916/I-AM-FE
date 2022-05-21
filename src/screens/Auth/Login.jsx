@@ -6,6 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  Keyboard,
+  Platform,
 } from "react-native";
 import { setItemAsync } from "expo-secure-store";
 import { useNavigation } from "@react-navigation/native";
@@ -27,6 +29,7 @@ const LoginScreen = () => {
 
   const authenticateUser = async () => {
     setLoading(true);
+    setLoginError("");
     const { response, success, error } = await apiCall("POST", "/user/login", {
       identifier,
       password,
@@ -43,6 +46,9 @@ const LoginScreen = () => {
       dispatch({ type: "SET_USER_LOGGED_IN", payload: true });
     }
     if (!success) {
+      if (Platform.OS === "ios") {
+        Keyboard.dismiss();
+      }
       setLoginError(
         error === "CONNECTION_FAILED"
           ? "Cannot connect to server. Please check your connection."

@@ -7,6 +7,7 @@ import { Feather } from "@expo/vector-icons";
 import { StackActions, useNavigation } from "@react-navigation/native";
 
 const SearchFeedItem = ({ post, visible }) => {
+  const [error, setError] = useState(false);
   const { width: screenWidth } = Dimensions.get("window");
   const imageHeight = screenWidth <= 340 ? screenWidth / 2 : screenWidth / 3;
   const navigation = useNavigation();
@@ -47,6 +48,7 @@ const SearchFeedItem = ({ post, visible }) => {
           mediaHeaders={post.thumbnailHeaders || post.mediaHeaders}
           removeBorderRadius
           hideSpinner
+          onError={() => setError(true)}
           style={{
             width: imageHeight,
             height: imageHeight,

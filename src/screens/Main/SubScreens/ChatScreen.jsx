@@ -13,6 +13,7 @@ import {
   Dimensions,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { getItemAsync } from "expo-secure-store";
 import { io } from "socket.io-client";
@@ -54,6 +55,10 @@ const ChatScreen = (props) => {
   const [allMessagesLoaded, setAllMessagesLoaded] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [recipient, setRecipient] = useState(null);
+  const [userIsBlocked, setUserIsBlocked] = useState(false);
+  const [userHasBlocked, setUserHasBlocked] = useState(false);
+  const [creatingChat, setCreatingChat] = useState(false);
+  const [sendingMessage, setSendingMessage] = useState(false);
 
   const { chatUserId, chatUserFirstName, existingChat } = props.route.params;
   const navigation = useNavigation();
@@ -148,7 +153,9 @@ const ChatScreen = (props) => {
     /* If first message, first create chat. The actual message will be sent on
     the joinRoomSuccess event. */
     if (socket?.connected && !messages.length && !existingChat) {
+      setCreatingChat(true);
       await createChat();
+      setCreatingChat(false);
       return;
     }
 
@@ -192,11 +199,13 @@ const ChatScreen = (props) => {
       Object.keys(message).forEach((key) => {
         formData.append(key, message[key]);
       });
+      setSendingMessage(true);
       const { response, success } = await apiCall(
         "POST",
         "/chat/message/upload",
         formData
       );
+      setSendingMessage(false);
 
       if (success) {
         setMessages([
@@ -491,6 +500,13 @@ const ChatScreen = (props) => {
         });
       }
 
+      socket.on("userIsBlocked", () => {
+        setUserIsBlocked(true);
+      });
+
+      socket.on("userHasBlocked", () => {
+        setUserHasBlocked(true);
+      });
       socket.on("joinRoomSuccess", async ({ chatId }) => {
         /* This will send the message only if it's the first message */
         if ((messageBody || media?.uri) && !existingChat) {
@@ -603,6 +619,8 @@ const ChatScreen = (props) => {
         socket.disconnect();
         socket.off("receiveMessage");
         socket.off("joinRoomSuccess");
+        socket.off("userIsBlocked");
+        socket.off("userHasBlocked");
         socket.off("userJoinedRoom");
         socket.off("userLeftRoom");
         socket.off("receiveUserOnlineStatus");
@@ -651,7 +669,27 @@ const ChatScreen = (props) => {
           inverted
           keyExtractor={(item, i) => item._id + i}
         />
-
+        {userIsBlocked ? (
+          <Text
+            style={{
+              textAlign: "center",
+              color: themeStyle.colors.grayscale.lowest,
+              marginHorizontal: 10,
+            }}
+          >
+            You been blocked by this user.
+          </Text>
+        ) : userHasBlocked ? (
+          <Text
+            style={{
+              textAlign: "center",
+              color: themeStyle.colors.grayscale.lowest,
+              marginHorizontal: 10,
+            }}
+          >
+            You have blocked this user. Unblock them to send a message.
+          </Text>
+        ) : null}
         <View
           style={{
             flexDirection: "row",
@@ -746,6 +784,7 @@ const ChatScreen = (props) => {
               borderColor: themeStyle.colors.grayscale.low,
               borderRadius: 5,
               flex: 1,
+              opacity: userHasBlocked || userIsBlocked ? 0.3 : 1,
             }}
           >
             <ScrollView scrollEnabled={height > 48}>
@@ -779,6 +818,7 @@ const ChatScreen = (props) => {
                   placeholder="Type a message..."
                   onChangeText={(v) => setMessageBody(v)}
                   scrollEnabled
+                  editable={!userHasBlocked && !userIsBlocked}
                   onContentSizeChange={(event) => {
                     setHeight(
                       event.nativeEvent.contentSize.height < 150
@@ -804,16 +844,29 @@ const ChatScreen = (props) => {
                 justifyContent: "center",
                 height: 48,
                 width: 48,
-                opacity: (!media?.uri || !media.type) && !messageBody ? 0.5 : 1,
+                opacity:
+                  ((!media?.uri || !media.type) && !messageBody) ||
+                  userIsBlocked
+                    ? 0.5
+                    : 1,
               }}
-              disabled={(!media?.uri || !media.type) && !messageBody}
+              disabled={
+                ((!media?.uri || !media.type) && !messageBody) ||
+                userIsBlocked ||
+                creatingChat ||
+                sendingMessage
+              }
               onPress={() => handleMessage()}
             >
-              <Ionicons
-                name="send-sharp"
-                size={24}
-                color={themeStyle.colors.grayscale.lowest}
-              />
+              {!creatingChat && !sendingMessage ? (
+                <Ionicons
+                  name="send-sharp"
+                  size={24}
+                  color={themeStyle.colors.grayscale.lowest}
+                />
+              ) : (
+                <ActivityIndicator animating size="small" />
+              )}
             </TouchableOpacity>
           </View>
         </View>

@@ -21,6 +21,7 @@ const ImageWithCache = ({
   removeBorderRadius,
   hideSpinner = false,
   onLoad,
+  onError,
   removeBackround,
   style,
 }) => {
@@ -56,6 +57,11 @@ const ImageWithCache = ({
             </TouchableOpacity>
           </View>
           <FastImage
+            onError={() => {
+              if (onError) {
+                onError();
+              }
+            }}
             resizeMode={FastImage.resizeMode.contain}
             source={{ uri: mediaUrl, headers: mediaHeaders || {} }}
             style={{
@@ -103,6 +109,11 @@ const ImageWithCache = ({
         ) : null} */}
         <FastImage
           fallback
+          onError={() => {
+            if (onError) {
+              onError();
+            }
+          }}
           onLoad={() => {
             if (onLoad) {
               onLoad();
