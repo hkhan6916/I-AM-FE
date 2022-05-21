@@ -75,7 +75,13 @@ const ProfileInfo = ({
         "There was an issue blocking this user. Please try again later."
       );
     } else {
-      setUser({ ...user, blockedByUser: true, isFriend: false });
+      setUser({
+        ...user,
+        blockedByUser: true,
+        isFriend: false,
+        requestReceived: false,
+        requestSent: false,
+      });
       if (user.private) {
         setUserPosts([]);
       }
@@ -93,7 +99,12 @@ const ProfileInfo = ({
         "There was an issue unblocking this user. Please try again later."
       );
     } else {
-      setUser({ ...user, blockedByUser: false });
+      setUser({
+        ...user,
+        blockedByUser: false,
+        requestReceived: false,
+        requestSent: false,
+      });
       setShowUserOptions(false);
     }
   };
