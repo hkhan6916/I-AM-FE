@@ -55,7 +55,10 @@ const ChatListScreen = () => {
     [chats.length]
   );
 
-  const keyExtractor = useCallback((item) => item._id, [chats.length]); //TODO: append index to this incase duplicates appear for whatever reason
+  const keyExtractor = useCallback(
+    (item, i) => `${item._id}-${i}`,
+    [chats.length]
+  );
 
   useEffect(() => {
     const focusListener = navigation.addListener("focus", async () => {

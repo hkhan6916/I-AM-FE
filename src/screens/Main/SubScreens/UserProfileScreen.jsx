@@ -15,6 +15,7 @@ import ProfileInfo from "../../../components/ProfileInfo";
 import ContentLoader from "../../../components/ContentLoader";
 import PostOptionsModal from "../../../components/PostOptionsModal";
 import { useSelector } from "react-redux";
+import makeCancelable from "../../../helpers/makeCancelable";
 
 const UserProfileScreen = (props) => {
   const { userId } = props.route.params;
@@ -182,7 +183,8 @@ const UserProfileScreen = (props) => {
       setLoading(true);
       const { success, response } = await apiCall(
         "GET",
-        `/user/${userId}/posts/${userPosts.length}`
+        `/user/${userId}/posts/${userPosts.length}`,
+        null
       );
       setLoading(false);
       if (success) {
@@ -223,6 +225,10 @@ const UserProfileScreen = (props) => {
     setShowPostOptions(post);
   };
 
+  const initializeData = makeCancelable(
+    apiCall("GET", `/user/${userId}`, null)
+  );
+
   const renderItem = useCallback(
     ({ item }) => {
       if (!item?.deleted && !user.blockedByThem)
@@ -253,56 +259,44 @@ const UserProfileScreen = (props) => {
     );
   }
 
-  const initializeData = async () => {
-    const { success, response } = await apiCall("GET", `/user/${userId}`);
-    if (success) {
-      setUser(response.otherUser);
-      navigation.setOptions({
-        title: response.otherUser.isSameUser
-          ? "Me"
-          : `${response.otherUser.firstName} ${response.otherUser.lastName}`,
-      });
-      if (
-        !response.otherUser?.private ||
-        (response.otherUser?.private && response.otherUser.isFriend) ||
-        response.otherUser.isSameUser
-      ) {
-        await getUserPosts();
-      }
-    }
-  };
-
   const keyExtractor = useCallback(
     (item) => item?.customKey || item?._id,
     [userPosts]
   );
 
   useEffect(() => {
-    let isMounted = true;
-    (async () => {
-      if (isMounted) {
-        await initializeData();
+    initializeData.promise.then(async ({ success, response }) => {
+      if (success) {
+        setUser(response.otherUser);
+        navigation.setOptions({
+          title: response.otherUser.isSameUser
+            ? "Me"
+            : `${response.otherUser.firstName} ${response.otherUser.lastName}`,
+        });
+        if (
+          !response.otherUser?.private ||
+          (response.otherUser?.private && response.otherUser.isFriend) ||
+          response.otherUser.isSameUser
+        ) {
+          // await getUserPosts();
+        }
       }
-    })();
+    });
+
     return () => {
       setUser({});
       setUserPosts([]);
-      isMounted = false;
+      initializeData.cancel();
     };
-  }, [userId]);
+  }, []);
 
   useEffect(() => {
-    let isMounted = true;
-    if (isMounted) {
-      (async () => {
-        if (accepted) {
-          await getUserPosts();
-        }
-      })();
-      return () => {
-        isMounted = false;
-      };
-    }
+    (async () => {
+      if (accepted) {
+        await getUserPosts();
+      }
+    })();
+    return () => {};
   }, [accepted]);
 
   if (user && user._id) {

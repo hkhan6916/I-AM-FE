@@ -135,6 +135,7 @@ const ProfileInfo = ({
         flipProfileVideo={user.flipProfileVideo}
         isFullWidth
         previewText={"Tap to play"}
+        disableBlurListener
       />
       {!user.isSameUser ? (
         <View

@@ -14,7 +14,13 @@ import AnimatedLottieView from "lottie-react-native";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
 import { Octicons } from "@expo/vector-icons";
 
-const PreviewVideo = ({ uri, isFullWidth, previewText, flipProfileVideo }) => {
+const PreviewVideo = ({
+  uri,
+  isFullWidth,
+  previewText,
+  flipProfileVideo,
+  disableBlurListener,
+}) => {
   const { width: screenWidth } = Dimensions.get("window");
   const [videoStatus, setVideoStatus] = useState({});
   const [ready, setReady] = useState(false);
@@ -38,16 +44,13 @@ const PreviewVideo = ({ uri, isFullWidth, previewText, flipProfileVideo }) => {
   };
 
   useEffect(() => {
-    let isMounted = true;
-    if (isMounted) {
-      const unsubscribe = navigation.addListener("blur", async () => {
-        if (profileVideoRef) {
-          await profileVideoRef.current?.pauseAsync();
-        }
-      });
-      isMounted = false;
-      return unsubscribe;
-    }
+    const unsubscribe = navigation.addListener("blur", async () => {
+      if (profileVideoRef && !disableBlurListener) {
+        await profileVideoRef.current?.pauseAsync();
+      }
+    });
+
+    return unsubscribe;
   }, [navigation]);
 
   if (!uri) {
