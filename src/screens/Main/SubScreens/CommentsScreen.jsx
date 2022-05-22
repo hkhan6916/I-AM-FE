@@ -226,28 +226,22 @@ const CommentsScreen = (props) => {
   );
 
   useEffect(() => {
-    let isMounted = true;
-    // navigation.addListener("focus", async () => {
     (async () => {
       setInitialLoading(true);
       await apiCall("GET", `/posts/comments/${postId}/0`).then(
         ({ success, response }) => {
-          if (isMounted) {
-            setInitialLoading(false);
-            if (success) {
-              if (!response.length) {
-                setAllCommentsLoaded(true);
-              } else {
-                setComments(response);
-              }
+          setInitialLoading(false);
+          if (success) {
+            if (!response.length) {
+              setAllCommentsLoaded(true);
+            } else {
+              setComments(response);
             }
           }
         }
       );
     })();
-    // });
     return async () => {
-      isMounted = false;
       (await getComments()).cancel();
     };
   }, []);

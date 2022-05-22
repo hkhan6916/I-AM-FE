@@ -278,7 +278,7 @@ const UserProfileScreen = (props) => {
           (response.otherUser?.private && response.otherUser.isFriend) ||
           response.otherUser.isSameUser
         ) {
-          // await getUserPosts();
+          await getUserPosts();
         }
       }
     });

@@ -35,7 +35,15 @@ const UserOptionsModal = ({
     "Self harm",
   ];
   return (
-    <Modal visible={showOptions} transparent>
+    <Modal
+      visible={showOptions}
+      transparent
+      onRequestClose={() => {
+        setShowUserOptions(null);
+        setShowReportOptions(false);
+        setShowBlockUserGuard(false);
+      }}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" && "padding"}
         keyboardVerticalOffset={0}

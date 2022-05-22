@@ -47,6 +47,7 @@ import themeStyle from "../theme.style";
 import { manipulateAsync } from "expo-image-manipulator";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
 import { EvilIcons, Ionicons } from "@expo/vector-icons";
+import useOrientation from "../helpers/hooks/useOrientation";
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -64,6 +65,11 @@ const CameraStandard = ({
   setRecording,
 }) => {
   const screenOrientation = useScreenOrientation(true);
+  const orientation = useOrientation();
+
+  const iosSpecificProps =
+    Platform.OS === "ios" ? { orientation: orientation } : {};
+
   const camera = useRef(null);
   const [isCameraInitialized, setIsCameraInitialized] = useState(false);
   const [hasMicrophonePermission, setHasMicrophonePermission] = useState(null);
@@ -196,8 +202,11 @@ const CameraStandard = ({
     setFlash((f) => (f === "off" ? "on" : "off"));
   }, []);
 
-  const deactivateCamera = () => {
+  const deactivateCamera = async () => {
     setCameraActive(false);
+    await ScreenOrientation.lockAsync(
+      ScreenOrientation.OrientationLock.PORTRAIT_UP
+    );
     return true;
   };
 
@@ -216,7 +225,9 @@ const CameraStandard = ({
   useEffect(() => {
     (async () => {
       BackHandler.addEventListener("hardwareBackPress", deactivateCamera);
-      await ScreenOrientation.unlockAsync();
+      if (Platform.OS === "android") {
+        await ScreenOrientation.unlockAsync();
+      }
 
       await Camera.getCameraPermissionStatus().then(async (status) => {
         setHasCameraPermission(status === "authorized");
@@ -423,8 +434,9 @@ const CameraStandard = ({
                 animatedProps={cameraAnimatedProps}
                 photo={true}
                 video={true}
+                zoom={0}
                 audio={hasMicrophonePermission}
-                // orientation={screenOrientation}
+                {...iosSpecificProps}
               />
             </TapGestureHandler>
           </Reanimated.View>

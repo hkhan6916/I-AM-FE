@@ -170,7 +170,7 @@ const HomeScreen = () => {
   const viewabilityConfig = {
     waitForInteraction: true,
     viewAreaCoveragePercentThreshold: 100,
-    minimumViewTime: 1000,
+    minimumViewTime: 500,
   };
 
   const viewabilityConfigCallbackPairs = useRef([
@@ -315,67 +315,65 @@ const HomeScreen = () => {
       <SafeAreaView style={styles.container}>
         {/* <Button title="test" onPress={() => navigation.navigate("Test")} /> */}
         <HomeHeading />
-        <View style={{ alignItems: "center" }}>
-          {newPostCreated.state ? (
-            <View style={styles.newPostPill}>
-              <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                Post {newPostCreated.state.type}
-              </Text>
+        {newPostCreated.state ? (
+          <View style={styles.newPostPill}>
+            <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+              Post {newPostCreated.state.type}
+            </Text>
+          </View>
+        ) : null}
+        <FlatList
+          ref={flatlistRef}
+          viewabilityConfigCallbackPairs={
+            viewabilityConfigCallbackPairs.current
+          }
+          extraData={postIds.length}
+          data={feed}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          refreshControl={
+            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+          }
+          ListFooterComponent={() => (
+            <View
+              style={{
+                marginTop: 20,
+                marginBottom: 50,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <ActivityIndicator
+                size="large"
+                animating={loading}
+                color={themeStyle.colors.grayscale.lowest}
+              />
+              {feedError ? (
+                <Text style={{ color: themeStyle.colors.error.default }}>
+                  {feedError}
+                </Text>
+              ) : allPostsLoaded ? (
+                <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                  That&apos;s everything for now!
+                </Text>
+              ) : null}
             </View>
-          ) : null}
-          <FlatList
-            ref={flatlistRef}
-            viewabilityConfigCallbackPairs={
-              viewabilityConfigCallbackPairs.current
-            }
-            extraData={postIds.length}
-            data={feed}
-            renderItem={renderItem}
-            keyExtractor={keyExtractor}
-            refreshControl={
-              <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-            }
-            ListFooterComponent={() => (
-              <View
-                style={{
-                  marginTop: 20,
-                  marginBottom: 50,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <ActivityIndicator
-                  size="large"
-                  animating={loading}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
-                {feedError ? (
-                  <Text style={{ color: themeStyle.colors.error.default }}>
-                    {feedError}
-                  </Text>
-                ) : allPostsLoaded ? (
-                  <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                    That&apos;s everything for now!
-                  </Text>
-                ) : null}
-              </View>
-            )}
-            contentContainerStyle={{ flexGrow: 1 }}
-            onEndReached={() => getUserFeed()}
-            onEndReachedThreshold={0.5}
-            initialNumToRender={10}
-            maxToRenderPerBatch={20}
-          />
-          <PostOptionsModal
-            showOptions={!!showPostOptions}
-            setShowPostOptions={setShowPostOptions}
-            reportPost={reportPost}
-            deletePost={deletePost}
-            editPost={editPost}
-            belongsToUser={false}
-            error={error}
-          />
-        </View>
+          )}
+          contentContainerStyle={{ flexGrow: 1 }}
+          onEndReached={() => getUserFeed()}
+          onEndReachedThreshold={0.5}
+          initialNumToRender={10}
+          maxToRenderPerBatch={20}
+        />
+        <PostOptionsModal
+          showOptions={!!showPostOptions}
+          setShowPostOptions={setShowPostOptions}
+          reportPost={reportPost}
+          deletePost={deletePost}
+          editPost={editPost}
+          belongsToUser={false}
+          error={error}
+        />
       </SafeAreaView>
     );
   }

@@ -1,18 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Dimensions,
-  Platform,
-} from "react-native";
+import { View, Text, TouchableOpacity, Dimensions } from "react-native";
 import { Video } from "expo-av";
 import themeStyle from "../theme.style";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import AnimatedLottieView from "lottie-react-native";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
-import { Octicons } from "@expo/vector-icons";
 
 const PreviewVideo = ({
   uri,
