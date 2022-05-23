@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   Text,
   View,
@@ -9,6 +9,7 @@ import {
   BackHandler,
   SafeAreaView,
   StyleSheet,
+  TouchableWithoutFeedback,
 } from "react-native";
 // import { Camera } from "expo-camera";
 import { Camera, useCameraDevices } from "react-native-vision-camera";
@@ -28,6 +29,7 @@ const ProfileVideoCamera = ({
   hasCameraPermission,
   hasAudioPermission,
 }) => {
+  const [showNotice, setShowNotice] = useState(null);
   const cameraRef = useRef();
   const packageName = Constants.manifest.releaseChannel
     ? Constants.manifest.android.package
@@ -48,6 +50,11 @@ const ProfileVideoCamera = ({
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
   const handleRecordClick = async () => {
+    if (recording && recordingLength > 27) {
+      const timeout = setTimeout(() => setShowNotice(null), 3000);
+      setShowNotice(timeout);
+      return;
+    }
     if (!recording) {
       setRecordingLength(30);
       setRecording(true);
@@ -81,20 +88,28 @@ const ProfileVideoCamera = ({
       return () => {
         isMounted = false;
         clearInterval(interval);
+        if (showNotice) {
+          clearTimeout(showNotice);
+        }
       };
     }
   }, [recording]);
 
-  const deactivateCamera = () => {
+  const deactivateCamera = async () => {
+    setRecording(async (recording) => {
+      if (recording) {
+        await cameraRef?.current?.stopRecording();
+      }
+      return false;
+    });
     setCameraActivated(false);
+    setRecording(false);
     return true;
   };
 
   useEffect(() => {
     BackHandler.addEventListener("hardwareBackPress", deactivateCamera);
-    return () => {
-      setRecording(false);
-      setCameraActivated(false);
+    return async () => {
       BackHandler.removeEventListener("hardwareBackPress", deactivateCamera);
     };
   }, []);
@@ -212,35 +227,6 @@ const ProfileVideoCamera = ({
       }}
     >
       <StatusBar hidden />
-
-      <TouchableOpacity
-        onPress={() => setCameraActivated(false)}
-        style={{
-          height: 48,
-          width: 48,
-          margin: 15,
-          position: "absolute",
-          top: 0,
-          left: 0,
-          zIndex: 9999,
-        }}
-      >
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={themeStyle.colors.grayscale.lowest}
-          />
-          <Text
-            style={{
-              color: themeStyle.colors.grayscale.lowest,
-              marginLeft: 10,
-            }}
-          >
-            Back
-          </Text>
-        </View>
-      </TouchableOpacity>
       <View
         style={{
           backgroundColor: themeStyle.colors.grayscale.high,
@@ -270,9 +256,25 @@ const ProfileVideoCamera = ({
           backgroundColor: "transparent",
           justifyContent: "flex-end",
           zIndex: 999,
+          alignItems: "center",
         }}
       >
-        <TouchableOpacity
+        {showNotice ? (
+          <Text
+            style={{
+              color: themeStyle.colors.white,
+              zIndex: 9999,
+              marginBottom: 20,
+              padding: 20,
+              backgroundColor: "rgba(19,130, 148, 0.2)",
+              borderRadius: 10,
+              fontWeight: "700",
+            }}
+          >
+            Profile video must be at least 3 seconds long
+          </Text>
+        ) : null}
+        <TouchableWithoutFeedback
           style={{
             alignSelf: "center",
             width: 50,
@@ -280,7 +282,7 @@ const ProfileVideoCamera = ({
             bottom: 20,
             zIndex: 2,
           }}
-          disabled={recording && recordingLength > 27}
+          // disabled={recording && recordingLength > 27}
           onPress={() => handleRecordClick()}
         >
           <View
@@ -328,7 +330,7 @@ const ProfileVideoCamera = ({
               />
             )}
           </View>
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
       </View>
       <View
         style={{

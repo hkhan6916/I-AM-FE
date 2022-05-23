@@ -78,7 +78,7 @@ const Step2Screen = () => {
           username: "Please choose a username",
         },
       username.length < 3 && {
-        username: "Username must be atleast 3 characters",
+        username: "Username must be at least 3 characters",
       },
       /\s/.test(username) && {
         username: "Username cannot have spaces",

@@ -46,6 +46,8 @@ const EditUserDetailsScreen = () => {
   const [jobTitle, setJobTitle] = useState(null);
   const [jobTitleOptions, setJobTitleOptions] = useState([]);
 
+  const [loadingVideo, setLoadingVideo] = useState(false);
+
   const [validationErrors, setValidationErrors] = useState({});
   const [initialProfileData, setInitialProfileData] = useState({});
   const [detectingFaces, setDetectingFaces] = useState(false);
@@ -56,11 +58,12 @@ const EditUserDetailsScreen = () => {
   const [cameraActivated, setCameraActivated] = useState(false);
 
   const [recording, setRecording] = useState(false);
-  const [recordingLength, setRecordingLength] = useState(20);
+  const [recordingLength, setRecordingLength] = useState(30);
 
   const [faceDetected, setFaceDetected] = useState(false);
 
   const [profileVideo, setProfileVideo] = useState("");
+  const [prevProfileVideo, setPrevProfileVideo] = useState("");
 
   const [updateError, setupdateError] = useState("");
 
@@ -74,21 +77,27 @@ const EditUserDetailsScreen = () => {
 
   const navigation = useNavigation();
 
-  const handleFaceDetection = async (profileVideoPath) => {
+  const handleFaceDetection = async (duration) => {
+    setLoadingVideo(true);
+    if (Number(duration) < 3000) {
+      setProfileVideo(prevProfileVideo || initialProfileData?.profileVideoUrl);
+      setFaceDetected(true);
+      return;
+    }
     setDetectingFaces(true);
-
-    const { uri } = await getThumbnailAsync(profileVideoPath, {
-      time: 2000,
+    const { uri } = await getThumbnailAsync(profileVideo, {
+      time: 3000,
     });
     const { faces } = await detectFacesAsync(uri);
 
     if (faces?.length) {
       setFaceDetected(true);
+      setPrevProfileVideo(profileVideo);
     } else {
       setFaceDetected(false);
     }
     setDetectingFaces(false);
-    setProfileVideo(profileVideoPath);
+    setLoadingVideo(false);
   };
 
   const getJobTitles = async (query) => {
@@ -366,7 +375,7 @@ const EditUserDetailsScreen = () => {
     return (
       <ProfileVideoCamera
         setRecording={setRecording}
-        setProfileVideo={handleFaceDetection}
+        setProfileVideo={setProfileVideo}
         setCameraActivated={setCameraActivated}
         setRecordingLength={setRecordingLength}
         recording={recording}
@@ -426,9 +435,10 @@ const EditUserDetailsScreen = () => {
               (!profileVideo && initialProfileData.profileVideoUrl) ? (
                 <View>
                   <PreviewVideo
+                    onLoad={(info) => handleFaceDetection(info?.durationMillis)}
                     flipProfileVideo={
-                      profileVideo
-                        ? !!(Platform.OS === "android" && profileVideo)
+                      profileVideo && !loadingVideo
+                        ? !!(Platform.OS === "android")
                         : !!initialProfileData.flipProfileVideo
                     }
                     isFullWidth
@@ -449,6 +459,7 @@ const EditUserDetailsScreen = () => {
               ) : profileVideo ? (
                 <View>
                   <PreviewVideo
+                    onLoad={(info) => handleFaceDetection(info?.durationMillis)}
                     isFullWidth
                     flipProfileVideo={Platform.OS === "android" && profileVideo}
                     uri={profileVideo}
@@ -668,7 +679,8 @@ const EditUserDetailsScreen = () => {
               styles.submitButtonContainer,
               ((profileVideo && !faceDetected) ||
                 Object.keys(validationErrors).length ||
-                detectingFaces) && { opacity: 0.3 },
+                detectingFaces ||
+                loadingVideo) && { opacity: 0.3 },
             ]}
           >
             <TouchableOpacity
@@ -677,9 +689,11 @@ const EditUserDetailsScreen = () => {
               disabled={
                 (profileVideo && !faceDetected) ||
                 Object.keys(validationErrors).length ||
-                detectingFaces
+                detectingFaces ||
+                loadingVideo
               }
             >
+              {console.log({ profileVideo })}
               {isUpdating && profileVideo ? (
                 <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
                   Updating...

@@ -13,6 +13,7 @@ const PreviewVideo = ({
   previewText,
   flipProfileVideo,
   disableBlurListener,
+  onLoad,
 }) => {
   const { width: screenWidth } = Dimensions.get("window");
   const [videoStatus, setVideoStatus] = useState({});
@@ -34,6 +35,12 @@ const PreviewVideo = ({
     seconds = seconds < 10 ? `0${seconds}` : seconds;
 
     return `${hours > 0 ? `${hours}:` : ""}${minutes}:${seconds}`;
+  };
+
+  const handleOnLoad = (v) => {
+    if (onLoad) {
+      onLoad(v);
+    }
   };
 
   useEffect(() => {
@@ -113,7 +120,7 @@ const PreviewVideo = ({
           }}
         >
           <Video
-            positionMillis={100}
+            positionMillis={0} // TODO check this on IOS if we should revert to 100ms
             style={[
               {
                 alignSelf: "center",
@@ -126,6 +133,7 @@ const PreviewVideo = ({
               },
             ]}
             onReadyForDisplay={() => setReady(true)}
+            onLoad={(v) => handleOnLoad(v)}
             onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
             ref={profileVideoRef}
             source={{
