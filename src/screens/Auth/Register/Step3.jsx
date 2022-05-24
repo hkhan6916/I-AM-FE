@@ -233,9 +233,11 @@ const Step1Screen = () => {
 
     if (status === "granted") {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
         quality: 0.3,
         allowsMultipleSelection: false,
+        videoMaxDuration: 30,
+        allowsEditing: false,
       });
       if (!result.cancelled) {
         setFaceDetected(false);
@@ -245,7 +247,19 @@ const Step1Screen = () => {
         const mediaSizeInMb = mediaInfo.size / 1000000;
         if (mediaSizeInMb > 50) {
           setShowVideoSizeError(true);
-          setProfileVideo(result.uri);
+          Alert.alert(
+            "Unable to process this video",
+            "This video is too large. Please choose a video that is 50MB or smaller in size.",
+            [
+              {
+                text: "Cancel",
+              },
+              {
+                text: "Select Another Video",
+                onPress: () => pickProfileVideo(),
+              },
+            ]
+          );
           setLoading(false);
           return;
         }
