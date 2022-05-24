@@ -138,10 +138,7 @@ const LoginScreen = () => {
           disabled={!(identifier && password)}
         >
           {loading ? (
-            <ActivityIndicator
-              size={"small"}
-              color={themeStyle.colors.grayscale.lowest}
-            />
+            <ActivityIndicator size={"small"} color={themeStyle.colors.white} />
           ) : (
             <Text style={styles.loginButtonText}>Log me in!</Text>
           )}
@@ -196,7 +193,7 @@ const styles = StyleSheet.create({
     width: 100,
   },
   loginButtonText: {
-    color: themeStyle.colors.grayscale.lowest,
+    color: themeStyle.colors.white,
   },
   forgotPassword: {
     alignSelf: "flex-end",

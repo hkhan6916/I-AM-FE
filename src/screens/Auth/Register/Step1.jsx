@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     width: 100,
   },
   nextButtonText: {
-    color: themeStyle.colors.grayscale.lowest,
+    color: themeStyle.colors.white,
     textAlign: "center",
   },
   label: {

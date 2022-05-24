@@ -10,13 +10,11 @@ import {
   TouchableOpacity,
   Platform,
   Dimensions,
-  Image,
   KeyboardAvoidingView,
   Alert,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
-import { Video } from "expo-av";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import CameraStandard from "../../../components/CameraStandard";
@@ -31,15 +29,13 @@ import VideoPlayer from "expo-video-player";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { getThumbnailAsync } from "expo-video-thumbnails";
-import Upload from "react-native-background-upload";
-import { getItemAsync } from "expo-secure-store";
 import { StatusBar } from "expo-status-bar";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import GifModal from "../../../components/GifModal";
 import openAppSettings from "../../../helpers/openAppSettings";
 import backgroundUpload from "../../../helpers/backgroundUpload";
 import { gestureHandlerRootHOC } from "react-native-gesture-handler";
 import FastImage from "react-native-fast-image";
+
 
 const AddScreen = () => {
   const isFocused = useIsFocused();

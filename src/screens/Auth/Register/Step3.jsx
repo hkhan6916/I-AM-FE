@@ -10,6 +10,7 @@ import {
   Modal,
   SafeAreaView,
   Platform,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera";
@@ -26,6 +27,10 @@ import AnimatedLottieView from "lottie-react-native";
 import backgroundUpload from "../../../helpers/backgroundUpload";
 import Upload from "react-native-background-upload";
 import { getItemAsync } from "expo-secure-store";
+import { FontAwesome5 } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import openAppSettings from "../../../helpers/openAppSettings";
+import { getInfoAsync } from "expo-file-system";
 
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
@@ -34,6 +39,10 @@ const Step1Screen = () => {
   const [hasAudioPermission, setHasAudioPermission] = useState(null);
 
   const [cameraActivated, setCameraActivated] = useState(false);
+
+  const [showVideoSizeError, setShowVideoSizeError] = useState(false);
+  const [tooShort, setTooShort] = useState(false);
+  const [tooLong, setTooLong] = useState(false);
 
   const [recording, setRecording] = useState(false);
   const [recordingLength, setRecordingLength] = useState(20);
@@ -44,6 +53,10 @@ const Step1Screen = () => {
   const [detectingFaces, setDetectingFaces] = useState(false);
 
   const [profileVideo, setProfileVideo] = useState("");
+  const [prevProfileVideo, setPrevProfileVideo] = useState("");
+
+  const [loadingVideo, setLoadingVideo] = useState(false);
+
   const [skipProfileVideo, setSkipProfileVideo] = useState(false);
 
   const [registerationError, setRegisterationError] = useState("");
@@ -51,11 +64,12 @@ const Step1Screen = () => {
   const dispatch = useDispatch();
   const existingInfo = useSelector((state) => state.userData);
 
-  const checkAllDetailsProvided = () => {
+  const profileVideoIsValid = () => {
+    if (tooShort || tooLong) return false;
     if (profileVideo && faceDetected) {
       return true;
     }
-    if (!profileVideo) {
+    if (skipProfileVideo) {
       return true;
     }
     return false;
@@ -166,23 +180,79 @@ const Step1Screen = () => {
     }
   };
 
-  const handleFaceDetection = async (profileVideoUrl) => {
+  const handleFaceDetection = async (duration) => {
+    setLoadingVideo(true);
+    setTooShort(false);
+    setTooLong(false);
     setDetectingFaces(true);
-    const { uri } = await getThumbnailAsync(profileVideoUrl, {
-      time: 500,
-    }); // TODO detect face at end too
+    if (Number(duration) < 3000) {
+      setDetectingFaces(false);
+      setLoadingVideo(false);
+      setTooShort(true);
+      return;
+    }
+    if (Number(duration) > 30000) {
+      setDetectingFaces(false);
+      setLoadingVideo(false);
+      setTooLong(true);
+      return;
+    }
+    setDetectingFaces(true);
+    const { uri } = await getThumbnailAsync(profileVideo, {
+      time: 3000,
+    });
     const { faces } = await detectFacesAsync(uri);
+
     if (faces?.length) {
       setFaceDetected(true);
+      setPrevProfileVideo(profileVideo);
     } else {
       setFaceDetected(false);
     }
     setDetectingFaces(false);
+    setLoadingVideo(false);
   };
 
-  const handleSetProfileVideo = async (profileVideoUrl) => {
-    await handleFaceDetection(profileVideoUrl);
-    setProfileVideo(profileVideoUrl);
+  const pickProfileVideo = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Unable access camera roll",
+        "Please enable storage permissions to upload a profile video.",
+        [
+          {
+            text: "Cancel",
+          },
+          {
+            text: "Settings",
+            onPress: () => openAppSettings(),
+          },
+        ]
+      );
+    }
+
+    if (status === "granted") {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        quality: 0.3,
+        allowsMultipleSelection: false,
+      });
+      if (!result.cancelled) {
+        setFaceDetected(false);
+        setDetectingFaces(false);
+
+        const mediaInfo = await getInfoAsync(result.uri);
+        const mediaSizeInMb = mediaInfo.size / 1000000;
+        if (mediaSizeInMb > 50) {
+          setShowVideoSizeError(true);
+          setProfileVideo(result.uri);
+          setLoading(false);
+          return;
+        }
+        setShowVideoSizeError(false);
+        setProfileVideo(result.uri);
+      }
+    }
   };
 
   useEffect(() => {
@@ -243,7 +313,7 @@ const Step1Screen = () => {
     return (
       <ProfileVideoCamera
         setRecording={setRecording}
-        setProfileVideo={handleSetProfileVideo}
+        setProfileVideo={setProfileVideo}
         setCameraActivated={setCameraActivated}
         setRecordingLength={setRecordingLength}
         recording={recording}
@@ -272,10 +342,13 @@ const Step1Screen = () => {
               opacity: skipProfileVideo ? 0.1 : 1,
             }}
           >
-            A profile video let&apos;s others know you better as well as your
-            career and accomplishments.
+            A profile video lets others know you better alongside your career
+            and accomplishments.
           </Text>
-          <Modal visible={showHelpModal}>
+          <Modal
+            visible={showHelpModal}
+            onRequestClose={() => setShowHelpModal(false)}
+          >
             <SafeAreaView
               style={{
                 backgroundColor: themeStyle.colors.grayscale.highest,
@@ -327,48 +400,91 @@ const Step1Screen = () => {
               </View>
             </SafeAreaView>
           </Modal>
-          {recordingLength <= 27 && detectingFaces ? (
-            <ActivityIndicator
-              animating
-              size={"large"}
-              color={themeStyle.colors.primary.default}
-            />
-          ) : recordingLength <= 27 &&
-            profileVideo &&
-            faceDetected &&
-            !skipProfileVideo ? (
-            <PreviewVideo
-              uri={profileVideo}
-              isFullWidth
-              flipProfileVideo={Platform.OS === "android"}
-            />
-          ) : recordingLength <= 27 && profileVideo && !skipProfileVideo ? (
-            <Text style={styles.faceDetectionError}>
-              No face detected. Make sure your face is shown at the start and
-              end of your profile video.
-            </Text>
+          {profileVideo && faceDetected && !skipProfileVideo ? (
+            <View>
+              <PreviewVideo
+                uri={profileVideo}
+                isFullWidth
+                flipProfileVideo={Platform.OS === "android"}
+                onLoad={(info) => handleFaceDetection(info?.durationMillis)}
+              />
+              {(tooShort || tooLong) && !loadingVideo && !detectingFaces ? (
+                <Text style={styles.faceDetectionError}>
+                  {tooShort
+                    ? "Profile video must be at least 3 seconds long."
+                    : tooLong
+                    ? "Profile video must be no longer than 30 seconds."
+                    : ""}
+                </Text>
+              ) : null}
+            </View>
+          ) : profileVideo && !skipProfileVideo ? (
+            <View>
+              <PreviewVideo
+                uri={profileVideo}
+                isFullWidth
+                flipProfileVideo={Platform.OS === "android"}
+                onLoad={(info) => handleFaceDetection(info?.durationMillis)}
+              />
+              {!detectingFaces && !loadingVideo ? (
+                <Text style={styles.faceDetectionError}>
+                  {tooShort
+                    ? "Profile video must be at least 3 seconds long."
+                    : tooLong
+                    ? "Profile video must be no longer than 30 seconds."
+                    : !faceDetected
+                    ? "Face was not fully detected. Please make sure your face is shown at the start and end of your profile video when introducing yourself."
+                    : ""}
+                </Text>
+              ) : null}
+            </View>
           ) : null}
-          <TouchableOpacity
-            disabled={skipProfileVideo}
-            style={[
-              styles.takeVideoButton,
-              skipProfileVideo && { opacity: 0.1 },
-            ]}
-            onPress={() => {
-              setFaceDetected(false);
-              setCameraActivated(true);
-            }}
-          >
-            <Text
-              style={[
-                styles.takeVideoButtonText,
-                skipProfileVideo && { opacity: 0.1 },
-              ]}
+          <View style={{ opacity: skipProfileVideo ? 0.1 : 1 }}>
+            <TouchableOpacity
+              disabled={skipProfileVideo}
+              style={[styles.takeVideoButton]}
+              onPress={() => {
+                setFaceDetected(false);
+                setCameraActivated(true);
+              }}
             >
-              <Ionicons name="videocam" size={14} />{" "}
-              {profileVideo ? "Retake profile video" : "Take profile video"}
+              <Text style={[styles.takeVideoButtonText]}>
+                <Ionicons
+                  name="videocam"
+                  size={14}
+                  color={themeStyle.colors.primary.default}
+                />{" "}
+                Take profile video
+              </Text>
+            </TouchableOpacity>
+            <Text
+              style={{
+                textAlign: "center",
+                color: themeStyle.colors.grayscale.lowest,
+                fontWeight: "700",
+              }}
+            >
+              or
             </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => pickProfileVideo()}
+              style={[styles.uploadVideoButton]}
+            >
+              <Text
+                style={{
+                  color: themeStyle.colors.primary.default,
+                  fontWeight: "900",
+                }}
+              >
+                <FontAwesome5
+                  name="images"
+                  size={14}
+                  color={themeStyle.colors.primary.default}
+                />{" "}
+                Upload profile video
+              </Text>
+            </TouchableOpacity>
+          </View>
           {!skipProfileVideo ? (
             <TouchableOpacity
               disabled={skipProfileVideo}
@@ -390,11 +506,11 @@ const Step1Screen = () => {
             style={[
               styles.registerationButton,
               {
-                opacity: !checkAllDetailsProvided() ? 0.5 : 1,
+                opacity: !profileVideoIsValid() || loadingVideo ? 0.5 : 1,
               },
             ]}
             onPress={() => registerUser()}
-            disabled={!checkAllDetailsProvided()}
+            disabled={!profileVideoIsValid() || loadingVideo}
           >
             <Text style={styles.registerationButtonText}>
               Sign Up <Ionicons name="paper-plane-outline" size={14} />
@@ -448,6 +564,8 @@ const styles = StyleSheet.create({
     color: themeStyle.colors.error.default,
     textAlign: "center",
     fontWeight: "700",
+    marginVertical: 20,
+    marginHorizontal: 10,
   },
   buttonContainer: {
     flex: 1,
@@ -468,7 +586,7 @@ const styles = StyleSheet.create({
     backgroundColor: themeStyle.colors.primary.default,
   },
   registerationButtonText: {
-    color: themeStyle.colors.grayscale.lowest,
+    color: themeStyle.colors.white,
   },
   takeVideoButton: {
     margin: 10,
@@ -477,9 +595,16 @@ const styles = StyleSheet.create({
     borderColor: themeStyle.colors.primary.default,
     borderRadius: 5,
   },
+  uploadVideoButton: {
+    margin: 10,
+    padding: 10,
+    borderWidth: 2,
+    borderColor: themeStyle.colors.primary.default,
+    borderRadius: 5,
+  },
   takeVideoButtonText: {
-    color: themeStyle.colors.grayscale.lowest,
-    fontWeight: "700",
+    color: themeStyle.colors.primary.default,
+    fontWeight: "900",
   },
   text: {
     fontSize: 18,

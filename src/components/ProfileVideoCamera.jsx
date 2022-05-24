@@ -162,33 +162,6 @@ const ProfileVideoCamera = ({
           in device settings to create a profile video.
         </Text>
         <View style={{ display: "flex", flexDirection: "row" }}>
-          <TouchableOpacity
-            disabled={!device}
-            onPress={() => setCameraActivated(false)}
-          >
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                margin: 10,
-                padding: 5,
-                borderRadius: 5,
-                borderWidth: 2,
-                borderColor: themeStyle.colors.grayscale.lowest,
-              }}
-            >
-              <Text
-                style={{
-                  textAlign: "center",
-                  color: themeStyle.colors.grayscale.lowest,
-                  fontWeight: "700",
-                }}
-              >
-                Cancel{" "}
-              </Text>
-            </View>
-          </TouchableOpacity>
           <TouchableOpacity onPress={() => openAppSettings()}>
             <View
               style={{
@@ -277,7 +250,6 @@ const ProfileVideoCamera = ({
         <TouchableWithoutFeedback
           style={{
             alignSelf: "center",
-            width: 50,
             position: "absolute",
             bottom: 20,
             zIndex: 2,
@@ -292,12 +264,13 @@ const ProfileVideoCamera = ({
               borderColor:
                 recordingLength > 30 - 3
                   ? themeStyle.colors.grayscale.high
-                  : themeStyle.colors.grayscale.lowest,
+                  : themeStyle.colors.white,
               height: 60,
               width: 60,
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              marginBottom: 15,
             }}
           >
             {recording ? (
