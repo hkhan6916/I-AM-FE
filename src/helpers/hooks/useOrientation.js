@@ -28,6 +28,7 @@ function useOrientation() {
               rotate = "landscapeLeft";
             }
           }
+
           if (rotate !== orientation) {
             setOrientation(rotate);
           }

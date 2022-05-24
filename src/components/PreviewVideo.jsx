@@ -169,8 +169,14 @@ const PreviewVideo = ({
                     fontSize: 20,
                     textAlign: "center",
                     width: screenWidth,
-                    color: themeStyle.colors.primary.light,
+                    color: themeStyle.colors.secondary.default,
                     opacity: 0.7,
+                    textShadowOffset: {
+                      width: 1,
+                      height: 1,
+                    },
+                    textShadowRadius: 9,
+                    textShadowColor: themeStyle.colors.secondary.bright,
                   }}
                 >
                   {previewText || "Tap to preview"}

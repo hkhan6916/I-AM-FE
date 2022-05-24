@@ -189,8 +189,16 @@ const CameraStandard = ({
         type: `${type === "photo" ? "image" : "video"}/${fileExtension}`,
         name: `${"media."}${fileExtension}`,
         uri: type === "photo" ? resizedPhoto.uri : media.path,
-        isSelfie: cameraPosition === "front" && Platform.OS === "android",
+        isSelfie:
+          cameraPosition === "front" &&
+          type !== "photo" &&
+          Platform.OS === "android",
       });
+      console.log(
+        cameraPosition === "front" &&
+          type !== "photo" &&
+          Platform.OS === "android"
+      );
       setCameraActive(false);
     },
     [cameraPosition]

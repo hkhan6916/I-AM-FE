@@ -234,6 +234,7 @@ const AddScreen = () => {
         if (mediaSizeInMb > 100) {
           setShowMediaSizeError(true);
           setFile({ ...result, ...mediaInfo });
+          setLoading(false);
           return;
         }
         setShowMediaSizeError(false);
@@ -256,6 +257,7 @@ const AddScreen = () => {
         setFile={(file) => {
           setFile(file);
           setGif("");
+          setLoading(false);
         }}
         setRecording={setRecording}
       />
