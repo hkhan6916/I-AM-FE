@@ -24,6 +24,7 @@ const ImageWithCache = ({
   onError,
   removeBackround,
   style,
+  background,
 }) => {
   const { width: screenWidth } = Dimensions.get("window");
   const [ready, setReady] = useState(false);
@@ -50,9 +51,18 @@ const ImageWithCache = ({
           >
             <TouchableOpacity onPress={() => toggleFullScreen(false)}>
               <AntDesign
-                name="closecircleo"
+                name="close"
                 size={24}
-                color={themeStyle.colors.secondary.default}
+                color={themeStyle.colors.white}
+                style={{
+                  color: themeStyle.colors.white,
+                  textShadowOffset: {
+                    width: 1,
+                    height: 1,
+                  },
+                  textShadowRadius: 8,
+                  textShadowColor: themeStyle.colors.black,
+                }}
               />
             </TouchableOpacity>
           </View>
@@ -86,7 +96,9 @@ const ImageWithCache = ({
       <View
         style={{
           backgroundColor:
-            !removeBackround && themeStyle.colors.grayscale.higher,
+            !removeBackround && !background
+              ? themeStyle.colors.grayscale.higher
+              : background,
         }}
       >
         {/* {!ready && !hideSpinner ? (

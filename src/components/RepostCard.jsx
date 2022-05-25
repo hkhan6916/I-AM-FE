@@ -76,7 +76,10 @@ const RepostCard = ({ postContent, isPreview }) => {
             >
               {postContent.postAuthor.username}
             </Text>
-            <Text style={{ maxWidth: 200 }} numberOfLines={1}>
+            <Text
+              style={{ maxWidth: 200, color: themeStyle.colors.grayscale.low }}
+              numberOfLines={1}
+            >
               {postContent.postAuthor.firstName}{" "}
               {postContent.postAuthor.lastName}
             </Text>

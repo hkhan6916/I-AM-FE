@@ -24,6 +24,7 @@ const PostCard = ({
   isVisible,
   setShowPostOptions,
   adsManager,
+  maxMediaHeight,
 }) => {
   const [post, setPost] = useState(initialPost);
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
@@ -246,16 +247,19 @@ const PostCard = ({
                     style={{
                       flex: 1,
                       flexDirection: "column",
+                      maxHeight: maxMediaHeight || 500,
+                      alignItems: "center",
                     }}
                   >
                     <ImageWithCache
                       removeBorderRadius
                       mediaHeaders={post.mediaHeaders}
                       mediaIsSelfie={post.mediaIsSelfie}
-                      resizeMode="cover"
+                      resizeMode="contain"
                       mediaUrl={post.mediaUrl}
                       aspectRatio={1 / 1}
                       hideSpinner
+                      background={themeStyle.colors.grayscale.cardsOuter}
                     />
                   </View>
                 ) : null}
@@ -439,9 +443,9 @@ const styles = StyleSheet.create({
     borderRightWidth: 0,
     borderLeftWidth: 0,
     borderColor: themeStyle.colors.grayscale.low,
-    borderBottomColor: themeStyle.colors.grayscale.higher,
-    borderBottomWidth: 2,
-    backgroundColor: themeStyle.colors.grayscale.highest,
+    borderBottomColor: themeStyle.colors.grayscale.cardsOuter,
+    borderBottomWidth: 4,
+    backgroundColor: themeStyle.colors.grayscale.cards,
   },
   preview: {
     margin: 20,

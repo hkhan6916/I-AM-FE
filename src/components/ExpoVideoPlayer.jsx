@@ -24,6 +24,7 @@ const ExpoVideoPlayer = ({ uri, isSelfie }) => {
     <VideoPlayer
       autoHidePlayer={false}
       timeVisible
+      slider={{ height: 100 }}
       videoProps={{
         ref: videoRef,
         shouldPlay: true,

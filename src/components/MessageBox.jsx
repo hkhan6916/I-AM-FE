@@ -44,9 +44,18 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
             >
               <TouchableOpacity onPress={() => setMediaFullScreen(false)}>
                 <AntDesign
-                  name="closecircleo"
+                  name="close"
                   size={24}
-                  color={themeStyle.colors.secondary.default}
+                  color={themeStyle.colors.white}
+                  style={{
+                    color: themeStyle.colors.white,
+                    textShadowOffset: {
+                      width: 1,
+                      height: 1,
+                    },
+                    textShadowRadius: 8,
+                    textShadowColor: themeStyle.colors.black,
+                  }}
                 />
               </TouchableOpacity>
             </View>
@@ -187,9 +196,7 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
             </TouchableOpacity>
           ) : null}
           {body ? (
-            <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-              {body}
-            </Text>
+            <Text style={{ color: themeStyle.colors.white }}>{body}</Text>
           ) : null}
         </View>
       </View>

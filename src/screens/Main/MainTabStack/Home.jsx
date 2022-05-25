@@ -18,6 +18,7 @@ import {
   useColorScheme,
   SafeAreaView,
   Button,
+  Dimensions,
 } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -58,6 +59,8 @@ const HomeScreen = () => {
 
   const navigation = useNavigation();
   const flatlistRef = useRef(null);
+
+  const { height: screenHeight } = Dimensions.get("window");
 
   useScrollToTop(flatlistRef);
 
@@ -276,6 +279,7 @@ const HomeScreen = () => {
           loadingMore={loading && index === feed.length - 1}
           isVisible={visibleItems.includes(item._id)}
           post={item}
+          maxMediaHeight={screenHeight / 1.5}
           // adsManager={index && index % 5 === 0 ? adsManager : null}
         />
       );

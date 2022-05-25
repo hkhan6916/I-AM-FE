@@ -8,6 +8,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Dimensions,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import formatAge from "../../../helpers/formatAge";
@@ -36,7 +37,7 @@ const PostScreen = (props) => {
   const [isCollapsible, setIsCollapsible] = useState(false);
 
   const navigation = useNavigation();
-
+  const { height: screenHeight } = Dimensions.get("window");
   const lottieRef = useRef(null);
 
   const handleGoBack = () => {
@@ -230,13 +231,15 @@ const PostScreen = (props) => {
                   style={{
                     flex: 1,
                     flexDirection: "column",
+                    maxHeight: screenHeight / 1.5 || 500,
+                    alignItems: "center",
                   }}
                 >
                   <ImageWithCache
                     removeBorderRadius
                     mediaHeaders={post.mediaHeaders}
                     mediaIsSelfie={post.mediaIsSelfie}
-                    resizeMode="cover"
+                    resizeMode="contain"
                     mediaUrl={post.mediaUrl}
                     aspectRatio={1 / 1}
                   />

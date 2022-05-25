@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   FlatList,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import apiCall from "../../../helpers/apiCall";
@@ -34,6 +35,8 @@ const ProfileScreen = () => {
   const navigation = useNavigation();
 
   const flatlistRef = useRef(null);
+
+  const { height: screenHeight } = Dimensions.get("window");
 
   useScrollToTop(flatlistRef);
 
@@ -148,6 +151,7 @@ const ProfileScreen = () => {
             isVisible={visibleItems.includes(item._id)}
             post={item}
             setShowPostOptions={triggerOptionsModal}
+            maxMediaHeight={screenHeight / 1.5}
           />
         );
     },
