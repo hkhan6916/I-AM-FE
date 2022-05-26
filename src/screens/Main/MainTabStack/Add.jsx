@@ -35,7 +35,7 @@ import openAppSettings from "../../../helpers/openAppSettings";
 import backgroundUpload from "../../../helpers/backgroundUpload";
 import { gestureHandlerRootHOC } from "react-native-gesture-handler";
 import FastImage from "react-native-fast-image";
-
+import { Image } from "react-native";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -48,6 +48,9 @@ const AddScreen = () => {
   const [showMediaSizeError, setShowMediaSizeError] = useState(false);
   const [showGifsModal, setShowGifsModal] = useState(false);
   const [gif, setGif] = useState("");
+  const [height, setHeight] = useState(0);
+  const [width, setWidth] = useState(0);
+  const [thumbnail, setThumbnail] = useState("");
 
   const navigation = useNavigation();
 
@@ -78,6 +81,8 @@ const AddScreen = () => {
           uri: thumbnailUri,
         });
         postData.append("mediaIsSelfie", isSelfie || false);
+        postData.append("height", height);
+        postData.append("width", width);
       } else {
         const mediaInfo = await getInfoAsync(uri);
         const mediaSizeInMb = mediaInfo?.size / 100000;
@@ -97,7 +102,8 @@ const AddScreen = () => {
         if (mediaSizeInMb >= 100) {
           return null;
         }
-
+        postData.append("height", height);
+        postData.append("width", width);
         postData.append("file", {
           type: type.split("/").length > 1 ? type : `${type}/${format}`,
           name: name || `media.${format}`,
@@ -125,10 +131,13 @@ const AddScreen = () => {
   const handlePostCreation = async () => {
     setLoading(true);
     const postData = await createPostData();
+    console.log(height, width);
+
     if (!postData) return null;
     const { success, response } = await apiCall("POST", "/posts/new", postData);
     setLoading(false);
     if (success) {
+      setThumbnail("");
       setGif("");
       return response.post;
     } else {
@@ -250,7 +259,14 @@ const AddScreen = () => {
         cameraActive={cameraActive}
         recording={recording}
         setCameraActive={setCameraActive}
-        setFile={(file) => {
+        setFile={async (file) => {
+          if (file.type?.split("/")[0] === "video") {
+            const { uri } = await getThumbnailAsync(file.uri, {
+              time: 0,
+              quality: 0.5,
+            });
+            setThumbnail(uri);
+          }
           setFile(file);
           setGif("");
           setLoading(false);
@@ -305,7 +321,7 @@ const AddScreen = () => {
               }}
             >
               <TouchableOpacity
-                disabled={(!file.uri && !postBody && !gif) || loading}
+                // disabled={(!file.uri && !postBody && !gif) || loading}
                 onPress={() => createPost()}
               >
                 {loading ? (
@@ -387,6 +403,16 @@ const AddScreen = () => {
                       padding: 5,
                     }}
                   >
+                    {thumbnail ? (
+                      <ImageWithCache
+                        onLoad={(e) => {
+                          setHeight(e?.nativeEvent?.source?.height);
+                          setWidth(e?.nativeEvent?.source?.width);
+                        }}
+                        style={{ height: 0, width: 0 }}
+                        mediaUrl={thumbnail}
+                      />
+                    ) : null}
                     <VideoPlayer
                       autoHidePlayer={false}
                       fullscreen
@@ -414,6 +440,11 @@ const AddScreen = () => {
                     }}
                   >
                     <ImageWithCache
+                      onLoad={(e) => {
+                        console.log(e.nativeEvent);
+                        setHeight(e?.nativeEvent?.source?.height);
+                        setWidth(e?.nativeEvent?.source?.width);
+                      }}
                       removeBackround
                       mediaIsSelfie={file.isSelfie}
                       resizeMode="contain"

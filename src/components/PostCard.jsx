@@ -11,12 +11,12 @@ import VideoPlayer from "./VideoPlayer";
 import Avatar from "./Avatar";
 import themeStyle from "../theme.style";
 import apiCall from "../helpers/apiCall";
-import ImageWithCache from "./ImageWithCache";
 import RepostCard from "./RepostCard";
 import AnimatedLottieView from "lottie-react-native";
 import PostAge from "./PostAge";
 import AdCard from "./AdCard";
 import FastImage from "react-native-fast-image";
+import CardImage from "./CardImage";
 
 const PostCard = ({
   post: initialPost,
@@ -24,7 +24,8 @@ const PostCard = ({
   isVisible,
   setShowPostOptions,
   adsManager,
-  maxMediaHeight,
+  screenWidth,
+  screenHeight,
 }) => {
   const [post, setPost] = useState(initialPost);
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
@@ -228,7 +229,6 @@ const PostCard = ({
                       flex: 1,
                       flexDirection: "column",
                       alignItems: "center",
-                      justifyContent: "center",
                     }}
                   >
                     <VideoPlayer
@@ -240,6 +240,10 @@ const PostCard = ({
                       thumbnailHeaders={post.thumbnailHeaders}
                       isUploading={post.ready === false}
                       isCancelled={post.cancelled}
+                      screenHeight={screenHeight}
+                      screenWidth={screenWidth}
+                      height={post.height}
+                      width={post.width}
                     />
                   </View>
                 ) : post.mediaType === "image" ? (
@@ -247,19 +251,16 @@ const PostCard = ({
                     style={{
                       flex: 1,
                       flexDirection: "column",
-                      maxHeight: maxMediaHeight || 500,
                       alignItems: "center",
                     }}
                   >
-                    <ImageWithCache
-                      removeBorderRadius
+                    <CardImage
                       mediaHeaders={post.mediaHeaders}
-                      mediaIsSelfie={post.mediaIsSelfie}
-                      resizeMode="contain"
                       mediaUrl={post.mediaUrl}
-                      aspectRatio={1 / 1}
-                      hideSpinner
-                      background={themeStyle.colors.grayscale.cardsOuter}
+                      screenWidth={screenWidth}
+                      screenHeight={screenHeight}
+                      height={post.height}
+                      width={post.width}
                     />
                   </View>
                 ) : null}

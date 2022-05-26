@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   SafeAreaView,
+  Dimensions,
 } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
 import {
@@ -20,12 +21,15 @@ import apiCall from "../../../helpers/apiCall";
 import ImageWithCache from "../../../components/ImageWithCache";
 import ExpoVideoPlayer from "../../../components/ExpoVideoPlayer";
 import { StatusBar } from "expo-status-bar";
+import VideoPlayer from "react-native-video-controls";
+import useScreenOrientation from "../../../helpers/hooks/useScreenOrientation";
 const MediaScreen = (props) => {
   const { post: initialPost } = props.route.params;
   const [liked, setLiked] = useState(initialPost.liked);
   const [likes, setLikes] = useState(initialPost.likes);
   const [post, setPost] = useState(initialPost);
-  console.log(post.mediaUrl);
+  const { width: screenWidth } = Dimensions.get("window");
+
   const navigation = useNavigation();
 
   const getAdditionalPostData = async () => {
@@ -82,6 +86,8 @@ const MediaScreen = (props) => {
     }
   };
 
+  useScreenOrientation(true);
+
   useEffect(() => {
     (async () => {
       await getAdditionalPostData();
@@ -110,9 +116,20 @@ const MediaScreen = (props) => {
       <SafeAreaView style={styles.container}>
         <View>
           {post?.mediaType === "video" ? (
-            <ExpoVideoPlayer
-              isSelfie={post.mediaIsSelfie}
-              uri={post.mediaUrl}
+            // <ExpoVideoPlayer
+            //   isSelfie={post.mediaIsSelfie}
+            //   uri={post.mediaUrl}
+            // />
+            <VideoPlayer
+              source={{ uri: post.mediaUrl }}
+              navigator={navigation}
+              videoStyle={{
+                transform: [{ scaleX: post.mediaIsSelfie ? -1 : 1 }],
+                // height: "100%",
+              }}
+              style={{ width: screenWidth }}
+              // disableFullscreen
+              fullscreen
             />
           ) : post?.mediaType === "image" ? (
             <View
@@ -131,37 +148,32 @@ const MediaScreen = (props) => {
               />
             </View>
           ) : null}
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={{
-              position: "absolute",
-              left: 10,
-              top: 10,
-            }}
-          >
-            <View
+          {post?.mediaType === "image" ? (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
               style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
+                position: "absolute",
+                left: 20,
+                top: 20,
               }}
             >
-              <Ionicons
-                name="arrow-back"
-                size={26}
-                color={themeStyle.colors.grayscale.low}
-              />
-              <Text
+              <View
                 style={{
-                  color: themeStyle.colors.grayscale.low,
-                  fontSize: 16,
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                Back
-              </Text>
-            </View>
-          </TouchableOpacity>
+                <Ionicons
+                  name="chevron-back"
+                  size={26}
+                  color={themeStyle.colors.grayscale.low}
+                  style={styles.iconShadow}
+                />
+              </View>
+            </TouchableOpacity>
+          ) : null}
           <TouchableWithoutFeedback>
             <View
               style={{

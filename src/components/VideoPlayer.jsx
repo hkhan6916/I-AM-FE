@@ -6,6 +6,7 @@ import themeStyle from "../theme.style";
 import ImageWithCache from "./ImageWithCache";
 import { Feather } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
+import CardImage from "./CardImage";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const VideoPlayer = ({
@@ -22,6 +23,10 @@ const VideoPlayer = ({
   isUploading,
   isCancelled,
   preventPlay,
+  screenWidth,
+  screenHeight,
+  height,
+  width,
 }) => {
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
@@ -73,13 +78,21 @@ const VideoPlayer = ({
                 height: "100%",
               }}
             >
-              <ImageWithCache
+              {/* <ImageWithCache // MAYBE have all videos square?
                 removeBorderRadius
                 resizeMode="cover"
                 mediaUrl={thumbnailUrl}
                 mediaHeaders={thumbnailHeaders}
                 aspectRatio={1 / 1}
                 mediaIsSelfie={mediaIsSelfie}
+              /> */}
+              <CardImage
+                mediaHeaders={thumbnailHeaders}
+                mediaUrl={thumbnailUrl}
+                screenWidth={screenWidth}
+                screenHeight={screenHeight}
+                height={height}
+                width={width}
               />
             </View>
           ) : null}

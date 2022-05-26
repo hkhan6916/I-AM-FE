@@ -60,7 +60,7 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const flatlistRef = useRef(null);
 
-  const { height: screenHeight } = Dimensions.get("window");
+  const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
   useScrollToTop(flatlistRef);
 
@@ -279,7 +279,8 @@ const HomeScreen = () => {
           loadingMore={loading && index === feed.length - 1}
           isVisible={visibleItems.includes(item._id)}
           post={item}
-          maxMediaHeight={screenHeight / 1.5}
+          screenHeight={screenHeight}
+          screenWidth={screenWidth}
           // adsManager={index && index % 5 === 0 ? adsManager : null}
         />
       );

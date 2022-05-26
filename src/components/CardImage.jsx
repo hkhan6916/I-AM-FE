@@ -1,9 +1,18 @@
 import FastImage from "react-native-fast-image";
 import React from "react";
+import themeStyle from "../theme.style";
 
-const CardImage = ({ screenWidth, mediaUrl, mediaHeaders, width, height }) => {
+const CardImage = ({
+  screenWidth,
+  screenHeight,
+  mediaUrl,
+  mediaHeaders,
+  width,
+  height,
+}) => {
   const imageHeight =
-    height && width && (Number(height) / Number(width)) * (screenWidth - 48);
+    height && width && (Number(height) / Number(width)) * screenWidth;
+  console.log(imageHeight);
   return (
     <FastImage
       source={{
@@ -11,13 +20,19 @@ const CardImage = ({ screenWidth, mediaUrl, mediaHeaders, width, height }) => {
         headers: mediaHeaders,
       }}
       resizeMode="contain"
-      style={{
-        flex: 1,
-        borderWidth: 1,
-        // width: "100%",
-        height: 500,
-        aspectRatio: 1,
-      }}
+      style={[
+        {
+          width: screenWidth,
+          height:
+            imageHeight < screenHeight / 1.4 ? imageHeight : screenHeight / 1.4,
+          backgroundColor: themeStyle.colors.black,
+        },
+        (!height || !width) && {
+          width: screenWidth,
+          height: "100%",
+          aspectRatio: 1 / 1,
+        },
+      ]}
     />
   );
 };

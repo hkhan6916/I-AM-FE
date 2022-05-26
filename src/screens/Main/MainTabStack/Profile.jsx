@@ -36,7 +36,7 @@ const ProfileScreen = () => {
 
   const flatlistRef = useRef(null);
 
-  const { height: screenHeight } = Dimensions.get("window");
+  const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
   useScrollToTop(flatlistRef);
 
@@ -151,7 +151,8 @@ const ProfileScreen = () => {
             isVisible={visibleItems.includes(item._id)}
             post={item}
             setShowPostOptions={triggerOptionsModal}
-            maxMediaHeight={screenHeight / 1.5}
+            screenHeight={screenHeight}
+            screenWidth={screenWidth}
           />
         );
     },
