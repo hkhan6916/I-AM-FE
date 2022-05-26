@@ -126,9 +126,9 @@ const ImageWithCache = ({
               onError();
             }
           }}
-          onLoad={() => {
+          onLoad={(e) => {
             if (onLoad) {
-              onLoad();
+              onLoad(e);
             }
             setReady(true);
           }}
