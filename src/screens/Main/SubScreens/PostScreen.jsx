@@ -37,7 +37,7 @@ const PostScreen = (props) => {
   const [isCollapsible, setIsCollapsible] = useState(false);
 
   const navigation = useNavigation();
-  const { height: screenHeight } = Dimensions.get("window");
+  const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
   const lottieRef = useRef(null);
 
   const handleGoBack = () => {
@@ -224,6 +224,8 @@ const PostScreen = (props) => {
                     isCancelled={post.cancelled}
                     showToggle
                     isMuted
+                    screenHeight={screenHeight}
+                    screenWidth={screenWidth}
                   />
                 </View>
               ) : post.mediaType === "image" ? (

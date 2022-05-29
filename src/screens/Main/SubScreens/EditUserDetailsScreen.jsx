@@ -11,11 +11,12 @@ import {
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import Constants from "expo-constants";
 import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { getItemAsync } from "expo-secure-store";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
@@ -29,6 +30,10 @@ import PasswordInputNoBorder from "../../../components/PasswordInputNoBorder";
 import { detectFacesAsync } from "expo-face-detector";
 import { getThumbnailAsync } from "expo-video-thumbnails";
 import Upload from "react-native-background-upload";
+import { useSelector } from "react-redux";
+import * as ImagePicker from "expo-image-picker";
+import openAppSettings from "../../../helpers/openAppSettings";
+import { getInfoAsync } from "expo-file-system";
 
 const { statusBarHeight } = Constants;
 const EditUserDetailsScreen = () => {
@@ -66,8 +71,12 @@ const EditUserDetailsScreen = () => {
   const [prevProfileVideo, setPrevProfileVideo] = useState("");
 
   const [updateError, setupdateError] = useState("");
+  const [showVideoSizeError, setShowVideoSizeError] = useState(false);
+  const [tooShort, setTooShort] = useState(false);
+  const [tooLong, setTooLong] = useState(false);
 
   const [showUpdatedPill, setShowUpdatedPill] = useState(false);
+  const [pickedFromCameraRoll, setPickedFromCameraRoll] = useState(false);
 
   const [typingStatus, setTypingStatus] = useState({
     name: "",
@@ -75,13 +84,89 @@ const EditUserDetailsScreen = () => {
     typingTimeout: 0,
   });
 
+  const userdata = useSelector((state) => state.userData);
+
   const navigation = useNavigation();
 
+  const pickProfileVideo = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Unable access camera roll",
+        "Please enable storage permissions to upload a profile video.",
+        [
+          {
+            text: "Cancel",
+          },
+          {
+            text: "Settings",
+            onPress: () => openAppSettings(),
+          },
+        ]
+      );
+    }
+
+    if (status === "granted") {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        quality: 0.3,
+        allowsMultipleSelection: false,
+        videoMaxDuration: 30,
+        allowsEditing: false,
+      });
+      if (!result.cancelled) {
+        setFaceDetected(false);
+        setDetectingFaces(false);
+        setPickedFromCameraRoll(true);
+
+        const mediaInfo = await getInfoAsync(result.uri);
+        const mediaSizeInMb = mediaInfo.size / 1000000;
+        if (mediaSizeInMb > 50) {
+          setShowVideoSizeError(true);
+          Alert.alert(
+            "Unable to process this video",
+            "This video is too large. Please choose a video that is 50MB or smaller in size.",
+            [
+              {
+                text: "Cancel",
+              },
+              {
+                text: "Select Another Video",
+                onPress: () => pickProfileVideo(),
+              },
+            ]
+          );
+          setLoading(false);
+          return;
+        }
+        setShowVideoSizeError(false);
+        setProfileVideo(result.uri);
+      }
+    }
+  };
+
   const handleFaceDetection = async (duration) => {
+    if (!profileVideo) return;
     setLoadingVideo(true);
+    setTooShort(false);
+    setTooLong(false);
+    setDetectingFaces(true);
     if (Number(duration) < 3000) {
-      setProfileVideo(prevProfileVideo || initialProfileData?.profileVideoUrl);
-      setFaceDetected(true);
+      console.log(
+        "cdbcd78ge3vbeu93evb3u9vr9u34vrg49rg39gr39gru93r39uvur3ovbr3uvbr"
+      );
+      // setProfileVideo(prevProfileVideo || initialProfileData?.profileVideoUrl);
+      setDetectingFaces(false);
+      setFaceDetected(false);
+      setTooShort(true);
+      setLoadingVideo(false);
+
+      return;
+    }
+    if (Number(duration) > 30000) {
+      setDetectingFaces(false);
+      setLoadingVideo(false);
+      setTooLong(true);
       return;
     }
     setDetectingFaces(true);
@@ -123,6 +208,8 @@ const EditUserDetailsScreen = () => {
   };
 
   const validateInfo = async () => {
+    if (tooShort || tooLong) return false;
+
     const emailValid = email ? await validateEmail(email) : true;
     const passwordValid = password ? await validatePassword(password) : true;
     const emailMessage =
@@ -199,35 +286,40 @@ const EditUserDetailsScreen = () => {
           setValidationErrors(other.validationErrors);
         } else {
           setupdateError(
-            "Sorry, we couldn't update your details. Please check your connection and try again."
+            "Sorry, we could not update your details. Please check your connection and try again."
           );
         }
       }
+      if (!(profileVideo && faceDetected)) return;
+      const {
+        response: signedData,
+        success: signedDataSuccess,
+        message,
+      } = await apiCall("POST", "/files/signed-upload-url", {
+        username: userdata?.state?.username || "",
+        fileKey: profileVideo,
+      });
+      if (!signedDataSuccess) {
+        setupdateError(
+          "Sorry, we could not update your profile video. Please try again later."
+        );
+        return;
+      }
+
+      // get signed url
+      // if successfully uploaded profile video, send flipproflilevideo plus the profile video key to backend
 
       const filePath =
         Platform.OS == "android"
           ? profileVideo.replace("file://", "")
           : profileVideo;
 
-      const token = await getItemAsync("authToken");
-      const apiUrl = __DEV__
-        ? "http://192.168.5.101:5000"
-        : "https://magnet-be.herokuapp.com";
-
       const options = {
-        url: `${apiUrl}/user/update/details`,
+        url: signedData?.signedUrl,
         path: filePath, // path to file
-        method: "POST",
-        type: "multipart",
+        method: "PUT",
+        type: "raw",
         maxRetries: 2, // set retry count (Android only). Default 2
-        headers: {
-          "content-type": "multipart/form-data", // Customize content-type
-          Authorization: `Bearer ${token}`,
-        },
-        parameters: {
-          ...validData,
-          flipProfileVideo: (Platform.OS === "android").toString(),
-        },
         field: "file",
         // Below are options only supported on Android
         notification: {
@@ -269,32 +361,35 @@ const EditUserDetailsScreen = () => {
               }
             }
           });
-          Upload.addListener("completed", uploadId, (data) => {
-            console.log(data);
-            const success = JSON.parse(data.responseBody)?.success;
-            const other = JSON.parse(data.responseBody)?.other;
-            const response = JSON.parse(data.responseBody);
-            const message = JSON.parse(data.responseBody)?.message;
-            if (!unFocussed) {
+          Upload.addListener("completed", uploadId, async (data) => {
+            console.log(unFocussed);
+            if (!unFocussed && data.responseCode === 200) {
               setIsUpdating(false);
 
-              if (success && response) {
-                setShowUpdatedPill(true);
-
-                setTimeout(() => {
-                  setShowUpdatedPill(false);
-                }, 3000);
-
-                setInitialProfileData(response);
-              }
-              if (!success) {
-                if (other?.validationErrors) {
-                  setValidationErrors(other.validationErrors);
-                } else {
-                  setupdateError(
-                    "Sorry, we couldn't update your details. Please check your connection and try again."
-                  );
+              const { success, response, message } = await apiCall(
+                "POST",
+                "/user/update/details",
+                {
+                  flipProfileVideo:
+                    Platform.OS === "android" && !pickedFromCameraRoll,
+                  profileVideoKey: signedData?.profileVideoKey,
                 }
+              );
+
+              console.log(message);
+
+              if (!success) {
+                setupdateError(
+                  "Sorry, we couldn't update your details. Please check your connection and try again."
+                );
+              }
+
+              setInitialProfileData(response);
+            } else {
+              if (!success) {
+                setupdateError(
+                  "Sorry, we couldn't update your details. Please check your connection and try again."
+                );
               }
             }
           });
@@ -375,7 +470,10 @@ const EditUserDetailsScreen = () => {
     return (
       <ProfileVideoCamera
         setRecording={setRecording}
-        setProfileVideo={setProfileVideo}
+        setProfileVideo={(video) => {
+          setPickedFromCameraRoll(false);
+          setProfileVideo(video);
+        }}
         setCameraActivated={setCameraActivated}
         setRecordingLength={setRecordingLength}
         recording={recording}
@@ -410,7 +508,9 @@ const EditUserDetailsScreen = () => {
       >
         <View style={{ height: "100%" }}>
           {showUpdatedPill ? (
-            <Text style={styles.newPostPill}>Updating...</Text>
+            <Text style={styles.newPostPill}>
+              {profileVideo && faceDetected ? "Updating..." : "Updated"}
+            </Text>
           ) : null}
           <ScrollView
             style={{ marginBottom: 48 }}
@@ -438,17 +538,38 @@ const EditUserDetailsScreen = () => {
                     onLoad={(info) => handleFaceDetection(info?.durationMillis)}
                     flipProfileVideo={
                       profileVideo && !loadingVideo
-                        ? !!(Platform.OS === "android")
+                        ? !!(Platform.OS === "android" && !pickedFromCameraRoll)
                         : !!initialProfileData.flipProfileVideo
                     }
                     isFullWidth
                     uri={profileVideo || initialProfileData?.profileVideoUrl}
                     headers={initialProfileData?.profileVideoHeaders}
                   />
+                  {!detectingFaces &&
+                  !loadingVideo &&
+                  !faceDetected &&
+                  profileVideo ? (
+                    <Text style={styles.faceDetectionError}>
+                      {tooShort
+                        ? "Profile video must be at least 3 seconds long."
+                        : tooLong
+                        ? "Profile video must be no longer than 30 seconds."
+                        : !faceDetected
+                        ? "Face was not fully detected. Please make sure your face is shown at the start and end of your profile video when introducing yourself."
+                        : ""}
+                    </Text>
+                  ) : null}
                   {profileVideo ? (
                     <TouchableOpacity
                       style={{ marginVertical: 10 }}
-                      onPress={() => setProfileVideo("")}
+                      onPress={() => {
+                        setProfileVideo("");
+                        setFaceDetected(true);
+                        setDetectingFaces(false);
+                        setLoadingVideo(false);
+                        setTooShort(false);
+                        setTooLong(false);
+                      }}
                     >
                       <Text style={styles.resetProfileVideoText}>
                         Reset Profile Video
@@ -461,14 +582,23 @@ const EditUserDetailsScreen = () => {
                   <PreviewVideo
                     onLoad={(info) => handleFaceDetection(info?.durationMillis)}
                     isFullWidth
-                    flipProfileVideo={Platform.OS === "android" && profileVideo}
+                    flipProfileVideo={
+                      Platform.OS === "android" &&
+                      profileVideo &&
+                      !pickedFromCameraRoll
+                    }
                     uri={profileVideo}
                   />
                   <View style={styles.faceDetectionError}>
-                    {!detectingFaces ? (
-                      <Text style={styles.faceDetectionErrorText}>
-                        No face detected. Make sure your face is shown at the
-                        start and end of your profile video.
+                    {!detectingFaces && !loadingVideo ? (
+                      <Text style={styles.faceDetectionError}>
+                        {tooShort
+                          ? "Profile video must be at least 3 seconds long."
+                          : tooLong
+                          ? "Profile video must be no longer than 30 seconds."
+                          : !faceDetected
+                          ? "Face was not fully detected. Please make sure your face is shown at the start and end of your profile video when introducing yourself."
+                          : ""}
                       </Text>
                     ) : null}
                     <TouchableOpacity
@@ -491,10 +621,29 @@ const EditUserDetailsScreen = () => {
                 }}
               >
                 <Text style={styles.takeVideoButtonText}>
-                  <Ionicons name="videocam" size={14} />{" "}
-                  {initialProfileData.profileVideoUrl || profileVideo
-                    ? "Retake profile video"
-                    : "Add profile video"}
+                  <Ionicons name="videocam" size={14} /> Take profile video
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.takeVideoButton}
+                onPress={() => {
+                  setFaceDetected(false);
+                  setRecordingLength(recordingLength);
+                  pickProfileVideo();
+                }}
+              >
+                <Text
+                  style={{
+                    color: themeStyle.colors.primary.default,
+                    fontWeight: "900",
+                  }}
+                >
+                  <FontAwesome5
+                    name="images"
+                    size={14}
+                    color={themeStyle.colors.primary.default}
+                  />{" "}
+                  Upload profile video
                 </Text>
               </TouchableOpacity>
 
@@ -693,7 +842,6 @@ const EditUserDetailsScreen = () => {
                 loadingVideo
               }
             >
-              {console.log({ profileVideo })}
               {isUpdating && profileVideo ? (
                 <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
                   Updating...
@@ -756,7 +904,11 @@ const styles = StyleSheet.create({
     color: themeStyle.colors.secondary.default,
   },
   faceDetectionError: {
+    color: themeStyle.colors.error.default,
+    textAlign: "center",
+    fontWeight: "700",
     marginVertical: 20,
+    marginHorizontal: 10,
   },
   faceDetectionErrorText: {
     color: themeStyle.colors.error.default,

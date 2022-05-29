@@ -7,12 +7,12 @@ const CardImage = ({
   screenHeight,
   mediaUrl,
   mediaHeaders,
-  width,
-  height,
+  width = 0,
+  height = 0,
 }) => {
   const imageHeight =
     height && width && (Number(height) / Number(width)) * screenWidth;
-  console.log(imageHeight);
+
   return (
     <FastImage
       source={{

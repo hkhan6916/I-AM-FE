@@ -23,11 +23,14 @@ const VideoPlayer = ({
   isUploading,
   isCancelled,
   preventPlay,
-  screenWidth,
-  screenHeight,
+  screenWidth = 300,
+  screenHeight = 300,
   height,
   width,
 }) => {
+  const videoHeight =
+    height && width && (Number(height) / Number(width)) * screenWidth;
+
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
   // const [videoDimensions, setVideoDimensions] = useState({});
@@ -114,7 +117,7 @@ const VideoPlayer = ({
                 uri: url,
               }}
               useNativeControls={false}
-              resizeMode="cover"
+              resizeMode="contain"
               onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
             />
           ) : null}

@@ -238,7 +238,8 @@ const ProfileInfo = ({
               marginTop: 20,
             }}
           >
-            Complete your profile so you can add other contacts.
+            Complete your profile to add
+            {user.firstName ? ` ${user.firstName} as a contact` : " contacts"}
           </Text>
           <TouchableOpacity
             onPress={() => navigation.navigate("EditUserDetailsScreen")}

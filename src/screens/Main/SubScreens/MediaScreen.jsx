@@ -128,7 +128,7 @@ const MediaScreen = (props) => {
                 // height: "100%",
               }}
               style={{ width: screenWidth }}
-              // disableFullscreen
+              disableFullscreen
               fullscreen
             />
           ) : post?.mediaType === "image" ? (

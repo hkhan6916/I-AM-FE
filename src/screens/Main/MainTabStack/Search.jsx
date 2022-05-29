@@ -57,7 +57,7 @@ const SearchScreen = () => {
     if (success) {
       const newFeed = [...searchFeed, ...response];
       setSearchFeed([...searchFeed, ...response]);
-      if (!searchItemsVisible && newFeed.length >= 20) {
+      if (!searchItemsVisible && newFeed.length >= 25) {
         setTimeout(() => setSearchItemsVisible(true), 400);
       }
     }
@@ -153,12 +153,14 @@ const SearchScreen = () => {
         ) : null}
         {!hideFeedAndSuggestions &&
         !results.length &&
-        searchFeed.length >= 20 ? ( // this is so the feed can fill the whole screen else display nothing.
+        searchFeed.length >= 25 ? ( // this is so the feed can fill the whole screen else display nothing.
           <FlatList
             style={{
               height: "100%",
             }}
-            data={searchFeed}
+            data={searchFeed.filter(
+              (post) => !!post?.postAuthor?.profileGifUrl // We only render if the post author has completed their profile
+            )}
             keyExtractor={searchFeedKeyExtractor}
             renderItem={renderSearchFeed}
             numColumns={3}

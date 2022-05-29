@@ -60,6 +60,8 @@ const Step1Screen = () => {
 
   const [skipProfileVideo, setSkipProfileVideo] = useState(false);
 
+  const [pickedFromCameraRoll, setPickedFromCameraRoll] = useState(false);
+
   const [registerationError, setRegisterationError] = useState("");
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -85,7 +87,9 @@ const Step1Screen = () => {
         ...existingInfo.state,
         notificationToken,
         profileVideoFileName: profileVideo.replace(/^.*[\\\/]/, ""),
-        flipProfileVideo: (Platform.OS === "android").toString(),
+        flipProfileVideo: (
+          Platform.OS === "android" && !pickedFromCameraRoll
+        ).toString(), //TODO check if we still need to convert to string
       }
     );
     setVerifying(false);
@@ -137,7 +141,8 @@ const Step1Screen = () => {
               const { success } = await apiCall("POST", `/user/register`, {
                 ...existingInfo.state,
                 notificationToken,
-                flipProfileVideo: Platform.OS === "android",
+                flipProfileVideo:
+                  Platform.OS === "android" && !pickedFromCameraRoll,
                 profileVideoKey: response.profileVideoKey,
               });
               if (success) {
@@ -180,18 +185,17 @@ const Step1Screen = () => {
     if (profileVideo && !skipProfileVideo) {
       await sendUserData(apiUrl, notificationToken);
     } else {
-      setLoading(true);
+      setVerifying(true);
       const { response, success, message } = await apiCall(
         "POST",
         `/user/register`,
         {
           ...existingInfo.state,
           notificationToken,
-          flipProfileVideo: Platform.OS === "android",
+          flipProfileVideo: Platform.OS === "android" && !pickedFromCameraRoll,
         }
       );
-      console.log(message);
-      setLoading(false);
+      setVerifying(false);
 
       if (success) {
         dispatch({
@@ -267,6 +271,7 @@ const Step1Screen = () => {
       if (!result.cancelled) {
         setFaceDetected(false);
         setDetectingFaces(false);
+        setPickedFromCameraRoll(true);
 
         const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
@@ -352,7 +357,10 @@ const Step1Screen = () => {
     return (
       <ProfileVideoCamera
         setRecording={setRecording}
-        setProfileVideo={setProfileVideo}
+        setProfileVideo={(video) => {
+          setPickedFromCameraRoll(false);
+          setProfileVideo(video);
+        }}
         setCameraActivated={setCameraActivated}
         setRecordingLength={setRecordingLength}
         recording={recording}
@@ -444,7 +452,9 @@ const Step1Screen = () => {
               <PreviewVideo
                 uri={profileVideo}
                 isFullWidth
-                flipProfileVideo={Platform.OS === "android"}
+                flipProfileVideo={
+                  Platform.OS === "android" && !pickedFromCameraRoll
+                }
                 onLoad={(info) => handleFaceDetection(info?.durationMillis)}
               />
               {(tooShort || tooLong) && !loadingVideo && !detectingFaces ? (
@@ -462,7 +472,9 @@ const Step1Screen = () => {
               <PreviewVideo
                 uri={profileVideo}
                 isFullWidth
-                flipProfileVideo={Platform.OS === "android"}
+                flipProfileVideo={
+                  Platform.OS === "android" && !pickedFromCameraRoll
+                }
                 onLoad={(info) => handleFaceDetection(info?.durationMillis)}
               />
               {!detectingFaces && !loadingVideo ? (
@@ -546,6 +558,8 @@ const Step1Screen = () => {
               styles.registerationButton,
               {
                 opacity: !profileVideoIsValid() || loadingVideo ? 0.5 : 1,
+                minWidth: 100,
+                alignItems: "center",
               },
             ]}
             onPress={() => registerUser()}
@@ -556,7 +570,11 @@ const Step1Screen = () => {
                 Sign Up <Ionicons name="paper-plane-outline" size={14} />
               </Text>
             ) : (
-              <ActivityIndicator size={"small"} animating />
+              <ActivityIndicator
+                size={"small"}
+                animating
+                color={themeStyle.colors.white}
+              />
             )}
           </TouchableOpacity>
           <TouchableOpacity

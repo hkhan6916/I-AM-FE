@@ -217,7 +217,7 @@ const PostCard = ({
                       resizeMode={"contain"}
                       style={{
                         aspectRatio: 1 / 1,
-                        width: "100%",
+                        width: screenWidth || 300,
                         height: "100%",
                       }}
                       source={{ uri: post.gif, cache: "web" }}
