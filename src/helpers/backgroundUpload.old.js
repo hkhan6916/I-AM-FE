@@ -4,16 +4,24 @@ import apiCall from "./apiCall";
 
 const backgroundUpload = async ({
   filePath,
-  url,
+  apiRoute,
   parameters,
   failureRoute,
 }) => {
+  const token = await getItemAsync("authToken");
+  const apiUrl = __DEV__
+    ? "http://192.168.5.101:5000"
+    : "https://magnet-be.herokuapp.com";
   const options = {
-    url,
+    url: `${apiUrl}${apiRoute}`,
     path: filePath, // path to file
     method: "POST",
-    type: "raw",
+    type: "multipart",
     maxRetries: 2, // set retry count (Android only). Default 2
+    headers: {
+      "content-type": "multipart/form-data", // Customize content-type
+      Authorization: `Bearer ${token}`,
+    },
     parameters,
     field: "file",
     // Below are options only supported on Android

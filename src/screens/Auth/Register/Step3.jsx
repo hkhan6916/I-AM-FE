@@ -34,6 +34,7 @@ import { getInfoAsync } from "expo-file-system";
 
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
 
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [hasAudioPermission, setHasAudioPermission] = useState(null);
@@ -75,70 +76,94 @@ const Step1Screen = () => {
     return false;
   };
 
-  const sendUserData = async (apiUrl, notificationToken) => {
+  const sendUserData = async (notificationToken) => {
+    setVerifying(true);
+    const { response, success } = await apiCall(
+      "POST",
+      "/user/verify-registeration-details",
+      {
+        ...existingInfo.state,
+        notificationToken,
+        profileVideoFileName: profileVideo.replace(/^.*[\\\/]/, ""),
+        flipProfileVideo: (Platform.OS === "android").toString(),
+      }
+    );
+    setVerifying(false);
+    if (!success) {
+      setRegisterationError(
+        "We could not verify your registeration details. Please try again later."
+      );
+      return;
+    }
     setLoading(true);
+
     const filePath =
       Platform.OS == "android"
         ? profileVideo.replace("file://", "")
         : profileVideo;
     if (notificationToken) {
-      const token = await getItemAsync("authToken");
-
       const options = {
-        url: `${apiUrl}/user/register`,
+        url: response.signedProfileVideoUploadUrl,
         path: filePath, // path to file
-        method: "POST",
-        type: "multipart",
+        method: "PUT",
+        type: "raw",
         maxRetries: 2, // set retry count (Android only). Default 2
-        headers: {
-          "content-type": "multipart/form-data", // Customize content-type
-          Authorization: `Bearer ${token}`,
-        },
-        parameters: {
-          ...existingInfo.state,
-          notificationToken,
-          flipProfileVideo: (Platform.OS === "android").toString(),
-        },
-        field: "file",
         // Below are options only supported on Android
         notification: {
           enabled: false,
         },
         useUtf8Charset: true,
-        // customUploadId: post?._id,
       };
-      // compress in background and .then (()=>startupload)
       Upload.startUpload(options)
         .then((uploadId) => {
           Upload.addListener("progress", uploadId, () => {});
           Upload.addListener("error", uploadId, async (error) => {
             setLoading(false);
             console.log({ error });
-            setRegisterationError("An error occurred. Please try again.");
+            setRegisterationError(
+              "We could not upload your profile video. Please try again later."
+            );
           });
           Upload.addListener("cancelled", uploadId, async (cancelled) => {
             console.log({ cancelled });
             setLoading(false);
-            setRegisterationError("An error occurred. Please try again.");
+            setRegisterationError(
+              "We could not upload your profile video. Please try again later."
+            );
           });
-          Upload.addListener("completed", uploadId, (data) => {
+          Upload.addListener("completed", uploadId, async (data) => {
             setLoading(false);
-
-            if (JSON.parse(data.responseBody)?.success) {
-              dispatch({
-                type: "SET_USER_DATA",
-                payload: {},
+            if (data.responseCode === 200) {
+              const { success } = await apiCall("POST", `/user/register`, {
+                ...existingInfo.state,
+                notificationToken,
+                flipProfileVideo: Platform.OS === "android",
+                profileVideoKey: response.profileVideoKey,
               });
-              setTimeout(() => navigation.navigate("Login"), 500);
+              if (success) {
+                dispatch({
+                  type: "SET_USER_DATA",
+                  payload: {},
+                });
+                setTimeout(() => navigation.navigate("Login"), 500);
+              } else {
+                setRegisterationError(
+                  "We could not create your account. Please try again later."
+                );
+              }
             } else {
-              setRegisterationError("An error occurred. Please try again.");
+              setRegisterationError(
+                "We could not upload your profile video. Please try again later."
+              );
             }
           });
         })
-        .catch(async (catched) => {
-          console.log({ catched });
+        .catch(async (err) => {
+          console.log(err);
           setLoading(false);
-          setRegisterationError("An error occurred. Please try again.");
+          setRegisterationError(
+            "We could not upload your profile video. Please try again later."
+          );
         });
     }
   };
@@ -524,11 +549,15 @@ const Step1Screen = () => {
               },
             ]}
             onPress={() => registerUser()}
-            disabled={!profileVideoIsValid() || loadingVideo}
+            disabled={!profileVideoIsValid() || loadingVideo || verifying}
           >
-            <Text style={styles.registerationButtonText}>
-              Sign Up <Ionicons name="paper-plane-outline" size={14} />
-            </Text>
+            {!verifying ? (
+              <Text style={styles.registerationButtonText}>
+                Sign Up <Ionicons name="paper-plane-outline" size={14} />
+              </Text>
+            ) : (
+              <ActivityIndicator size={"small"} animating />
+            )}
           </TouchableOpacity>
           <TouchableOpacity
             style={{
