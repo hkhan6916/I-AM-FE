@@ -7,11 +7,12 @@ const backgroundUpload = async ({
   url,
   parameters,
   failureRoute,
+  onComplete,
 }) => {
   const options = {
     url,
     path: filePath, // path to file
-    method: "POST",
+    method: "PUT",
     type: "raw",
     maxRetries: 2, // set retry count (Android only). Default 2
     parameters,
@@ -41,6 +42,9 @@ const backgroundUpload = async ({
         await apiCall("GET", failureRoute);
       });
       Upload.addListener("completed", uploadId, (data) => {
+        if (onComplete) {
+          onComplete();
+        }
         console.log(data);
         console.log("Completed!");
       });

@@ -151,9 +151,6 @@ const EditUserDetailsScreen = () => {
     setTooLong(false);
     setDetectingFaces(true);
     if (Number(duration) < 3000) {
-      console.log(
-        "cdbcd78ge3vbeu93evb3u9vr9u34vrg49rg39gr39gru93r39uvur3ovbr3uvbr"
-      );
       // setProfileVideo(prevProfileVideo || initialProfileData?.profileVideoUrl);
       setDetectingFaces(false);
       setFaceDetected(false);
@@ -294,9 +291,9 @@ const EditUserDetailsScreen = () => {
         response: signedData,
         success: signedDataSuccess,
         message,
-      } = await apiCall("POST", "/files/signed-upload-url", {
+      } = await apiCall("POST", "/files/signed-video-profile-upload-url", {
         username: userdata?.state?.username || "",
-        fileKey: profileVideo,
+        filename: profileVideo.replace(/^.*[\\\/]/, ""),
       });
       if (!signedDataSuccess) {
         setupdateError(

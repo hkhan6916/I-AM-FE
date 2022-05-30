@@ -14,7 +14,7 @@ import {
   Alert,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import CameraStandard from "../../../components/CameraStandard";
@@ -56,33 +56,63 @@ const AddScreen = () => {
 
   const { width: screenWidth } = Dimensions.get("window");
 
+  const userData = useSelector((state) => state.userData);
+
   const dispatch = useDispatch();
   const createPostData = async () => {
-    const postData = new FormData();
+    let postData = {};
     if (postBody) {
-      // upload any text body if there is any
-      postData.append("postBody", postBody);
+      // upload any text body if there is an
+      postData.postBody = postData;
     }
     if (gif) {
       // if there's a gif, skip everything and just upload the gif
       postData.append("gif", gif);
+      postData.gif = gif;
       return postData;
     }
     if (file.uri) {
       // if there's a file, determine if compression is required
       const { type, name, uri, isSelfie } = file;
       if (type.split("/")[0] === "video") {
+        ///here, need to upload figure out how to upload thumbnails
+
         // just adds thumbnail for videos. We add the rest of the media later.
         const thumbnailUri = await generateThumbnail(uri);
         const thumbnailFormat = thumbnailUri.split(".").pop();
-        postData.append("file", {
-          type: `image/${thumbnailFormat}`,
-          name: `mediaThumbnail.${thumbnailFormat}`,
-          uri: thumbnailUri,
+
+        // postData.append("file", {
+        //   type: `image/${thumbnailFormat}`,
+        //   name: `mediaThumbnail.${thumbnailFormat}`,
+        //   uri: thumbnailUri,
+        // });
+        const { response, success } = await apiCall(
+          "POST",
+          "/files/signed-upload-url",
+          { filename: `mediaThumbnail.${thumbnailFormat}` }
+        );
+        if (!success) {
+          setError(
+            "Sorry, we could not upload the selected media. Please try again later."
+          );
+          return;
+        }
+
+        postData.mimetype = thumbnailFormat;
+        postData.mediaKey = response.fileKey;
+        postData.mediaType = "video";
+        postData.mediaIsSelfie = isSelfie || false;
+        postData.height = height;
+        postData.width = width;
+
+        await backgroundUpload({
+          // TODO: try axios here
+          filePath:
+            Platform.OS == "android"
+              ? thumbnailUri.replace("file://", "")
+              : thumbnailUri,
+          url: response.signedUrl,
         });
-        postData.append("mediaIsSelfie", isSelfie || false);
-        postData.append("height", height);
-        postData.append("width", width);
       } else {
         const mediaInfo = await getInfoAsync(uri);
         const mediaSizeInMb = mediaInfo?.size / 100000;
@@ -102,23 +132,37 @@ const AddScreen = () => {
         if (mediaSizeInMb >= 100) {
           return null;
         }
-        postData.append("height", height);
-        postData.append("width", width);
-        postData.append("file", {
-          type: type.split("/").length > 1 ? type : `${type}/${format}`,
-          name: name || `media.${format}`,
-          uri: compressedUri,
+        const { response, success } = await apiCall(
+          "POST",
+          "/files/signed-upload-url",
+          { filename: `media.${format}` }
+        );
+        if (!success) {
+          setError(
+            "Sorry, we could not upload the selected media. Please try again later."
+          );
+          return;
+        }
+        postData.height = height;
+        postData.width = width;
+        postData.mimetype = format;
+        postData.mediaKey = response.fileKey;
+        postData.mediaType = "image";
+        postData.mediaIsSelfie = isSelfie || false;
+        await backgroundUpload({
+          // TODO: try axios here
+          filePath: Platform.OS == "android" ? uri.replace("file://", "") : uri,
+          url: response.signedUrl,
         });
-        postData.append("mediaIsSelfie", isSelfie || false);
       }
     }
 
     return postData;
   };
 
-  const generateThumbnail = async () => {
+  const generateThumbnail = async (path) => {
     try {
-      const { uri } = await getThumbnailAsync(file.uri, {
+      const { uri } = await getThumbnailAsync(path || file.uri, {
         time: 0,
         quality: 0.5,
       });
@@ -134,7 +178,12 @@ const AddScreen = () => {
     console.log(height, width);
 
     if (!postData) return null;
-    const { success, response } = await apiCall("POST", "/posts/new", postData);
+    const { success, response, message } = await apiCall(
+      "POST",
+      "/posts/new",
+      postData
+    );
+    console.log(message);
     setLoading(false);
     if (success) {
       setThumbnail("");
@@ -149,7 +198,18 @@ const AddScreen = () => {
     }
   };
 
-  const handleBackgroundUpload = async (compressedUrl, post) => {
+  const handleVideoUpload = async (compressedUrl, post) => {
+    const { response: signedData, success } = await apiCall(
+      "POST",
+      "/files/signed-upload-url",
+      { filename: `media.${compressedUrl.split(".").pop()}` }
+    );
+    if (!success) {
+      setError(
+        "Sorry, we could not upload the selected media. Please try again later."
+      );
+      return;
+    }
     const filePath = compressedUrl
       ? Platform.OS == "android"
         ? compressedUrl?.replace("file://", "/")
@@ -159,35 +219,38 @@ const AddScreen = () => {
       : file?.uri;
     await backgroundUpload({
       filePath,
-      apiRoute: "/posts/new",
+      url: signedData.signedUrl,
       failureRoute: `/posts/fail/${post?._id}`,
-      parameters: {
-        postId: post?._id,
+      onComplete: async () => {
+        const { response, success } = await apiCall("POST", "/posts/new", {
+          postId: post?._id,
+          mediaType: "video",
+          mediaKey: signedData.fileKey,
+        });
+        if (!success) {
+          setError(
+            "Sorry, we could not upload the selected media. Please try again later."
+          );
+        }
       },
     });
   };
 
   const handleLargeFileUpload = async (post) => {
-    if (file.type?.split("/")[0] === "video") {
-      dispatch({
-        type: "SET_POST_CREATED",
-        payload: { posted: true, type: "created" },
-      });
-      navigation.navigate("Home");
-      await VideoCompress.compress(
-        file.uri,
-        {
-          compressionMethod: "auto",
-        },
-        (progress) => {
-          console.log({ compression: progress });
-        }
-      )
-        .then(async (compressedUrl) => {
-          await handleBackgroundUpload(compressedUrl, post);
-        })
-        .catch((e) => console.log(e));
-    }
+    await VideoCompress.compress(
+      file.uri,
+      {
+        compressionMethod: "auto",
+        minimumFileSizeForCompress: 50,
+      },
+      (progress) => {
+        console.log({ compression: progress });
+      }
+    )
+      .then(async (compressedUrl) => {
+        await handleVideoUpload(compressedUrl, post);
+      })
+      .catch((e) => console.log(e));
   };
 
   const createPost = async () => {
@@ -197,6 +260,11 @@ const AddScreen = () => {
       setPostBody("");
       setFile("");
       if (file.type?.split("/")[0] === "video") {
+        dispatch({
+          type: "SET_POST_CREATED",
+          payload: { posted: true, type: "created" },
+        });
+        navigation.navigate("Home");
         await handleLargeFileUpload(post);
       } else {
         dispatch({
@@ -241,6 +309,10 @@ const AddScreen = () => {
           setFile({ ...result, ...mediaInfo });
           setLoading(false);
           return;
+        }
+        if (result.type.split("/")[0] === "video") {
+          const thumbnailUri = await generateThumbnail(result.uri);
+          setThumbnail(thumbnailUri);
         }
         setShowMediaSizeError(false);
         setFile({ ...result, ...mediaInfo });
@@ -395,7 +467,7 @@ const AddScreen = () => {
                     Choose a file smaller than 100MB
                   </Text>
                 ) : null}
-                {file.type?.split("/")[0] === "video" ? (
+                {thumbnail ? (
                   <View
                     style={{
                       height: screenWidth,
@@ -403,16 +475,17 @@ const AddScreen = () => {
                       padding: 5,
                     }}
                   >
-                    {thumbnail ? (
-                      <ImageWithCache
-                        onLoad={(e) => {
-                          setHeight(e?.nativeEvent?.source?.height);
-                          setWidth(e?.nativeEvent?.source?.width);
-                        }}
-                        style={{ height: 0, width: 0 }}
-                        mediaUrl={thumbnail}
-                      />
-                    ) : null}
+                    <ImageWithCache
+                      onLoad={(e) => {
+                        console.log(e?.nativeEvent?.source?.height, "loaded");
+
+                        setHeight(e?.nativeEvent?.source?.height);
+                        setWidth(e?.nativeEvent?.source?.width);
+                      }}
+                      style={{ height: 1, width: 1, opacity: 0 }} // so onload gets called we set height and width to 1. Doesn't when set to 0
+                      mediaUrl={thumbnail}
+                    />
+
                     <VideoPlayer
                       autoHidePlayer={false}
                       fullscreen
@@ -441,7 +514,6 @@ const AddScreen = () => {
                   >
                     <ImageWithCache
                       onLoad={(e) => {
-                        console.log(e.nativeEvent);
                         setHeight(e?.nativeEvent?.source?.height);
                         setWidth(e?.nativeEvent?.source?.width);
                       }}
