@@ -286,7 +286,7 @@ const EditUserDetailsScreen = () => {
           setValidationErrors(other.validationErrors);
         } else {
           setupdateError(
-            "Sorry, we could not update your details. Please check your connection and try again."
+            "Sorry, we could not update your details. Please try again later."
           );
         }
       }
@@ -342,7 +342,7 @@ const EditUserDetailsScreen = () => {
                 setValidationErrors(other.validationErrors);
               } else {
                 setupdateError(
-                  "Sorry, we couldn't update your details. Please check your connection and try again."
+                  "Sorry, we couldn't update your details. Please try again later"
                 );
               }
             }
@@ -356,7 +356,7 @@ const EditUserDetailsScreen = () => {
                 setValidationErrors(other.validationErrors);
               } else {
                 setupdateError(
-                  "Sorry, we couldn't update your details. Please check your connection and try again."
+                  "Sorry, we couldn't update your details. Please try again later"
                 );
               }
             }
@@ -380,7 +380,7 @@ const EditUserDetailsScreen = () => {
 
               if (!success) {
                 setupdateError(
-                  "Sorry, we couldn't update your details. Please check your connection and try again."
+                  "Sorry, we couldn't update your details. Please try again later"
                 );
               }
 
@@ -388,7 +388,7 @@ const EditUserDetailsScreen = () => {
             } else {
               if (!success) {
                 setupdateError(
-                  "Sorry, we couldn't update your details. Please check your connection and try again."
+                  "Sorry, we couldn't update your details. Please try again later"
                 );
               }
             }
@@ -446,9 +446,7 @@ const EditUserDetailsScreen = () => {
       if (success) {
         setInitialProfileData(response);
       } else {
-        setupdateError(
-          "An unexpected error ocurred. Please check your connection."
-        );
+        setupdateError("Something went wrong... Please try again later");
       }
     })();
     return () => {

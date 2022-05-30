@@ -23,7 +23,7 @@ const themeStyle =
             default: "#FF0000",
           },
           grayscale: {
-            highest: "#020511",
+            highest: "#15171F",
             higher: "#525252",
             high: "#a1a1aa",
             low: "#a3a3a3",

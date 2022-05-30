@@ -17,64 +17,86 @@ const SearchFeedItem = ({ post, visible }) => {
 
     navigation.dispatch(pushScreen);
   };
-  if (!post) return null;
+  if (!post || !post?.postAuthor?.profileGifUrl) return null;
   return (
-    <TouchableOpacity onPress={() => handleNavigation()}>
-      <View
-        style={{
-          flex: 1,
-          flexDirection: "column",
-          // backgroundColor: visible
-          //   ? themeStyle.colors.grayscale.highest
-          //   : themeStyle.colors.grayscale.highest,
-          opacity: visible ? 1 : 0,
-        }}
-      >
-        {post.mediaType === "video" ? (
-          <View
-            style={{
-              position: "absolute",
-              top: 5,
-              right: 5,
-              zIndex: 1,
-            }}
-          >
-            <Feather name="play" size={20} color={themeStyle.colors.white} />
-          </View>
-        ) : null}
-        <ImageWithCache
-          resizeMode={"cover"}
-          mediaUrl={post.thumbnailUrl || post.mediaUrl}
-          mediaHeaders={post.thumbnailHeaders || post.mediaHeaders}
-          removeBorderRadius
-          hideSpinner
-          onError={() => setError(true)}
-          style={{
-            width: imageHeight,
-            height: imageHeight,
-            borderWidth: 2,
-            opacity: visible ? 1 : 0,
-          }}
-        />
+    <View
+      style={{
+        backgroundColor: themeStyle.colors.grayscale.cards,
+        borderTopColor: themeStyle.colors.grayscale.cardsOuter,
+        borderTopWidth: 3,
+      }}
+    >
+      <TouchableOpacity onPress={() => handleNavigation()}>
         <View
           style={{
-            position: "absolute",
-            bottom: 3,
-            right: 3,
-            opacity: 0.5,
+            flex: 1,
             flexDirection: "row",
+            // backgroundColor: visible
+            //   ? themeStyle.colors.grayscale.highest
+            //   : themeStyle.colors.grayscale.highest,
+            width: "100%",
+            opacity: visible ? 1 : 0,
           }}
         >
-          <Avatar
-            style={{ borderWidth: 1 }}
-            size={20}
-            avatarUrl={post.postAuthor.profileGifUrl}
-            profileGifHeaders={post.postAuthor.profileGifHeaders}
-            flipProfileVideo={post.postAuthor.flipProfileVideo}
+          <ImageWithCache
+            resizeMode={"cover"}
+            mediaUrl={post.thumbnailUrl || post.mediaUrl}
+            mediaHeaders={post.thumbnailHeaders || post.mediaHeaders}
+            removeBorderRadius
+            hideSpinner
+            onError={() => setError(true)}
+            style={{
+              width: imageHeight,
+              height: imageHeight,
+              opacity: visible ? 1 : 0,
+            }}
           />
+          <View style={{ flexDirection: "row", flex: 1 }}>
+            <Text
+              style={{
+                flex: 1,
+                color: themeStyle.colors.grayscale.lowest,
+                marginLeft: 10,
+              }}
+            >
+              {post.body}
+            </Text>
+            <View
+              style={{
+                opacity: 0.5,
+                flexDirection: "column",
+                justifyContent: "space-between",
+                marginRight: 10,
+                paddingVertical: 5,
+              }}
+            >
+              {post.mediaType === "video" ? (
+                <View
+                  style={{
+                    zIndex: 1,
+                  }}
+                >
+                  <Feather
+                    name="play"
+                    size={20}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </View>
+              ) : (
+                <View />
+              )}
+              <Avatar
+                style={{ borderWidth: 1 }}
+                size={20}
+                avatarUrl={post.postAuthor.profileGifUrl}
+                profileGifHeaders={post.postAuthor.profileGifHeaders}
+                flipProfileVideo={post.postAuthor.flipProfileVideo}
+              />
+            </View>
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
   );
 };
 export default React.memo(SearchFeedItem);

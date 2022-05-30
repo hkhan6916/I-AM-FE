@@ -67,7 +67,7 @@ const LoginScreen = () => {
       }
       setLoginError(
         error === "CONNECTION_FAILED"
-          ? "Cannot connect to server. Please check your connection."
+          ? "Cannot connect to server. Please try again later."
           : "Unable to sign in. Please check your login details and try again."
       );
     }

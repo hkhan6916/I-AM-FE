@@ -5,6 +5,7 @@ import {
   Platform,
   FlatList,
   Keyboard,
+  Text,
 } from "react-native";
 import UserThumbnail from "../../../components/UserThumbnail";
 import themeStyle from "../../../theme.style";
@@ -57,7 +58,7 @@ const SearchScreen = () => {
     if (success) {
       const newFeed = [...searchFeed, ...response];
       setSearchFeed([...searchFeed, ...response]);
-      if (!searchItemsVisible && newFeed.length >= 25) {
+      if (!searchItemsVisible && newFeed.length >= 20) {
         setTimeout(() => setSearchItemsVisible(true), 400);
       }
     }
@@ -143,6 +144,17 @@ const SearchScreen = () => {
           resultsVisible={!!results.length}
           feedIsVisible={!hideFeedAndSuggestions}
         />
+        <Text
+          style={{
+            color: themeStyle.colors.grayscale.lowest,
+            fontSize: 20,
+            marginHorizontal: 5,
+            marginTop: 10,
+            marginBottom: 20,
+          }}
+        >
+          Explore
+        </Text>
         {results.length ? (
           <FlatList
             data={results}
@@ -153,17 +165,15 @@ const SearchScreen = () => {
         ) : null}
         {!hideFeedAndSuggestions &&
         !results.length &&
-        searchFeed.length >= 25 ? ( // this is so the feed can fill the whole screen else display nothing.
+        searchFeed.length >= 20 ? ( // this is so the feed can fill the whole screen else display nothing.
           <FlatList
             style={{
               height: "100%",
             }}
-            data={searchFeed.filter(
-              (post) => !!post?.postAuthor?.profileGifUrl // We only render if the post author has completed their profile
-            )}
+            data={searchFeed}
             keyExtractor={searchFeedKeyExtractor}
             renderItem={renderSearchFeed}
-            numColumns={3}
+            // numColumns={3}
             contentContainerStyle={{ flexGrow: 1 }}
             onEndReached={() => getSearchFeed()}
             onEndReachedThreshold={0.9}

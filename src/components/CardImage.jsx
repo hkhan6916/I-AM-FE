@@ -9,10 +9,13 @@ const CardImage = ({
   mediaHeaders,
   width = 0,
   height = 0,
+  isFull = false,
 }) => {
-  const imageHeight =
+  const calculatedImage =
     height && width && (Number(height) / Number(width)) * screenWidth;
 
+  const decidedHeight =
+    calculatedImage < screenHeight / 1.4 ? calculatedImage : screenHeight / 1.4;
   return (
     <FastImage
       source={{
@@ -23,8 +26,7 @@ const CardImage = ({
       style={[
         {
           width: screenWidth,
-          height:
-            imageHeight < screenHeight / 1.4 ? imageHeight : screenHeight / 1.4,
+          height: isFull ? screenHeight / 1.2 : decidedHeight,
           backgroundColor: themeStyle.colors.black,
         },
         (!height || !width) && {

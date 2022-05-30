@@ -14,8 +14,7 @@ const ConnectionFailedScreen = () => (
         marginBottom: 50,
       }}
     >
-      There seems to be a connection problem. Please check your connection and
-      try again.
+      There seems to be a connection problem. Please try again later.
     </Text>
     <MaterialCommunityIcons
       name="connection"

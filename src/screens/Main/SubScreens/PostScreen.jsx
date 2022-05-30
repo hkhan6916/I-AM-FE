@@ -26,6 +26,7 @@ import AnimatedLottieView from "lottie-react-native";
 import { useDispatch } from "react-redux";
 import PostAge from "../../../components/PostAge";
 import FastImage from "react-native-fast-image";
+import CardImage from "../../../components/CardImage";
 
 const PostScreen = (props) => {
   const { post: initialPost, prevScreen } = props.route.params;
@@ -49,7 +50,6 @@ const PostScreen = (props) => {
       navigation.goBack();
     }
   };
-  console.log(post);
 
   const onTextLayout = (e) => {
     setIsCollapsible(e.nativeEvent.lines.length >= 3);
@@ -232,18 +232,16 @@ const PostScreen = (props) => {
                 <View
                   style={{
                     flex: 1,
-                    flexDirection: "column",
-                    maxHeight: screenHeight / 1.5 || 500,
-                    alignItems: "center",
                   }}
                 >
-                  <ImageWithCache
-                    removeBorderRadius
+                  <CardImage
+                    isFull
                     mediaHeaders={post.mediaHeaders}
-                    mediaIsSelfie={post.mediaIsSelfie}
-                    resizeMode="contain"
                     mediaUrl={post.mediaUrl}
-                    aspectRatio={1 / 1}
+                    screenWidth={screenWidth}
+                    screenHeight={screenHeight}
+                    height={post.height}
+                    width={post.width}
                   />
                 </View>
               ) : null}

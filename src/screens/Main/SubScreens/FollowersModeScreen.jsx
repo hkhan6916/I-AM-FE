@@ -33,9 +33,7 @@ const FollowersModeScreen = () => {
       });
     } else {
       setEnabled(!enabled);
-      setError(
-        "Unable to toggle followers mode. Please check your connection and try again"
-      );
+      setError("Unable to toggle followers mode. Please try again later");
     }
   };
   useEffect(() => {
