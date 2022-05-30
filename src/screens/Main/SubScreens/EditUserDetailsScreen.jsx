@@ -115,10 +115,6 @@ const EditUserDetailsScreen = () => {
         allowsEditing: false,
       });
       if (!result.cancelled) {
-        setFaceDetected(false);
-        setDetectingFaces(false);
-        setPickedFromCameraRoll(true);
-
         const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
         if (mediaSizeInMb > 50) {
@@ -139,6 +135,9 @@ const EditUserDetailsScreen = () => {
           setLoading(false);
           return;
         }
+        setFaceDetected(false);
+        setDetectingFaces(false);
+        setPickedFromCameraRoll(true);
         setShowVideoSizeError(false);
         setProfileVideo(result.uri);
       }
@@ -625,7 +624,6 @@ const EditUserDetailsScreen = () => {
               <TouchableOpacity
                 style={styles.takeVideoButton}
                 onPress={() => {
-                  setFaceDetected(false);
                   setRecordingLength(recordingLength);
                   pickProfileVideo();
                 }}
