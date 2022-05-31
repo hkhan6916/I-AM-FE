@@ -131,6 +131,8 @@ const MediaScreen = (props) => {
               style={{ width: screenWidth }}
               disableFullscreen
               fullscreen
+              controlAnimationTiming={100}
+              scrubbing={1000}
             />
           ) : post?.mediaType === "image" ? (
             <View
@@ -179,7 +181,7 @@ const MediaScreen = (props) => {
             <View
               style={{
                 position: "absolute",
-                bottom: 70,
+                bottom: 100,
                 right: 0,
                 borderRadius: 20,
                 display: "flex",

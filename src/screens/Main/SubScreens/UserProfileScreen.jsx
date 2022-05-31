@@ -31,7 +31,7 @@ const UserProfileScreen = (props) => {
 
   const userData = useSelector((state) => state.userData);
 
-  const { width: screenWidth } = Dimensions.get("window");
+  const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
   const navigation = useNavigation();
 
@@ -237,6 +237,8 @@ const UserProfileScreen = (props) => {
             setShowPostOptions={triggerOptionsModal}
             isVisible={visibleItems.includes(item._id)}
             post={item}
+            screenHeight={screenHeight}
+            screenWidth={screenWidth}
           />
         );
     },
