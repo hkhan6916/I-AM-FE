@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { View, TextInput, StyleSheet } from "react-native";
+import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import themeStyle from "../theme.style";
 
 const SearchBar = ({ onTypingEnd, onFocus, onSubmitEditing, placeholder }) => {
@@ -49,6 +49,25 @@ const SearchBar = ({ onTypingEnd, onFocus, onSubmitEditing, placeholder }) => {
         onFocus={onFocus ? () => onFocus() : null}
         onSubmitEditing={onSubmitEditing ? () => onSubmitEditing() : null}
       />
+      <View>
+        <TouchableOpacity
+          onPress={() => {
+            onTypingEnd("");
+            setSearchInput("");
+          }}
+          style={{
+            paddingHorizontal: 10,
+            zIndex: 10,
+          }}
+        >
+          <Ionicons
+            style={{ opacity: searchInput ? 1 : 0 }}
+            name="close"
+            size={20}
+            color={themeStyle.colors.grayscale.lowest}
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

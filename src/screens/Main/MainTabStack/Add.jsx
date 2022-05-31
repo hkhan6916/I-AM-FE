@@ -67,7 +67,6 @@ const AddScreen = () => {
     }
     if (gif) {
       // if there's a gif, skip everything and just upload the gif
-      postData.append("gif", gif);
       postData.gif = gif;
       return postData;
     }
@@ -393,7 +392,7 @@ const AddScreen = () => {
               }}
             >
               <TouchableOpacity
-                // disabled={(!file.uri && !postBody && !gif) || loading}
+                disabled={(!file.uri && !postBody && !gif) || loading}
                 onPress={() => createPost()}
               >
                 {loading ? (

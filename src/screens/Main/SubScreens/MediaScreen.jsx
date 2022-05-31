@@ -127,6 +127,7 @@ const MediaScreen = (props) => {
                 transform: [{ scaleX: post.mediaIsSelfie ? -1 : 1 }],
                 // height: "100%",
               }}
+              onError={(e) => console.log(e)}
               style={{ width: screenWidth }}
               disableFullscreen
               fullscreen

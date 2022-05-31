@@ -6,6 +6,7 @@ import {
   FlatList,
   Keyboard,
   Text,
+  View,
 } from "react-native";
 import UserThumbnail from "../../../components/UserThumbnail";
 import themeStyle from "../../../theme.style";
@@ -144,17 +145,29 @@ const SearchScreen = () => {
           resultsVisible={!!results.length}
           feedIsVisible={!hideFeedAndSuggestions}
         />
-        <Text
-          style={{
-            color: themeStyle.colors.grayscale.lowest,
-            fontSize: 20,
-            marginHorizontal: 5,
-            marginTop: 10,
-            marginBottom: 20,
-          }}
-        >
-          Explore
-        </Text>
+        {!hideFeedAndSuggestions &&
+        !results.length &&
+        searchFeed.length >= 20 ? (
+          <View
+            style={{
+              borderBottomWidth: 2,
+              borderBottomColor: themeStyle.colors.grayscale.cardsOuter,
+              backgroundColor: themeStyle.colors.grayscale.cards,
+            }}
+          >
+            <Text
+              style={{
+                color: themeStyle.colors.primary.default,
+                fontSize: 20,
+                marginHorizontal: 5,
+                marginTop: 10,
+                marginBottom: 10,
+              }}
+            >
+              Explore
+            </Text>
+          </View>
+        ) : null}
         {results.length ? (
           <FlatList
             data={results}

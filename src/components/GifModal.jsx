@@ -138,12 +138,12 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
                   marginHorizontal: 10,
                 }}
               >
-                Add a gif
+                Select GIF
               </Text>
             </TouchableOpacity>
           </View>
           <SearchBar
-            placeholder="Search Gifs"
+            placeholder="Search GIFs"
             onTypingEnd={(v) => handleGifSearch(v)}
           />
           {error ? (

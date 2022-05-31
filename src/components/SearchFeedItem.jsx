@@ -22,8 +22,8 @@ const SearchFeedItem = ({ post, visible }) => {
     <View
       style={{
         backgroundColor: themeStyle.colors.grayscale.cards,
-        borderTopColor: themeStyle.colors.grayscale.cardsOuter,
-        borderTopWidth: 3,
+        borderBottomColor: themeStyle.colors.grayscale.cardsOuter,
+        borderBottomWidth: 3,
       }}
     >
       <TouchableOpacity onPress={() => handleNavigation()}>
