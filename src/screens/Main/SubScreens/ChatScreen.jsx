@@ -180,6 +180,7 @@ const ChatScreen = (props) => {
           type: `image/${thumbnailUrl.split(".").pop()}`,
         });
       } else if (media.type?.split("/")[0] === "image") {
+        // We add image here and upload but also in background upload below? WHY? need to test this
         formData.append("file", {
           uri: media.uri,
           name: `image.${media.uri.split(".").pop()}`,
@@ -459,35 +460,31 @@ const ChatScreen = (props) => {
   );
 
   useEffect(() => {
-    let isMounted = true;
-    if (isMounted) {
-      // TODO: remove isMounted and implement better cleanup that works
-      (async () => {
-        const token = await getItemAsync("authToken");
-        const senderId = await getItemAsync("userId");
-        setAuthInfo({ token, senderId });
+    // TODO: remove isMounted and implement better cleanup that works
+    (async () => {
+      const token = await getItemAsync("authToken");
+      const senderId = await getItemAsync("userId");
+      setAuthInfo({ token, senderId });
 
-        if (chat) {
-          await getChatMessages();
-        }
+      if (chat) {
+        await getChatMessages();
+      }
 
-        if (chat?.users?.length) {
-          setRecipient({ userId: chat?.users?.[0]._id, online: false });
-          navigation.setOptions({
-            title: chat?.users?.[0].firstName,
-          });
-        } else {
-          navigation.setOptions({
-            title: chatUserFirstName,
-          });
-        }
-        // below needs to be last so we can init all other data before opening a socket connection and having things change due to incoming messages
-        await initSocket(null, token);
-      })();
-    }
-    return () => {
-      isMounted = false;
-    };
+      if (chat?.users?.length) {
+        setRecipient({ userId: chat?.users?.[0]._id, online: false });
+        navigation.setOptions({
+          title: chat?.users?.[0].firstName,
+        });
+      } else {
+        navigation.setOptions({
+          title: chatUserFirstName,
+        });
+      }
+      // below needs to be last so we can init all other data before opening a socket connection and having things change due to incoming messages
+      await initSocket(null, token);
+    })();
+
+    return () => {};
   }, [chat]);
 
   useEffect(() => {

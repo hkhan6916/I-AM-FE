@@ -17,7 +17,6 @@ import {
   ScrollView,
   useColorScheme,
   SafeAreaView,
-  Button,
   Dimensions,
 } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -172,8 +171,8 @@ const HomeScreen = () => {
   };
   const viewabilityConfig = {
     waitForInteraction: true,
-    viewAreaCoveragePercentThreshold: 100,
-    minimumViewTime: 500,
+    viewAreaCoveragePercentThreshold: 50,
+    minimumViewTime: 200,
   };
 
   const viewabilityConfigCallbackPairs = useRef([

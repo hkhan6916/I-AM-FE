@@ -28,8 +28,13 @@ const VideoPlayer = ({
   height,
   width,
 }) => {
-  const videoHeight =
+  const calculatedVideoHeight =
     height && width && (Number(height) / Number(width)) * screenWidth;
+
+  const decidedHeight =
+    calculatedVideoHeight < screenHeight / 1.4
+      ? calculatedVideoHeight
+      : screenHeight / 1.4;
 
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
@@ -51,8 +56,6 @@ const VideoPlayer = ({
 
     return `${hours > 0 ? `${hours}:` : ""}${minutes}:${seconds}`;
   };
-
-  const aspectRatio = 1 / 1;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -81,14 +84,6 @@ const VideoPlayer = ({
                 height: "100%",
               }}
             >
-              {/* <ImageWithCache // MAYBE have all videos square?
-                removeBorderRadius
-                resizeMode="cover"
-                mediaUrl={thumbnailUrl}
-                mediaHeaders={thumbnailHeaders}
-                aspectRatio={1 / 1}
-                mediaIsSelfie={mediaIsSelfie}
-              /> */}
               <CardImage
                 mediaHeaders={thumbnailHeaders}
                 mediaUrl={thumbnailUrl}
@@ -109,10 +104,18 @@ const VideoPlayer = ({
               shouldPlay={!!shouldPlay}
               ref={video}
               isLooping={true}
-              style={{
-                aspectRatio: aspectRatio || 1,
-                width: Math.min(screenWidth, screenHeight), // math.min needed for when user switches back from landscape
-              }}
+              style={[
+                {
+                  // aspectRatio: aspectRatio || 1,
+                  height: decidedHeight,
+                  width: Math.min(screenWidth, screenHeight), // math.min needed for when user switches back from landscape
+                },
+                (!height || !width) && {
+                  width: screenWidth,
+                  height: "100%",
+                  aspectRatio: 1 / 1,
+                },
+              ]}
               source={{
                 uri: url,
               }}

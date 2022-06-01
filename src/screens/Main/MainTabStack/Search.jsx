@@ -174,6 +174,8 @@ const SearchScreen = () => {
             renderItem={renderThumbnail}
             keyExtractor={searchResultsKeyExtractor}
             keyboardShouldPersistTaps={"always"}
+            initialNumToRender={10}
+            maxToRenderPerBatch={20}
           />
         ) : null}
         {!hideFeedAndSuggestions &&
@@ -190,6 +192,8 @@ const SearchScreen = () => {
             contentContainerStyle={{ flexGrow: 1 }}
             onEndReached={() => getSearchFeed()}
             onEndReachedThreshold={0.9}
+            initialNumToRender={10}
+            maxToRenderPerBatch={20}
           />
         ) : null}
       </SafeAreaView>

@@ -22,14 +22,6 @@ import { deleteUserSearchHistoryTable } from "../helpers/sqlite/userSearchHistor
 import { openDatabase } from "expo-sqlite";
 
 const Screens = () => {
-  LogBox.ignoreLogs([
-    "ViewPropTypes will be removed from React Native. Migrate to ViewPropTypes exported from 'deprecated-react-native-prop-types'.",
-    "NativeBase: The contrast ratio of",
-    "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
-    "NativeEventEmitter",
-    "fontFamily",
-  ]);
-
   const [loggedIn, setLoggedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [feed, setFeed] = useState([]);

@@ -15,6 +15,7 @@ import ChatCard from "../../../components/ChatCard";
 import themeStyle from "../../../theme.style";
 import ContentLoader from "../../../components/ContentLoader";
 import { useSelector } from "react-redux";
+import { Ionicons } from "@expo/vector-icons";
 
 const ChatListScreen = () => {
   const [chats, setChats] = useState([]);
@@ -70,6 +71,51 @@ const ChatListScreen = () => {
       navigation.removeListener(focusListener);
     };
   }, [navigation]);
+  if (loaded && !chats.length) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <Text
+          style={{
+            color: themeStyle.colors.grayscale.lowest,
+            textAlign: "center",
+            fontSize: 20,
+            marginHorizontal: 10,
+            marginBottom: 20,
+          }}
+        >
+          All your chats will be here
+        </Text>
+        <Ionicons
+          name="md-chatbox-outline"
+          size={100}
+          color={themeStyle.colors.grayscale.high}
+        />
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Friends")}
+          style={{ marginTop: 50 }}
+        >
+          <View
+            style={{
+              paddingVertical: 5,
+              paddingHorizontal: 10,
+              borderWidth: 1,
+              borderColor: themeStyle.colors.secondary.default,
+              borderRadius: 5,
+            }}
+          >
+            <Text
+              style={{
+                fontWeight: "700",
+                color: themeStyle.colors.grayscale.lowest,
+              }}
+            >
+              Create a chat
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       {!loaded && !error ? (
