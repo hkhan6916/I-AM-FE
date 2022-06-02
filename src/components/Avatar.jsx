@@ -1,5 +1,5 @@
 import React from "react";
-import { View, TouchableHighlight, Text } from "react-native";
+import { View, TouchableHighlight } from "react-native";
 import FastImage from "react-native-fast-image";
 import themeStyle from "../theme.style";
 import { Ionicons } from "@expo/vector-icons";

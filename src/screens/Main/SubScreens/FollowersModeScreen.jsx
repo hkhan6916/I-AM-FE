@@ -38,7 +38,7 @@ const FollowersModeScreen = () => {
   };
   useEffect(() => {
     if (userData?.state) {
-      setEnabled(!!userData.state.followersMode);
+      setEnabled(!!userData.state?.followersMode);
     }
   }, [userData]);
   return (

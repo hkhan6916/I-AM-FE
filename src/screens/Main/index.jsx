@@ -111,7 +111,12 @@ const MainStack = () => (
     />
     <Stack.Screen
       options={{
-        headerShown: false,
+        headerTintColor: themeStyle.colors.grayscale.lowest,
+        title: "",
+        headerShown: true,
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        },
       }}
       name="PostScreen"
       component={PostScreen}
@@ -280,36 +285,6 @@ const MainStack = () => (
       }}
       name="FollowersModeScreen"
       component={FollowersModeScreen}
-    />
-    <Stack.Screen
-      options={{
-        title: "Ad Screen",
-        headerShown: true,
-        headerTintColor: themeStyle.colors.primary.default,
-        headerTitleStyle: {
-          fontWeight: "bold",
-        },
-        headerStyle: {
-          backgroundColor: themeStyle.colors.grayscale.highest,
-        },
-      }}
-      name="AdScreen"
-      component={AdScreen}
-    />
-    <Stack.Screen
-      options={{
-        title: "Video Screen",
-        headerShown: true,
-        headerTintColor: themeStyle.colors.primary.default,
-        headerTitleStyle: {
-          fontWeight: "bold",
-        },
-        headerStyle: {
-          backgroundColor: themeStyle.colors.grayscale.highest,
-        },
-      }}
-      name="Test"
-      component={Test}
     />
   </Stack.Navigator>
 );

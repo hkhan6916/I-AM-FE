@@ -83,7 +83,7 @@ const ChatListScreen = () => {
             marginBottom: 20,
           }}
         >
-          All your chats will be here
+          Your chats will appear here
         </Text>
         <Ionicons
           name="md-chatbox-outline"
@@ -91,7 +91,7 @@ const ChatListScreen = () => {
           color={themeStyle.colors.grayscale.high}
         />
         <TouchableOpacity
-          onPress={() => navigation.navigate("Friends")}
+          onPress={() => navigation.navigate("CreateChatScreen")}
           style={{ marginTop: 50 }}
         >
           <View

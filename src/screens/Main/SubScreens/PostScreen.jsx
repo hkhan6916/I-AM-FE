@@ -1,4 +1,4 @@
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
 import {
   SafeAreaView,
@@ -30,7 +30,6 @@ import CardImage from "../../../components/CardImage";
 
 const PostScreen = (props) => {
   const { post: initialPost, prevScreen } = props.route.params;
-
   const dispatch = useDispatch();
 
   const [post, setPost] = useState(initialPost);
@@ -38,6 +37,8 @@ const PostScreen = (props) => {
   const [isCollapsible, setIsCollapsible] = useState(false);
 
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
+
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
   const lottieRef = useRef(null);
 
@@ -103,29 +104,6 @@ const PostScreen = (props) => {
   if (post) {
     return (
       <SafeAreaView style={styles.container}>
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => handleGoBack()}
-            style={{
-              marginVertical: 10,
-              marginHorizontal: 15,
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-          >
-            <Ionicons
-              name="arrow-back"
-              size={32}
-              color={themeStyle.colors.grayscale.low}
-            />
-          </TouchableOpacity>
-        </View>
         <ScrollView style={{ marginVertical: 20 }}>
           <View>
             {post.postAuthor && (
@@ -215,7 +193,7 @@ const PostScreen = (props) => {
                   }}
                 >
                   <VideoPlayer
-                    shouldPlay={true}
+                    shouldPlay={isFocused}
                     mediaIsSelfie={post.mediaIsSelfie}
                     url={post.mediaUrl}
                     thumbnailUrl={post.thumbnailUrl}
@@ -226,6 +204,8 @@ const PostScreen = (props) => {
                     isMuted
                     screenHeight={screenHeight}
                     screenWidth={screenWidth}
+                    height={post.height}
+                    width={post.width}
                   />
                 </View>
               ) : post.mediaType === "image" ? (

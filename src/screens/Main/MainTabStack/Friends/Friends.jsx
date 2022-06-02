@@ -17,7 +17,6 @@ const FriendsScreen = () => {
   const [friends, setFriends] = useState([]);
   const [requests, setRequests] = useState([]);
   const [sections, setSections] = useState([]);
-  const [searchedFriends, setSearchedFriends] = useState([]);
   const [offsets, setOffsets] = useState({});
   const navigation = useNavigation();
   const [refreshing, setRefreshing] = useState(false);

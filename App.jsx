@@ -1,10 +1,11 @@
 import React from "react";
-import { LogBox } from "react-native";
+import { Alert, LogBox } from "react-native";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
 import rootReducer from "./src/reducers/rootReducer";
 
 import Screens from "./src/screens";
+import { enableScreens } from "react-native-screens";
 
 const store = createStore(rootReducer);
 const ignoreWarns = [
@@ -24,10 +25,14 @@ console.warn = (...arg) => {
 
 LogBox.ignoreLogs(ignoreWarns);
 
-const App = () => (
-  <Provider store={store}>
-    <Screens />
-  </Provider>
-);
+const App = () => {
+  enableScreens();
+
+  return (
+    <Provider store={store}>
+      <Screens />
+    </Provider>
+  );
+};
 
 export default App;

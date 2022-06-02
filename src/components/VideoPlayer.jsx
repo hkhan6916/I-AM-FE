@@ -1,20 +1,19 @@
-import React, { useRef, useState, useEffect } from "react";
-import { View, StyleSheet, Text, Dimensions, ScrollView } from "react-native";
+import React, { useRef, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { Video } from "expo-av";
-import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../theme.style";
-import ImageWithCache from "./ImageWithCache";
 import { Feather } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import CardImage from "./CardImage";
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const VideoPlayer = ({
   url,
-  isFullScreen,
-  setShowActions,
-  mediaIsSelfie,
-  // mediaHeaders,
   shouldPlay,
   isMuted,
   showToggle,
@@ -28,6 +27,8 @@ const VideoPlayer = ({
   height,
   width,
 }) => {
+  const [unMute, setUnMute] = useState(false);
+
   const calculatedVideoHeight =
     height && width && (Number(height) / Number(width)) * screenWidth;
 
@@ -74,7 +75,7 @@ const VideoPlayer = ({
             {isCancelled ? "Upload Cancelled" : "Uploading..."}
           </Text>
         ) : null}
-        <View>
+        <View style={{ backgroundColor: themeStyle.colors.black }}>
           {!readyForDisplay || isUploading || isCancelled || preventPlay ? (
             <View
               style={{
@@ -100,7 +101,7 @@ const VideoPlayer = ({
                 // setVideoDimensions(params.naturalSize);
                 setReadyForDisplay(true);
               }}
-              isMuted={!showToggle || isMuted}
+              isMuted={(!showToggle || isMuted) && !unMute}
               shouldPlay={!!shouldPlay}
               ref={video}
               isLooping={true}
@@ -141,13 +142,15 @@ const VideoPlayer = ({
                 }}
               />
             </View>
-          ) : isMuted ? (
+          ) : isMuted || unMute ? (
             <View style={{ position: "absolute", right: 10, top: 10 }}>
-              <Ionicons
-                name="ios-volume-mute-outline"
-                size={24}
-                color={themeStyle.colors.black}
-              />
+              <TouchableOpacity onPress={() => setUnMute(!unMute)}>
+                <Ionicons
+                  name={!unMute ? "ios-volume-mute" : "ios-volume-medium"}
+                  size={24}
+                  color={themeStyle.colors.white}
+                />
+              </TouchableOpacity>
             </View>
           ) : null}
         </View>

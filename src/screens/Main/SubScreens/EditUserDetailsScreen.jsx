@@ -30,7 +30,7 @@ import PasswordInputNoBorder from "../../../components/PasswordInputNoBorder";
 import { detectFacesAsync } from "expo-face-detector";
 import { getThumbnailAsync } from "expo-video-thumbnails";
 import Upload from "react-native-background-upload";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 import openAppSettings from "../../../helpers/openAppSettings";
 import { getInfoAsync } from "expo-file-system";
@@ -85,8 +85,8 @@ const EditUserDetailsScreen = () => {
   });
 
   const userdata = useSelector((state) => state.userData);
-
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   const pickProfileVideo = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -287,14 +287,11 @@ const EditUserDetailsScreen = () => {
         }
       }
       if (!(profileVideo && faceDetected)) return;
-      const {
-        response: signedData,
-        success: signedDataSuccess,
-        message,
-      } = await apiCall("POST", "/files/signed-video-profile-upload-url", {
-        username: userdata?.state?.username || "",
-        filename: profileVideo.replace(/^.*[\\\/]/, ""),
-      });
+      const { response: signedData, success: signedDataSuccess } =
+        await apiCall("POST", "/files/signed-video-profile-upload-url", {
+          username: userdata?.state?.username || "",
+          filename: profileVideo.replace(/^.*[\\\/]/, ""),
+        });
       if (!signedDataSuccess) {
         setupdateError(
           "Sorry, we could not update your profile video. Please try again later."
@@ -358,11 +355,12 @@ const EditUserDetailsScreen = () => {
             }
           });
           Upload.addListener("completed", uploadId, async (data) => {
-            console.log(unFocussed);
-            if (!unFocussed && data.responseCode === 200) {
-              setIsUpdating(false);
+            if (data.responseCode === 200) {
+              if (!unFocussed) {
+                setIsUpdating(false);
+              }
 
-              const { success, response, message } = await apiCall(
+              const { success, response } = await apiCall(
                 "POST",
                 "/user/update/details",
                 {
@@ -371,27 +369,38 @@ const EditUserDetailsScreen = () => {
                   profileVideoKey: signedData?.profileVideoKey,
                 }
               );
-
-              console.log(message);
-
-              if (!success) {
-                setupdateError(
-                  "Sorry, we couldn't update your details. Please try again later"
-                );
+              if (!unFocussed) {
+                if (!success) {
+                  setupdateError(
+                    "Sorry, we couldn't update your details. Please try again later"
+                  );
+                } else {
+                  setInitialProfileData(response);
+                  if (initialProfileData) {
+                    dispatch({
+                      type: "SET_USER_DATA",
+                      payload: {
+                        ...initialProfileData,
+                        ...response,
+                      },
+                    });
+                  }
+                }
               }
-
-              setInitialProfileData(response);
-            } else {
-              if (!success) {
-                setupdateError(
-                  "Sorry, we couldn't update your details. Please try again later"
-                );
-              }
+            } else if (!unFocussed) {
+              setupdateError(
+                "Sorry, we couldn't update your details. Please try again later"
+              );
             }
           });
         })
         .catch(async (e) => {
           console.log(e);
+          if (!unFocussed) {
+            setupdateError(
+              "Sorry, we couldn't upload your profile video. Please try again later"
+            );
+          }
         });
     }
   };

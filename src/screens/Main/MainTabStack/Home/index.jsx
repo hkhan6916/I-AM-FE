@@ -11,11 +11,9 @@ import {
   StyleSheet,
   RefreshControl,
   TouchableOpacity,
-  StatusBar,
   FlatList,
   ActivityIndicator,
   ScrollView,
-  useColorScheme,
   SafeAreaView,
   Dimensions,
 } from "react-native";
@@ -23,14 +21,13 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import Constants from "expo-constants";
-import { Ionicons } from "@expo/vector-icons";
-import themeStyle from "../../../theme.style";
-import FeedContext from "../../../Context";
-import PostCard from "../../../components/PostCard";
-import apiCall from "../../../helpers/apiCall";
-import Logo from "../../../Logo";
+import themeStyle from "../../../../theme.style";
+import FeedContext from "../../../../Context";
+import PostCard from "../../../../components/PostCard";
+import apiCall from "../../../../helpers/apiCall";
 import { useScrollToTop } from "@react-navigation/native";
-import PostOptionsModal from "../../../components/PostOptionsModal";
+import PostOptionsModal from "../../../../components/PostOptionsModal";
+import HomeScreenHeader from "./HomeScreenHeader";
 // import * as FacebookAds from "expo-ads-facebook";
 
 const { statusBarHeight } = Constants;
@@ -54,13 +51,10 @@ const HomeScreen = () => {
   const [error, setError] = useState("");
   const [feedError, setFeedError] = useState("");
 
-  const colorSchema = useColorScheme();
-
   const navigation = useNavigation();
   const flatlistRef = useRef(null);
 
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
-
   useScrollToTop(flatlistRef);
 
   // const adsManager = new FacebookAds.NativeAdsManager(
@@ -69,13 +63,13 @@ const HomeScreen = () => {
   // );
 
   const calculateOffsets = async () => {
-    if (!feed.length) {
+    if (!feed?.length) {
       return {};
     }
     let i = 0;
     let friendsInterestsOffset = 0;
     while (i < feed.length) {
-      if (feed[i].likedBy) {
+      if (feed[i]?.likedBy) {
         friendsInterestsOffset += 1;
       }
       i += 1;
@@ -196,80 +190,6 @@ const HomeScreen = () => {
     }
   }, []);
 
-  const HomeHeading = () => (
-    <View>
-      <StatusBar
-        backgroundColor={themeStyle.colors.black}
-        barStyle="light-content"
-      />
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          backgroundColor:
-            colorSchema === "dark"
-              ? themeStyle.colors.grayscale.highest
-              : themeStyle.colors.grayscale.higher,
-          borderBottomWidth: 1,
-          borderBottomColor: themeStyle.colors.grayscale.lowest,
-        }}
-      >
-        <View style={{ marginHorizontal: 20 }}>
-          <Logo fill={themeStyle.colors.grayscale.lowest} />
-        </View>
-        <TouchableOpacity
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          onPress={() => navigation.navigate("ChatListScreen")}
-        >
-          <View style={{ flexDirection: "row" }}>
-            <Ionicons
-              name="paper-plane-outline"
-              size={24}
-              color={themeStyle.colors.grayscale.lowest}
-              style={{ marginRight: 22, paddingVertical: 10 }}
-            />
-            {userData?.unreadChatsCount ? (
-              <View
-                style={{
-                  backgroundColor: themeStyle.colors.primary.default,
-                  borderRadius: 100,
-                  minWidth: 20,
-                  height: 20,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginRight: -5,
-                  zIndex: 10,
-                  paddingHorizontal: 5,
-                  position: "absolute",
-                  left: 15,
-                  top: 0,
-                }}
-              >
-                <Text
-                  style={{
-                    color: themeStyle.colors.white,
-                    textAlign: "center",
-                    fontSize: 12,
-                    maxWidth: 50,
-                  }}
-                  numberOfLines={1}
-                >
-                  {userData.unreadChatsCount >= 10
-                    ? "10+"
-                    : userData.unreadChatsCount}
-                </Text>
-              </View>
-            ) : null}
-          </View>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
   const renderItem = useCallback(
     ({ item, index }) => {
       return (
@@ -318,7 +238,7 @@ const HomeScreen = () => {
     return (
       <SafeAreaView style={styles.container}>
         {/* <Button title="test" onPress={() => navigation.navigate("Test")} /> */}
-        <HomeHeading />
+        <HomeScreenHeader navigation={navigation} userData={userData} />
         {newPostCreated.state ? (
           <View style={styles.newPostPill}>
             <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
@@ -391,7 +311,7 @@ const HomeScreen = () => {
       {/* <Button title="test" onPress={() => navigation.navigate("AdScreen")} /> */}
 
       <SafeAreaView>
-        <HomeHeading />
+        <HomeScreenHeader userData={userData} navigation={navigation} />
         {newPostCreated.state ? (
           <Text style={styles.newPostPill}>
             Post {newPostCreated.state.type}

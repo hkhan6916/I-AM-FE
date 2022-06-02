@@ -256,7 +256,7 @@ const UserProfileScreen = (props) => {
         rejectFriendRequest={rejectFriendRequest}
         sendFriendRequest={sendFriendRequest}
         removeConnection={removeConnection}
-        canAdd={userData.state.profileVideoUrl}
+        canAdd={userData.state?.profileVideoUrl}
       />
     );
   }
