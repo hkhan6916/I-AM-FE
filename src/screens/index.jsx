@@ -73,7 +73,7 @@ const Screens = () => {
         }),
       });
       if (finalStatus !== "granted") {
-        console.log("Failed to get push token for push notification!");
+        console.log("Failed to get push token for push notifications");
         return;
       }
       token = (

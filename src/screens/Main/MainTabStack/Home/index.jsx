@@ -11,8 +11,6 @@ import {
   StyleSheet,
   RefreshControl,
   TouchableOpacity,
-  FlatList,
-  ActivityIndicator,
   ScrollView,
   SafeAreaView,
   Dimensions,
@@ -29,30 +27,38 @@ import { useScrollToTop } from "@react-navigation/native";
 import PostOptionsModal from "../../../../components/PostOptionsModal";
 import HomeScreenHeader from "./HomeScreenHeader";
 // import * as FacebookAds from "expo-ads-facebook";
+import {
+  RecyclerListView,
+  DataProvider,
+  LayoutProvider,
+} from "recyclerlistview";
 
 const { statusBarHeight } = Constants;
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
   const newPostCreated = useSelector((state) => state.postCreated);
-
+  const [isFocussed, setFocussed] = useState(false);
   const initialFeed = useContext(FeedContext);
   const [feed, setFeed] = useState(initialFeed);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [userData, setUserData] = useState({});
   const [postIds, setPostIds] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [visibleItems, setVisibleItems] = useState([]);
   const [connectionsAsSenderOffset, setConnectionsAsSenderOffset] = useState(0);
   const [connectionsAsReceiverOffset, setConnectionsAsReceiverOffset] =
     useState(0);
   const [loading, setLoading] = useState(false);
   const [showPostOptions, setShowPostOptions] = useState(null);
   const [error, setError] = useState("");
+  const [preventCleanup, setPreventCleanup] = useState(false);
   const [feedError, setFeedError] = useState("");
-
+  const [currentVisible, setCurrentVisible] = useState(0);
+  const [prevVisible, setPrevVisible] = useState(0);
+  const [allVisible, setAllVisible] = useState([]);
   const navigation = useNavigation();
   const flatlistRef = useRef(null);
+  const [scrolling, setScrolling] = useState(false);
 
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
   useScrollToTop(flatlistRef);
@@ -67,6 +73,7 @@ const HomeScreen = () => {
       return {};
     }
     let i = 0;
+
     let friendsInterestsOffset = 0;
     while (i < feed.length) {
       if (feed[i]?.likedBy) {
@@ -82,6 +89,12 @@ const HomeScreen = () => {
       connectionsAsReceiverOffset: connectionsAsReceiverOffset,
     };
   };
+
+  const handleNavigation = (post) => {
+    setPreventCleanup(true);
+    navigation.navigate("MediaScreen", { post });
+  };
+
   const reportPost = async (reasonIndex) => {
     setLoading(true);
     const { success } = await apiCall("POST", "/posts/report", {
@@ -104,7 +117,7 @@ const HomeScreen = () => {
       `/posts/remove/${showPostOptions?._id}`
     );
     if (success) {
-      const newComments = feed.map((post) => {
+      const newPosts = feed.map((post) => {
         if (post._id === showPostOptions?._id) {
           return {
             ...post,
@@ -114,7 +127,7 @@ const HomeScreen = () => {
         }
         return post;
       });
-      setFeed(newComments);
+      setFeed(newPosts);
       setShowPostOptions(null);
     }
   };
@@ -138,7 +151,15 @@ const HomeScreen = () => {
             ...response.feed.map((post) => post._id.toString()),
           ];
           setPostIds(ids);
-          setFeed([
+          setFeed(
+            ...[
+              ...feed,
+              ...response.feed.filter((post) => {
+                if (!postIds.includes(post._id.toString())) return post;
+              }),
+            ]
+          );
+          dataProvider.cloneWithRows([
             ...feed,
             ...response.feed.filter((post) => {
               if (!postIds.includes(post._id.toString())) return post;
@@ -155,23 +176,6 @@ const HomeScreen = () => {
       }
     }
   };
-
-  const onViewableItemsChanged = ({ viewableItems }) => {
-    viewableItems.forEach((item) => {
-      if (item.isViewable) {
-        setVisibleItems([item.item._id]);
-      }
-    });
-  };
-  const viewabilityConfig = {
-    waitForInteraction: true,
-    viewAreaCoveragePercentThreshold: 50,
-    minimumViewTime: 200,
-  };
-
-  const viewabilityConfigCallbackPairs = useRef([
-    { onViewableItemsChanged, viewabilityConfig },
-  ]);
 
   const onRefresh = useCallback(async () => {
     setAllPostsLoaded(false);
@@ -190,25 +194,64 @@ const HomeScreen = () => {
     }
   }, []);
 
-  const renderItem = useCallback(
-    ({ item, index }) => {
+  const handleReaction = async (post) => {
+    const oldFeed = feed;
+
+    if (post.liked) {
+      setFeed((prev) => {
+        return prev.map((p) => {
+          if (p._id === post._id) {
+            return { ...p, liked: false };
+          }
+          return p;
+        });
+      });
+      const { success } = await apiCall(
+        "GET",
+        `/posts/like/remove/${post._id}`
+      );
+      if (!success) {
+        setFeed(oldFeed);
+      }
+      return;
+    }
+
+    setFeed((prev) => {
+      return prev.map((p) => {
+        if (p._id === post._id) {
+          return { ...p, liked: true };
+        }
+        return p;
+      });
+    });
+    const { success } = await apiCall("GET", `/posts/like/add/${post._id}`);
+    if (!success) {
+      setFeed(oldFeed);
+    }
+  };
+
+  const rowRenderer = useCallback(
+    (type, item, index, extendedState) => {
       return (
         <PostCard
           setShowPostOptions={triggerOptionsModal}
           loadingMore={loading && index === feed.length - 1}
-          isVisible={visibleItems.includes(item._id)}
+          isVisible={
+            extendedState.currentVisible === index && !extendedState.scrolling
+          }
+          currentVisible={extendedState.currentVisible}
+          index={index}
           post={item}
           screenHeight={screenHeight}
           screenWidth={screenWidth}
-          // adsManager={index && index % 5 === 0 ? adsManager : null}
+          handleReaction={handleReaction}
+          handleNavigation={handleNavigation}
+          unmount={!isFocussed}
         />
       );
     },
-    [postIds, visibleItems]
+    [postIds]
   );
-
-  const keyExtractor = useCallback((item) => item._id, []);
-
   const triggerOptionsModal = (post) => {
     setError("");
     setShowPostOptions(post);
@@ -216,11 +259,20 @@ const HomeScreen = () => {
 
   useEffect(() => {
     navigation.addListener("focus", async () => {
+      setFocussed(true);
+      setPreventCleanup(false);
       const { success, response } = await apiCall("GET", "/user/data");
       if (success) {
         setUserData(response);
       }
     });
+    navigation.addListener("blur", async () => {
+      setFocussed(false);
+    });
+    return () => {
+      navigation.removeListener("focus");
+      navigation.removeListener("blur");
+    };
   }, []);
 
   useEffect(() => {
@@ -234,6 +286,23 @@ const HomeScreen = () => {
     }
   }, [newPostCreated, feed]);
 
+  let dataProvider = new DataProvider(
+    (r1, r2) => {
+      return r1._id !== r2._id || r1.liked !== r2.liked;
+    },
+    (index) => `${feed[index]?._id}`
+  ).cloneWithRows(feed);
+
+  const layoutProvider = useRef(
+    new LayoutProvider(
+      () => 0,
+      (type, dim) => {
+        dim.width = screenWidth;
+        dim.height = 490;
+      }
+    )
+  ).current;
+
   if (feed.length) {
     return (
       <SafeAreaView style={styles.container}>
@@ -246,49 +315,39 @@ const HomeScreen = () => {
             </Text>
           </View>
         ) : null}
-        <FlatList
-          ref={flatlistRef}
-          viewabilityConfigCallbackPairs={
-            viewabilityConfigCallbackPairs.current
-          }
-          extraData={postIds.length}
-          data={feed}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          refreshControl={
-            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-          }
-          ListFooterComponent={() => (
-            <View
-              style={{
-                marginTop: 20,
-                marginBottom: 50,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <ActivityIndicator
-                size="large"
-                animating={loading}
-                color={themeStyle.colors.grayscale.lowest}
-              />
-              {feedError ? (
-                <Text style={{ color: themeStyle.colors.error.default }}>
-                  {feedError}
-                </Text>
-              ) : allPostsLoaded ? (
-                <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                  That&apos;s everything for now!
-                </Text>
-              ) : null}
-            </View>
-          )}
-          contentContainerStyle={{ flexGrow: 1 }}
-          onEndReached={() => getUserFeed()}
-          onEndReachedThreshold={0.5}
-          initialNumToRender={10}
-          maxToRenderPerBatch={20}
-        />
+        {console.log("redner")}
+        <View style={{ flex: 1 }}>
+          <RecyclerListView
+            style={{ minHeight: 1, minWidth: 1 }}
+            dataProvider={dataProvider}
+            layoutProvider={layoutProvider}
+            onEndReached={() => getUserFeed()}
+            onEndReachedThreshold={0.5}
+            // initialRenderIndex={currentVisible + 1}
+            extendedState={{ currentVisible, scrolling }}
+            rowRenderer={rowRenderer}
+            renderAheadOffset={screenHeight}
+            forceNonDeterministicRendering
+            applyWindowCorrection={(offset, offsetY, windowCorrection) => {
+              // windowCorrection.endCorrection = 100;
+              // windowCorrection.startCorrection = -100;
+            }}
+            onScroll={() => !scrolling && setScrolling(true)}
+            onVisibleIndicesChanged={(items) => {
+              if (items[0] && items[0] !== currentVisible) {
+                setCurrentVisible(items[0]);
+              }
+            }}
+            scrollViewProps={{
+              onMomentumScrollEnd: () => {
+                if (prevVisible !== currentVisible) {
+                  setScrolling(false);
+                }
+              },
+            }}
+          />
+        </View>
+
         <PostOptionsModal
           showOptions={!!showPostOptions}
           setShowPostOptions={setShowPostOptions}
@@ -351,7 +410,7 @@ const HomeScreen = () => {
                 style={{
                   marginBottom: 20,
                   fontWeight: "700",
-                  color: themeStyle.colors.grayscale.lowest,
+                  color: themeStyle.colors.graysczale.lowest,
                 }}
               >
                 Try adding some people.
@@ -444,7 +503,6 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: themeStyle.colors.grayscale.higher,
   },
   newPostPill: {
     zIndex: 3, // works on ios

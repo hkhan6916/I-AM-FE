@@ -62,7 +62,7 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
       >
         <TouchableOpacity
           onPress={() => {
-            selectGif(item?.media[0].gif.url);
+            selectGif(item?.media[0].gif.url); // TODO: pick a smaller gif here. These take too long to render
             setShowModal(false);
           }}
         >
@@ -165,6 +165,7 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
               initialNumToRender={10}
               maxToRenderPerBatch={5}
               numColumns={2}
+              removeClippedSubviews
             />
           )}
         </View>

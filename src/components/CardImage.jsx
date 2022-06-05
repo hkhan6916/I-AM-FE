@@ -10,6 +10,7 @@ const CardImage = ({
   width = 0,
   height = 0,
   isFull = false,
+  style,
 }) => {
   const calculatedImage =
     height && width && (Number(height) / Number(width)) * screenWidth;
@@ -34,6 +35,7 @@ const CardImage = ({
           height: "100%",
           aspectRatio: 1 / 1,
         },
+        style,
       ]}
     />
   );

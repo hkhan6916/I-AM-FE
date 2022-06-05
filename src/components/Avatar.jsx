@@ -73,8 +73,8 @@ const Avatar = ({
             style={{
               borderRadius: 10,
               alignSelf: "center",
-              width: size,
-              height: size,
+              width: size || 50,
+              height: size || 50,
             }}
           />
         ) : (

@@ -1,54 +1,47 @@
-import React, { useState } from "react";
-import { View, TouchableOpacity, Text, Dimensions } from "react-native";
+import React from "react";
+import { View, TouchableOpacity, Text } from "react-native";
 import themeStyle from "../theme.style";
 import Avatar from "./Avatar";
-import ImageWithCache from "./ImageWithCache";
 import { Feather } from "@expo/vector-icons";
 import { StackActions, useNavigation } from "@react-navigation/native";
+import FastImage from "react-native-fast-image";
 
-const SearchFeedItem = ({ post, visible }) => {
-  const [error, setError] = useState(false);
-  const { width: screenWidth } = Dimensions.get("window");
-  const imageHeight = screenWidth <= 340 ? screenWidth / 2 : screenWidth / 3;
+const SearchFeedItem = ({ post }) => {
   const navigation = useNavigation();
 
   const handleNavigation = () => {
     const pushScreen = StackActions.push("PostScreen", { post });
-
     navigation.dispatch(pushScreen);
   };
-  if (!post || !post?.postAuthor?.profileGifUrl) return null;
+
+  // if (!post || !post?.postAuthor?.profileGifUrl) return null;
   return (
-    <View
-      style={{
-        backgroundColor: themeStyle.colors.grayscale.cards,
-        borderBottomColor: themeStyle.colors.grayscale.cardsOuter,
-        borderBottomWidth: 3,
-      }}
-    >
-      <TouchableOpacity onPress={() => handleNavigation()}>
+    <TouchableOpacity onPress={() => handleNavigation()}>
+      <View
+        style={{
+          backgroundColor: themeStyle.colors.grayscale.cards,
+          borderBottomColor: themeStyle.colors.grayscale.cardsOuter,
+          borderBottomWidth: 3,
+          height: 150,
+        }}
+      >
         <View
           style={{
             flex: 1,
             flexDirection: "row",
-            // backgroundColor: visible
-            //   ? themeStyle.colors.grayscale.highest
-            //   : themeStyle.colors.grayscale.highest,
             width: "100%",
-            opacity: visible ? 1 : 0,
+            opacity: 1,
           }}
         >
-          <ImageWithCache
-            resizeMode={"cover"}
-            mediaUrl={post.thumbnailUrl || post.mediaUrl}
-            mediaHeaders={post.thumbnailHeaders || post.mediaHeaders}
-            removeBorderRadius
-            hideSpinner
-            onError={() => setError(true)}
+          <FastImage
+            source={{
+              uri: post.thumbnailUrl || post.mediaUrl,
+              headers: post.thumbnailHeaders || post.mediaHeaders,
+            }}
             style={{
-              width: imageHeight,
-              height: imageHeight,
-              opacity: visible ? 1 : 0,
+              width: 150,
+              height: 150,
+              opacity: 1,
             }}
           />
           <View style={{ flexDirection: "row", flex: 1 }}>
@@ -83,6 +76,7 @@ const SearchFeedItem = ({ post, visible }) => {
                   />
                 </View>
               ) : (
+                // need this as view here, not null
                 <View />
               )}
               <Avatar
@@ -95,8 +89,8 @@ const SearchFeedItem = ({ post, visible }) => {
             </View>
           </View>
         </View>
-      </TouchableOpacity>
-    </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 export default React.memo(SearchFeedItem);

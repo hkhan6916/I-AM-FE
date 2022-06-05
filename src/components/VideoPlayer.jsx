@@ -6,7 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { Video } from "expo-av";
+import Video from "react-native-video";
 import themeStyle from "../theme.style";
 import { Feather } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
@@ -22,8 +22,8 @@ const VideoPlayer = ({
   isUploading,
   isCancelled,
   preventPlay,
-  screenWidth = 300,
-  screenHeight = 300,
+  screenWidth = 400,
+  screenHeight = 600,
   height,
   width,
 }) => {
@@ -47,9 +47,9 @@ const VideoPlayer = ({
     if (!duration) {
       return "";
     }
-    let seconds = Math.floor((duration / 1000) % 60);
-    let minutes = Math.floor((duration / (1000 * 60)) % 60);
-    let hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+    let seconds = Math.floor(duration % 60);
+    let minutes = Math.floor((duration / 60) % 60);
+    let hours = Math.floor((duration / (60 * 60)) % 24);
 
     hours = hours < 10 ? `0${hours}` : hours;
     minutes = minutes < 10 ? `0${minutes}` : minutes;
@@ -76,35 +76,59 @@ const VideoPlayer = ({
           </Text>
         ) : null}
         <View style={{ backgroundColor: themeStyle.colors.black }}>
+          {/* <View
+            style={{
+              position: !preventPlay || shouldPlay ? "absolute" : "relative",
+              top: 0,
+              width: "100%",
+              height: "100%",
+              opacity:
+                !readyForDisplay || isUploading || isCancelled || preventPlay
+                  ? 0.7
+                  : 0,
+            }}
+          >
+            <CardImage
+              mediaHeaders={thumbnailHeaders}
+              mediaUrl={thumbnailUrl}
+              screenWidth={screenWidth}
+              screenHeight={screenHeight}
+              height={height}
+              width={width}
+            />
+          </View> */}
           {!readyForDisplay || isUploading || isCancelled || preventPlay ? (
-            <View
-              style={{
-                position: !preventPlay || shouldPlay ? "absolute" : "relative",
-                top: 0,
-                width: "100%",
-                height: "100%",
-              }}
-            >
-              <CardImage
-                mediaHeaders={thumbnailHeaders}
-                mediaUrl={thumbnailUrl}
-                screenWidth={screenWidth}
-                screenHeight={screenHeight}
-                height={height}
-                width={width}
-              />
-            </View>
+            <CardImage
+              mediaHeaders={thumbnailHeaders}
+              mediaUrl={thumbnailUrl}
+              screenWidth={screenWidth}
+              screenHeight={screenHeight}
+              height={height}
+              width={width}
+              style={[
+                !readyForDisplay && {
+                  position: "absolute",
+                  top: 0,
+                  zIndex: 999,
+                },
+              ]}
+            />
           ) : null}
-          {!preventPlay || shouldPlay ? (
+          {/* {!preventPlay || shouldPlay ? ( */}
+          {!isUploading && !isCancelled && !preventPlay ? (
             <Video
-              onReadyForDisplay={(params) => {
+              onLoad={(params) => {
                 // setVideoDimensions(params.naturalSize);
                 setReadyForDisplay(true);
               }}
-              isMuted={(!showToggle || isMuted) && !unMute}
-              shouldPlay={!!shouldPlay}
+              repeat
+              // isMuted={(!showToggle || isMuted) && !unMute}
+              paused={!shouldPlay}
+              muted={(!showToggle || isMuted) && !unMute}
+              // shouldPlay={shouldPlay || !preventPlay}
               ref={video}
-              isLooping={true}
+              playInBackground={false}
+              // isLooping={true}
               style={[
                 {
                   // aspectRatio: aspectRatio || 1,
@@ -122,27 +146,12 @@ const VideoPlayer = ({
               }}
               useNativeControls={false}
               resizeMode="contain"
-              onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
+              onProgress={(status) => setVideoStatus(status)}
+              // onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
             />
           ) : null}
-          {!showToggle ? (
-            <View style={{ position: "absolute", right: 0 }}>
-              <Feather
-                name={shouldPlay ? "pause" : "play"}
-                size={48}
-                color={themeStyle.colors.white}
-                style={{
-                  color: themeStyle.colors.white,
-                  textShadowOffset: {
-                    width: 1,
-                    height: 1,
-                  },
-                  textShadowRadius: 20,
-                  textShadowColor: themeStyle.colors.black,
-                }}
-              />
-            </View>
-          ) : isMuted || unMute ? (
+          {/* ) : null} */}
+          {isMuted || unMute ? (
             <View style={{ position: "absolute", right: 10, top: 10 }}>
               <TouchableOpacity onPress={() => setUnMute(!unMute)}>
                 <Ionicons
@@ -155,7 +164,7 @@ const VideoPlayer = ({
           ) : null}
         </View>
       </View>
-      {videoStatus?.durationMillis && videoStatus?.positionMillis ? (
+      {videoStatus?.playableDuration && videoStatus?.currentTime ? (
         <Text
           style={{
             position: "absolute",
@@ -171,7 +180,7 @@ const VideoPlayer = ({
           }}
         >
           {handleVideoDuration(
-            videoStatus?.durationMillis - videoStatus?.positionMillis
+            videoStatus?.playableDuration - videoStatus?.currentTime
           )}
         </Text>
       ) : null}

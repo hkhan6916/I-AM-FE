@@ -5,8 +5,6 @@ import {
   SafeAreaView,
   Text,
   View,
-  ActivityIndicator,
-  FlatList,
   TouchableOpacity,
   Dimensions,
 } from "react-native";
@@ -19,6 +17,11 @@ import { useScrollToTop } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import PostOptionsModal from "../../../components/PostOptionsModal";
 import { useSelector } from "react-redux";
+import {
+  RecyclerListView,
+  DataProvider,
+  LayoutProvider,
+} from "recyclerlistview";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -26,9 +29,10 @@ const ProfileScreen = () => {
   const [loading, setLoading] = useState(false);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [visibleItems, setVisibleItems] = useState([]);
   const [showPostOptions, setShowPostOptions] = useState(null);
   const [error, setError] = useState("");
+  const [isFocussed, setIsFocussed] = useState(true);
+  const [preventCleanup, setPreventCleanup] = useState(true);
 
   const globalUserData = useSelector((state) => state.userData);
 
@@ -39,7 +43,10 @@ const ProfileScreen = () => {
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
   useScrollToTop(flatlistRef);
-
+  const ViewTypes = {
+    HEADER: 0,
+    STANDARD: 1,
+  };
   const getUserPosts = async () => {
     if (!allPostsLoaded) {
       const { success, response } = await apiCall(
@@ -58,6 +65,58 @@ const ProfileScreen = () => {
       }
     }
   };
+
+  const handleNavigation = (post) => {
+    setPreventCleanup(true);
+    navigation.navigate("MediaScreen", { post });
+  };
+
+  const rowRenderer = useCallback(
+    (type, item, index, extendedState) => {
+      //We have only one view type so not checks are needed here
+      if (type === ViewTypes.HEADER) {
+        return (
+          <ProfileScreenHeader
+            userData={extendedState.userData}
+            navigation={navigation}
+          />
+        );
+      }
+      if (!item.deleted) {
+        return (
+          <PostCard
+            post={item}
+            setShowPostOptions={triggerOptionsModal}
+            screenHeight={screenHeight}
+            screenWidth={screenWidth}
+            handleNavigation={handleNavigation}
+          />
+        );
+      }
+    },
+    [userPosts]
+  );
+
+  let dataProvider = new DataProvider((r1, r2) => {
+    return r1._id !== r2._id;
+  }).cloneWithRows([{}, ...userPosts]);
+
+  const layoutProvider = useRef(
+    new LayoutProvider(
+      // (index) => index,
+      (index) => {
+        if (index === 0) {
+          return ViewTypes.HEADER;
+        } else {
+          return ViewTypes.STANDARD;
+        }
+      },
+      (type, dim) => {
+        dim.width = screenWidth;
+        dim.height = screenWidth * 1.1;
+      }
+    )
+  ).current;
 
   const getUserData = async () => {
     setLoading(true);
@@ -121,56 +180,27 @@ const ProfileScreen = () => {
     setRefreshing(false);
   };
 
-  // const onViewableItemsChanged = ({ viewableItems }) => {
-  //   viewableItems.forEach((item) => {
-  //     if (item.isViewable) {
-  //       setVisibleItems([item.item._id]);
-  //     }
-  //   });
-  // };
-  // const viewabilityConfig = {
-  //   waitForInteraction: true,
-  //   viewAreaCoveragePercentThreshold: 50,
-  //   minimumViewTime: 1500,
-  // };
-
-  // const viewabilityConfigCallbackPairs = useRef([
-  //   { onViewableItemsChanged, viewabilityConfig },
-  // ]);
-
   const triggerOptionsModal = (post) => {
     setError("");
     setShowPostOptions(post);
   };
 
-  const renderItem = useCallback(
-    ({ item }) => {
-      if (!item.deleted)
-        return (
-          <PostCard
-            isVisible={visibleItems.includes(item._id)}
-            post={item}
-            setShowPostOptions={triggerOptionsModal}
-            screenHeight={screenHeight}
-            screenWidth={screenWidth}
-          />
-        );
-    },
-    [userPosts]
-  );
-  const keyExtractor = (item) => item?.customKey || item?._id;
-
-  const renderHeaderComponent = useCallback(
-    () => <ProfileScreenHeader userData={userData} navigation={navigation} />,
-    [userData]
-  );
-
   useEffect(() => {
     (async () => {
-      await getUserData();
-      await getUserPosts();
+      navigation.addListener("focus", async () => {
+        await getUserPosts();
+        await getUserData();
+        setPreventCleanup(false);
+      });
+      navigation.addListener("blur", async () => {
+        if (!preventCleanup) {
+          setIsFocussed(false);
+        }
+      });
     })();
     return () => {
+      navigation.removeListener("focus");
+      navigation.removeListener("blur");
       setUserPosts([]);
     };
   }, []);
@@ -205,12 +235,8 @@ const ProfileScreen = () => {
           />
         </TouchableOpacity>
       </View>
-      {userData ? (
+      {/* {userData ? (
         <FlatList
-          // ref={flatlistRef}
-          // viewabilityConfigCallbackPairs={
-          //   viewabilityConfigCallbackPairs.current
-          // }
           data={userPosts}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
@@ -229,9 +255,34 @@ const ProfileScreen = () => {
           onEndReached={() => getUserPosts()}
           onEndReachedThreshold={0.8}
           initialNumToRender={10}
+          removeClippedSubviews
           // maxToRenderPerBatch={5}
           // windowSize={5}
         />
+      ) : null} */}
+      {userData && isFocussed ? (
+        <View style={{ flex: 1 }}>
+          <RecyclerListView
+            style={{ minHeight: 1, minWidth: 1 }}
+            dataProvider={dataProvider}
+            layoutProvider={layoutProvider}
+            onEndReached={() => getUserPosts()}
+            onEndReachedThreshold={0.5}
+            rowRenderer={rowRenderer}
+            extendedState={{ userData }}
+            renderAheadOffset={screenHeight}
+            forceNonDeterministicRendering
+            scrollViewProps={{
+              removeClippedSubviews: true,
+              refreshControl: (
+                <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+              ),
+              // decelerationRate: 0.5,
+            }}
+
+            // ListHeaderComponent={renderHeaderComponent}
+          />
+        </View>
       ) : null}
       <PostOptionsModal
         showOptions={!!showPostOptions}

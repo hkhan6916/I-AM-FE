@@ -15,7 +15,7 @@ import {
   MaterialCommunityIcons,
   Ionicons,
 } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import ImageWithCache from "../../../components/ImageWithCache";
@@ -29,6 +29,8 @@ const MediaScreen = (props) => {
   const [likes, setLikes] = useState(initialPost.likes);
   const [post, setPost] = useState(initialPost);
   const { width: screenWidth } = Dimensions.get("window");
+
+  const isFocused = useIsFocused();
 
   const navigation = useNavigation();
 
@@ -74,11 +76,7 @@ const MediaScreen = (props) => {
     } else {
       setLikes(likes + 1);
       setLiked(true);
-      const { success, message } = await apiCall(
-        "GET",
-        `/posts/like/add/${post._id}`
-      );
-      console.log(message);
+      const { success } = await apiCall("GET", `/posts/like/add/${post._id}`);
       if (!success) {
         setLikes(likes);
         setLiked(false);
@@ -116,25 +114,26 @@ const MediaScreen = (props) => {
       <SafeAreaView style={styles.container}>
         <View>
           {post?.mediaType === "video" ? (
-            // <ExpoVideoPlayer
-            //   isSelfie={post.mediaIsSelfie}
-            //   uri={post.mediaUrl}
-            // />
-            <VideoPlayer
-              source={{ uri: post.mediaUrl }}
-              navigator={navigation}
-              videoStyle={{
-                transform: [{ scaleX: post.mediaIsSelfie ? -1 : 1 }],
-                // height: "100%",
-              }}
-              onError={(e) => console.log(e)}
-              style={{ width: screenWidth }}
-              disableFullscreen
-              fullscreen
-              controlAnimationTiming={100}
-              scrubbing={1000}
+            <ExpoVideoPlayer
+              isSelfie={post.mediaIsSelfie}
+              uri={post.mediaUrl}
             />
-          ) : post?.mediaType === "image" ? (
+          ) : // <VideoPlayer
+          //   source={{ uri: post.mediaUrl }}
+          //   navigator={navigation}
+          //   videoStyle={{
+          //     transform: [{ scaleX: post.mediaIsSelfie ? -1 : 1 }],
+          //     // height: "100%",
+          //   }}
+          //   onError={(e) => console.log(e)}
+          //   style={{ width: screenWidth }}
+          //   paused={!isFocused}
+          //   disableFullscreen
+          //   fullscreen={false}
+          //   controlAnimationTiming={100}
+          //   // scrubbing={1000}
+          // />
+          post?.mediaType === "image" ? (
             <View
               style={{
                 alignItems: "center",

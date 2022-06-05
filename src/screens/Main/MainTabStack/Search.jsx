@@ -1,4 +1,10 @@
-import React, { Fragment, useCallback, useEffect, useState } from "react";
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   StyleSheet,
   SafeAreaView,
@@ -7,6 +13,7 @@ import {
   Keyboard,
   Text,
   View,
+  Dimensions,
 } from "react-native";
 import UserThumbnail from "../../../components/UserThumbnail";
 import themeStyle from "../../../theme.style";
@@ -20,6 +27,14 @@ import {
   getUserSearchHistory,
 } from "../../../helpers/sqlite/userSearchHistory";
 import apiCall from "../../../helpers/apiCall";
+import {
+  RecyclerListView,
+  DataProvider,
+  LayoutProvider,
+} from "recyclerlistview";
+import FastImage from "react-native-fast-image";
+import { useNavigation } from "@react-navigation/native";
+
 const SearchScreen = () => {
   const [results, setResults] = useState([]);
   const [searchFeed, setSearchFeed] = useState([]);
@@ -30,6 +45,8 @@ const SearchScreen = () => {
   const [lastSuccessfullSearchQuery, setLastSuccessfullSearchQuery] =
     useState("");
 
+  const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
+  const navigation = useNavigation();
   const db = SQLite.openDatabase("localdb");
 
   const onUserSearch = async (searchQuery) => {
@@ -58,18 +75,25 @@ const SearchScreen = () => {
     );
     if (success) {
       const newFeed = [...searchFeed, ...response];
-      setSearchFeed([...searchFeed, ...response]);
+      setSearchFeed(
+        [...searchFeed, ...response].filter(
+          (item) => !!item.postAuthor.profileGifUrl === true // Move this to the backend where we only return posts for users with completed profiles (with profile gifs)
+        )
+      );
       if (!searchItemsVisible && newFeed.length >= 20) {
         setTimeout(() => setSearchItemsVisible(true), 400);
       }
     }
   };
 
-  const renderSearchFeed = useCallback(
-    ({ item }) => <SearchFeedItem visible={searchItemsVisible} post={item} />,
+  const rowRenderer = useCallback(
+    (type, item, index) => {
+      //We have only one view type so not checks are needed here
+      return <SearchFeedItem post={item} />;
+      // return <FastImage source={{uri:item.mediaUrl}}/>
+    },
     [searchItemsVisible]
   );
-
   const renderThumbnail = useCallback(
     ({ item: user }) => (
       <UserThumbnail
@@ -82,10 +106,20 @@ const SearchScreen = () => {
     [showAllResults]
   );
 
-  const searchFeedKeyExtractor = useCallback(
-    (item, i) => `${item?.title}-${i}`,
-    []
-  );
+  let dataProvider = new DataProvider((r1, r2) => {
+    return r1._id !== r2._id;
+  }).cloneWithRows(searchFeed);
+
+  const layoutProvider = useRef(
+    new LayoutProvider(
+      () => 0,
+      (_, dim) => {
+        dim.width = screenWidth;
+        dim.height = 150;
+      }
+    )
+  ).current;
+
   const searchResultsKeyExtractor = useCallback(
     (item, i) => `${item._id}-${i}`,
     []
@@ -107,17 +141,23 @@ const SearchScreen = () => {
       }
     );
 
-    (async () => {
+    navigation.addListener("focus", async () => {
       await createUserSearchHistoryTable(db);
 
       await getSearchFeed();
 
       const history = await getUserSearchHistory(db);
       setUserSearchHistory(history || []);
-    })();
+    });
+    navigation.addListener("blur", async () => {
+      setSearchFeed([]);
+    });
+
     return () => {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
+      navigation.removeListener("focus");
+      navigation.removeListener("blur");
     };
   }, []);
 
@@ -176,24 +216,43 @@ const SearchScreen = () => {
             keyboardShouldPersistTaps={"always"}
             initialNumToRender={10}
             maxToRenderPerBatch={20}
+            removeClippedSubviews
           />
         ) : null}
         {!hideFeedAndSuggestions &&
         !results.length &&
-        searchFeed.length >= 20 ? ( // this is so the feed can fill the whole screen else display nothing.
-          <FlatList
+        searchFeed.length >= 20 &&
+        searchItemsVisible ? ( // this is so the feed can fill the whole screen else display nothing.
+          // <FlatList
+          //   style={{
+          //     height: "100%",
+          //   }}
+          //   data={searchFeed}
+          //   keyExtractor={searchFeedKeyExtractor}
+          //   renderItem={renderSearchFeed}
+          //   // numColumns={3}
+          //   contentContainerStyle={{ flexGrow: 1 }}
+          //   onEndReached={() => getSearchFeed()}
+          //   onEndReachedThreshold={0.9}
+          //   initialNumToRender={10}
+          //   maxToRenderPerBatch={20}
+          //   removeClippedSubviews
+          // />
+
+          <RecyclerListView
             style={{
-              height: "100%",
+              minHeight: 1,
+              minWidth: 1,
             }}
-            data={searchFeed}
-            keyExtractor={searchFeedKeyExtractor}
-            renderItem={renderSearchFeed}
-            // numColumns={3}
-            contentContainerStyle={{ flexGrow: 1 }}
+            dataProvider={dataProvider}
+            layoutProvider={layoutProvider}
             onEndReached={() => getSearchFeed()}
-            onEndReachedThreshold={0.9}
-            initialNumToRender={10}
-            maxToRenderPerBatch={20}
+            onEndReachedThreshold={0.5}
+            rowRenderer={rowRenderer}
+            renderAheadOffset={300}
+            scrollViewProps={{
+              removeClippedSubviews: true,
+            }}
           />
         ) : null}
       </SafeAreaView>

@@ -63,7 +63,7 @@ const AddScreen = () => {
     let postData = {};
     if (postBody) {
       // upload any text body if there is an
-      postData.postBody = postData;
+      postData.postBody = postBody;
     }
     if (gif) {
       // if there's a gif, skip everything and just upload the gif
@@ -174,7 +174,6 @@ const AddScreen = () => {
   const handlePostCreation = async () => {
     setLoading(true);
     const postData = await createPostData();
-    console.log(height, width);
 
     if (!postData) return null;
     const { success, response, message } = await apiCall(
@@ -182,7 +181,6 @@ const AddScreen = () => {
       "/posts/new",
       postData
     );
-    console.log(message);
     setLoading(false);
     if (success) {
       setThumbnail("");
