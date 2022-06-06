@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import themeStyle from "../../../theme.style";
 import PostCard from "../../../components/PostCard";
 import ProfileInfo from "../../../components/ProfileInfo";
@@ -30,6 +30,8 @@ const UserProfileScreen = (props) => {
   const [error, setError] = useState("");
 
   const userData = useSelector((state) => state.userData);
+
+  const isFocused = useIsFocused();
 
   const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -246,19 +248,22 @@ const UserProfileScreen = (props) => {
   );
 
   function renderHeader() {
-    return (
-      <ProfileInfo
-        user={user}
-        setUser={setUser}
-        setUserPosts={setUserPosts}
-        recallFriendRequest={recallFriendRequest}
-        acceptFriendRequest={acceptFriendRequest}
-        rejectFriendRequest={rejectFriendRequest}
-        sendFriendRequest={sendFriendRequest}
-        removeConnection={removeConnection}
-        canAdd={userData.state?.profileVideoUrl}
-      />
-    );
+    if (isFocused) {
+      return (
+        <ProfileInfo
+          user={user}
+          setUser={setUser}
+          setUserPosts={setUserPosts}
+          recallFriendRequest={recallFriendRequest}
+          acceptFriendRequest={acceptFriendRequest}
+          rejectFriendRequest={rejectFriendRequest}
+          sendFriendRequest={sendFriendRequest}
+          removeConnection={removeConnection}
+          canAdd={userData.state?.profileVideoUrl}
+        />
+      );
+    }
+    return null;
   }
 
   const keyExtractor = useCallback(

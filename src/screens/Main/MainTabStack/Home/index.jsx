@@ -231,7 +231,7 @@ const HomeScreen = () => {
   };
 
   const rowRenderer = useCallback(
-    (type, item, index, extendedState) => {
+    (_, item, index, extendedState) => {
       return (
         <PostCard
           setShowPostOptions={triggerOptionsModal}
