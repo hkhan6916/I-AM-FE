@@ -35,7 +35,17 @@ const PostCard = ({
     setIsCollapsible(e.nativeEvent.lines.length >= 3);
   };
 
-  if (unmount) return null;
+  // if (unmount) {
+  //   return (
+  //     <View
+  //       style={{
+  //         aspectRatio: 1 / 1,
+  //         width: screenWidth || 300,
+  //         height: "100%",
+  //       }}
+  //     />
+  //   );
+  // }
   return (
     <View style={{ flex: 1 }}>
       {/* {console.log(post._id)}
@@ -148,7 +158,6 @@ const PostCard = ({
                       }}
                       source={{
                         uri: post.gif,
-                        cache: "web",
                       }}
                     />
                   </View>

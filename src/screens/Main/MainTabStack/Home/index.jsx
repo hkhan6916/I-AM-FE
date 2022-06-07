@@ -14,6 +14,7 @@ import {
   ScrollView,
   SafeAreaView,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -32,6 +33,7 @@ import {
   DataProvider,
   LayoutProvider,
 } from "recyclerlistview";
+import FastImage from "react-native-fast-image";
 
 const { statusBarHeight } = Constants;
 
@@ -90,6 +92,23 @@ const HomeScreen = () => {
     };
   };
 
+  const renderFooter = () => (
+    <View style={{ marginVertical: 20 }}>
+      {allPostsLoaded ? (
+        <Text
+          style={{
+            color: themeStyle.colors.grayscale.lowest,
+            textAlign: "center",
+          }}
+        >
+          That&apos;s all for now.
+        </Text>
+      ) : (
+        <ActivityIndicator animating size={"large"} />
+      )}
+    </View>
+  );
+
   const handleNavigation = (post) => {
     setPreventCleanup(true);
     navigation.navigate("MediaScreen", { post });
@@ -133,6 +152,7 @@ const HomeScreen = () => {
   };
 
   const getUserFeed = async () => {
+    console.log("on end reached");
     if (!allPostsLoaded && !refreshing && !loading) {
       const offsets = await calculateOffsets();
       setLoading(true);
@@ -151,20 +171,19 @@ const HomeScreen = () => {
             ...response.feed.map((post) => post._id.toString()),
           ];
           setPostIds(ids);
-          setFeed(
-            ...[
-              ...feed,
-              ...response.feed.filter((post) => {
-                if (!postIds.includes(post._id.toString())) return post;
-              }),
-            ]
-          );
-          dataProvider.cloneWithRows([
-            ...feed,
-            ...response.feed.filter((post) => {
-              if (!postIds.includes(post._id.toString())) return post;
-            }),
-          ]);
+          // setFeed([
+          //   ...feed,
+          //   ...response.feed.filter((post) => {
+          //     if (!postIds.includes(post._id.toString())) return post;
+          //   }),
+          // ]);
+          setFeed([...feed, ...(response.feed || [])]);
+          // dataProvider.cloneWithRows([
+          //   ...feed,
+          //   ...response.feed.filter((post) => {
+          //     if (!postIds.includes(post._id.toString())) return post;
+          //   }),
+          // ]);
           setConnectionsAsSenderOffset(response.connectionsAsSenderOffset);
           setConnectionsAsReceiverOffset(response.connectionsAsReceiverOffset);
         }
@@ -250,7 +269,7 @@ const HomeScreen = () => {
         />
       );
     },
-    [postIds]
+    [postIds, isFocussed]
   );
   const triggerOptionsModal = (post) => {
     setError("");
@@ -258,6 +277,9 @@ const HomeScreen = () => {
   };
 
   useEffect(() => {
+    (async () => {
+      await FastImage.clearMemoryCache();
+    })();
     navigation.addListener("focus", async () => {
       setFocussed(true);
       setPreventCleanup(false);
@@ -289,9 +311,9 @@ const HomeScreen = () => {
   let dataProvider = new DataProvider(
     (r1, r2) => {
       return r1._id !== r2._id || r1.liked !== r2.liked;
-    },
-    (index) => `${feed[index]?._id}`
-  ).cloneWithRows(feed);
+    }
+    // (index) => `${feed[index]?._id}`
+  ).cloneWithRows([...feed]);
 
   const layoutProvider = useRef(
     new LayoutProvider(
@@ -307,38 +329,39 @@ const HomeScreen = () => {
     return (
       <SafeAreaView style={styles.container}>
         {/* <Button title="test" onPress={() => navigation.navigate("Test")} /> */}
-        <HomeScreenHeader navigation={navigation} userData={userData} />
-        {newPostCreated.state ? (
-          <View style={styles.newPostPill}>
-            <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-              Post {newPostCreated.state.type}
-            </Text>
-          </View>
-        ) : null}
-        {console.log("redner")}
         <View style={{ flex: 1 }}>
+          <HomeScreenHeader navigation={navigation} userData={userData} />
+          {newPostCreated.state ? (
+            <View style={styles.newPostPill}>
+              <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                Post {newPostCreated.state.type}
+              </Text>
+            </View>
+          ) : null}
           <RecyclerListView
             style={{ minHeight: 1, minWidth: 1 }}
             dataProvider={dataProvider}
             layoutProvider={layoutProvider}
             onEndReached={() => getUserFeed()}
-            onEndReachedThreshold={0.5}
+            onEndReachedThreshold={700}
             // initialRenderIndex={currentVisible + 1}
             extendedState={{ currentVisible, scrolling }}
             rowRenderer={rowRenderer}
             renderAheadOffset={screenHeight}
             forceNonDeterministicRendering
-            applyWindowCorrection={(offset, offsetY, windowCorrection) => {
-              // windowCorrection.endCorrection = 100;
-              // windowCorrection.startCorrection = -100;
-            }}
+            renderFooter={renderFooter}
             onScroll={() => !scrolling && setScrolling(true)}
-            onVisibleIndicesChanged={(items) => {
+            onVisibleIndicesChanged={async (items) => {
+              if (items[0] % 5 === 0) {
+                await FastImage.clearMemoryCache();
+              }
               if (items[0] && items[0] !== currentVisible) {
                 setCurrentVisible(items[0]);
               }
             }}
             scrollViewProps={{
+              // decelerationRate: 0.9,
+              removeClippedSubviews: true,
               onMomentumScrollEnd: () => {
                 if (prevVisible !== currentVisible) {
                   setScrolling(false);

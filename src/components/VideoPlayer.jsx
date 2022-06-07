@@ -151,6 +151,45 @@ const VideoPlayer = ({
             />
           ) : null}
           {/* ) : null} */}
+
+          {!showToggle && !readyForDisplay ? (
+            <View
+              style={{
+                position: "absolute",
+                right: "0%",
+                top: "0%",
+                left: "0%",
+                bottom: "0%",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <View
+                style={{
+                  padding: 10,
+                  borderWidth: 3,
+                  borderColor: themeStyle.colors.black,
+                  borderRadius: 50,
+                }}
+              >
+                <Feather
+                  name={shouldPlay ? "pause" : "play"}
+                  size={48}
+                  color={themeStyle.colors.white}
+                  style={{
+                    color: themeStyle.colors.white,
+                    textShadowOffset: {
+                      width: 1,
+                      height: 1,
+                    },
+                    textShadowRadius: 20,
+                    textShadowColor: themeStyle.colors.black,
+                  }}
+                />
+              </View>
+            </View>
+          ) : null}
+
           {isMuted || unMute ? (
             <View style={{ position: "absolute", right: 10, top: 10 }}>
               <TouchableOpacity onPress={() => setUnMute(!unMute)}>

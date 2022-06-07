@@ -57,7 +57,7 @@ const PostOptionsModal = ({
               style={{
                 width: "100%",
                 padding: 20,
-                backgroundColor: themeStyle.colors.grayscale.higher,
+                backgroundColor: themeStyle.colors.grayscale.cards,
                 paddingBottom: 40,
               }}
             >
@@ -198,7 +198,7 @@ const PostOptionsModal = ({
                         <Text
                           style={{
                             textAlign: "center",
-                            color: themeStyle.colors.secondary.default,
+                            color: themeStyle.colors.grayscale.lowest,
                             fontWeight: "700",
                           }}
                         >

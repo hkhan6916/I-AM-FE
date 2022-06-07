@@ -39,8 +39,8 @@ const SearchFeedItem = ({ post }) => {
               headers: post.thumbnailHeaders || post.mediaHeaders,
             }}
             style={{
-              width: 150,
-              height: 150,
+              width: 146,
+              height: 146,
               opacity: 1,
             }}
           />

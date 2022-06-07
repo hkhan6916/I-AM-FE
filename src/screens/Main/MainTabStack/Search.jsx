@@ -106,6 +106,20 @@ const SearchScreen = () => {
     [showAllResults]
   );
 
+  const thumbnailRenderer = useCallback(
+    (_, item) => {
+      return (
+        <UserThumbnail
+          key={item._id}
+          user={item}
+          avatarSize={70}
+          fontSize={12}
+        />
+      );
+    },
+    [searchItemsVisible, showAllResults]
+  );
+
   let dataProvider = new DataProvider((r1, r2) => {
     return r1._id !== r2._id;
   }).cloneWithRows(searchFeed);
@@ -120,10 +134,38 @@ const SearchScreen = () => {
     )
   ).current;
 
+  let userDataProvider = new DataProvider((r1, r2) => {
+    return r1._id !== r2._id;
+  }).cloneWithRows(results);
+
+  const userLayoutProvider = useRef(
+    new LayoutProvider(
+      () => 0,
+      (_, dim) => {
+        dim.width = screenWidth;
+        dim.height = 80;
+      }
+    )
+  ).current;
+
   const searchResultsKeyExtractor = useCallback(
     (item, i) => `${item._id}-${i}`,
     []
   );
+
+  const onEndReached = async () => {
+    console.log("end reached");
+    const { response } = await apiCall(
+      "POST",
+      `/user/search/${results.length}`,
+      {
+        searchTerm: lastSuccessfullSearchQuery,
+      }
+    );
+    if (response.length) {
+      setResults([...results, ...(response || [])]);
+    }
+  };
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -171,90 +213,86 @@ const SearchScreen = () => {
       />
       {Platform.OS === "ios" ? <StatusBar translucent={true} /> : null}
       <SafeAreaView style={styles.container}>
-        <UserSearchBar
-          onFocus={() => {
-            setShowAllResults(false);
-            setHideFeedAndSuggestions(true);
-          }}
-          onSubmitEditing={(searchQuery) => onUserSearch(searchQuery)}
-          setResults={setResults}
-          userSearchHistory={userSearchHistory}
-          setShowAllResults={setShowAllResults}
-          showAllResults={showAllResults}
-          onReset={() => !results.length && setHideFeedAndSuggestions(false)}
-          resultsVisible={!!results.length}
-          feedIsVisible={!hideFeedAndSuggestions}
-        />
-        {!hideFeedAndSuggestions &&
-        !results.length &&
-        searchFeed.length >= 20 ? (
-          <View
-            style={{
-              borderBottomWidth: 2,
-              borderBottomColor: themeStyle.colors.grayscale.cardsOuter,
-              backgroundColor: themeStyle.colors.grayscale.cards,
+        <View style={{ flex: 1 }}>
+          <UserSearchBar
+            onFocus={() => {
+              setShowAllResults(false);
+              setHideFeedAndSuggestions(true);
             }}
-          >
-            <Text
+            onSubmitEditing={(searchQuery) => onUserSearch(searchQuery)}
+            setResults={setResults}
+            userSearchHistory={userSearchHistory}
+            setShowAllResults={setShowAllResults}
+            showAllResults={showAllResults}
+            onReset={() => !results.length && setHideFeedAndSuggestions(false)}
+            resultsVisible={!!results.length}
+            feedIsVisible={!hideFeedAndSuggestions}
+            offset={results.length && showAllResults ? results.length : 0}
+          />
+          {!hideFeedAndSuggestions &&
+          !results.length &&
+          searchFeed.length >= 20 ? (
+            <View
               style={{
-                color: themeStyle.colors.primary.default,
-                fontSize: 20,
-                marginHorizontal: 5,
-                marginTop: 10,
-                marginBottom: 10,
+                borderBottomWidth: 2,
+                borderBottomColor: themeStyle.colors.grayscale.cardsOuter,
+                backgroundColor: themeStyle.colors.grayscale.cards,
               }}
             >
-              Explore
-            </Text>
-          </View>
-        ) : null}
-        {results.length ? (
-          <FlatList
-            data={results}
-            renderItem={renderThumbnail}
-            keyExtractor={searchResultsKeyExtractor}
-            keyboardShouldPersistTaps={"always"}
-            initialNumToRender={10}
-            maxToRenderPerBatch={20}
-            removeClippedSubviews
-          />
-        ) : null}
-        {!hideFeedAndSuggestions &&
-        !results.length &&
-        searchFeed.length >= 20 &&
-        searchItemsVisible ? ( // this is so the feed can fill the whole screen else display nothing.
-          // <FlatList
-          //   style={{
-          //     height: "100%",
-          //   }}
-          //   data={searchFeed}
-          //   keyExtractor={searchFeedKeyExtractor}
-          //   renderItem={renderSearchFeed}
-          //   // numColumns={3}
-          //   contentContainerStyle={{ flexGrow: 1 }}
-          //   onEndReached={() => getSearchFeed()}
-          //   onEndReachedThreshold={0.9}
-          //   initialNumToRender={10}
-          //   maxToRenderPerBatch={20}
-          //   removeClippedSubviews
-          // />
-
-          <RecyclerListView
-            style={{
-              minHeight: 1,
-              minWidth: 1,
-            }}
-            dataProvider={dataProvider}
-            layoutProvider={layoutProvider}
-            onEndReached={() => getSearchFeed()}
-            onEndReachedThreshold={0.5}
-            rowRenderer={rowRenderer}
-            renderAheadOffset={300}
-            scrollViewProps={{
-              removeClippedSubviews: true,
-            }}
-          />
-        ) : null}
+              <Text
+                style={{
+                  color: themeStyle.colors.primary.default,
+                  fontSize: 20,
+                  marginHorizontal: 5,
+                  marginTop: 10,
+                  marginBottom: 10,
+                }}
+              >
+                Explore
+              </Text>
+            </View>
+          ) : null}
+          {results.length && showAllResults ? (
+            <RecyclerListView
+              style={{ minHeight: 1, minWidth: 1 }}
+              dataProvider={userDataProvider}
+              layoutProvider={userLayoutProvider}
+              rowRenderer={thumbnailRenderer}
+              onEndReached={() => onEndReached()}
+              onEndReachedThreshold={0.5}
+            />
+          ) : results.length ? (
+            <FlatList
+              data={results}
+              renderItem={renderThumbnail}
+              keyExtractor={searchResultsKeyExtractor}
+              keyboardShouldPersistTaps={"always"}
+              initialNumToRender={10}
+              maxToRenderPerBatch={20}
+              removeClippedSubviews
+            />
+          ) : null}
+          {!hideFeedAndSuggestions &&
+          !results.length &&
+          searchFeed.length >= 20 &&
+          searchItemsVisible ? (
+            <RecyclerListView
+              style={{
+                minHeight: 1,
+                minWidth: 1,
+              }}
+              dataProvider={dataProvider}
+              layoutProvider={layoutProvider}
+              onEndReached={() => getSearchFeed()}
+              onEndReachedThreshold={0.5}
+              rowRenderer={rowRenderer}
+              renderAheadOffset={300}
+              scrollViewProps={{
+                removeClippedSubviews: true,
+              }}
+            />
+          ) : null}
+        </View>
       </SafeAreaView>
     </Fragment>
   );

@@ -14,7 +14,7 @@ const createUserSearchHistoryTable = async (db) => {
       console.log(error);
     },
     (success) => {
-      console.log("created user_search_history table");
+      // console.log("created user_search_history table");
     }
   );
 };

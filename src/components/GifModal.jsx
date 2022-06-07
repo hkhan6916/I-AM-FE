@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Modal,
   TouchableOpacity,
-  FlatList,
   Text,
   Dimensions,
   SafeAreaView,
@@ -14,6 +13,11 @@ import { getItemAsync } from "expo-secure-store";
 import axios from "axios";
 import SearchBar from "./SearchBar";
 import FastImage from "react-native-fast-image";
+import {
+  DataProvider,
+  LayoutProvider,
+  RecyclerListView,
+} from "recyclerlistview";
 
 const GifModal = ({ setShowModal, selectGif, active }) => {
   const [error, setError] = useState("");
@@ -30,7 +34,7 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
           method: "POST",
           url: `https://g.tenor.com/v1/search?q=${
             searchInput || ""
-          }&key=${tenorApiKey}&limit=20&media_filter=minimal&contentfilter=high&locale=en_US&ar_range=standard`,
+          }&key=${tenorApiKey}&limit=20&mediaFilter=basic&contentfilter=high&locale=en_US&ar_range=standard`,
         });
         if (error) {
           setError("");
@@ -49,9 +53,8 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
     };
   };
 
-  const renderItem = useCallback(
-    ({ item }) => (
-      // here we use the standard image as don't want to take up all cache space with gifs
+  const rowRenderer = useCallback((_, item) => {
+    return (
       <View
         style={{
           flex: 1,
@@ -62,7 +65,7 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
       >
         <TouchableOpacity
           onPress={() => {
-            selectGif(item?.media[0].gif.url); // TODO: pick a smaller gif here. These take too long to render
+            selectGif(item?.media[0].tinygif.url); // TODO: pick a smaller gif here. These take too long to render
             setShowModal(false);
           }}
         >
@@ -74,7 +77,7 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
               width: "100%",
             }}
             source={{
-              uri: item.media[0].tinygif.url,
+              uri: item.media[0].nanogif.url,
               cache: FastImage.cacheControl.web,
             }}
 
@@ -82,17 +85,29 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
           />
         </TouchableOpacity>
       </View>
-    ),
-    []
-  );
-
-  const keyExtractor = useCallback((item) => item.id, []);
+    );
+  }, []);
 
   useEffect(() => {
     (async () => {
+      await FastImage.clearMemoryCache();
       await handleGifSearch();
     })();
   }, []);
+
+  let dataProvider = new DataProvider((r1, r2) => {
+    return r1 !== r2;
+  }).cloneWithRows([...gifs]);
+
+  const layoutProvider = useRef(
+    new LayoutProvider(
+      () => 1,
+      (_, dim) => {
+        dim.width = screenWidth / 2;
+        dim.height = screenWidth / 2;
+      }
+    )
+  ).current;
 
   return (
     <Modal
@@ -156,16 +171,11 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
               {error}
             </Text>
           ) : (
-            <FlatList
-              data={gifs}
-              renderItem={renderItem}
-              keyExtractor={keyExtractor}
-              contentContainerStyle={{ flexGrow: 1 }}
-              onEndReachedThreshold={0.5}
-              initialNumToRender={10}
-              maxToRenderPerBatch={5}
-              numColumns={2}
-              removeClippedSubviews
+            <RecyclerListView
+              style={{ flex: 1 }}
+              dataProvider={dataProvider}
+              layoutProvider={layoutProvider}
+              rowRenderer={rowRenderer}
             />
           )}
         </View>

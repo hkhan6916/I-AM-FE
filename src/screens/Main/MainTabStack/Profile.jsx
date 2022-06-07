@@ -22,6 +22,7 @@ import {
   DataProvider,
   LayoutProvider,
 } from "recyclerlistview";
+import FastImage from "react-native-fast-image";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -33,7 +34,6 @@ const ProfileScreen = () => {
   const [error, setError] = useState("");
   const [isFocussed, setIsFocussed] = useState(true);
   const [preventCleanup, setPreventCleanup] = useState(true);
-
   const globalUserData = useSelector((state) => state.userData);
 
   const navigation = useNavigation();
@@ -90,6 +90,8 @@ const ProfileScreen = () => {
             screenHeight={screenHeight}
             screenWidth={screenWidth}
             handleNavigation={handleNavigation}
+            isVisible={false}
+            unmount={!isFocussed}
           />
         );
       }
@@ -97,9 +99,12 @@ const ProfileScreen = () => {
     [userPosts]
   );
 
-  let dataProvider = new DataProvider((r1, r2) => {
-    return r1._id !== r2._id;
-  }).cloneWithRows([{}, ...userPosts]);
+  let dataProvider = new DataProvider(
+    (r1, r2) => {
+      return r1._id !== r2._id;
+    }
+    // (index) => `${userPosts[index]?._id}`
+  ).cloneWithRows([{}, ...userPosts]);
 
   const layoutProvider = useRef(
     new LayoutProvider(
@@ -111,9 +116,9 @@ const ProfileScreen = () => {
           return ViewTypes.STANDARD;
         }
       },
-      (type, dim) => {
+      (_, dim) => {
         dim.width = screenWidth;
-        dim.height = screenWidth * 1.1;
+        dim.height = 490;
       }
     )
   ).current;
@@ -188,6 +193,7 @@ const ProfileScreen = () => {
   useEffect(() => {
     (async () => {
       navigation.addListener("focus", async () => {
+        await FastImage.clearMemoryCache();
         await getUserPosts();
         await getUserData();
         setPreventCleanup(false);
@@ -210,6 +216,7 @@ const ProfileScreen = () => {
       setUserData(globalUserData.state);
     }
   }, [globalUserData?.state]);
+
   return (
     <SafeAreaView style={styles.container}>
       <View
@@ -235,33 +242,8 @@ const ProfileScreen = () => {
           />
         </TouchableOpacity>
       </View>
-      {/* {userData ? (
-        <FlatList
-          data={userPosts}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          refreshControl={
-            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-          }
-          ListHeaderComponent={renderHeaderComponent}
-          ListFooterComponent={() => (
-            <ActivityIndicator
-              size="large"
-              animating={loading}
-              color={themeStyle.colors.grayscale.low}
-            />
-          )}
-          contentContainerStyle={{ flexGrow: 1 }}
-          onEndReached={() => getUserPosts()}
-          onEndReachedThreshold={0.8}
-          initialNumToRender={10}
-          removeClippedSubviews
-          // maxToRenderPerBatch={5}
-          // windowSize={5}
-        />
-      ) : null} */}
-      {userData && isFocussed ? (
-        <View style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
+        {userData ? (
           <RecyclerListView
             style={{ minHeight: 1, minWidth: 1 }}
             dataProvider={dataProvider}
@@ -277,13 +259,13 @@ const ProfileScreen = () => {
               refreshControl: (
                 <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
               ),
-              // decelerationRate: 0.5,
+              // decelerationRate: 0.9,
             }}
 
             // ListHeaderComponent={renderHeaderComponent}
           />
-        </View>
-      ) : null}
+        ) : null}
+      </View>
       <PostOptionsModal
         showOptions={!!showPostOptions}
         setShowPostOptions={setShowPostOptions}

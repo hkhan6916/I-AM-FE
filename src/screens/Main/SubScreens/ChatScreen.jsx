@@ -38,6 +38,7 @@ import { getThumbnailAsync } from "expo-video-thumbnails";
 import openAppSettings from "../../../helpers/openAppSettings";
 import backgroundUpload from "../../../helpers/backgroundUpload";
 import { gestureHandlerRootHOC } from "react-native-gesture-handler";
+import FastImage from "react-native-fast-image";
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -674,7 +675,7 @@ const ChatScreen = (props) => {
               marginHorizontal: 10,
             }}
           >
-            You been blocked by this user.
+            This user has blocked you.
           </Text>
         ) : userHasBlocked ? (
           <Text
@@ -874,11 +875,14 @@ const ChatScreen = (props) => {
           ]}
         >
           {media?.type?.includes("image") ? (
-            <Image
+            <FastImage
               style={{
                 borderRadius: 10,
                 aspectRatio: 1 / 1,
-                width: "100%",
+                // width: "100%",
+                // width: "100%",
+                height: screenWidth,
+                backgroundColor: themeStyle.colors.black,
               }}
               resizeMode="contain"
               source={{ uri: media.uri }}

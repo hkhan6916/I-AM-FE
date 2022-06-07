@@ -121,6 +121,7 @@ const AddScreen = () => {
           uri,
           {
             compressionMethod: "auto",
+            minimumFileSizeForCompress: 4, //TODO test this if 2mb is correvy for minimum size to compress
           },
           (progress) => {
             console.log({ compression: progress });
@@ -238,7 +239,7 @@ const AddScreen = () => {
       file.uri,
       {
         compressionMethod: "auto",
-        minimumFileSizeForCompress: 50,
+        minimumFileSizeForCompress: 10,
       },
       (progress) => {
         console.log({ compression: progress });
