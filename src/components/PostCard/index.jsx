@@ -26,6 +26,7 @@ const PostCard = ({
   currentVisible,
   index,
   unmount,
+  disableVideo,
 }) => {
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
   const [isCollapsible, setIsCollapsible] = useState(false);
@@ -34,6 +35,16 @@ const PostCard = ({
   const onTextLayout = (e) => {
     setIsCollapsible(e.nativeEvent.lines.length >= 3);
   };
+
+  const arr = [
+    "https://media.tenor.com/images/ca44459fa809cae4148f546bad365c3c/tenor.gif",
+    "https://media.tenor.com/images/d20c2a5be0cc352d6e9b844669215384/tenor.gif",
+    "https://media.tenor.com/images/93906acdac4b51dd43dd477db0a2af4a/tenor.gif",
+    "https://media.tenor.com/images/479aa2a5d7e4919d2db7e3f2e4d513dd/tenor.gif",
+    "https://c.tenor.com/qYUyuAE82gUAAAAM/meme-goodmorning.gif",
+    "https://media.tenor.com/images/4801c7fd8200ea05d687b52c38d5976f/tenor.gif",
+    "https://media.tenor.com/images/bdae1effabc25c006c273050dcb4f10f/tenor.gif",
+  ];
 
   // if (unmount) {
   //   return (
@@ -48,14 +59,7 @@ const PostCard = ({
   // }
   return (
     <View style={{ flex: 1 }}>
-      {/* {console.log(post._id)}
-      <Text style={{ color: "white" }}>{post._id}</Text> */}
-      {/* {adsManager ? (
-        <AdCard
-          adsManager={adsManager}
-          onAdLoaded={(ad) => setReadyAdsCount(readyAdsCount + 1)}
-        />
-      ) : null} */}
+      <Text style={{ color: "white" }}>{post._id}</Text>
       <View style={[styles.container, isPreview && styles.preview]}>
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           {post.postAuthor ? <PostAuthor author={post.postAuthor} /> : null}
@@ -149,12 +153,12 @@ const PostCard = ({
                         source={require("../../../assets/via_tenor_logo_blue.png")}
                       />
                     </View>
-                    <FastImage
+                    <Image
                       resizeMode={"contain"}
                       style={{
                         aspectRatio: 1 / 1,
                         width: screenWidth || 300,
-                        height: "100%",
+                        height: screenWidth,
                       }}
                       source={{
                         uri: post.gif,
@@ -170,6 +174,7 @@ const PostCard = ({
                     }}
                   >
                     <VideoPlayer
+                      disableVideo={disableVideo}
                       shouldPlay={isVisible}
                       mediaIsSelfie={post.mediaIsSelfie}
                       url={post.mediaUrl}
@@ -302,7 +307,5 @@ export default React.memo(
   (prevProps, nextProps) =>
     prevProps.isVisible === nextProps.isVisible &&
     prevProps.post === nextProps.post &&
-    prevProps.deleted === nextProps.deleted &&
-    prevProps.isVisible === nextProps.isVisible &&
-    prevProps.unmount === nextProps.unmount
+    prevProps.deleted === nextProps.deleted
 );

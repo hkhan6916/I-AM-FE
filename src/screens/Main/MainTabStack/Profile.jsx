@@ -71,33 +71,31 @@ const ProfileScreen = () => {
     navigation.navigate("MediaScreen", { post });
   };
 
-  const rowRenderer = useCallback(
-    (type, item, index, extendedState) => {
-      //We have only one view type so not checks are needed here
-      if (type === ViewTypes.HEADER) {
-        return (
-          <ProfileScreenHeader
-            userData={extendedState.userData}
-            navigation={navigation}
-          />
-        );
-      }
-      if (!item.deleted) {
-        return (
-          <PostCard
-            post={item}
-            setShowPostOptions={triggerOptionsModal}
-            screenHeight={screenHeight}
-            screenWidth={screenWidth}
-            handleNavigation={handleNavigation}
-            isVisible={false}
-            unmount={!isFocussed}
-          />
-        );
-      }
-    },
-    [userPosts]
-  );
+  const rowRenderer = useCallback((type, item, index, extendedState) => {
+    //We have only one view type so not checks are needed here
+    if (type === ViewTypes.HEADER) {
+      return (
+        <ProfileScreenHeader
+          userData={extendedState.userData}
+          navigation={navigation}
+        />
+      );
+    }
+    if (!item.deleted) {
+      return (
+        <PostCard
+          post={item}
+          setShowPostOptions={triggerOptionsModal}
+          screenHeight={screenHeight}
+          screenWidth={screenWidth}
+          handleNavigation={handleNavigation}
+          isVisible={false}
+          unmount={!isFocussed}
+          disableVideo
+        />
+      );
+    }
+  }, []);
 
   let dataProvider = new DataProvider(
     (r1, r2) => {
@@ -118,7 +116,7 @@ const ProfileScreen = () => {
       },
       (_, dim) => {
         dim.width = screenWidth;
-        dim.height = 490;
+        dim.height = 600;
       }
     )
   ).current;

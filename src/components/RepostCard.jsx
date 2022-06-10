@@ -92,14 +92,14 @@ const RepostCard = ({ postContent, isPreview }) => {
               flexDirection: "column",
             }}
           >
-            <FastImage
+            <Image
               resizeMode={"contain"}
               style={{
                 aspectRatio: 1 / 1,
                 width: "100%",
                 height: "100%",
               }}
-              source={{ uri: postContent.gif, cache: "web" }}
+              source={{ uri: postContent.gif }}
             />
           </View>
         ) : postContent.mediaType === "video" ? (

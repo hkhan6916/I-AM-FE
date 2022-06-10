@@ -1,5 +1,5 @@
 import React from "react";
-import { View, TouchableHighlight } from "react-native";
+import { View, TouchableHighlight, Image } from "react-native";
 import FastImage from "react-native-fast-image";
 import themeStyle from "../theme.style";
 import { Ionicons } from "@expo/vector-icons";
@@ -37,7 +37,7 @@ const Avatar = ({
         underlayColor={themeStyle.colors.grayscale.high}
       >
         {avatarUrl ? (
-          <FastImage
+          <Image
             source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}
             style={{
               borderRadius: 10,
@@ -67,7 +67,7 @@ const Avatar = ({
     ) : (
       <View>
         {avatarUrl ? (
-          <FastImage
+          <Image
             source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}
             resizeMode={FastImage.resizeMode.cover}
             style={{

@@ -152,7 +152,6 @@ const HomeScreen = () => {
   };
 
   const getUserFeed = async () => {
-    console.log("on end reached");
     if (!allPostsLoaded && !refreshing && !loading) {
       const offsets = await calculateOffsets();
       setLoading(true);
@@ -171,13 +170,13 @@ const HomeScreen = () => {
             ...response.feed.map((post) => post._id.toString()),
           ];
           setPostIds(ids);
-          // setFeed([
-          //   ...feed,
-          //   ...response.feed.filter((post) => {
-          //     if (!postIds.includes(post._id.toString())) return post;
-          //   }),
-          // ]);
-          setFeed([...feed, ...(response.feed || [])]);
+          setFeed([
+            ...feed,
+            ...response.feed.filter((post) => {
+              if (!postIds.includes(post._id.toString())) return post;
+            }),
+          ]);
+          // setFeed([...feed, ...(response.feed || [])]);
           // dataProvider.cloneWithRows([
           //   ...feed,
           //   ...response.feed.filter((post) => {
@@ -249,28 +248,25 @@ const HomeScreen = () => {
     }
   };
 
-  const rowRenderer = useCallback(
-    (_, item, index, extendedState) => {
-      return (
-        <PostCard
-          setShowPostOptions={triggerOptionsModal}
-          loadingMore={loading && index === feed.length - 1}
-          isVisible={
-            extendedState.currentVisible === index && !extendedState.scrolling
-          }
-          currentVisible={extendedState.currentVisible}
-          index={index}
-          post={item}
-          screenHeight={screenHeight}
-          screenWidth={screenWidth}
-          handleReaction={handleReaction}
-          handleNavigation={handleNavigation}
-          unmount={!isFocussed}
-        />
-      );
-    },
-    [postIds, isFocussed]
-  );
+  const rowRenderer = useCallback((_, item, index, extendedState) => {
+    return (
+      <PostCard
+        setShowPostOptions={triggerOptionsModal}
+        loadingMore={loading && index === feed.length - 1}
+        isVisible={
+          extendedState.currentVisible === index && !extendedState.scrolling
+        }
+        currentVisible={extendedState.currentVisible}
+        index={index}
+        post={item}
+        screenHeight={screenHeight}
+        screenWidth={screenWidth}
+        handleReaction={handleReaction}
+        handleNavigation={handleNavigation}
+        unmount={!isFocussed}
+      />
+    );
+  }, []);
   const triggerOptionsModal = (post) => {
     setError("");
     setShowPostOptions(post);
@@ -308,12 +304,9 @@ const HomeScreen = () => {
     }
   }, [newPostCreated, feed]);
 
-  let dataProvider = new DataProvider(
-    (r1, r2) => {
-      return r1._id !== r2._id || r1.liked !== r2.liked;
-    }
-    // (index) => `${feed[index]?._id}`
-  ).cloneWithRows([...feed]);
+  let dataProvider = new DataProvider((r1, r2) => {
+    return r1._id !== r2._id || r1.liked !== r2.liked;
+  }).cloneWithRows(feed);
 
   const layoutProvider = useRef(
     new LayoutProvider(

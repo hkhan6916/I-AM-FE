@@ -208,10 +208,10 @@ const EditPostScreen = (props) => {
                     padding: 5,
                   }}
                 >
-                  <FastImage
+                  <Image
                     resizeMode="contain"
                     style={{ width: "100%", height: "100%" }}
-                    source={{ uri: existingPost?.gif, cache: "web" }}
+                    source={{ uri: existingPost?.gif }}
                   />
                 </View>
               ) : existingPost?.mediaType === "video" ? (

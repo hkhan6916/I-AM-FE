@@ -533,10 +533,10 @@ const AddScreen = () => {
                   padding: 5,
                 }}
               >
-                <FastImage
+                <Image
                   resizeMode="cover"
                   style={{ width: "100%", height: "100%" }}
-                  source={{ uri: gif, cache: "web" }}
+                  source={{ uri: gif }}
                 />
               </View>
             ) : null}

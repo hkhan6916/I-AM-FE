@@ -1,5 +1,5 @@
 import React from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+import { View, TouchableOpacity, Text, Image } from "react-native";
 import themeStyle from "../theme.style";
 import Avatar from "./Avatar";
 import { Feather } from "@expo/vector-icons";
@@ -33,7 +33,7 @@ const SearchFeedItem = ({ post }) => {
             opacity: 1,
           }}
         >
-          <FastImage
+          <Image
             source={{
               uri: post.thumbnailUrl || post.mediaUrl,
               headers: post.thumbnailHeaders || post.mediaHeaders,

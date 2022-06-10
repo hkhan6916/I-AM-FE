@@ -6,6 +6,7 @@ import {
   Text,
   Dimensions,
   SafeAreaView,
+  Image,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import themeStyle from "../theme.style";
@@ -69,7 +70,7 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
             setShowModal(false);
           }}
         >
-          <FastImage
+          <Image
             style={{
               justifyContent: "center",
               alignItems: "center",
@@ -78,7 +79,6 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
             }}
             source={{
               uri: item.media[0].nanogif.url,
-              cache: FastImage.cacheControl.web,
             }}
 
             // mediaUrl={item.media[0].tinygif.url}

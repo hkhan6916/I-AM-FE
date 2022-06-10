@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import FastImage from "react-native-fast-image";
 import { AntDesign } from "@expo/vector-icons";
@@ -66,13 +67,13 @@ const ImageWithCache = ({
               />
             </TouchableOpacity>
           </View>
-          <FastImage
+          <Image
             onError={() => {
               if (onError) {
                 onError();
               }
             }}
-            resizeMode={FastImage.resizeMode.contain}
+            resizeMode={"contain"}
             source={{ uri: mediaUrl, headers: mediaHeaders || {} }}
             style={{
               borderRadius: removeBorderRadius ? 0 : 10,

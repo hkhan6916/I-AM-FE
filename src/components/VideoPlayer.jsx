@@ -11,6 +11,7 @@ import themeStyle from "../theme.style";
 import { Feather } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import CardImage from "./CardImage";
+import { EvilIcons } from "@expo/vector-icons";
 
 const VideoPlayer = ({
   url,
@@ -26,6 +27,7 @@ const VideoPlayer = ({
   screenHeight = 600,
   height,
   width,
+  disableVideo,
 }) => {
   const [unMute, setUnMute] = useState(false);
 
@@ -60,7 +62,20 @@ const VideoPlayer = ({
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View>
+      <View
+        style={[
+          {
+            // aspectRatio: aspectRatio || 1,
+            height: decidedHeight,
+            width: Math.min(screenWidth, screenHeight), // math.min needed for when user switches back from landscape
+          },
+          (!height || !width) && {
+            width: screenWidth,
+            height: "100%",
+            aspectRatio: 1 / 1,
+          },
+        ]}
+      >
         {isUploading || isCancelled ? (
           <Text
             style={{
@@ -97,7 +112,11 @@ const VideoPlayer = ({
               width={width}
             />
           </View> */}
-          {!readyForDisplay || isUploading || isCancelled || preventPlay ? (
+          {!readyForDisplay ||
+          isUploading ||
+          isCancelled ||
+          preventPlay ||
+          disableVideo ? (
             <CardImage
               mediaHeaders={thumbnailHeaders}
               mediaUrl={thumbnailUrl}
@@ -105,20 +124,13 @@ const VideoPlayer = ({
               screenHeight={screenHeight}
               height={height}
               width={width}
-              style={[
-                !readyForDisplay && {
-                  position: "absolute",
-                  top: 0,
-                  zIndex: 999,
-                },
-              ]}
             />
           ) : null}
+
           {/* {!preventPlay || shouldPlay ? ( */}
-          {!isUploading && !isCancelled && !preventPlay ? (
+          {!isUploading && !isCancelled && !preventPlay && !disableVideo ? (
             <Video
-              onLoad={(params) => {
-                // setVideoDimensions(params.naturalSize);
+              onReadyForDisplay={() => {
                 setReadyForDisplay(true);
               }}
               repeat
@@ -132,7 +144,7 @@ const VideoPlayer = ({
               style={[
                 {
                   // aspectRatio: aspectRatio || 1,
-                  height: decidedHeight,
+                  height: !readyForDisplay ? 0 : decidedHeight,
                   width: Math.min(screenWidth, screenHeight), // math.min needed for when user switches back from landscape
                 },
                 (!height || !width) && {
@@ -152,7 +164,7 @@ const VideoPlayer = ({
           ) : null}
           {/* ) : null} */}
 
-          {!showToggle && !readyForDisplay ? (
+          {(!showToggle && !readyForDisplay) || disableVideo ? (
             <View
               style={{
                 position: "absolute",
@@ -167,13 +179,17 @@ const VideoPlayer = ({
               <View
                 style={{
                   padding: 10,
+                  paddingLeft: 14,
+                  paddingRight: 6,
                   borderWidth: 3,
-                  borderColor: themeStyle.colors.black,
+                  borderColor: themeStyle.colors.white,
                   borderRadius: 50,
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 <Feather
-                  name={shouldPlay ? "pause" : "play"}
+                  name={shouldPlay && readyForDisplay ? "pause" : "play"}
                   size={48}
                   color={themeStyle.colors.white}
                   style={{

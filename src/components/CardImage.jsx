@@ -1,6 +1,7 @@
 import FastImage from "react-native-fast-image";
 import React from "react";
 import themeStyle from "../theme.style";
+import { Image } from "react-native";
 
 const CardImage = ({
   screenWidth,
@@ -18,7 +19,7 @@ const CardImage = ({
   const decidedHeight =
     calculatedImage < screenHeight / 1.4 ? calculatedImage : screenHeight / 1.4;
   return (
-    <FastImage
+    <Image
       source={{
         uri: mediaUrl,
         headers: mediaHeaders,
@@ -32,7 +33,7 @@ const CardImage = ({
         },
         (!height || !width) && {
           width: screenWidth,
-          height: "100%",
+          height: screenWidth,
           aspectRatio: 1 / 1,
         },
         style,

@@ -88,4 +88,7 @@ const HomeScreenHeader = ({ userData, navigation }) => {
   );
 };
 
-export default React.memo(HomeScreenHeader);
+export default React.memo(
+  HomeScreenHeader,
+  (prevProps, nextProps) => prevProps.userData === nextProps.userData
+);

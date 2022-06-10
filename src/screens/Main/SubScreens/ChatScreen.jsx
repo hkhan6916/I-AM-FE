@@ -875,7 +875,7 @@ const ChatScreen = (props) => {
           ]}
         >
           {media?.type?.includes("image") ? (
-            <FastImage
+            <Image
               style={{
                 borderRadius: 10,
                 aspectRatio: 1 / 1,

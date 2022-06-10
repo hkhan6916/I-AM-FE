@@ -173,14 +173,14 @@ const PostScreen = (props) => {
                     flexDirection: "column",
                   }}
                 >
-                  <FastImage
+                  <Image
                     resizeMode={"contain"}
                     style={{
                       aspectRatio: 1 / 1,
                       width: "100%",
                       height: "100%",
                     }}
-                    source={{ uri: post.gif, cache: "web" }}
+                    source={{ uri: post.gif }}
                   />
                 </View>
               ) : post.mediaType === "video" ? (

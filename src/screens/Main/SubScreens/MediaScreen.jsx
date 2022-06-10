@@ -114,26 +114,26 @@ const MediaScreen = (props) => {
       <SafeAreaView style={styles.container}>
         <View>
           {post?.mediaType === "video" ? (
-            <ExpoVideoPlayer
-              isSelfie={post.mediaIsSelfie}
-              uri={post.mediaUrl}
+            // <ExpoVideoPlayer
+            //   isSelfie={post.mediaIsSelfie}
+            //   uri={post.mediaUrl}
+            // />
+            <VideoPlayer
+              source={{ uri: post.mediaUrl }}
+              navigator={navigation}
+              videoStyle={{
+                transform: [{ scaleX: post.mediaIsSelfie ? -1 : 1 }],
+                // height: "100%",
+              }}
+              onError={(e) => console.log(e)}
+              style={{ width: screenWidth }}
+              paused={!isFocused}
+              disableFullscreen
+              fullscreen={false}
+              controlAnimationTiming={100}
+              // scrubbing={1000}
             />
-          ) : // <VideoPlayer
-          //   source={{ uri: post.mediaUrl }}
-          //   navigator={navigation}
-          //   videoStyle={{
-          //     transform: [{ scaleX: post.mediaIsSelfie ? -1 : 1 }],
-          //     // height: "100%",
-          //   }}
-          //   onError={(e) => console.log(e)}
-          //   style={{ width: screenWidth }}
-          //   paused={!isFocused}
-          //   disableFullscreen
-          //   fullscreen={false}
-          //   controlAnimationTiming={100}
-          //   // scrubbing={1000}
-          // />
-          post?.mediaType === "image" ? (
+          ) : post?.mediaType === "image" ? (
             <View
               style={{
                 alignItems: "center",
