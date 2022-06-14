@@ -2,9 +2,8 @@ import { DeviceMotion } from "expo-sensors";
 import { useEffect, useState } from "react";
 import { Dimensions, Platform } from "react-native";
 
-function useOrientation() {
+const useOrientation = (disabled) => {
   const [orientation, setOrientation] = useState("portrait");
-
   useEffect(() => {
     (async () => {
       if ((await DeviceMotion.isAvailableAsync()) && Platform.OS === "ios") {
@@ -29,7 +28,7 @@ function useOrientation() {
             }
           }
 
-          if (rotate !== orientation) {
+          if (rotate !== orientation && !disabled) {
             setOrientation(rotate);
           }
         });
@@ -38,9 +37,9 @@ function useOrientation() {
     return async () => {
       if (Platform.OS === "ios") DeviceMotion.removeAllListeners();
     };
-  }, []);
+  }, [disabled]);
 
   return orientation;
-}
+};
 
 export default useOrientation;

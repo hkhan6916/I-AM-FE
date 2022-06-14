@@ -58,17 +58,15 @@ const SCALE_FULL_ZOOM = 3;
 const BUTTON_SIZE = 40;
 
 const CameraStandard = ({
-  navigation,
   setCameraActive,
   recording,
   setFile,
   setRecording,
 }) => {
   const screenOrientation = useScreenOrientation(true);
-  const orientation = useOrientation();
+  const orientation = useOrientation(recording);
 
-  const iosSpecificProps =
-    Platform.OS === "ios" ? { orientation: orientation } : {};
+  const iosSpecificProps = Platform.OS === "ios" ? { orientation } : {};
 
   const camera = useRef(null);
   const [isCameraInitialized, setIsCameraInitialized] = useState(false);
@@ -476,6 +474,7 @@ const CameraStandard = ({
           flash={supportsFlash ? flash : "off"}
           enabled={isCameraInitialized && isActive}
           setIsPressingButton={setIsPressingButton}
+          setRecording={setRecording}
         />
       </View>
 

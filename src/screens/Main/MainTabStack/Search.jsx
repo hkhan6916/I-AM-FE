@@ -107,12 +107,12 @@ const SearchScreen = () => {
   );
 
   const thumbnailRenderer = useCallback(
-    (_, item) => {
+    (_, item, index, extendedState) => {
       return (
         <UserThumbnail
           key={item._id}
           user={item}
-          avatarSize={70}
+          avatarSize={extendedState?.showAllResults ? 70 : 40}
           fontSize={12}
         />
       );
@@ -260,16 +260,15 @@ const SearchScreen = () => {
               rowRenderer={thumbnailRenderer}
               onEndReached={() => onEndReached()}
               onEndReachedThreshold={0.5}
+              extendedState={{ showAllResults }}
             />
           ) : results.length ? (
-            <FlatList
-              data={results}
-              renderItem={renderThumbnail}
-              keyExtractor={searchResultsKeyExtractor}
-              keyboardShouldPersistTaps={"always"}
-              initialNumToRender={10}
-              maxToRenderPerBatch={20}
-              removeClippedSubviews
+            <RecyclerListView
+              style={{ minHeight: 1, minWidth: 1 }}
+              dataProvider={userDataProvider}
+              layoutProvider={userLayoutProvider}
+              rowRenderer={thumbnailRenderer}
+              onEndReachedThreshold={0.5}
             />
           ) : null}
           {!hideFeedAndSuggestions &&

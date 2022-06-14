@@ -43,6 +43,7 @@ const HomeScreen = () => {
   const [isFocussed, setFocussed] = useState(false);
   const initialFeed = useContext(FeedContext);
   const [feed, setFeed] = useState(initialFeed);
+  const [originalFeed, setOriginalFeed] = useState(initialFeed);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [userData, setUserData] = useState({});
   const [postIds, setPostIds] = useState([]);
@@ -61,24 +62,34 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const flatlistRef = useRef(null);
   const [scrolling, setScrolling] = useState(false);
+  const [positionBeforeScroll, setPositionBeforeScroll] = useState(0);
 
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
-  useScrollToTop(flatlistRef);
 
+  useScrollToTop(
+    useRef({
+      scrollToTop: () => {
+        setCurrentVisible(0);
+        flatlistRef.current?.scrollToOffset({ offset: 2000 });
+      },
+    })
+  );
+
+  console.log({ currentVisible });
   // const adsManager = new FacebookAds.NativeAdsManager(
   //   "3130380047243958_3167702336845062",
   //   10
   // );
 
   const calculateOffsets = async () => {
-    if (!feed?.length) {
+    if (!originalFeed?.length) {
       return {};
     }
     let i = 0;
 
     let friendsInterestsOffset = 0;
-    while (i < feed.length) {
-      if (feed[i]?.likedBy) {
+    while (i < originalFeed.length) {
+      if (originalFeed[i]?.likedBy) {
         friendsInterestsOffset += 1;
       }
       i += 1;
@@ -86,7 +97,7 @@ const HomeScreen = () => {
 
     return {
       friendsInterestsOffset,
-      feedTimelineOffset: feed.length - friendsInterestsOffset,
+      feedTimelineOffset: originalFeed.length - friendsInterestsOffset,
       connectionsAsSenderOffset: connectionsAsSenderOffset,
       connectionsAsReceiverOffset: connectionsAsReceiverOffset,
     };
@@ -165,17 +176,16 @@ const HomeScreen = () => {
         if (!response.feed?.length) {
           setAllPostsLoaded(true);
         } else {
+          const noDuplicatesResponse = response.feed.filter((post) => {
+            if (!postIds.includes(post._id.toString())) return post;
+          });
+          setOriginalFeed([...originalFeed, ...(response.feed || [])]);
+          setFeed([...feed, ...noDuplicatesResponse]);
           const ids = [
             ...postIds,
             ...response.feed.map((post) => post._id.toString()),
           ];
           setPostIds(ids);
-          setFeed([
-            ...feed,
-            ...response.feed.filter((post) => {
-              if (!postIds.includes(post._id.toString())) return post;
-            }),
-          ]);
           // setFeed([...feed, ...(response.feed || [])]);
           // dataProvider.cloneWithRows([
           //   ...feed,
@@ -248,35 +258,38 @@ const HomeScreen = () => {
     }
   };
 
-  const rowRenderer = useCallback((_, item, index, extendedState) => {
-    return (
-      <PostCard
-        setShowPostOptions={triggerOptionsModal}
-        loadingMore={loading && index === feed.length - 1}
-        isVisible={
-          extendedState.currentVisible === index && !extendedState.scrolling
-        }
-        currentVisible={extendedState.currentVisible}
-        index={index}
-        post={item}
-        screenHeight={screenHeight}
-        screenWidth={screenWidth}
-        handleReaction={handleReaction}
-        handleNavigation={handleNavigation}
-        unmount={!isFocussed}
-      />
-    );
-  }, []);
+  const rowRenderer = useCallback(
+    (_, item, index, extendedState) => {
+      console.log(extendedState);
+      return (
+        <PostCard
+          setShowPostOptions={triggerOptionsModal}
+          loadingMore={loading && index === feed.length - 1}
+          isVisible={
+            extendedState.currentVisible === index &&
+            !extendedState.scrolling &&
+            isFocussed
+          }
+          currentVisible={extendedState.currentVisible}
+          index={index}
+          post={item}
+          screenHeight={screenHeight}
+          screenWidth={screenWidth}
+          handleReaction={handleReaction}
+          handleNavigation={handleNavigation}
+        />
+      );
+    },
+    [isFocussed]
+  );
   const triggerOptionsModal = (post) => {
     setError("");
     setShowPostOptions(post);
   };
 
   useEffect(() => {
-    (async () => {
-      await FastImage.clearMemoryCache();
-    })();
     navigation.addListener("focus", async () => {
+      FastImage.clearMemoryCache();
       setFocussed(true);
       setPreventCleanup(false);
       const { success, response } = await apiCall("GET", "/user/data");
@@ -304,9 +317,12 @@ const HomeScreen = () => {
     }
   }, [newPostCreated, feed]);
 
-  let dataProvider = new DataProvider((r1, r2) => {
-    return r1._id !== r2._id || r1.liked !== r2.liked;
-  }).cloneWithRows(feed);
+  let dataProvider = new DataProvider(
+    (r1, r2) => {
+      return r1._id !== r2._id || r1.liked !== r2.liked;
+    }
+    // (index) => `${postIds[index]}`
+  ).cloneWithRows(feed);
 
   const layoutProvider = useRef(
     new LayoutProvider(
@@ -317,6 +333,11 @@ const HomeScreen = () => {
       }
     )
   ).current;
+
+  const _applyWindowCorrection = (offset, offsetY, windowCorrection) => {
+    // This may need to be calculated based on screen height but works for now
+    windowCorrection.startCorrection = 220;
+  };
 
   if (feed.length) {
     return (
@@ -332,6 +353,8 @@ const HomeScreen = () => {
             </View>
           ) : null}
           <RecyclerListView
+            ref={flatlistRef}
+            applyWindowCorrection={_applyWindowCorrection}
             style={{ minHeight: 1, minWidth: 1 }}
             dataProvider={dataProvider}
             layoutProvider={layoutProvider}
@@ -343,12 +366,21 @@ const HomeScreen = () => {
             renderAheadOffset={screenHeight}
             forceNonDeterministicRendering
             renderFooter={renderFooter}
-            onScroll={() => !scrolling && setScrolling(true)}
-            onVisibleIndicesChanged={async (items) => {
-              if (items[0] % 5 === 0) {
-                await FastImage.clearMemoryCache();
+            onScroll={(event) => {
+              if (
+                !scrolling &&
+                Math.abs(
+                  event.nativeEvent.contentOffset.y - positionBeforeScroll
+                ) > 300 &&
+                currentVisible !== 0
+                // if they scroll far enough, enable scroll to pause video
+              ) {
+                setScrolling(true);
+                setPositionBeforeScroll(event.nativeEvent.contentOffset.y);
               }
-              if (items[0] && items[0] !== currentVisible) {
+            }}
+            onVisibleIndicesChanged={async (items) => {
+              if (typeof items[0] === "number" && items[0] !== currentVisible) {
                 setCurrentVisible(items[0]);
               }
             }}
@@ -360,6 +392,9 @@ const HomeScreen = () => {
                   setScrolling(false);
                 }
               },
+              refreshControl: (
+                <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+              ),
             }}
           />
         </View>
@@ -386,7 +421,7 @@ const HomeScreen = () => {
       {/* <Button title="test" onPress={() => navigation.navigate("AdScreen")} /> */}
 
       <SafeAreaView>
-        <HomeScreenHeader userData={userData} navigation={navigation} />
+        {/* <HomeScreenHeader userData={userData} navigation={navigation} /> */}
         {newPostCreated.state ? (
           <Text style={styles.newPostPill}>
             Post {newPostCreated.state.type}

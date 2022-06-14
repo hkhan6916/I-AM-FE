@@ -11,9 +11,8 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
 } from "react-native";
-// import { Camera } from "expo-camera";
 import { Camera, useCameraDevices } from "react-native-vision-camera";
-import { Ionicons, EvilIcons } from "@expo/vector-icons";
+import { EvilIcons } from "@expo/vector-icons";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import Constants from "expo-constants";
 import themeStyle from "../theme.style";

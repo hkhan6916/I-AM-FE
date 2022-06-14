@@ -20,8 +20,8 @@ const HomeScreenHeader = ({ userData, navigation }) => {
       />
       <View
         style={{
-          display: "flex",
           flexDirection: "row",
+          height: 48,
           alignItems: "center",
           justifyContent: "space-between",
           backgroundColor:

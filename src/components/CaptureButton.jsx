@@ -34,6 +34,7 @@ const _CaptureButton = ({
   flash,
   enabled,
   setIsPressingButton,
+  setRecording,
   style,
   ...props
 }) => {
@@ -54,7 +55,6 @@ const _CaptureButton = ({
 
   //#region Camera Capture
   const takePhoto = useCallback(async () => {
-    console.log("hey");
     try {
       if (camera.current == null) throw new Error("Camera ref is null!");
 
@@ -73,9 +73,9 @@ const _CaptureButton = ({
   }, [recordingProgress]);
   const stopRecording = useCallback(async () => {
     try {
-      if (camera.current == null) throw new Error("Camera ref is null!");
-
+      if (camera.current == null) return; //throw new Error("Camera ref is null!");
       console.log("calling stopRecording()...");
+      setRecording(false);
       await camera.current.stopRecording();
       console.log("called stopRecording()!");
     } catch (e) {
@@ -84,8 +84,8 @@ const _CaptureButton = ({
   }, [camera]);
   const startRecording = useCallback(() => {
     try {
-      if (camera.current == null) throw new Error("Camera ref is null!");
-
+      if (camera.current == null) return; //throw new Error("Camera ref is null!");
+      setRecording(true);
       camera.current.startRecording({
         flash: flash,
         onRecordingError: (error) => {

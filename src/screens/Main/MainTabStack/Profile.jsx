@@ -191,7 +191,6 @@ const ProfileScreen = () => {
   useEffect(() => {
     (async () => {
       navigation.addListener("focus", async () => {
-        await FastImage.clearMemoryCache();
         await getUserPosts();
         await getUserData();
         setPreventCleanup(false);

@@ -120,8 +120,7 @@ const ImageWithCache = ({
             />
           </View>
         ) : null} */}
-        <FastImage
-          fallback
+        <Image
           onError={() => {
             if (onError) {
               onError();

@@ -42,6 +42,7 @@ const SearchFeedItem = ({ post }) => {
               width: 146,
               height: 146,
               opacity: 1,
+              backgroundColor: themeStyle.colors.grayscale.high,
             }}
           />
           <View style={{ flexDirection: "row", flex: 1 }}>
