@@ -9,6 +9,7 @@ import {
   Platform,
   KeyboardAvoidingView,
   Dimensions,
+  Text,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import PostCommentCard from "../../../components/PostCommentCard";
@@ -164,6 +165,46 @@ const CommentRepliesScreen = (props) => {
     }
   };
 
+  const handleReaction = async (reply) => {
+    if (!reply) return;
+    const oldReplies = replies;
+
+    if (reply?.liked) {
+      setReplies((prev) => {
+        return prev.map((p) => {
+          if (p?._id === reply?._id) {
+            return { ...p, liked: false, likes: (p.likes || 1) - 1 };
+          }
+          return p;
+        });
+      });
+      const { success } = await apiCall(
+        "GET",
+        `/posts/comment/like/remove/${reply._id}`
+      );
+      if (!success) {
+        setReplies(oldReplies);
+      }
+      return;
+    }
+
+    setReplies((prev) => {
+      return prev.map((p) => {
+        if (p._id === reply._id) {
+          return { ...p, liked: true, likes: (p.likes || 0) + 1 };
+        }
+        return p;
+      });
+    });
+    const { success } = await apiCall(
+      "GET",
+      `/posts/comment/like/add/${reply._id}`
+    );
+    if (!success) {
+      setReplies(oldReplies);
+    }
+  };
+
   const postComment = async (commentBody) => {
     // spinner to be added in the text input when this is loading
     const { response, success } = await apiCall(
@@ -212,6 +253,7 @@ const CommentRepliesScreen = (props) => {
               handleReplyToReply={handleReplyToReply}
               reply={item}
               setShowOptionsForComment={setShowOptionsForComment}
+              handleReaction={handleReaction}
             />
           );
         }
@@ -236,7 +278,12 @@ const CommentRepliesScreen = (props) => {
     )
   ).current;
   let dataProvider = new DataProvider((r1, r2) => {
-    return r1._id !== r2._id || r1.body !== r2.body;
+    return (
+      r1._id !== r2._id ||
+      r1.body !== r2.body ||
+      r1.likes !== r2.likes ||
+      r1.liked !== r2.liked
+    );
   }).cloneWithRows([{}, ...replies]);
 
   const keyExtractor = useCallback(
@@ -285,24 +332,23 @@ const CommentRepliesScreen = (props) => {
         keyboardVerticalOffset={93}
         style={{ flex: 1 }}
       >
-        {replies.length ? (
-          <RecyclerListView
-            style={{ minHeight: 1, minWidth: 1 }}
-            rowRenderer={rowRenderer}
-            extendedState={{ updated }}
-            dataProvider={dataProvider}
-            onEndReached={() => getCommentReplies(false, true)}
-            layoutProvider={layoutProvider}
-            onEndReachedThreshold={0.5}
-            forceNonDeterministicRendering
-            renderFooter={renderFooter}
-            scrollViewProps={{
-              refreshControl: (
-                <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-              ),
-            }}
-          />
-        ) : null}
+        <RecyclerListView
+          style={{ minHeight: 1, minWidth: 1 }}
+          rowRenderer={rowRenderer}
+          extendedState={{ updated }}
+          dataProvider={dataProvider}
+          onEndReached={() => getCommentReplies(false, true)}
+          layoutProvider={layoutProvider}
+          onEndReachedThreshold={0.5}
+          forceNonDeterministicRendering
+          renderFooter={renderFooter}
+          scrollViewProps={{
+            refreshControl: (
+              <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+            ),
+          }}
+        />
+
         {/* <FlatList
           data={replies}
           renderItem={renderItem}
