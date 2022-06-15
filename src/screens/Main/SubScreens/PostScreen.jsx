@@ -200,8 +200,6 @@ const PostScreen = (props) => {
                     thumbnailHeaders={post.thumbnailHeaders}
                     isUploading={post.ready === false}
                     isCancelled={post.cancelled}
-                    showToggle
-                    isMuted
                     screenHeight={screenHeight}
                     screenWidth={screenWidth}
                     height={post.height}

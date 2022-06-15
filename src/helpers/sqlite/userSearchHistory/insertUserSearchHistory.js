@@ -1,4 +1,5 @@
 const insertUserSearchHistory = async ({ db, searchQuery }) => {
+  if (!searchQuery) return;
   const date = Date.now().toString();
   db.transaction(
     (tx) => {

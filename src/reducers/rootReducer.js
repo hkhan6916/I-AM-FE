@@ -1,6 +1,10 @@
 import { combineReducers } from "redux";
 import { loggedInReducer, userDataReducer } from "./userReducer";
-import { postCreatedReducer, updatedPostReducer } from "./postsReducer";
+import {
+  postCreatedReducer,
+  updatedPostReducer,
+  globalUnMuteVideosReducer,
+} from "./postsReducer";
 import cameraActivatedReducer from "./cameraReducer";
 
 export default combineReducers({
@@ -9,4 +13,5 @@ export default combineReducers({
   postCreated: postCreatedReducer,
   cameraActivated: cameraActivatedReducer,
   updatedPost: updatedPostReducer,
+  globalUnMuteVideos: globalUnMuteVideosReducer,
 });

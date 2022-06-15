@@ -23,10 +23,8 @@ const PostCard = ({
   // liked,
   handleReaction,
   handleNavigation,
-  currentVisible,
-  index,
-  unmount,
   disableVideo,
+  setUnMuteVideos,
 }) => {
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
   const [isCollapsible, setIsCollapsible] = useState(false);
@@ -36,30 +34,10 @@ const PostCard = ({
     setIsCollapsible(e.nativeEvent.lines.length >= 3);
   };
 
-  const arr = [
-    "https://media.tenor.com/images/ca44459fa809cae4148f546bad365c3c/tenor.gif",
-    "https://media.tenor.com/images/d20c2a5be0cc352d6e9b844669215384/tenor.gif",
-    "https://media.tenor.com/images/93906acdac4b51dd43dd477db0a2af4a/tenor.gif",
-    "https://media.tenor.com/images/479aa2a5d7e4919d2db7e3f2e4d513dd/tenor.gif",
-    "https://c.tenor.com/qYUyuAE82gUAAAAM/meme-goodmorning.gif",
-    "https://media.tenor.com/images/4801c7fd8200ea05d687b52c38d5976f/tenor.gif",
-    "https://media.tenor.com/images/bdae1effabc25c006c273050dcb4f10f/tenor.gif",
-  ];
-
-  // if (unmount) {
-  //   return (
-  //     <View
-  //       style={{
-  //         aspectRatio: 1 / 1,
-  //         width: screenWidth || 300,
-  //         height: "100%",
-  //       }}
-  //     />
-  //   );
-  // }
   return (
     <View style={{ flex: 1 }}>
-      <Text style={{ color: "white" }}>{post._id}</Text>
+      {/* {console.log(isVisible)} */}
+      {/* <Text style={{ color: "white" }}>{post._id}</Text> */}
       <View style={[styles.container, isPreview && styles.preview]}>
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           {post.postAuthor ? <PostAuthor author={post.postAuthor} /> : null}
@@ -186,6 +164,8 @@ const PostCard = ({
                       screenWidth={screenWidth}
                       height={post.height}
                       width={post.width}
+                      unMute={!!post.unMute}
+                      setUnMuteVideos={setUnMuteVideos}
                     />
                   </View>
                 ) : post.mediaType === "image" ? (

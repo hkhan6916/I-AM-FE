@@ -54,7 +54,6 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(false);
   const [showPostOptions, setShowPostOptions] = useState(null);
   const [error, setError] = useState("");
-  const [preventCleanup, setPreventCleanup] = useState(false);
   const [feedError, setFeedError] = useState("");
   const [currentVisible, setCurrentVisible] = useState(0);
   const [prevVisible, setPrevVisible] = useState(0);
@@ -75,7 +74,6 @@ const HomeScreen = () => {
     })
   );
 
-  console.log({ currentVisible });
   // const adsManager = new FacebookAds.NativeAdsManager(
   //   "3130380047243958_3167702336845062",
   //   10
@@ -121,7 +119,6 @@ const HomeScreen = () => {
   );
 
   const handleNavigation = (post) => {
-    setPreventCleanup(true);
     navigation.navigate("MediaScreen", { post });
   };
 
@@ -198,7 +195,7 @@ const HomeScreen = () => {
         }
       } else if (feed.length) {
         setFeedError(
-          "Sorry... Magnet could not any load posts, please try again later."
+          "Sorry... there was a problem loading more posts, please try again later."
         );
         setAllPostsLoaded(true);
       }
@@ -258,9 +255,16 @@ const HomeScreen = () => {
     }
   };
 
+  const handleUnMute = (state) => {
+    dispatch({ type: "SET_GLOBAL_UNMUTE_VIDEOS", payload: state });
+
+    // setFeed((prevFeed) => {
+    //   return prevFeed.map((post) => ({ ...post, unMute: state }));
+    // });
+  };
+
   const rowRenderer = useCallback(
     (_, item, index, extendedState) => {
-      console.log(extendedState);
       return (
         <PostCard
           setShowPostOptions={triggerOptionsModal}
@@ -270,6 +274,7 @@ const HomeScreen = () => {
             !extendedState.scrolling &&
             isFocussed
           }
+          setUnMuteVideos={handleUnMute}
           currentVisible={extendedState.currentVisible}
           index={index}
           post={item}
@@ -291,7 +296,6 @@ const HomeScreen = () => {
     navigation.addListener("focus", async () => {
       FastImage.clearMemoryCache();
       setFocussed(true);
-      setPreventCleanup(false);
       const { success, response } = await apiCall("GET", "/user/data");
       if (success) {
         setUserData(response);
@@ -421,7 +425,7 @@ const HomeScreen = () => {
       {/* <Button title="test" onPress={() => navigation.navigate("AdScreen")} /> */}
 
       <SafeAreaView>
-        {/* <HomeScreenHeader userData={userData} navigation={navigation} /> */}
+        <HomeScreenHeader userData={userData} navigation={navigation} />
         {newPostCreated.state ? (
           <Text style={styles.newPostPill}>
             Post {newPostCreated.state.type}
@@ -461,7 +465,7 @@ const HomeScreen = () => {
                 style={{
                   marginBottom: 20,
                   fontWeight: "700",
-                  color: themeStyle.colors.graysczale.lowest,
+                  color: themeStyle.colors.grayscale.lowest,
                 }}
               >
                 Try adding some people.

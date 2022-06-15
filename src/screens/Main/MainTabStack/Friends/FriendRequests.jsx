@@ -1,16 +1,21 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   RefreshControl,
-  FlatList,
+  Dimensions,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../../../../theme.style";
 import apiCall from "../../../../helpers/apiCall";
 import UserThumbnail from "../../../../components/UserThumbnail";
+import {
+  DataProvider,
+  LayoutProvider,
+  RecyclerListView,
+} from "recyclerlistview";
 
 const FriendRequestsScreen = () => {
   const [currentTab, setCurrentTab] = useState("received");
@@ -18,6 +23,7 @@ const FriendRequestsScreen = () => {
   const [friendRequestsSent, setFriendRequestsSent] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
+  const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
   const getFriendRequests = async () => {
     const { success, response } = await apiCall("GET", "/user/friend/requests");
@@ -30,21 +36,30 @@ const FriendRequestsScreen = () => {
       setFriendRequestsSent([...friendRequestsSent, ...response.sent]);
     }
   };
-
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await getFriendRequests();
     setRefreshing(false);
   }, []);
-
-  const renderItem = useCallback(
-    ({ item: friend }) => <UserThumbnail user={friend} avatarSize={50} />,
+  const rowRenderer = useCallback(
+    (_, item) => <UserThumbnail user={item} avatarSize={50} />,
     [friendRequestsReceived.length, friendRequestsSent.length]
   );
 
-  const keyExtractor = useCallback(
-    (item) => item._id,
-    [friendRequestsReceived.length, friendRequestsSent.length]
+  const layoutProvider = useRef(
+    new LayoutProvider(
+      () => 0,
+      (_, dim) => {
+        dim.width = screenWidth;
+        dim.height = 80;
+      }
+    )
+  ).current;
+
+  let dataProvider = new DataProvider((r1, r2) => {
+    return r1._id !== r2._id;
+  }).cloneWithRows(
+    currentTab === "received" ? friendRequestsReceived : friendRequestsSent
   );
 
   useEffect(() => {
@@ -93,23 +108,23 @@ const FriendRequestsScreen = () => {
           </Text>
         </TouchableOpacity>
       </View>
-      <FlatList
-        data={
-          currentTab === "received"
-            ? friendRequestsReceived
-            : friendRequestsSent
-        }
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        refreshControl={
-          <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-        }
-        contentContainerStyle={{ flexGrow: 1 }}
-        onEndReached={() => getFriendRequests()}
-        onEndReachedThreshold={0.5}
-        initialNumToRender={10}
-        maxToRenderPerBatch={5}
-      />
+
+      {(friendRequestsReceived.length && currentTab === "received") ||
+      (friendRequestsSent.length && currentTab === "sent") ? (
+        <RecyclerListView
+          style={{ minHeight: 1, minWidth: 1 }}
+          rowRenderer={rowRenderer}
+          dataProvider={dataProvider}
+          onEndReached={() => getFriendRequests()}
+          layoutProvider={layoutProvider}
+          onEndReachedThreshold={0.5}
+          scrollViewProps={{
+            refreshControl: (
+              <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+            ),
+          }}
+        />
+      ) : null}
     </View>
   );
 };

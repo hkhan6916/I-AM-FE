@@ -39,6 +39,7 @@ const LoginScreen = () => {
     if (success && response.token) {
       await setItemAsync("userId", response.userId);
       await setItemAsync("authToken", response.token);
+      dispatch({ type: "SET_USER_DATA", payload: response.userData });
 
       Object.keys(response.apiKeys)?.forEach(async (key) => {
         await setItemAsync(key, response.apiKeys[key]);
@@ -55,7 +56,6 @@ const LoginScreen = () => {
           { notificationToken: token }
         );
         if (success) {
-          console.log(message);
           await setItemAsync("notificationToken", token);
         }
       }

@@ -21,3 +21,15 @@ export const updatedPostReducer = (state = null, action) => {
       return state;
   }
 };
+
+export const globalUnMuteVideosReducer = (state = null, action) => {
+  switch (action.type) {
+    case "SET_GLOBAL_UNMUTE_VIDEOS":
+      return {
+        ...state,
+        state: action.payload,
+      };
+    default:
+      return state;
+  }
+};

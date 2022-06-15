@@ -11,12 +11,10 @@ import themeStyle from "../theme.style";
 import { Feather } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import CardImage from "./CardImage";
-import { EvilIcons } from "@expo/vector-icons";
-
+import { useSelector } from "react-redux";
 const VideoPlayer = ({
   url,
   shouldPlay,
-  isMuted,
   showToggle,
   thumbnailUrl,
   thumbnailHeaders,
@@ -28,12 +26,13 @@ const VideoPlayer = ({
   height,
   width,
   disableVideo,
+  setUnMuteVideos,
 }) => {
-  const [unMute, setUnMute] = useState(false);
-
   const calculatedVideoHeight =
     height && width && (Number(height) / Number(width)) * screenWidth;
-
+  const globalUnMuteVideos = useSelector(
+    (state) => state.globalUnMuteVideos
+  )?.state;
   const decidedHeight =
     calculatedVideoHeight < screenHeight / 1.4
       ? calculatedVideoHeight
@@ -133,10 +132,10 @@ const VideoPlayer = ({
               onReadyForDisplay={() => {
                 setReadyForDisplay(true);
               }}
-              repeat
+              repeat={true}
               // isMuted={(!showToggle || isMuted) && !unMute}
               paused={!shouldPlay}
-              muted={(!showToggle || isMuted) && !unMute}
+              muted={!globalUnMuteVideos}
               // shouldPlay={shouldPlay || !preventPlay}
               ref={video}
               playInBackground={false}
@@ -149,7 +148,7 @@ const VideoPlayer = ({
                 },
                 (!height || !width) && {
                   width: screenWidth,
-                  height: "100%",
+                  height: !readyForDisplay ? 0 : "100%",
                   aspectRatio: 1 / 1,
                 },
               ]}
@@ -164,7 +163,7 @@ const VideoPlayer = ({
           ) : null}
           {/* ) : null} */}
 
-          {(!showToggle && !readyForDisplay) || disableVideo ? (
+          {(!showToggle && !readyForDisplay) || disableVideo || !shouldPlay ? (
             <View
               style={{
                 position: "absolute",
@@ -206,17 +205,32 @@ const VideoPlayer = ({
             </View>
           ) : null}
 
-          {isMuted || unMute ? (
-            <View style={{ position: "absolute", right: 10, top: 10 }}>
-              <TouchableOpacity onPress={() => setUnMute(!unMute)}>
-                <Ionicons
-                  name={!unMute ? "ios-volume-mute" : "ios-volume-medium"}
-                  size={24}
-                  color={themeStyle.colors.white}
-                />
-              </TouchableOpacity>
-            </View>
-          ) : null}
+          <View
+            style={{
+              position: "absolute",
+              display: disableVideo ? "none" : "flex",
+              right: 0,
+              top: 0,
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => setUnMuteVideos(!globalUnMuteVideos)}
+              style={{
+                height: 48,
+                width: 48,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Ionicons
+                name={
+                  !globalUnMuteVideos ? "ios-volume-mute" : "ios-volume-medium"
+                }
+                size={24}
+                color={themeStyle.colors.white}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
       {videoStatus?.playableDuration && videoStatus?.currentTime ? (
@@ -276,5 +290,6 @@ export default React.memo(
   VideoPlayer,
   (prevProps, nextProps) =>
     prevProps.url === nextProps.url &&
-    prevProps.shouldPlay === nextProps.shouldPlay
+    prevProps.shouldPlay === nextProps.shouldPlay &&
+    prevProps.unMute === nextProps.unMute
 );
