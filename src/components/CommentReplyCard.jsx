@@ -199,8 +199,9 @@ const CommentReplyCard = ({
 };
 const styles = StyleSheet.create({
   replyContainer: {
-    marginLeft: 70,
-    marginVertical: 20,
+    width: "100%",
+    paddingLeft: 70,
+    marginTop: 20,
   },
   profileInfoContainer: {
     display: "flex",

@@ -241,6 +241,7 @@ const UserProfileScreen = (props) => {
             post={item}
             screenHeight={screenHeight}
             screenWidth={screenWidth}
+            disableVideo
           />
         );
     },

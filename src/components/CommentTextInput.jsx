@@ -124,6 +124,12 @@ const CommentTextInput = forwardRef(
               <TouchableOpacity
                 disabled={!commentBody || !userData.state?.profileVideoUrl}
                 onPress={() => handleSubmit()}
+                style={{
+                  height: "100%",
+                  width: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
                 <Text
                   style={[

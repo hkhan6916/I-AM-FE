@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
-  ScrollView,
   Text,
   View,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
   RefreshControl,
+  Dimensions,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Entypo } from "@expo/vector-icons";
@@ -16,6 +15,11 @@ import themeStyle from "../../../theme.style";
 import ContentLoader from "../../../components/ContentLoader";
 import { useSelector } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
+import {
+  DataProvider,
+  LayoutProvider,
+  RecyclerListView,
+} from "recyclerlistview";
 
 const ChatListScreen = () => {
   const [chats, setChats] = useState([]);
@@ -25,6 +29,8 @@ const ChatListScreen = () => {
 
   const navigation = useNavigation();
   const userData = useSelector((state) => state.userData);
+
+  const { width: screenWidth } = Dimensions.get("window");
 
   const getUserChats = async () => {
     const { response, success } = await apiCall(
@@ -37,27 +43,36 @@ const ChatListScreen = () => {
     }
   };
 
+  const layoutProvider = useRef(
+    new LayoutProvider(
+      () => 0,
+      (_, dim) => {
+        dim.width = screenWidth;
+        dim.height = 80;
+      }
+    )
+  ).current;
+
+  let dataProvider = new DataProvider((r1, r2) => {
+    return r1._id !== r2._id;
+  }).cloneWithRows(chats);
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await getUserChats();
     setRefreshing(false);
   }, []);
 
-  const renderItem = useCallback(
-    ({ item: chat }) => (
+  const rowRenderer = useCallback(
+    (_, item) => (
       <ChatCard
         userId={userData.state?._id}
-        chat={chat}
+        chat={item}
         onPress={() =>
-          navigation.navigate("ChatScreen", { existingChat: chat })
+          navigation.navigate("ChatScreen", { existingChat: item })
         }
       />
     ),
-    [chats.length]
-  );
-
-  const keyExtractor = useCallback(
-    (item, i) => `${item._id}-${i}`,
     [chats.length]
   );
 
@@ -129,20 +144,22 @@ const ChatListScreen = () => {
           />
         </View>
       ) : null}
-      {!error ? (
-        <FlatList
-          data={chats}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          refreshControl={
-            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-          }
-          contentContainerStyle={{ flexGrow: 1 }}
+      {!error && chats.length ? (
+        <RecyclerListView
+          style={{ minHeight: 1, minWidth: 1 }}
+          rowRenderer={rowRenderer}
+          dataProvider={dataProvider}
           onEndReached={() => getUserChats()}
+          layoutProvider={layoutProvider}
           onEndReachedThreshold={0.5}
-          initialNumToRender={10}
-          maxToRenderPerBatch={5}
+          scrollViewProps={{
+            refreshControl: (
+              <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+            ),
+          }}
         />
+      ) : chats.length ? (
+        <View />
       ) : (
         <View>
           <Text>Oops, something went wrong</Text>

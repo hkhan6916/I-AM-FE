@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Platform,
   KeyboardAvoidingView,
+  Dimensions,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import PostCommentCard from "../../../components/PostCommentCard";
@@ -16,6 +17,11 @@ import CommentTextInput from "../../../components/CommentTextInput";
 import themeStyle from "../../../theme.style";
 import CommentReplyCard from "../../../components/CommentReplyCard";
 import CommentOptionsModal from "../../../components/CommentOptionsModal";
+import {
+  DataProvider,
+  LayoutProvider,
+  RecyclerListView,
+} from "recyclerlistview";
 
 const CommentRepliesScreen = (props) => {
   const { comment: initialComment } = props.route.params;
@@ -32,8 +38,11 @@ const CommentRepliesScreen = (props) => {
   const [scrollStarted, setScrollStarted] = useState(false);
   const [showOptionsForComment, setShowOptionsForComment] = useState(null);
   const [error, setError] = useState("");
+  const [updated, setUpdated] = useState(false);
   const navigation = useNavigation();
   const textInputRef = useRef();
+
+  const { width: screenWidth } = Dimensions.get("window");
 
   const getCommentReplies = async (refresh = false) => {
     let isCancelled = false;
@@ -177,23 +186,58 @@ const CommentRepliesScreen = (props) => {
         new: true,
         customKey: `${response._id}-new`,
       };
-      setReplies([newReply, ...replies]);
+      setReplies([...replies, newReply]);
     }
     return success;
   };
 
-  const renderItem = useCallback(
-    ({ item }) =>
+  const rowRenderer = useCallback(
+    (type, item, i) =>
       // we don't want to render a duplicate of a newly added reply, so we check if it's newly added before render. Below checks if reply is not in the list of new replies the user has just created or if it's a new comment just added then render.
-      newRepliesIds.indexOf(item._id) === -1 || item.new ? (
-        <CommentReplyCard
-          handleReplyToReply={handleReplyToReply}
-          reply={item}
-          setShowOptionsForComment={setShowOptionsForComment}
-        />
-      ) : null,
+      {
+        if (type === ViewTypes.HEADER) {
+          return (
+            <PostCommentCard
+              isNestedInList={false}
+              newReply={null}
+              comment={comment}
+              setShowOptionsForComment={triggerOptionsModal}
+            />
+          );
+        }
+
+        if (newRepliesIds.indexOf(item._id) === -1 || item.new) {
+          return (
+            <CommentReplyCard
+              handleReplyToReply={handleReplyToReply}
+              reply={item}
+              setShowOptionsForComment={setShowOptionsForComment}
+            />
+          );
+        }
+      },
     [newRepliesIds, replies]
   );
+
+  const layoutProvider = useRef(
+    new LayoutProvider(
+      // (index) => index,
+      (index) => {
+        if (index === 0) {
+          return ViewTypes.HEADER;
+        } else {
+          return ViewTypes.STANDARD;
+        }
+      },
+      (_, dim) => {
+        dim.width = screenWidth;
+        dim.height = 300;
+      }
+    )
+  ).current;
+  let dataProvider = new DataProvider((r1, r2) => {
+    return r1._id !== r2._id || r1.body !== r2.body;
+  }).cloneWithRows([{}, ...replies]);
 
   const keyExtractor = useCallback(
     (item) => item.customKey || item._id,
@@ -204,6 +248,26 @@ const CommentRepliesScreen = (props) => {
     setError("");
     setShowOptionsForComment(post);
   };
+
+  const ViewTypes = {
+    HEADER: 0,
+    STANDARD: 1,
+  };
+
+  const renderFooter = useCallback(
+    () => (
+      <View>
+        {loadingMore ? (
+          <ActivityIndicator
+            size={"large"}
+            animating
+            color={themeStyle.colors.grayscale.low}
+          />
+        ) : null}
+      </View>
+    ),
+    [loadingMore]
+  );
 
   useEffect(() => {
     (async () => {
@@ -221,7 +285,25 @@ const CommentRepliesScreen = (props) => {
         keyboardVerticalOffset={93}
         style={{ flex: 1 }}
       >
-        <FlatList
+        {replies.length ? (
+          <RecyclerListView
+            style={{ minHeight: 1, minWidth: 1 }}
+            rowRenderer={rowRenderer}
+            extendedState={{ updated }}
+            dataProvider={dataProvider}
+            onEndReached={() => getCommentReplies(false, true)}
+            layoutProvider={layoutProvider}
+            onEndReachedThreshold={0.5}
+            forceNonDeterministicRendering
+            renderFooter={renderFooter}
+            scrollViewProps={{
+              refreshControl: (
+                <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+              ),
+            }}
+          />
+        ) : null}
+        {/* <FlatList
           data={replies}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
@@ -254,7 +336,7 @@ const CommentRepliesScreen = (props) => {
               ) : null}
             </View>
           )}
-        />
+        /> */}
         {showOptionsForComment ? (
           <CommentOptionsModal
             comment={showOptionsForComment}

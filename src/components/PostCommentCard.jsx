@@ -207,6 +207,7 @@ const styles = StyleSheet.create({
     borderColor: themeStyle.colors.grayscale.high,
     display: "flex",
     flexDirection: "column",
+    width: "100%",
   },
   replyContainer: {
     marginLeft: 70,

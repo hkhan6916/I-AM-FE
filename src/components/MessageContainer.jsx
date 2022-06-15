@@ -12,7 +12,7 @@ const MessageContainer = ({
   cancelUpload,
 }) => {
   return (
-    <View>
+    <View style={{ width: "100%", transform: [{ scaleY: -1 }] }}>
       {messageDate ? (
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <View style={styles.horizontalLines} />

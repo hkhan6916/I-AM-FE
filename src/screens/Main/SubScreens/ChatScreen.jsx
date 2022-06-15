@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -39,6 +39,11 @@ import openAppSettings from "../../../helpers/openAppSettings";
 import backgroundUpload from "../../../helpers/backgroundUpload";
 import { gestureHandlerRootHOC } from "react-native-gesture-handler";
 import FastImage from "react-native-fast-image";
+import {
+  DataProvider,
+  LayoutProvider,
+  RecyclerListView,
+} from "recyclerlistview";
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -431,6 +436,33 @@ const ChatScreen = (props) => {
     }
   };
 
+  const rowRenderer = useCallback(
+    (_, item, i) => (
+      <MessageContainer
+        cancelUpload={cancelUpload}
+        mediaSize={mediaSize}
+        firstMessageDate={
+          allMessagesLoaded && i === messages.length - 1
+            ? messages[i].stringDate
+            : null
+        }
+        messageDate={
+          i !== messages.length - 1 &&
+          messages[i + 1] &&
+          item.stringDate !== messages[i + 1].stringDate
+            ? messages[i].stringDate
+            : null
+        }
+        message={item}
+        belongsToSender={
+          authInfo?.senderId === item.senderId.toString() ||
+          item.user === "sender"
+        }
+      />
+    ),
+    [messages, authInfo]
+  );
+
   const renderItem = useCallback(
     (
       { item: message, index: i } // change to be more performant like home and profile screen
@@ -459,6 +491,20 @@ const ChatScreen = (props) => {
     ),
     [messages, authInfo]
   );
+
+  const layoutProvider = useRef(
+    new LayoutProvider(
+      () => 0,
+      (_, dim) => {
+        dim.height = 60;
+        dim.width = screenWidth;
+      }
+    )
+  ).current;
+
+  let dataProvider = new DataProvider((r1, r2) => {
+    return r1._id !== r2._id || r1.mediaUrl !== r2.mediaUrl;
+  }).cloneWithRows(messages);
 
   useEffect(() => {
     // TODO: remove isMounted and implement better cleanup that works
@@ -658,15 +704,23 @@ const ChatScreen = (props) => {
         >
           <Text style={{ color: "white" }}>5001</Text>
         </TouchableOpacity> */}
-        {showError ? <Text>An unknown error occurred</Text> : null}
-        <FlatList
-          data={messages}
-          renderItem={renderItem}
-          onEndReached={() => getChatMessages()}
-          onEndReachedThreshold={0.9}
-          inverted
-          keyExtractor={(item, i) => item._id + i}
-        />
+        {showError ? (
+          <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+            An unknown error occurred
+          </Text>
+        ) : null}
+
+        {messages.length ? (
+          <RecyclerListView
+            style={{ minHeight: 1, minWidth: 1, transform: [{ scaleY: -1 }] }}
+            rowRenderer={rowRenderer}
+            dataProvider={dataProvider}
+            onEndReached={() => getChatMessages()}
+            layoutProvider={layoutProvider}
+            onEndReachedThreshold={0.5}
+            forceNonDeterministicRendering
+          />
+        ) : null}
         {userIsBlocked ? (
           <Text
             style={{
