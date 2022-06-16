@@ -39,7 +39,6 @@ const CommentRepliesScreen = (props) => {
   const [scrollStarted, setScrollStarted] = useState(false);
   const [showOptionsForComment, setShowOptionsForComment] = useState(null);
   const [error, setError] = useState("");
-  const [updated, setUpdated] = useState(false);
   const navigation = useNavigation();
   const textInputRef = useRef();
 
@@ -94,10 +93,14 @@ const CommentRepliesScreen = (props) => {
   const updateComment = async (body) => {
     if (showOptionsForComment) {
       setLoading(true);
-      const { success } = await apiCall("POST", "/posts/comments/update", {
-        commentId: showOptionsForComment?._id,
-        body,
-      });
+      const { success, message } = await apiCall(
+        "POST",
+        "/posts/comments/update",
+        {
+          commentId: showOptionsForComment?._id,
+          body,
+        }
+      );
       setLoading(false);
       if (success) {
         if (showOptionsForComment?._id === comment._id) {
@@ -167,6 +170,9 @@ const CommentRepliesScreen = (props) => {
 
   const handleReaction = async (reply) => {
     if (!reply) return;
+    if (comment?._id === reply._id) {
+      setComment({ ...comment, liked: !reply.liked });
+    }
     const oldReplies = replies;
 
     if (reply?.liked) {
@@ -184,6 +190,9 @@ const CommentRepliesScreen = (props) => {
       );
       if (!success) {
         setReplies(oldReplies);
+        if (comment?._id === reply._id) {
+          setComment({ ...comment, liked: reply.liked });
+        }
       }
       return;
     }
@@ -243,6 +252,7 @@ const CommentRepliesScreen = (props) => {
               newReply={null}
               comment={comment}
               setShowOptionsForComment={triggerOptionsModal}
+              handleReaction={handleReaction}
             />
           );
         }
@@ -258,7 +268,7 @@ const CommentRepliesScreen = (props) => {
           );
         }
       },
-    [newRepliesIds, replies]
+    [newRepliesIds, replies, comment]
   );
 
   const layoutProvider = useRef(
@@ -335,7 +345,6 @@ const CommentRepliesScreen = (props) => {
         <RecyclerListView
           style={{ minHeight: 1, minWidth: 1 }}
           rowRenderer={rowRenderer}
-          extendedState={{ updated }}
           dataProvider={dataProvider}
           onEndReached={() => getCommentReplies(false, true)}
           layoutProvider={layoutProvider}

@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
+  Dimensions,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import PostCommentCard from "../../../components/PostCommentCard";
@@ -17,6 +18,11 @@ import CommentTextInput from "../../../components/CommentTextInput";
 import ContentLoader from "../../../components/ContentLoader";
 import themeStyle from "../../../theme.style";
 import CommentOptionsModal from "../../../components/CommentOptionsModal";
+import {
+  DataProvider,
+  LayoutProvider,
+  RecyclerListView,
+} from "recyclerlistview";
 
 const CommentsScreen = (props) => {
   const { postId } = props.route.params;
@@ -37,6 +43,8 @@ const CommentsScreen = (props) => {
 
   const navigation = useNavigation();
   const textInputRef = useRef();
+
+  const { width: screenWidth } = Dimensions.get("window");
 
   const getComments = async (onScroll = false) => {
     if (onScroll && !scrollStarted) return;
@@ -64,6 +72,46 @@ const CommentsScreen = (props) => {
         isCancelled = true;
       },
     };
+  };
+
+  const handleReaction = async (reply) => {
+    if (!reply) return;
+    const oldReplies = comments;
+
+    if (reply?.liked) {
+      setComments((prev) => {
+        return prev.map((p) => {
+          if (p?._id === reply?._id) {
+            return { ...p, liked: false, likes: (p.likes || 1) - 1 };
+          }
+          return p;
+        });
+      });
+      const { success } = await apiCall(
+        "GET",
+        `/posts/comment/like/remove/${reply._id}`
+      );
+      if (!success) {
+        setComments(oldReplies);
+      }
+      return;
+    }
+
+    setComments((prev) => {
+      return prev.map((p) => {
+        if (p._id === reply._id) {
+          return { ...p, liked: true, likes: (p.likes || 0) + 1 };
+        }
+        return p;
+      });
+    });
+    const { success } = await apiCall(
+      "GET",
+      `/posts/comment/like/add/${reply._id}`
+    );
+    if (!success) {
+      setComments(oldReplies);
+    }
   };
 
   const deleteComment = async () => {
@@ -215,9 +263,60 @@ const CommentsScreen = (props) => {
           key={item._id}
           comment={item}
           setShowOptionsForComment={triggerOptionsModal}
+          handleReaction={handleReaction}
         />
       ) : null,
     [newCommentsIds, comments]
+  );
+
+  const layoutProvider = useRef(
+    new LayoutProvider(
+      // (index) => index,
+      (index) => 0,
+      (_, dim) => {
+        dim.width = screenWidth;
+        dim.height = 300;
+      }
+    )
+  ).current;
+
+  let dataProvider = new DataProvider((r1, r2) => {
+    return (
+      r1._id !== r2._id ||
+      r1.body !== r2.body ||
+      r1.likes !== r2.likes ||
+      r1.liked !== r2.liked
+    );
+  }).cloneWithRows(comments);
+
+  const rowRenderer = useCallback(
+    (type, item, i) =>
+      // we don't want to render a duplicate of a newly added reply, so we check if it's newly added before render. Below checks if reply is not in the list of new replies the user has just created or if it's a new comment just added then render.
+      newCommentsIds.indexOf(item._id) === -1 || item.new ? ( // prevent newly created comments from rendering again since they'll be fetch from the backend as the user scrolls
+        <PostCommentCard
+          replyToUser={replyToUser}
+          key={item._id}
+          comment={item}
+          setShowOptionsForComment={triggerOptionsModal}
+          handleReaction={handleReaction}
+        />
+      ) : null,
+    [newCommentsIds, comments]
+  );
+
+  const renderFooter = useCallback(
+    () => (
+      <View>
+        {loadingMore ? (
+          <ActivityIndicator
+            size={"large"}
+            animating
+            color={themeStyle.colors.grayscale.low}
+          />
+        ) : null}
+      </View>
+    ),
+    [loadingMore]
   );
 
   const keyExtractor = useCallback(
@@ -267,7 +366,25 @@ const CommentsScreen = (props) => {
         keyboardVerticalOffset={93}
         style={{ flex: 1 }}
       >
-        <FlatList
+        <RecyclerListView
+          style={{ minHeight: 1, minWidth: 1 }}
+          rowRenderer={rowRenderer}
+          dataProvider={dataProvider}
+          onEndReached={() => getComments(true)}
+          layoutProvider={layoutProvider}
+          onEndReachedThreshold={0.5}
+          forceNonDeterministicRendering
+          renderFooter={renderFooter}
+          scrollViewProps={{
+            onScrollEndDrag: () => {
+              Keyboard.dismiss();
+            },
+            refreshControl: (
+              <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+            ),
+          }}
+        />
+        {/* <FlatList
           data={comments}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
@@ -295,7 +412,7 @@ const CommentsScreen = (props) => {
               ) : null}
             </View>
           )}
-        />
+        /> */}
         <View>
           {showOptionsForComment ? (
             <CommentOptionsModal

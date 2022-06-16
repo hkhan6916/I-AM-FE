@@ -15,39 +15,12 @@ import formatAge from "../helpers/formatAge";
 import { Entypo } from "@expo/vector-icons";
 
 const PostCommentCard = ({
-  comment: initialComment,
+  comment,
   isNestedInList = true,
   setShowOptionsForComment,
-  deleted,
+  handleReaction,
 }) => {
   const navigation = useNavigation();
-  const [comment, setComment] = useState(initialComment);
-
-  const handleReaction = async () => {
-    if (comment.liked) {
-      const newComment = { ...comment, liked: false };
-      newComment.likes -= 1;
-      setComment(newComment);
-      const { success } = await apiCall(
-        "GET",
-        `/posts/comment/like/remove/${comment._id}`
-      );
-      if (!success) {
-        setComment(initialComment);
-      }
-    } else {
-      const newComment = { ...comment, liked: true };
-      newComment.likes += 1;
-      setComment(newComment);
-      const { success } = await apiCall(
-        "GET",
-        `/posts/comment/like/add/${comment._id}`
-      );
-      if (!success) {
-        setComment(initialComment);
-      }
-    }
-  };
 
   const CommentAge = () => {
     const { age } = comment;
@@ -147,7 +120,7 @@ const PostCommentCard = ({
             <View style={{ flexDirection: "row" }}>
               {!comment.belongsToUser ? (
                 <TouchableOpacity
-                  onPress={() => handleReaction()}
+                  onPress={() => handleReaction(comment)}
                   style={{
                     justifyContent: "center",
                     alignItems: "center",
