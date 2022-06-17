@@ -25,6 +25,7 @@ import {
   createUserSearchHistoryTable,
   insertUserSearchHistory,
   getUserSearchHistory,
+  deleteUserSearchHistoryTable,
 } from "../../../helpers/sqlite/userSearchHistory";
 import apiCall from "../../../helpers/apiCall";
 import {
@@ -222,6 +223,10 @@ const SearchScreen = () => {
             onSubmitEditing={(searchQuery) => onUserSearch(searchQuery)}
             setResults={setResults}
             userSearchHistory={userSearchHistory}
+            onClear={async () => {
+              await deleteUserSearchHistoryTable(db);
+              setUserSearchHistory([]);
+            }}
             setShowAllResults={setShowAllResults}
             showAllResults={showAllResults}
             onReset={() => !results.length && setHideFeedAndSuggestions(false)}

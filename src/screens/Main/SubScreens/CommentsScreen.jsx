@@ -384,35 +384,7 @@ const CommentsScreen = (props) => {
             ),
           }}
         />
-        {/* <FlatList
-          data={comments}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          refreshControl={
-            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-          }
-          onScrollEndDrag={() => {
-            Keyboard.dismiss();
-          }}
-          contentContainerStyle={{ flexGrow: 1 }}
-          onEndReached={() => getComments(true)}
-          onMomentumScrollBegin={() => !scrollStarted && setScrollStarted(true)}
-          onEndReachedThreshold={0.5}
-          initialNumToRender={1}
-          maxToRenderPerBatch={8}
-          windowSize={10}
-          ListFooterComponent={() => (
-            <View>
-              {loadingMore ? (
-                <ActivityIndicator
-                  size={"large"}
-                  animating
-                  color={themeStyle.colors.grayscale.low}
-                />
-              ) : null}
-            </View>
-          )}
-        /> */}
+
         <View>
           {showOptionsForComment ? (
             <CommentOptionsModal

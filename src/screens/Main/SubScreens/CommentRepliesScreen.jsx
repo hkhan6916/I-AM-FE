@@ -358,40 +358,6 @@ const CommentRepliesScreen = (props) => {
           }}
         />
 
-        {/* <FlatList
-          data={replies}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          refreshControl={
-            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-          }
-          ListHeaderComponent={() => (
-            <PostCommentCard
-              isNestedInList={false}
-              newReply={null}
-              comment={comment}
-              setShowOptionsForComment={triggerOptionsModal}
-            />
-          )}
-          contentContainerStyle={{ flexGrow: 1 }}
-          onEndReached={() => getCommentReplies(false, true)}
-          onMomentumScrollBegin={() => !scrollStarted && setScrollStarted(true)}
-          onEndReachedThreshold={0.5}
-          initialNumToRender={1}
-          maxToRenderPerBatch={8}
-          windowSize={10}
-          ListFooterComponent={() => (
-            <View>
-              {loadingMore ? (
-                <ActivityIndicator
-                  size={"large"}
-                  animating
-                  color={themeStyle.colors.grayscale.low}
-                />
-              ) : null}
-            </View>
-          )}
-        /> */}
         {showOptionsForComment ? (
           <CommentOptionsModal
             comment={showOptionsForComment}

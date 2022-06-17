@@ -8,11 +8,18 @@ import {
   TouchableOpacity,
   FlatList,
   Keyboard,
+  Dimensions,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
 import UserSearchBar from "../../../components/UserSearchBar";
 import themeStyle from "../../../theme.style";
+import {
+  DataProvider,
+  LayoutProvider,
+  RecyclerListView,
+} from "recyclerlistview";
+
 const CreateChatScreen = () => {
   const isMounted = useRef(null);
 
@@ -21,7 +28,16 @@ const CreateChatScreen = () => {
   const [searchedContacts, setSearchedContacts] = useState([]);
   const [offsets, setOffsets] = useState({});
 
+  const data =
+    searchedContacts === "none"
+      ? []
+      : searchedContacts?.length
+      ? searchedContacts
+      : contacts;
+
   const navigation = useNavigation();
+
+  const { width: screenWidth } = Dimensions.get("window");
 
   const getUserContacts = async () => {
     const { success, response } = await apiCall(
@@ -58,6 +74,20 @@ const CreateChatScreen = () => {
     }
   };
 
+  const layoutProvider = useRef(
+    new LayoutProvider(
+      () => 0,
+      (_, dim) => {
+        dim.width = screenWidth;
+        dim.height = 70;
+      }
+    )
+  ).current;
+
+  let dataProvider = new DataProvider((r1, r2) => {
+    return r1._id !== r2._id;
+  }).cloneWithRows(data);
+
   const renderItem = useCallback(
     ({ item: contact }) => (
       <TouchableOpacity
@@ -69,6 +99,23 @@ const CreateChatScreen = () => {
           }}
         >
           <UserThumbnail preventClicks user={contact} avatarSize={50} />
+        </View>
+      </TouchableOpacity>
+    ),
+    [contacts]
+  );
+
+  const rowRenderer = useCallback(
+    (_, item) => (
+      <TouchableOpacity
+        onPress={() => handleChatNavigation(item._id, item.firstName)}
+      >
+        <View
+          style={{
+            padding: 20,
+          }}
+        >
+          <UserThumbnail preventClicks user={item} avatarSize={50} />
         </View>
       </TouchableOpacity>
     ),
@@ -87,27 +134,23 @@ const CreateChatScreen = () => {
   }, []);
   return (
     <View style={styles.container}>
-      <UserSearchBar
+      <UserSearchBar // TODO: This only searches in the data provided. Users will expect all contacts to be shared not just the current ones loaded. Need to make this call an endpoint possibly
         setResults={setSearchedContacts}
         dataToSearchWithin={contacts}
         onSubmitEditing={() => Keyboard.dismiss()}
       />
 
-      {!error ? (
-        <FlatList
-          data={
-            searchedContacts === "none"
-              ? []
-              : searchedContacts?.length
-              ? searchedContacts
-              : contacts
-          }
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          keyboardShouldPersistTaps={"always"}
+      {!error && data?.length ? (
+        <RecyclerListView
+          style={{ minHeight: 1, minWidth: 1 }}
+          rowRenderer={rowRenderer}
+          dataProvider={dataProvider}
           onEndReached={() => getUserContacts()}
-          // onEndReachedThreshold={0.5}
+          layoutProvider={layoutProvider}
+          onEndReachedThreshold={0.5}
         />
+      ) : data?.length ? (
+        <View />
       ) : (
         <View>
           <Text

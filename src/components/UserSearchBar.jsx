@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import themeStyle from "../theme.style";
 import apiCall from "../helpers/apiCall";
+import { deleteUserSearchHistoryTable } from "../helpers/sqlite/userSearchHistory";
 
 const UserSearchBar = ({
   onFocus,
@@ -26,6 +27,7 @@ const UserSearchBar = ({
   feedIsVisible = false,
   setShowAllResults,
   showAllResults,
+  onClear,
 }) => {
   const [searchInput, setSearchInput] = useState("");
   const [showHistory, setShowHistory] = useState(false);
@@ -211,9 +213,26 @@ const UserSearchBar = ({
       !resultsVisible &&
       !feedIsVisible &&
       !dataToSearchWithin ? (
-        <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-          Search History
-        </Text>
+        <View style={{ justifyContent: "space-between", flexDirection: "row" }}>
+          <Text
+            style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}
+          >
+            Search History
+          </Text>
+          <TouchableOpacity
+            onPress={async () => {
+              if (onClear) {
+                onClear();
+              }
+            }}
+          >
+            <Text
+              style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}
+            >
+              Clear
+            </Text>
+          </TouchableOpacity>
+        </View>
       ) : null}
       {!dataToSearchWithin ? (
         <FlatList

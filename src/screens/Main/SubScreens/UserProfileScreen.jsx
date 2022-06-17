@@ -16,6 +16,11 @@ import ContentLoader from "../../../components/ContentLoader";
 import PostOptionsModal from "../../../components/PostOptionsModal";
 import { useSelector } from "react-redux";
 import makeCancelable from "../../../helpers/makeCancelable";
+import {
+  DataProvider,
+  LayoutProvider,
+  RecyclerListView,
+} from "recyclerlistview";
 
 const UserProfileScreen = (props) => {
   const { userId } = props.route.params;
@@ -38,6 +43,14 @@ const UserProfileScreen = (props) => {
   const navigation = useNavigation();
 
   const flatlistRef = useRef(null);
+  const ViewTypes = {
+    HEADER: 0,
+    STANDARD: 1,
+  };
+
+  const handleNavigation = (post) => {
+    navigation.navigate("MediaScreen", { post });
+  };
 
   const reportPost = async (reasonIndex) => {
     setLoading(true);
@@ -231,22 +244,82 @@ const UserProfileScreen = (props) => {
     apiCall("GET", `/user/${userId}`, null)
   );
 
-  const renderItem = useCallback(
-    ({ item }) => {
-      if (!item?.deleted && !user.blockedByThem)
+  // const renderItem = useCallback(
+  //   ({ item }) => {
+  //     if (!item?.deleted && !user.blockedByThem)
+  //       return (
+  //         <PostCard
+  //           setShowPostOptions={triggerOptionsModal}
+  //           isVisible={visibleItems.includes(item._id)}
+  //           post={item}
+  //           screenHeight={screenHeight}
+  //           screenWidth={screenWidth}
+  //           disableVideo
+  //         />
+  //       );
+  //   },
+  //   [userPosts, userId, user.blockedByUser, user.blockedByUser, user.isFriend]
+  // );
+
+  const rowRenderer = useCallback(
+    (type, item, index, extendedState) => {
+      //We have only one view type so not checks are needed here
+      if (type === ViewTypes.HEADER && isFocused) {
+        return (
+          <ProfileInfo
+            user={user}
+            setUser={setUser}
+            setUserPosts={setUserPosts}
+            recallFriendRequest={recallFriendRequest}
+            acceptFriendRequest={acceptFriendRequest}
+            rejectFriendRequest={rejectFriendRequest}
+            sendFriendRequest={sendFriendRequest}
+            removeConnection={removeConnection}
+            canAdd={userData.state?.profileVideoUrl}
+          />
+        );
+      }
+      if (!item.deleted) {
         return (
           <PostCard
-            setShowPostOptions={triggerOptionsModal}
-            isVisible={visibleItems.includes(item._id)}
             post={item}
+            setShowPostOptions={triggerOptionsModal}
             screenHeight={screenHeight}
             screenWidth={screenWidth}
+            handleNavigation={handleNavigation}
+            isVisible={false}
+            unmount={!isFocused}
             disableVideo
           />
         );
+      }
     },
-    [userPosts, userId, user.blockedByUser, user.blockedByUser, user.isFriend]
+    [isFocused, user, userData]
   );
+
+  let dataProvider = new DataProvider(
+    (r1, r2) => {
+      return r1._id !== r2._id;
+    }
+    // (index) => `${userPosts[index]?._id}`
+  ).cloneWithRows([{}, ...userPosts]);
+
+  const layoutProvider = useRef(
+    new LayoutProvider(
+      // (index) => index,
+      (index) => {
+        if (index === 0) {
+          return ViewTypes.HEADER;
+        } else {
+          return ViewTypes.STANDARD;
+        }
+      },
+      (_, dim) => {
+        dim.width = screenWidth;
+        dim.height = 600;
+      }
+    )
+  ).current;
 
   function renderHeader() {
     if (isFocused) {
@@ -310,32 +383,27 @@ const UserProfileScreen = (props) => {
   if (user && user._id) {
     return (
       <SafeAreaView style={{ flex: 1 }}>
-        <FlatList
-          ref={flatlistRef}
-          viewabilityConfigCallbackPairs={
-            viewabilityConfigCallbackPairs.current
-          }
-          data={userPosts}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          refreshControl={
-            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-          }
-          ListHeaderComponent={renderHeader}
-          ListFooterComponent={() => (
-            <ActivityIndicator
-              size="large"
-              animating={loading}
-              color={themeStyle.colors.grayscale.low}
-            />
-          )}
-          contentContainerStyle={{ flexGrow: 1 }}
+        <RecyclerListView
+          style={{ minHeight: 1, minWidth: 1 }}
+          dataProvider={dataProvider}
+          layoutProvider={layoutProvider}
           onEndReached={() => getUserPosts()}
           onEndReachedThreshold={0.5}
-          initialNumToRender={10}
-          maxToRenderPerBatch={5}
-          // windowSize={5}
+          rowRenderer={rowRenderer}
+          extendedState={{ userData }}
+          renderAheadOffset={screenHeight}
+          forceNonDeterministicRendering
+          scrollViewProps={{
+            removeClippedSubviews: true,
+            refreshControl: (
+              <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+            ),
+            // decelerationRate: 0.9,
+          }}
+
+          // ListHeaderComponent={renderHeaderComponent}
         />
+
         <PostOptionsModal
           showOptions={!!showPostOptions}
           setShowPostOptions={setShowPostOptions}

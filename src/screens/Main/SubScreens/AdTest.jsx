@@ -58,25 +58,7 @@ export default function AdScreen() {
 
   // console.log({ adsManager });
 
-  return (
-    <View style={styles.container}>
-      {/* {adsManager ? (
-        <AdCard
-          adsManager={adsManager}
-          onAdLoaded={(e) => console.log({ e })}
-          onError={(e) => console.log(e)}
-        />
-      ) : // <FlatList
-      //   data={data}
-      //   keyExtractor={(item, i) => i}
-      //   renderItem={() => {
-      //     return (
-      //     );
-      //   }}
-      // />
-      null} */}
-    </View>
-  );
+  return <View style={styles.container}></View>;
 }
 
 const styles = StyleSheet.create({
