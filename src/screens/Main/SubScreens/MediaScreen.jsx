@@ -130,7 +130,9 @@ const MediaScreen = (props) => {
               paused={!isFocused}
               disableFullscreen
               fullscreen={false}
+              Ionicons
               controlAnimationTiming={100}
+              disableVolume
               // scrubbing={1000}
             />
           ) : post?.mediaType === "image" ? (

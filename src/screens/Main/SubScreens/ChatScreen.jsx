@@ -204,6 +204,10 @@ const ChatScreen = (props) => {
     }
   };
 
+  /**
+   * If image - Compress, get signed url, upload in background and send mediaKey for the file to the backend and mark message as complete which then gets sent to all recepients.
+   * If video - Compress, get signed url, generate and upload thumbnail, thensend thumbnail key to backend. If success, compress, get signed url and upload video. Then send mediaKey to backend to update the existing message with mediaKey and mark as ready.
+   */
   const handleMessageSend = async (chatId) => {
     if (media?.uri && media?.type && socket?.connected) {
       const message = {
@@ -219,6 +223,7 @@ const ChatScreen = (props) => {
       const mediaType = media.type?.split("/")[0];
 
       if (mediaType === "image") {
+        setSendingMessage(true);
         await ImageCompress.compress(
           media.uri,
           {
@@ -260,6 +265,7 @@ const ChatScreen = (props) => {
             }
           });
         });
+        setSendingMessage(false);
         return;
       }
 
@@ -418,15 +424,6 @@ const ChatScreen = (props) => {
       "GET",
       `/chat/message/cancel/${messageId}`
     );
-    // if (media.type?.split("/")[0] === "video" && cancelId) {
-    //   VideoCompress.cancelCompression(cancelId);
-    // }
-
-    // if (media.type?.split("/")[0] === "image" && cancelId) {
-    //   ImageCompress.cancelCompression(cancelId);
-    // }
-
-    // console.log(message);
 
     if (success) {
       setMessages((messages) => {
@@ -833,7 +830,7 @@ const ChatScreen = (props) => {
                   height: 48,
                   justifyContent: "center",
                   alignItems: "center",
-                  backgroundColor: "rgba(140, 140, 140, 0.3)",
+                  backgroundColor: "rgba(140, 140, 140, 0.8)",
                   borderRadius: 50,
                   marginBottom: 5,
                 },
@@ -855,7 +852,7 @@ const ChatScreen = (props) => {
                   height: 48,
                   justifyContent: "center",
                   alignItems: "center",
-                  backgroundColor: "rgba(140, 140, 140, 0.3)",
+                  backgroundColor: "rgba(140, 140, 140, 0.8)",
                   borderRadius: 50,
                   marginBottom: 5,
                 },
