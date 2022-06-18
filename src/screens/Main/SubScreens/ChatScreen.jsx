@@ -29,7 +29,7 @@ import getNameDate from "../../../helpers/getNameDate";
 import themeStyle from "../../../theme.style";
 import CameraStandard from "../../../components/CameraStandard";
 import MessageContainer from "../../../components/MessageContainer";
-import Upload from "react-native-background-upload";
+
 import {
   Video as VideoCompress,
   Image as ImageCompress,
@@ -38,7 +38,7 @@ import { getThumbnailAsync } from "expo-video-thumbnails";
 import openAppSettings from "../../../helpers/openAppSettings";
 import backgroundUpload from "../../../helpers/backgroundUpload";
 import { gestureHandlerRootHOC } from "react-native-gesture-handler";
-import FastImage from "react-native-fast-image";
+
 import {
   DataProvider,
   LayoutProvider,
@@ -138,7 +138,12 @@ const ChatScreen = (props) => {
     }
   };
 
-  const handleBackgroundUpload = async (compressedUrl, body, messageId) => {
+  const handleBackgroundUpload = async (
+    compressedUrl,
+    message,
+    messageId,
+    mediaType
+  ) => {
     const filePath = compressedUrl
       ? Platform.OS == "android"
         ? compressedUrl?.replace("file://", "/")
@@ -147,12 +152,40 @@ const ChatScreen = (props) => {
       ? media?.uri.replace("file://", "")
       : media?.uri;
 
+    const { response: signedResponse, success: signedSuccess } = await apiCall(
+      "POST",
+      "/files/signed-upload-url",
+      { filename: `media.${filePath.split(".").pop()}` }
+    );
+    if (!signedSuccess) {
+      setShowError(true);
+      return;
+    }
+
+    const token = await getItemAsync("authToken");
+
     await backgroundUpload({
       filePath,
-      apiRoute: "/chat/message/upload",
-      failureRoute: `/chat/message/fail/${messageId}`,
-      parameters: { ...body, _id: messageId },
+      url: signedResponse.signedUrl,
+      disableLogs: true,
     });
+
+    // if we have video add the id for message as a thumbnail would have already been sent and message would already exist
+    const extraFields =
+      mediaType === "video"
+        ? {
+            _id: messageId,
+          }
+        : {};
+
+    const { success } = await apiCall("POST", "/chat/message/upload", {
+      mediaKey: signedResponse.fileKey,
+      auth: token,
+      ...message,
+      ...extraFields,
+    });
+
+    return success;
   };
 
   const handleMessage = async () => {
@@ -172,45 +205,107 @@ const ChatScreen = (props) => {
   };
 
   const handleMessageSend = async (chatId) => {
-    if (!socket?.connected) return;
     if (media?.uri && media?.type && socket?.connected) {
-      const formData = new FormData();
-      const thumbnailUrl =
-        media.type?.split("/")[0] === "video"
-          ? await generateThumbnail()
-          : null;
-      if (thumbnailUrl) {
-        formData.append("file", {
-          uri: thumbnailUrl,
-          name: `mediaThumbnail.${thumbnailUrl.split(".").pop()}`,
-          type: `image/${thumbnailUrl.split(".").pop()}`,
-        });
-      } else if (media.type?.split("/")[0] === "image") {
-        // We add image here and upload but also in background upload below? WHY? need to test this
-        formData.append("file", {
-          uri: media.uri,
-          name: `image.${media.uri.split(".").pop()}`,
-          type: `image/${media.uri.split(".").pop()}`,
-        });
-      }
-
       const message = {
         body: messageBody,
         chatId,
         senderId: authInfo?.senderId,
         mediaType: media.type?.split("/")[0],
-        online: (!!recipient?.online).toString(),
+        online: (!!recipient?.online).toString(), // TODO: change to boolean instead of string here and in BE
         recipientId: recipient?.userId,
         auth: authInfo?.token,
       };
-      Object.keys(message).forEach((key) => {
-        formData.append(key, message[key]);
-      });
+
+      const mediaType = media.type?.split("/")[0];
+
+      if (mediaType === "image") {
+        await ImageCompress.compress(
+          media.uri,
+          {
+            compressionMethod: "auto",
+          },
+          (progress) => {
+            // console.log({ compression: progress });
+          }
+        ).then(async (compressedUrl) => {
+          const tempId = nanoid();
+          await handleBackgroundUpload(
+            compressedUrl,
+            { ...message, tempId },
+            null,
+            mediaType
+          ).then(() => {
+            const mediaType = media.type?.split("/")[0];
+            if (socket) {
+              setMessages([
+                {
+                  body: messageBody,
+                  chatId,
+                  senderId: authInfo?.senderId,
+                  user: "sender",
+                  mediaUrl: media.uri,
+                  mediaHeaders: {}, // recieved as null if media is video
+                  mediaType,
+                  stringTime: get12HourTime(new Date()),
+                  stringDate: getNameDate(new Date()),
+                  tempId,
+                  _id: tempId, // Incase we use _id anywhere, we need a unique field
+                  ready: false,
+                },
+                ...messages,
+              ]);
+              setMessageBody("");
+              setHeight(0);
+              setMedia({});
+            }
+          });
+        });
+        return;
+      }
+
+      let postData = {};
+      const thumbnailUrl =
+        media.type?.split("/")[0] === "video"
+          ? await generateThumbnail()
+          : null;
+      if (thumbnailUrl) {
+        const { response, success } = await apiCall(
+          "POST",
+          "/files/signed-upload-url",
+          { filename: `mediaThumbnail.${thumbnailUrl.split(".").pop()}` }
+        );
+        if (!success) {
+          setShowError(true);
+          return;
+        }
+        // upload thumbnail
+        await backgroundUpload({
+          filePath:
+            Platform.OS == "android"
+              ? thumbnailUrl.replace("file://", "")
+              : thumbnailUrl,
+          url: response.signedUrl,
+          disableLogs: true,
+        });
+
+        postData.thumbnailKey = response.fileKey; // This is the thumbnail. We send this to backend which saves it as the thumbnailkey for this message
+      }
+      // else if (media.type?.split("/")[0] === "image") {
+      //   // We add image here and upload but also in background upload below? WHY? need to test this
+      //   postData.append("file", {
+      //     uri: media.uri,
+      //     name: `image.${media.uri.split(".").pop()}`,
+      //     type: `image/${media.uri.split(".").pop()}`,
+      //   });
+      // }
+
+      postData = { ...postData, ...message };
+
       setSendingMessage(true);
       const { response, success } = await apiCall(
         "POST",
         "/chat/message/upload",
-        formData
+        postData
       );
       setSendingMessage(false);
 
@@ -236,8 +331,9 @@ const ChatScreen = (props) => {
         setMessageBody("");
         setHeight(0);
         setMedia({});
+        const mediaType = media.type?.split("/")[0];
 
-        if (media.type?.split("/")[0] === "video") {
+        if (mediaType === "video") {
           await VideoCompress.compress(
             media.uri,
             {
@@ -246,15 +342,18 @@ const ChatScreen = (props) => {
               //   (cancelId = cancellationId),
             },
             (progress) => {
-              console.log({ videocompression: progress });
+              // console.log({ videocompression: progress });
             }
           ).then(async (compressedUrl) => {
             await handleBackgroundUpload(
               compressedUrl,
               message,
-              response._id
-            ).then(() => {
-              const mediaType = media.type?.split("/")[0];
+              response._id,
+              mediaType
+            ).then((success) => {
+              if (!success) {
+                setShowError(true);
+              }
               if (socket) {
                 setMessages([
                   // update message with id once uploaded full media
@@ -266,48 +365,6 @@ const ChatScreen = (props) => {
                     mediaUrl: media.uri,
                     thumbnailUrl,
                     mediaHeaders: response.mediaHeaders,
-                    mediaType,
-                    stringTime: get12HourTime(new Date()),
-                    stringDate: getNameDate(new Date()),
-                    _id: response._id,
-                  },
-                  ...messages,
-                ]);
-                setMessageBody("");
-                setHeight(0);
-                setMedia({});
-              }
-            });
-          });
-          return;
-        }
-
-        if (media.type?.split("/")[0] === "image") {
-          await ImageCompress.compress(
-            media.uri,
-            {
-              compressionMethod: "auto",
-            },
-            (progress) => {
-              console.log({ compression: progress });
-            }
-          ).then(async (compressedUrl) => {
-            await handleBackgroundUpload(
-              compressedUrl,
-              message,
-              response._id
-            ).then(() => {
-              const mediaType = media.type?.split("/")[0];
-              if (socket) {
-                setMessages([
-                  {
-                    body: messageBody,
-                    chatId,
-                    senderId: authInfo?.senderId,
-                    user: "sender",
-                    mediaUrl: media.uri,
-                    thumbnailUrl,
-                    mediaHeaders: {}, // recieved as null if media is video
                     mediaType,
                     stringTime: get12HourTime(new Date()),
                     stringDate: getNameDate(new Date()),
@@ -503,7 +560,9 @@ const ChatScreen = (props) => {
   ).current;
 
   let dataProvider = new DataProvider((r1, r2) => {
-    return r1._id !== r2._id || r1.mediaUrl !== r2.mediaUrl;
+    return (
+      r1._id !== r2._id || r1.mediaUrl !== r2.mediaUrl || r1.ready !== r2.ready
+    );
   }).cloneWithRows(messages);
 
   useEffect(() => {
@@ -571,7 +630,7 @@ const ChatScreen = (props) => {
 
       socket.on("userLeftRoom", async ({ userId }) => {
         setRecipient({ userId, online: false });
-        console.log(userId, "left");
+        // console.log(userId, "left");
         navigation.setOptions({
           title: `${chat?.users?.[0].firstName}`,
         });
@@ -601,16 +660,21 @@ const ChatScreen = (props) => {
           stringDate,
           stringTime,
           _id,
+          tempId,
         }) => {
           if (senderId === authInfo.senderId) {
             setMessages((messages) => {
               return messages?.map((message) => {
-                if (message.mediaType && message._id === _id) {
+                if (
+                  message.mediaType &&
+                  (message._id === _id || message.tempId === tempId)
+                ) {
                   return {
                     ...message,
                     // mediaHeaders,
                     // mediaUrl,
                     ready: true,
+                    _id,
                   };
                 } else {
                   return message;
