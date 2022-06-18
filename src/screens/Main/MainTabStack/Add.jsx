@@ -80,11 +80,7 @@ const AddScreen = () => {
         const thumbnailUri = await generateThumbnail(uri);
         const thumbnailFormat = thumbnailUri.split(".").pop();
 
-        // postData.append("file", {
-        //   type: `image/${thumbnailFormat}`,
-        //   name: `mediaThumbnail.${thumbnailFormat}`,
-        //   uri: thumbnailUri,
-        // });
+        // get signed url for uploading thumbnail
         const { response, success } = await apiCall(
           "POST",
           "/files/signed-upload-url",
@@ -96,9 +92,8 @@ const AddScreen = () => {
           );
           return;
         }
-
         postData.mimetype = thumbnailFormat;
-        postData.mediaKey = response.fileKey;
+        postData.mediaKey = response.fileKey; // This is the thumbnail. We send this to backend which saves it as the thumbnailkey for this post,
         postData.mediaType = "video";
         postData.mediaIsSelfie = isSelfie || false;
         postData.height = height;
@@ -234,7 +229,7 @@ const AddScreen = () => {
     });
   };
 
-  const handleLargeFileUpload = async (post) => {
+  const handleLargeFileCompression = async (post) => {
     await VideoCompress.compress(
       file.uri,
       {
@@ -263,7 +258,7 @@ const AddScreen = () => {
           payload: { posted: true, type: "created" },
         });
         navigation.navigate("Home");
-        await handleLargeFileUpload(post);
+        await handleLargeFileCompression(post);
       } else {
         dispatch({
           type: "SET_POST_CREATED",

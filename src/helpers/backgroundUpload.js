@@ -8,6 +8,7 @@ const backgroundUpload = async ({
   parameters,
   failureRoute,
   onComplete,
+  disableLogs,
 }) => {
   const options = {
     url,
@@ -29,28 +30,38 @@ const backgroundUpload = async ({
     .then((uploadId) => {
       console.log("Upload started");
       Upload.addListener("progress", uploadId, (data) => {
-        console.log(`Progress: ${data.progress}%`);
-        console.log(data);
+        if (!disableLogs) {
+          console.log(`Progress: ${data.progress}%`);
+          console.log(data);
+        }
       });
       Upload.addListener("error", uploadId, async (data) => {
-        console.log({ data });
-        console.log(`Error: ${data.error}%`);
+        if (!disableLogs) {
+          console.log({ data });
+          console.log(`Error: ${data.error}%`);
+        }
         await apiCall("GET", failureRoute);
       });
       Upload.addListener("cancelled", uploadId, async (data) => {
-        console.log(`Cancelled!`);
+        if (!disableLogs) {
+          console.log(`Cancelled!`);
+        }
         await apiCall("GET", failureRoute);
       });
       Upload.addListener("completed", uploadId, (data) => {
         if (onComplete) {
           onComplete();
         }
-        console.log(data);
-        console.log("Completed!");
+        if (!disableLogs) {
+          console.log(data);
+          console.log("Completed!");
+        }
       });
     })
     .catch(async (err) => {
-      console.log("Upload error!", err);
+      if (!disableLogs) {
+        console.log("Upload error!", err);
+      }
       await apiCall("GET", failureRoute);
     });
 };
