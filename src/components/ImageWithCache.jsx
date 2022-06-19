@@ -38,7 +38,7 @@ const ImageWithCache = ({
       >
         <View
           style={{
-            backgroundColor: themeStyle.colors.grayscale.highest,
+            backgroundColor: themeStyle.colors.black,
             flex: 1,
           }}
         >

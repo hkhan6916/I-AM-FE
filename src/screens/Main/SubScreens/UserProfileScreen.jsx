@@ -244,22 +244,45 @@ const UserProfileScreen = (props) => {
     apiCall("GET", `/user/${userId}`, null)
   );
 
-  // const renderItem = useCallback(
-  //   ({ item }) => {
-  //     if (!item?.deleted && !user.blockedByThem)
-  //       return (
-  //         <PostCard
-  //           setShowPostOptions={triggerOptionsModal}
-  //           isVisible={visibleItems.includes(item._id)}
-  //           post={item}
-  //           screenHeight={screenHeight}
-  //           screenWidth={screenWidth}
-  //           disableVideo
-  //         />
-  //       );
-  //   },
-  //   [userPosts, userId, user.blockedByUser, user.blockedByUser, user.isFriend]
-  // );
+  const handleReaction = async (post) => {
+    const oldUserposts = userPosts;
+
+    if (post.liked) {
+      setUserPosts((prev) => {
+        return prev.map((p) => {
+          if (p._id === post._id) {
+            return { ...p, liked: false };
+          }
+          return p;
+        });
+      });
+      const { success, message } = await apiCall(
+        "GET",
+        `/posts/like/remove/${post._id}`
+      );
+      if (!success) {
+        setUserPosts(oldUserposts);
+      }
+      console.log(message);
+      return;
+    }
+    setUserPosts((prev) => {
+      return prev.map((p) => {
+        if (p._id === post._id) {
+          return { ...p, liked: true };
+        }
+        return p;
+      });
+    });
+    const { success, message } = await apiCall(
+      "GET",
+      `/posts/like/add/${post._id}`
+    );
+    if (!success) {
+      setUserPosts(oldUserposts);
+    }
+    console.log(message);
+  };
 
   const rowRenderer = useCallback(
     (type, item, index, extendedState) => {
@@ -290,16 +313,17 @@ const UserProfileScreen = (props) => {
             isVisible={false}
             unmount={!isFocused}
             disableVideo
+            handleReaction={handleReaction}
           />
         );
       }
     },
-    [isFocused, user, userData]
+    [isFocused, user, userData, userPosts]
   );
 
   let dataProvider = new DataProvider(
     (r1, r2) => {
-      return r1._id !== r2._id;
+      return r1._id !== r2._id || r1.liked !== r2.liked;
     }
     // (index) => `${userPosts[index]?._id}`
   ).cloneWithRows([{}, ...userPosts]);

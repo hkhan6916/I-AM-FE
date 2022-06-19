@@ -215,7 +215,7 @@ const ChatScreen = (props) => {
         chatId,
         senderId: authInfo?.senderId,
         mediaType: media.type?.split("/")[0],
-        online: (!!recipient?.online).toString(), // TODO: change to boolean instead of string here and in BE
+        online: !!recipient?.online,
         recipientId: recipient?.userId,
         auth: authInfo?.token,
       };
@@ -254,8 +254,8 @@ const ChatScreen = (props) => {
                   stringTime: get12HourTime(new Date()),
                   stringDate: getNameDate(new Date()),
                   tempId,
-                  _id: tempId, // Incase we use _id anywhere, we need a unique field
-                  ready: false,
+                  _id: tempId, // Incase we use _id anywhere, we need a unique field so we pass a temporary id
+                  ready: true,
                 },
                 ...messages,
               ]);
@@ -660,6 +660,7 @@ const ChatScreen = (props) => {
           tempId,
         }) => {
           if (senderId === authInfo.senderId) {
+            if (mediaType !== "video") return;
             setMessages((messages) => {
               return messages?.map((message) => {
                 if (
