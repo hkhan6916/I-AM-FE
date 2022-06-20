@@ -263,7 +263,6 @@ const UserProfileScreen = (props) => {
       if (!success) {
         setUserPosts(oldUserposts);
       }
-      console.log(message);
       return;
     }
     setUserPosts((prev) => {

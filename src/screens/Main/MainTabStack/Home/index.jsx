@@ -170,7 +170,7 @@ const HomeScreen = () => {
       );
       setLoading(false);
       if (success) {
-        if (!response.feed?.length || response.feed.length === 1) {
+        if (!response.feed?.length) {
           setAllPostsLoaded(true);
         } else {
           const noDuplicatesResponse = response.feed.filter((post) => {

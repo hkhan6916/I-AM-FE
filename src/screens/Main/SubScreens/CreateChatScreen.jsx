@@ -19,9 +19,11 @@ import {
   LayoutProvider,
   RecyclerListView,
 } from "recyclerlistview";
+import { useSelector } from "react-redux";
 
 const CreateChatScreen = () => {
   const isMounted = useRef(null);
+  const userData = useSelector((state) => state.userData)?.state;
 
   const [contacts, setContacts] = useState([]);
   const [error, setError] = useState(false);
@@ -126,7 +128,9 @@ const CreateChatScreen = () => {
   useEffect(() => {
     isMounted.current = true;
     (async () => {
-      await getUserContacts();
+      if (userData?.profileVideoUrl) {
+        await getUserContacts();
+      }
     })();
     return () => {
       isMounted.current = false;
@@ -149,9 +153,7 @@ const CreateChatScreen = () => {
           layoutProvider={layoutProvider}
           onEndReachedThreshold={0.5}
         />
-      ) : data?.length ? (
-        <View />
-      ) : (
+      ) : error ? (
         <View>
           <Text
             style={{
@@ -162,6 +164,8 @@ const CreateChatScreen = () => {
             Something went wrong, please try again later.
           </Text>
         </View>
+      ) : (
+        <View />
       )}
     </View>
   );

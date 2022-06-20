@@ -154,7 +154,7 @@ const LoginScreen = () => {
             onPress={() => goToSignUpScreen()}
             style={{
               fontWeight: "700",
-              color: themeStyle.colors.grayscale.lowest,
+              color: themeStyle.colors.secondary.default,
             }}
           >
             Sign Up

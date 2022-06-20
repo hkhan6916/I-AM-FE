@@ -615,40 +615,37 @@ const EditUserDetailsScreen = () => {
                   </View>
                 </View>
               ) : null}
-              <TouchableOpacity
-                style={styles.takeVideoButton}
-                onPress={() => {
-                  setFaceDetected(false);
-                  setCameraActivated(true);
-                  setRecordingLength(recordingLength);
-                }}
-              >
-                <Text style={styles.takeVideoButtonText}>
-                  <Ionicons name="videocam" size={14} /> Take profile video
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.takeVideoButton}
-                onPress={() => {
-                  setRecordingLength(recordingLength);
-                  pickProfileVideo();
-                }}
-              >
-                <Text
-                  style={{
-                    color: themeStyle.colors.primary.default,
-                    fontWeight: "900",
+              <View>
+                <TouchableOpacity
+                  style={styles.takeVideoButton}
+                  onPress={() => {
+                    setFaceDetected(false);
+                    setCameraActivated(true);
+                    setRecordingLength(recordingLength);
                   }}
                 >
-                  <FontAwesome5
-                    name="images"
-                    size={14}
-                    color={themeStyle.colors.primary.default}
-                  />{" "}
-                  Upload profile video
-                </Text>
-              </TouchableOpacity>
-
+                  <Text style={styles.takeVideoButtonText}>
+                    <Ionicons name="videocam" size={14} /> Take new profile
+                    video
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.takeVideoButton}
+                  onPress={() => {
+                    setRecordingLength(recordingLength);
+                    pickProfileVideo();
+                  }}
+                >
+                  <Text style={styles.takeVideoButtonText}>
+                    <FontAwesome5
+                      name="images"
+                      size={14}
+                      color={themeStyle.colors.grayscale.lowest}
+                    />{" "}
+                    Upload new profile video
+                  </Text>
+                </TouchableOpacity>
+              </View>
               <InputNoBorder
                 error={validationErrors?.firstName}
                 label="First Name"
@@ -854,11 +851,14 @@ const EditUserDetailsScreen = () => {
                   color={themeStyle.colors.primary.default}
                 />
               ) : (
-                <Ionicons
-                  name="checkmark"
-                  size={30}
-                  color={themeStyle.colors.primary.light}
-                />
+                <Text
+                  style={{
+                    color: themeStyle.colors.white,
+                    fontWeight: "700",
+                  }}
+                >
+                  Update details
+                </Text>
               )}
             </TouchableOpacity>
           </View>
@@ -934,10 +934,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   submitButtonContainer: {
-    width: "95%",
-    backgroundColor: themeStyle.colors.grayscale.highest,
-    borderWidth: 1,
-    borderColor: themeStyle.colors.primary.light,
+    width: "98%",
+    backgroundColor: themeStyle.colors.primary.default,
     position: "absolute",
     bottom: 0,
     alignItems: "center",
@@ -945,18 +943,18 @@ const styles = StyleSheet.create({
     height: 48,
     zIndex: 1,
     alignSelf: "center",
+    borderRadius: 5,
   },
   submitButton: {
     width: "100%",
     height: "100%",
     alignItems: "center",
     justifyContent: "center",
-    borderTopWidth: 2,
   },
   takeVideoButton: {
     margin: 10,
     padding: 10,
-    borderWidth: 2,
+    borderWidth: 3,
     borderColor: themeStyle.colors.primary.default,
     borderRadius: 5,
   },
