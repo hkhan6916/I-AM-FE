@@ -370,7 +370,7 @@ const Step1Screen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={{ marginBottom: 48 }}>
+      <ScrollView style={{ marginBottom: 0 }}>
         <View style={styles.formContainer}>
           <Text
             style={[styles.signupText, skipProfileVideo && { opacity: 0.1 }]}
@@ -386,8 +386,7 @@ const Step1Screen = () => {
               opacity: skipProfileVideo ? 0.1 : 1,
             }}
           >
-            A profile video lets others know you better alongside your career
-            and accomplishments.
+            Build a network where everyone knows each other with profile videos.
           </Text>
           <Modal
             visible={showHelpModal}
@@ -500,7 +499,7 @@ const Step1Screen = () => {
                 <Ionicons
                   name="videocam"
                   size={14}
-                  color={themeStyle.colors.primary.default}
+                  color={themeStyle.colors.grayscale.lowest}
                 />{" "}
                 Take profile video
               </Text>
@@ -517,17 +516,18 @@ const Step1Screen = () => {
             <TouchableOpacity
               onPress={() => pickProfileVideo()}
               style={[styles.uploadVideoButton]}
+              disabled={skipProfileVideo}
             >
               <Text
                 style={{
-                  color: themeStyle.colors.primary.default,
+                  color: themeStyle.colors.grayscale.lowest,
                   fontWeight: "900",
                 }}
               >
                 <FontAwesome5
                   name="images"
                   size={14}
-                  color={themeStyle.colors.primary.default}
+                  color={themeStyle.colors.grayscale.lowest}
                 />{" "}
                 Upload profile video
               </Text>
@@ -536,7 +536,7 @@ const Step1Screen = () => {
           {!skipProfileVideo ? (
             <TouchableOpacity
               disabled={skipProfileVideo}
-              style={{ opacity: skipProfileVideo ? 0.1 : 1 }}
+              style={{ opacity: skipProfileVideo ? 0.1 : 1, marginTop: 20 }}
               onPress={() => setSkipProfileVideo(true)}
             >
               <Text
@@ -649,19 +649,19 @@ const styles = StyleSheet.create({
   takeVideoButton: {
     margin: 10,
     padding: 10,
-    borderWidth: 2,
+    borderWidth: 3,
     borderColor: themeStyle.colors.primary.default,
     borderRadius: 5,
   },
   uploadVideoButton: {
     margin: 10,
     padding: 10,
-    borderWidth: 2,
+    borderWidth: 3,
     borderColor: themeStyle.colors.primary.default,
     borderRadius: 5,
   },
   takeVideoButtonText: {
-    color: themeStyle.colors.primary.default,
+    color: themeStyle.colors.grayscale.lowest,
     fontWeight: "900",
   },
   text: {

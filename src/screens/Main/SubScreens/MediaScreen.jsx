@@ -114,28 +114,28 @@ const MediaScreen = (props) => {
       <SafeAreaView style={styles.container}>
         <View>
           {post?.mediaType === "video" ? (
-            // <ExpoVideoPlayer
-            //   isSelfie={post.mediaIsSelfie}
-            //   uri={post.mediaUrl}
-            // />
-            <VideoPlayer
-              source={{ uri: post.mediaUrl }}
-              navigator={navigation}
-              videoStyle={{
-                transform: [{ scaleX: post.mediaIsSelfie ? -1 : 1 }],
-                // height: "100%",
-              }}
-              onError={(e) => console.log(e)}
-              style={{ width: screenWidth }}
-              paused={!isFocused}
-              disableFullscreen
-              fullscreen={false}
-              Ionicons
-              controlAnimationTiming={100}
-              disableVolume
-              // scrubbing={1000}
+            <ExpoVideoPlayer
+              isSelfie={post.mediaIsSelfie}
+              uri={post.mediaUrl}
             />
-          ) : post?.mediaType === "image" ? (
+          ) : // <VideoPlayer
+          //   source={{ uri: post.mediaUrl }}
+          //   navigator={navigation}
+          //   videoStyle={{
+          //     transform: [{ scaleX: post.mediaIsSelfie ? -1 : 1 }],
+          //     // height: "100%",
+          //   }}
+          //   onError={(e) => console.log(e)}
+          //   style={{ width: screenWidth }}
+          //   paused={!isFocused}
+          //   disableFullscreen
+          //   fullscreen={false}
+          //   Ionicons
+          //   controlAnimationTiming={100}
+          //   disableVolume
+          //   // scrubbing={1000}
+          // />
+          post?.mediaType === "image" ? (
             <View
               style={{
                 alignItems: "center",
@@ -152,32 +152,32 @@ const MediaScreen = (props) => {
               />
             </View>
           ) : null}
-          {post?.mediaType === "image" ? (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
+          {/* {post?.mediaType === "image" ? ( */}
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={{
+              position: "absolute",
+              left: 20,
+              top: 20,
+            }}
+          >
+            <View
               style={{
-                position: "absolute",
-                left: 20,
-                top: 20,
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Ionicons
-                  name="chevron-back"
-                  size={26}
-                  color={themeStyle.colors.grayscale.low}
-                  style={styles.iconShadow}
-                />
-              </View>
-            </TouchableOpacity>
-          ) : null}
+              <Ionicons
+                name="chevron-back"
+                size={26}
+                color={themeStyle.colors.grayscale.low}
+                style={styles.iconShadow}
+              />
+            </View>
+          </TouchableOpacity>
+          {/* ) : null} */}
           <TouchableWithoutFeedback>
             <View
               style={{

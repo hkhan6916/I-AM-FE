@@ -19,6 +19,7 @@ const Input = ({
   isOutlined,
   setValue,
   onClear,
+  ...rest
 }) => {
   const handleClear = () => {
     if (setValue) {
@@ -65,6 +66,7 @@ const Input = ({
           onChangeText={onChangeText ? (v) => onChangeText(v) : null}
           onEndEditing={onEndEditing ? (e) => onEndEditing(e) : null}
           onBlur={onBlur ? (e) => onBlur(e) : null}
+          {...rest}
         />
         {value ? (
           <TouchableOpacity onPress={() => handleClear()}>

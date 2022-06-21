@@ -310,7 +310,7 @@ const UserProfileScreen = (props) => {
             screenWidth={screenWidth}
             handleNavigation={handleNavigation}
             isVisible={false}
-            unmount={!isFocused}
+            // unmount={!isFocused}
             disableVideo
             handleReaction={handleReaction}
           />

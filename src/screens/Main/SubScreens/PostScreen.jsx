@@ -36,6 +36,14 @@ const PostScreen = (props) => {
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
   const [isCollapsible, setIsCollapsible] = useState(false);
 
+  const handleUnMute = (state) => {
+    dispatch({ type: "SET_GLOBAL_UNMUTE_VIDEOS", payload: state });
+
+    // setFeed((prevFeed) => {
+    //   return prevFeed.map((post) => ({ ...post, unMute: state }));
+    // });
+  };
+
   const navigation = useNavigation();
   const isFocused = useIsFocused();
 
@@ -204,6 +212,7 @@ const PostScreen = (props) => {
                     screenWidth={screenWidth}
                     height={post.height}
                     width={post.width}
+                    setUnMuteVideos={handleUnMute} // TODO: test this
                   />
                 </View>
               ) : post.mediaType === "image" ? (

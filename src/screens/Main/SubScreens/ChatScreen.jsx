@@ -842,7 +842,7 @@ const ChatScreen = (props) => {
               <FontAwesome
                 name="photo"
                 size={24}
-                color={themeStyle.colors.grayscale.lowest}
+                color={themeStyle.colors.white}
               />
             </TouchableOpacity>
             <TouchableOpacity
@@ -864,7 +864,7 @@ const ChatScreen = (props) => {
               <Ionicons
                 name="camera-outline"
                 size={26}
-                color={themeStyle.colors.grayscale.lowest}
+                color={themeStyle.colors.white}
               />
             </TouchableOpacity>
             <TouchableOpacity

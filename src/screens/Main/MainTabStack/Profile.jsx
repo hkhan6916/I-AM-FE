@@ -90,7 +90,6 @@ const ProfileScreen = () => {
           screenWidth={screenWidth}
           handleNavigation={handleNavigation}
           isVisible={false}
-          unmount={!isFocussed}
           disableVideo
         />
       );

@@ -170,7 +170,7 @@ const HomeScreen = () => {
       );
       setLoading(false);
       if (success) {
-        if (!response.feed?.length) {
+        if (!response.feed?.length || response.feed.length === 1) {
           setAllPostsLoaded(true);
         } else {
           const noDuplicatesResponse = response.feed.filter((post) => {
@@ -210,12 +210,13 @@ const HomeScreen = () => {
       ...postIds,
       ...response.feed.map((post) => post._id.toString()),
     ];
-    setPostIds(ids);
     setRefreshing(false);
     if (success) {
+      setPostIds(ids);
       setConnectionsAsReceiverOffset(0);
       setConnectionsAsSenderOffset(0);
       setFeed(response.feed);
+      setOriginalFeed(response.feed);
     }
   }, []);
 
