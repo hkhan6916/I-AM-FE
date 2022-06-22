@@ -9,12 +9,13 @@ import themeStyle from "../../../theme.style";
 const EmailVerificationScreen = () => {
   const [error, setError] = useState("");
   const [verified, setVerified] = useState(false);
+  const [loading, setLoading] = useState(false);
   const userData = useSelector((state) => state.userData)?.state || {};
   const dispatch = useDispatch();
 
   useEffect(() => {
     (async () => {
-      const { response, success } = await apiCall(
+      const { success } = await apiCall(
         "GET",
         "/user/email/create-email-verification"
       );
@@ -27,11 +28,13 @@ const EmailVerificationScreen = () => {
   }, []);
 
   const handleVerification = async (code) => {
+    setLoading(true);
     const { success } = await apiCall("GET", `/user/email/verify/${code}`);
     if (!success) {
       setError(
         "There was a problem with verifying your account. Please try again later."
       );
+      setLoading(false);
       return;
     }
 
@@ -102,7 +105,10 @@ const EmailVerificationScreen = () => {
       >
         Please enter the code we sent to your email.
       </Text>
-      <CodeInput onSubmit={(code) => handleVerification(code)} />
+      <CodeInput
+        loading={loading}
+        onSubmit={(code) => handleVerification(code)}
+      />
     </View>
   );
 };

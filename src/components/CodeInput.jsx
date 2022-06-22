@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {
-  SafeAreaView,
+  ActivityIndicator,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -19,7 +19,7 @@ import themeStyle from "../theme.style";
 
 const CELL_COUNT = 6;
 
-const CodeInput = ({ onSubmit }) => {
+const CodeInput = ({ onSubmit, loading }) => {
   const [value, setValue] = useState("");
   const ref = useBlurOnFulfill({ value, cellCount: CELL_COUNT });
   const [props, getCellOnLayoutHandler] = useClearByFocusCell({
@@ -66,9 +66,18 @@ const CodeInput = ({ onSubmit }) => {
             marginVertical: 20,
             paddingHorizontal: 20,
             paddingVertical: 10,
+            minWidth: 100,
           }}
         >
-          <Text style={{ color: themeStyle.colors.white }}>Submit</Text>
+          {!loading ? (
+            <Text style={{ color: themeStyle.colors.white }}>Verify</Text>
+          ) : (
+            <ActivityIndicator
+              size="small"
+              color={themeStyle.colors.white}
+              animating
+            />
+          )}
         </TouchableOpacity>
       </View>
     </View>

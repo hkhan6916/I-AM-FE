@@ -22,13 +22,13 @@ const FollowersModeScreen = () => {
       "GET",
       "/user/followersmode/toggle"
     );
-    console.log(response);
     if (success) {
       dispatch({
         type: "SET_USER_DATA",
         payload: {
           ...userData.state,
           followersMode: response.followersMode,
+          private: false,
         },
       });
     } else {

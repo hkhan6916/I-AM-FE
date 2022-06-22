@@ -35,11 +35,23 @@ const AccountScreen = () => {
         transparent
         onRequestClose={() => setShowDeleteGuard(false)}
       >
+        <TouchableOpacity
+          onPress={() => setShowDeleteGuard(false)}
+          style={{ position: "absolute", top: 20, left: 20, zIndex: 999 }}
+        >
+          <Ionicons
+            style={styles.searchIcon}
+            name="arrow-back"
+            size={24}
+            color={themeStyle.colors.grayscale.lowest}
+          />
+        </TouchableOpacity>
         <View
           style={{
             flex: 1,
-            backgroundColor: themeStyle.colors.grayscale.higher,
+            backgroundColor: themeStyle.colors.grayscale.highest,
             alignItems: "center",
+            paddingTop: 50,
           }}
         >
           <Text
@@ -58,9 +70,10 @@ const AccountScreen = () => {
             style={{
               color: themeStyle.colors.grayscale.lowest,
               marginBottom: 20,
+              fontSize: 18,
             }}
           >
-            This will be a sad day, bye...{" "}
+            This will be a sad day...{" "}
             <FontAwesome5
               name="sad-tear"
               size={20}
@@ -69,10 +82,12 @@ const AccountScreen = () => {
           </Text>
           <View
             style={{
-              flexDirection: "column",
+              flexDirection: "row",
               flex: 1,
               alignItems: "center",
+              width: "100%",
               justifyContent: "space-between",
+              paddingHorizontal: 40,
             }}
           >
             <TouchableOpacity
@@ -80,7 +95,7 @@ const AccountScreen = () => {
                 await deleteAccount();
               }}
               style={{
-                padding: 10,
+                height: 48,
               }}
             >
               <Text
@@ -94,7 +109,7 @@ const AccountScreen = () => {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ margin: 20 }}
+              style={{ height: 48 }}
               onPress={() => setShowDeleteGuard(false)}
             >
               <Text
@@ -117,6 +132,15 @@ const AccountScreen = () => {
           >
             <View style={styles.optionContent}>
               <Text style={styles.basicOptionsText}>Followers Mode</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.option}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("AccountVisibilityeScreen")}
+          >
+            <View style={styles.optionContent}>
+              <Text style={styles.basicOptionsText}>Profile Visibility</Text>
             </View>
           </TouchableOpacity>
         </View>

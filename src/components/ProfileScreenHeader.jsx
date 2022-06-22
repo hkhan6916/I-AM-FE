@@ -1,58 +1,24 @@
-import React, { useState } from "react";
+import React from "react";
 import themeStyle from "../theme.style";
 import { TouchableOpacity, View, Text, ScrollView } from "react-native";
 import PreviewVideo from "./PreviewVideo";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import apiCall from "../helpers/apiCall";
 import { useNavigation } from "@react-navigation/native";
-import { useSelector } from "react-redux";
 
 const ProfileScreenHeader = React.forwardRef(
   ({ children, userData, ...props }, ref) => {
-    const [isPrivate, setIsPrivate] = useState(!!userData.private);
     const navigation = useNavigation();
-
-    const changeUserVisibility = async () => {
-      setIsPrivate(!isPrivate);
-      const { success } = await apiCall("GET", "/user/visibility/change");
-      if (!success) {
-        setIsPrivate(!isPrivate);
-      }
-    };
 
     return (
       <ScrollView ref={ref} {...props}>
         <View>
           <PreviewVideo
-            uri={userData.profileVideoUrl}
+            uri={userData?.profileVideoUrl}
             isFullWidth
             previewText={"Tap to play"}
-            flipProfileVideo={userData.flipProfileVideo}
+            flipProfileVideo={userData?.flipProfileVideo}
           />
-          {!userData.followersMode ? (
-            <TouchableOpacity onPress={() => changeUserVisibility()}>
-              <View
-                style={{
-                  borderColor: themeStyle.colors.primary.default,
-                  borderWidth: 1,
-                  padding: 10,
-                  borderRadius: 5,
-                  marginVertical: 10,
-                  marginHorizontal: 5,
-                }}
-              >
-                <Text
-                  style={{
-                    color: themeStyle.colors.grayscale.lowest,
-                    textAlign: "center",
-                    fontWeight: "700",
-                  }}
-                >
-                  {isPrivate ? "Private" : "Public"}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ) : (
+          {userData?.followersMode ? (
             <View
               style={{
                 alignItems: "center",
@@ -78,8 +44,8 @@ const ProfileScreenHeader = React.forwardRef(
                 Your account is in followers mode.
               </Text>
             </View>
-          )}
-          {isPrivate && !userData.followersMode ? (
+          ) : null}
+          {!!userData?.private && !userData?.followersMode ? (
             <Text
               style={{
                 color: themeStyle.colors.grayscale.lowest,
@@ -90,7 +56,7 @@ const ProfileScreenHeader = React.forwardRef(
               }}
             >
               <AntDesign
-                name={isPrivate ? "lock" : "unlock"}
+                name="lock"
                 size={16}
                 color={themeStyle.colors.grayscale.lower}
               />
@@ -109,11 +75,11 @@ const ProfileScreenHeader = React.forwardRef(
                   color: themeStyle.colors.grayscale.lowest,
                 }}
               >
-                {userData.username}{" "}
+                {userData?.username}{" "}
               </Text>
-              {userData.jobTitle ? (
+              {userData?.jobTitle ? (
                 <Text style={{ color: themeStyle.colors.grayscale.lower }}>
-                  {userData.jobTitle}
+                  {userData?.jobTitle}
                 </Text>
               ) : null}
             </View>
@@ -136,8 +102,8 @@ const ProfileScreenHeader = React.forwardRef(
                     color: themeStyle.colors.primary.default,
                   }}
                 >
-                  {userData.numberOfFriends}{" "}
-                  {userData.followersMode ? "followers" : "contacts"}
+                  {userData?.numberOfFriends}{" "}
+                  {userData?.followersMode ? "followers" : "contacts"}
                 </Text>
               </TouchableOpacity>
             </View>

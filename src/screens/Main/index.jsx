@@ -19,6 +19,7 @@ import OtherUserFriendsScreen from "./SubScreens/OtherUserFriendsScreen";
 import EditPostScreen from "./SubScreens/EditPostScreen";
 import AccountScreen from "./SubScreens/AccountScreen";
 import FollowersModeScreen from "./SubScreens/FollowersModeScreen";
+import AccountVisibilityeScreen from "./SubScreens/AccountVisibilityScreen";
 import AdScreen from "./SubScreens/AdTest";
 import Test from "./SubScreens/Test";
 import EmailVerificationScreen from "./SubScreens/EmailVerificationScreen";
@@ -286,6 +287,21 @@ const MainStack = () => (
       }}
       name="FollowersModeScreen"
       component={FollowersModeScreen}
+    />
+    <Stack.Screen
+      options={{
+        title: "Account Visibility",
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        },
+      }}
+      name="AccountVisibilityeScreen"
+      component={AccountVisibilityeScreen}
     />
     <Stack.Screen
       options={{
