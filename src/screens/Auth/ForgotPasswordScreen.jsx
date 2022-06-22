@@ -34,17 +34,24 @@ const ForgotPasswordScreen = () => {
     }
     if (emailValid) {
       setLoading(true);
-      const { success, response } = await apiCall(
+      const { success, response, message } = await apiCall(
         "POST",
         "/user/password/reset",
         { email }
       );
+      console.log(response, message);
       setLoading(false);
       if (success) {
         setEmailSent(true);
       }
       if (!success && response?.found === false) {
         setEmailError("A user does not exist with that email.");
+        return;
+      }
+      if (!success) {
+        setEmailError(
+          "An error occurred resetting your password. Please try again later."
+        );
       }
     }
   };
@@ -55,7 +62,7 @@ const ForgotPasswordScreen = () => {
         <ScrollView
           contentContainerStyle={{
             alignItems: "center",
-            padding: 30,
+            padding: 20,
             width: "100%",
             justifyContent: "center",
           }}
@@ -66,6 +73,7 @@ const ForgotPasswordScreen = () => {
               marginBottom: 20,
               fontWeight: "700",
               fontSize: 24,
+              color: themeStyle.colors.grayscale.lowest,
             }}
           >
             Reset Password
@@ -142,16 +150,29 @@ const ForgotPasswordScreen = () => {
             >
               Email sent!
             </Text>
-            <Text>
+            <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
               We&apos;ve sent an email to{" "}
               <Text style={{ fontWeight: "700" }}>{email}</Text>
             </Text>
-            <Text style={{ fontSize: 12, textAlign: "center" }}>
+            <Text
+              style={{
+                fontSize: 12,
+                textAlign: "center",
+                color: themeStyle.colors.grayscale.lowest,
+              }}
+            >
               Don&apos;t forget to check your spam folder :)
             </Text>
           </View>
           <View style={{ justifyContent: "center", alignItems: "center" }}>
-            <Text style={{ marginBottom: 10 }}>Didn&apos;t get an email?</Text>
+            <Text
+              style={{
+                marginBottom: 10,
+                color: themeStyle.colors.grayscale.lowest,
+              }}
+            >
+              Didn&apos;t get an email?
+            </Text>
             <TouchableOpacity onPress={() => setEmailSent(false)}>
               <Text
                 style={{

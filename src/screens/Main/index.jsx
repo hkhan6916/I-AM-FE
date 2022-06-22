@@ -21,6 +21,7 @@ import AccountScreen from "./SubScreens/AccountScreen";
 import FollowersModeScreen from "./SubScreens/FollowersModeScreen";
 import AdScreen from "./SubScreens/AdTest";
 import Test from "./SubScreens/Test";
+import EmailVerificationScreen from "./SubScreens/EmailVerificationScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -285,6 +286,21 @@ const MainStack = () => (
       }}
       name="FollowersModeScreen"
       component={FollowersModeScreen}
+    />
+    <Stack.Screen
+      options={{
+        title: "Email Verification",
+        headerShown: true,
+        headerTintColor: themeStyle.colors.primary.default,
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+        headerStyle: {
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        },
+      }}
+      name="EmailVerificationScreen"
+      component={EmailVerificationScreen}
     />
   </Stack.Navigator>
 );

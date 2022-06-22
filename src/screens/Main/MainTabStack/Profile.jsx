@@ -228,7 +228,7 @@ const ProfileScreen = () => {
           style={{ fontSize: 20, color: themeStyle.colors.grayscale.lowest }}
           numberOfLines={1}
         >
-          {userData.username}
+          {userData?.username || ""}
         </Text>
         <TouchableOpacity onPress={() => navigation.navigate("SettingsScreen")}>
           <MaterialCommunityIcons
@@ -238,6 +238,32 @@ const ProfileScreen = () => {
           />
         </TouchableOpacity>
       </View>
+      {!userData?.verified && userData?.profileVideoUrl ? (
+        <View
+          style={{
+            backgroundColor: "rgba(19, 130, 148, 0.2)",
+            padding: 10,
+          }}
+        >
+          <Text
+            style={{
+              textAlign: "center",
+              color: themeStyle.colors.grayscale.lowest,
+            }}
+          >
+            Your account is not verified yet.{" "}
+            <Text
+              style={{
+                color: themeStyle.colors.secondary.default,
+                fontWeight: "700",
+              }}
+              onPress={() => navigation.navigate("EmailVerificationScreen")}
+            >
+              Verify
+            </Text>
+          </Text>
+        </View>
+      ) : null}
       <View style={{ flex: 1 }}>
         {userData ? (
           <RecyclerListView

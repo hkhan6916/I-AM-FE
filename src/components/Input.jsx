@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 12,
     color: themeStyle.colors.error.default,
+    marginTop: 5,
   },
   label: {
     fontWeight: "400",

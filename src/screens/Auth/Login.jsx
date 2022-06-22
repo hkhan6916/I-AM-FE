@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Keyboard,
   Platform,
+  ScrollView,
 } from "react-native";
 import { setItemAsync } from "expo-secure-store";
 import { useNavigation } from "@react-navigation/native";
@@ -88,7 +89,7 @@ const LoginScreen = () => {
     return unsubscribe;
   }, [navigation]);
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.formContainer}>
         <View style={styles.logoContainer}>
           <Logo fill={themeStyle.colors.grayscale.lowest} />
@@ -161,7 +162,7 @@ const LoginScreen = () => {
           </Text>
         </Text>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 const styles = StyleSheet.create({
