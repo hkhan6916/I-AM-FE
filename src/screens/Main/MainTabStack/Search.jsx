@@ -95,17 +95,6 @@ const SearchScreen = () => {
     },
     [searchItemsVisible]
   );
-  const renderThumbnail = useCallback(
-    ({ item: user }) => (
-      <UserThumbnail
-        key={user._id}
-        user={user}
-        avatarSize={showAllResults ? 70 : 40}
-        fontSize={12}
-      />
-    ),
-    [showAllResults]
-  );
 
   const thumbnailRenderer = useCallback(
     (_, item, index, extendedState) => {
@@ -114,7 +103,9 @@ const SearchScreen = () => {
           key={item._id}
           user={item}
           avatarSize={extendedState?.showAllResults ? 70 : 40}
-          fontSize={12}
+          fontSize={!extendedState?.showAllResults ? 12 : 14}
+          showSeparator={true}
+          height={extendedState?.showAllResults ? 100 : 80}
         />
       );
     },
@@ -149,13 +140,17 @@ const SearchScreen = () => {
     )
   ).current;
 
-  const searchResultsKeyExtractor = useCallback(
-    (item, i) => `${item._id}-${i}`,
-    []
-  );
+  const userLayoutProviderAllResults = useRef(
+    new LayoutProvider(
+      () => 0,
+      (_, dim) => {
+        dim.width = screenWidth;
+        dim.height = 100;
+      }
+    )
+  ).current;
 
   const onEndReached = async () => {
-    console.log("end reached");
     const { response } = await apiCall(
       "POST",
       `/user/search/${results.length}`,
@@ -261,7 +256,7 @@ const SearchScreen = () => {
             <RecyclerListView
               style={{ minHeight: 1, minWidth: 1 }}
               dataProvider={userDataProvider}
-              layoutProvider={userLayoutProvider}
+              layoutProvider={userLayoutProviderAllResults}
               rowRenderer={thumbnailRenderer}
               onEndReached={() => onEndReached()}
               onEndReachedThreshold={0.5}

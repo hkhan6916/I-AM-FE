@@ -366,24 +366,26 @@ const CommentsScreen = (props) => {
         keyboardVerticalOffset={93}
         style={{ flex: 1 }}
       >
-        <RecyclerListView
-          style={{ minHeight: 1, minWidth: 1 }}
-          rowRenderer={rowRenderer}
-          dataProvider={dataProvider}
-          onEndReached={() => getComments(true)}
-          layoutProvider={layoutProvider}
-          onEndReachedThreshold={0.5}
-          forceNonDeterministicRendering
-          renderFooter={renderFooter}
-          scrollViewProps={{
-            onScrollEndDrag: () => {
-              Keyboard.dismiss();
-            },
-            refreshControl: (
-              <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-            ),
-          }}
-        />
+        {comments?.length ? (
+          <RecyclerListView
+            style={{ minHeight: 1, minWidth: 1 }}
+            rowRenderer={rowRenderer}
+            dataProvider={dataProvider}
+            onEndReached={() => getComments(true)}
+            layoutProvider={layoutProvider}
+            onEndReachedThreshold={0.5}
+            forceNonDeterministicRendering
+            renderFooter={renderFooter}
+            scrollViewProps={{
+              onScrollEndDrag: () => {
+                Keyboard.dismiss();
+              },
+              refreshControl: (
+                <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+              ),
+            }}
+          />
+        ) : null}
 
         <View>
           {showOptionsForComment ? (

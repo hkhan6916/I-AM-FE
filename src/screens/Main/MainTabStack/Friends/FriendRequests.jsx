@@ -26,7 +26,14 @@ const FriendRequestsScreen = () => {
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
   const getFriendRequests = async () => {
-    const { success, response } = await apiCall("GET", "/user/friend/requests");
+    const { success, response } = await apiCall(
+      "POST",
+      "/user/friend/requests",
+      {
+        sentOffset: friendRequestsSent?.length,
+        receivedOffset: friendRequestsReceived?.length,
+      }
+    );
 
     if (success) {
       setFriendRequestsReceived([

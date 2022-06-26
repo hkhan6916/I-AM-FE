@@ -2,6 +2,7 @@ import React from "react";
 import { View, TouchableOpacity } from "react-native";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import Thumbnail from "./Thumbnail";
+import themeStyle from "../../theme.style";
 
 const UserThumbnail = ({
   user,
@@ -11,6 +12,8 @@ const UserThumbnail = ({
   isRequest,
   acceptFriendRequest,
   rejectFriendRequest,
+  showSeparator,
+  height,
 }) => {
   const navigation = useNavigation();
 
@@ -32,35 +35,49 @@ const UserThumbnail = ({
 
   if (!user) return <View />;
   return (
-    <View>
-      {!preventClicks ? (
-        <TouchableOpacity
-          key={user._id}
-          underlayColor="gray"
-          style={{ margin: 10 }}
-          onPress={() => handleUserProfileNavigation()}
-        >
+    <View
+      style={{
+        height: height || 80,
+        paddingHorizontal: 10,
+      }}
+    >
+      <View
+        style={{
+          borderBottomWidth: showSeparator ? 1 : 0,
+          height: "100%",
+          justifyContent: "center",
+          borderColor: themeStyle.colors.grayscale.high,
+        }}
+      >
+        {!preventClicks ? (
+          <TouchableOpacity
+            key={user._id}
+            underlayColor="gray"
+            // style={{ margin: 10 }}
+            onPress={() => handleUserProfileNavigation()}
+          >
+            <Thumbnail
+              avatarSize={avatarSize}
+              user={user}
+              navigation={navigation}
+              fontSize={fontSize}
+              isRequest={isRequest}
+              acceptFriendRequest={acceptFriendRequest}
+              rejectFriendRequest={rejectFriendRequest}
+            />
+          </TouchableOpacity>
+        ) : (
           <Thumbnail
             avatarSize={avatarSize}
             user={user}
             navigation={navigation}
             fontSize={fontSize}
             isRequest={isRequest}
-            acceptFriendRequest={acceptFriendRequest}
-            rejectFriendRequest={rejectFriendRequest}
+            acceptFriendRequest={handleAccept}
+            rejectFriendRequest={handleReject}
           />
-        </TouchableOpacity>
-      ) : (
-        <Thumbnail
-          avatarSize={avatarSize}
-          user={user}
-          navigation={navigation}
-          fontSize={fontSize}
-          isRequest={isRequest}
-          acceptFriendRequest={handleAccept}
-          rejectFriendRequest={handleReject}
-        />
-      )}
+        )}
+      </View>
     </View>
   );
 };

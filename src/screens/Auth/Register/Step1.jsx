@@ -197,6 +197,7 @@ const Step1Screen = () => {
               onBlur={() => setJobTitleOptions([])}
               onEndEditing={() => setJobTitleOptions([])}
               onClear={() => setJobTitleOptions([])}
+              onFocus={() => console.log("hey")}
               onChangeText={(v) => {
                 if (!v) {
                   setJobTitleOptions([]);
@@ -236,7 +237,8 @@ const styles = StyleSheet.create({
     backgroundColor: themeStyle.colors.grayscale.highest,
   },
   formContainer: {
-    padding: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 20,
     backgroundColor: themeStyle.colors.grayscale.highest,
     alignItems: "center",
     justifyContent: "center",

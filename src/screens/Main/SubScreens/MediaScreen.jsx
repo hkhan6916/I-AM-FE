@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   SafeAreaView,
-  Dimensions,
 } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
 import {
@@ -15,22 +14,19 @@ import {
   MaterialCommunityIcons,
   Ionicons,
 } from "@expo/vector-icons";
-import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import ImageWithCache from "../../../components/ImageWithCache";
 import ExpoVideoPlayer from "../../../components/ExpoVideoPlayer";
 import { StatusBar } from "expo-status-bar";
-import VideoPlayer from "react-native-video-controls";
+
 import useScreenOrientation from "../../../helpers/hooks/useScreenOrientation";
 const MediaScreen = (props) => {
   const { post: initialPost } = props.route.params;
   const [liked, setLiked] = useState(initialPost.liked);
   const [likes, setLikes] = useState(initialPost.likes);
   const [post, setPost] = useState(initialPost);
-  const { width: screenWidth } = Dimensions.get("window");
-
-  const isFocused = useIsFocused();
 
   const navigation = useNavigation();
 
@@ -157,8 +153,12 @@ const MediaScreen = (props) => {
             onPress={() => navigation.goBack()}
             style={{
               position: "absolute",
-              left: 20,
-              top: 20,
+              left: 0,
+              top: 40,
+              height: 48,
+              width: 48,
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <View
@@ -171,7 +171,7 @@ const MediaScreen = (props) => {
             >
               <Ionicons
                 name="chevron-back"
-                size={26}
+                size={30}
                 color={themeStyle.colors.grayscale.low}
                 style={styles.iconShadow}
               />

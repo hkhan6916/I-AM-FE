@@ -386,7 +386,7 @@ const Step1Screen = () => {
               opacity: skipProfileVideo ? 0.1 : 1,
             }}
           >
-            Build a network where everyone knows each other with profile videos.
+            Build quality connections with profile videos.
           </Text>
           <Modal
             visible={showHelpModal}

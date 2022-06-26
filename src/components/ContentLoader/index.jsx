@@ -34,6 +34,7 @@ const ContentLoader = ({
   customBackground,
   children,
   hideExtraText,
+  style,
 }) => {
   const [animation, setAnimation] = useState(new Animated.Value(0));
   const startAnimation = () => {
@@ -114,6 +115,7 @@ const ContentLoader = ({
         style={[
           fullWidthStyles,
           { backgroundColor: customBackground || interpolatedBackground },
+          style && style,
         ]}
       />
     );

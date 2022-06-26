@@ -28,7 +28,7 @@ const Thumbnail = ({
     />
     <View
       style={{
-        justifyContent: "center",
+        justifyContent: "space-around",
         marginLeft: 20,
         flex: 1,
         paddingRight: 10,
