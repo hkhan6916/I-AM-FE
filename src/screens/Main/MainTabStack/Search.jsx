@@ -35,6 +35,7 @@ import {
 } from "recyclerlistview";
 import FastImage from "react-native-fast-image";
 import { useNavigation } from "@react-navigation/native";
+import ContentLoader from "../../../components/ContentLoader";
 
 const SearchScreen = () => {
   const [results, setResults] = useState([]);
@@ -179,23 +180,18 @@ const SearchScreen = () => {
       }
     );
 
-    navigation.addListener("focus", async () => {
+    (async () => {
       await createUserSearchHistoryTable(db);
 
       await getSearchFeed();
 
       const history = await getUserSearchHistory(db);
       setUserSearchHistory(history || []);
-    });
-    navigation.addListener("blur", async () => {
-      setSearchFeed([]);
-    });
+    })();
 
     return () => {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
-      navigation.removeListener("focus");
-      navigation.removeListener("blur");
     };
   }, []);
 

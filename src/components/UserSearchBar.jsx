@@ -1,5 +1,5 @@
 import { Ionicons, Feather } from "@expo/vector-icons";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   TextInput,
@@ -12,13 +12,14 @@ import {
 } from "react-native";
 import themeStyle from "../theme.style";
 import apiCall from "../helpers/apiCall";
-import { deleteUserSearchHistoryTable } from "../helpers/sqlite/userSearchHistory";
 
 const UserSearchBar = ({
   onFocus,
   onSubmitEditing,
   setResults,
-  dataToSearchWithin,
+  customSearch = false, // basically a search with custom configs e.g. api route
+  apiRoute,
+  apiConfig,
   contactName,
   onEndEditing = () => null,
   userSearchHistory = [],
@@ -41,48 +42,35 @@ const UserSearchBar = ({
     if (showAllResults && setShowAllResults) {
       setShowAllResults(false);
     }
-    if (!dataToSearchWithin) {
-      if (typingStatus.typingTimeout) {
-        clearTimeout(typingStatus.typingTimeout);
-      }
-      setSearchInput(searchTerm);
-      setTypingStatus({
-        name: searchTerm,
-        typing: false,
-        typingTimeout: setTimeout(() => {
-          handleSearch(searchTerm);
-        }, 250),
-      });
-    } else {
-      setSearchInput(searchTerm);
-
-      handleSearch(searchTerm);
+    if (typingStatus.typingTimeout) {
+      clearTimeout(typingStatus.typingTimeout);
     }
+    setSearchInput(searchTerm);
+    if (!searchTerm) {
+      handleSearch(searchTerm);
+      return;
+    }
+    setTypingStatus({
+      name: searchTerm,
+      typing: false,
+      typingTimeout: setTimeout(() => {
+        handleSearch(searchTerm);
+      }, 250),
+    });
   };
 
   const handleSearch = async (searchTerm) => {
-    if (!dataToSearchWithin) {
-      // if no local data, send apicall to find friends.
-      const { response } = await apiCall("POST", `/user/search/0`, {
-        searchTerm,
-      });
-      if (response.length) {
-        setResults(response);
-      } else {
-        setResults([]);
-      }
+    const { response } = await apiCall("POST", apiRoute || "/user/search/0", {
+      ...(apiConfig || {}),
+      searchTerm,
+    });
+    if (response?.users?.length) {
+      setResults(response.users);
+      return;
+    } else if (response.length) {
+      setResults(response);
     } else {
-      const result = dataToSearchWithin.filter((friend) => {
-        const lowerSearchTerm = searchTerm?.toLowerCase();
-        return (
-          friend.firstName?.toLowerCase().includes(lowerSearchTerm) ||
-          friend.lastName?.toLowerCase().includes(lowerSearchTerm) ||
-          friend.username?.toLowerCase().includes(lowerSearchTerm) ||
-          friend.jobTitle?.toLowerCase().includes(lowerSearchTerm)
-        );
-      });
-      // if empty search, return empty array, if no results found return "none" else return result
-      setResults(!searchTerm ? [] : !result.length ? "none" : result);
+      setResults([]);
     }
   };
 
@@ -133,12 +121,12 @@ const UserSearchBar = ({
     <View>
       <View
         style={
-          dataToSearchWithin
+          customSearch
             ? styles.localSearchStyles
             : styles.defaultContainerStyles
         }
       >
-        {showHistory && !dataToSearchWithin ? (
+        {showHistory && !customSearch ? (
           <TouchableOpacity onPress={() => resetSearch()}>
             <Ionicons
               style={styles.searchIcon}
@@ -170,8 +158,10 @@ const UserSearchBar = ({
             placeholderTextColor={themeStyle.colors.grayscale.low}
             autoCorrect={false}
             placeholder={
-              dataToSearchWithin
-                ? `Search ${contactName ? `${contactName}'s` : ""} contacts`
+              customSearch
+                ? `Search ${
+                    contactName ? `${contactName}'s contacts` : "contacts"
+                  }`
                 : "name, username or job title"
             }
             onChangeText={(v) => searchUsers(v)}
@@ -209,10 +199,7 @@ const UserSearchBar = ({
           </TouchableOpacity>
         ) : null}
       </View>
-      {showHistory &&
-      !resultsVisible &&
-      !feedIsVisible &&
-      !dataToSearchWithin ? (
+      {showHistory && !resultsVisible && !feedIsVisible && !customSearch ? (
         <View style={{ justifyContent: "space-between", flexDirection: "row" }}>
           <Text
             style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}
@@ -234,7 +221,7 @@ const UserSearchBar = ({
           </TouchableOpacity>
         </View>
       ) : null}
-      {!dataToSearchWithin ? (
+      {!customSearch ? (
         <FlatList
           data={
             showHistory && !resultsVisible && !feedIsVisible

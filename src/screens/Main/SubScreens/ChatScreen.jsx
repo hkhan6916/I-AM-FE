@@ -773,6 +773,7 @@ const ChatScreen = (props) => {
         ) : null}
 
         {messages.length ? (
+          // TODO: render placeholder view here if no messages
           <RecyclerListView
             style={{ minHeight: 1, minWidth: 1, transform: [{ scaleY: -1 }] }}
             rowRenderer={rowRenderer}

@@ -13,6 +13,7 @@ import apiCall from "../../../../helpers/apiCall";
 import UserThumbnail from "../../../../components/UserThumbnail";
 import themeStyle from "../../../../theme.style";
 import UserSearchBar from "../../../../components/UserSearchBar";
+import { useSelector } from "react-redux";
 const FriendsScreen = () => {
   const [friends, setFriends] = useState([]);
   const [requests, setRequests] = useState([]);
@@ -20,6 +21,8 @@ const FriendsScreen = () => {
   const [offsets, setOffsets] = useState({});
   const navigation = useNavigation();
   const [refreshing, setRefreshing] = useState(false);
+
+  const userData = useSelector((state) => state.userData)?.state;
 
   const getFriends = async () => {
     const { success, response } = await apiCall(
@@ -152,7 +155,7 @@ const FriendsScreen = () => {
           All requests
         </Text>
       </TouchableOpacity>
-      <SectionList
+      <SectionList // TODO convert to recycler list view
         stickySectionHeadersEnabled={true}
         sections={sections}
         renderItem={renderItem}
@@ -183,7 +186,8 @@ const FriendsScreen = () => {
                 >
                   <UserSearchBar
                     setResults={handleSearch}
-                    dataToSearchWithin={friends}
+                    customSearch
+                    apiRoute={`/user/friends/search/0`}
                     onSubmitEditing={() => Keyboard.dismiss()}
                   />
                 </View>
@@ -214,6 +218,25 @@ const FriendsScreen = () => {
         initialNumToRender={10}
         maxToRenderPerBatch={5}
       />
+      <TouchableOpacity
+        style={{ height: 48, alignItems: "center", justifyContent: "center" }}
+        onPress={() =>
+          navigation.navigate("OtherUserFriendsScreen", {
+            userId: userData?._id,
+            firstName: userData?.firstName,
+          })
+        }
+      >
+        <Text
+          style={{
+            color: themeStyle.colors.secondary.default,
+            textAlign: "center",
+            fontWeight: "700",
+          }}
+        >
+          View all contacts
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };

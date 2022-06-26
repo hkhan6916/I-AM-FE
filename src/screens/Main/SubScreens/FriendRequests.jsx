@@ -19,17 +19,34 @@ const FriendRequestsScreen = () => {
   const [friendRequestsReceived, setFriendRequestsReceived] = useState([]);
   const [friendRequestsSent, setFriendRequestsSent] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [allLoaded, setAllLoaded] = useState(false);
   const navigation = useNavigation();
 
   const getFriendRequests = async () => {
-    const { success, response } = await apiCall("GET", "/user/friend/requests");
+    if (allLoaded) return;
+    const { success, response } = await apiCall(
+      "POST",
+      "/user/friend/requests",
+      {
+        sentOffset: friendRequestsSent?.length,
+        receivedOffset: friendRequestsReceived?.length,
+      }
+    );
     if (success) {
-      setFriendRequestsReceived(response.received);
-      setFriendRequestsSent(response.sent);
+      if (!response.received?.length && !response.sent?.length) {
+        setAllLoaded(true);
+        return;
+      }
+      setFriendRequestsReceived([
+        ...friendRequestsReceived,
+        ...response.received,
+      ]);
+      setFriendRequestsSent([...friendRequestsSent, ...response.sent]);
     }
   };
 
   const onRefresh = useCallback(async () => {
+    setAllLoaded(false);
     await getFriendRequests();
     setRefreshing(false);
   }, []);

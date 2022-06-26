@@ -34,7 +34,6 @@ const OtherUserFriendsScreen = (props) => {
       : searchedFriends?.length
       ? searchedFriends
       : friends;
-  console.log(data);
   const getFriends = async () => {
     const { success, response } = await apiCall(
       "GET",
@@ -104,7 +103,9 @@ const OtherUserFriendsScreen = (props) => {
       <UserSearchBar
         setResults={setSearchedFriends}
         contactName={firstName}
-        dataToSearchWithin={friends}
+        customSearch
+        apiRoute={`/user/friends/search/0`}
+        apiConfig={{ userId }}
         onSubmitEditing={() => Keyboard.dismiss()}
       />
       {data?.length ? (

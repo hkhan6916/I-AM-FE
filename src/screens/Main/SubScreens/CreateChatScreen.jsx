@@ -81,7 +81,7 @@ const CreateChatScreen = () => {
       () => 0,
       (_, dim) => {
         dim.width = screenWidth;
-        dim.height = 70;
+        dim.height = 80;
       }
     )
   ).current;
@@ -112,13 +112,7 @@ const CreateChatScreen = () => {
       <TouchableOpacity
         onPress={() => handleChatNavigation(item._id, item.firstName)}
       >
-        <View
-          style={{
-            padding: 20,
-          }}
-        >
-          <UserThumbnail preventClicks user={item} avatarSize={50} />
-        </View>
+        <UserThumbnail preventClicks user={item} avatarSize={50} />
       </TouchableOpacity>
     ),
     [contacts]
@@ -140,8 +134,8 @@ const CreateChatScreen = () => {
     <View style={styles.container}>
       <UserSearchBar // TODO: This only searches in the data provided. Users will expect all contacts to be shared not just the current ones loaded. Need to make this call an endpoint possibly
         setResults={setSearchedContacts}
-        dataToSearchWithin={contacts}
         onSubmitEditing={() => Keyboard.dismiss()}
+        customSearch
       />
 
       {!error && data?.length ? (
