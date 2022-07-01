@@ -122,7 +122,7 @@ const UserSearchBar = ({
       <View
         style={
           customSearch
-            ? styles.localSearchStyles
+            ? styles.customSearchStyles
             : styles.defaultContainerStyles
         }
       >
@@ -250,13 +250,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: themeStyle.colors.grayscale.low,
   },
-  localSearchStyles: {
+  customSearchStyles: {
     flexDirection: "row",
     height: 48,
     alignItems: "center",
     backgroundColor: themeStyle.colors.grayscale.higher,
     borderRadius: 48,
-    marginBottom: 20,
+    marginHorizontal: 5,
+    marginVertical: 10,
   },
   searchIcon: {
     padding: 10,

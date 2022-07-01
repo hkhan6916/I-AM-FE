@@ -385,7 +385,9 @@ const CommentsScreen = (props) => {
               ),
             }}
           />
-        ) : null}
+        ) : (
+          <View style={{ flex: 1 }} />
+        )}
 
         <View>
           {showOptionsForComment ? (

@@ -33,9 +33,7 @@ import {
   DataProvider,
   LayoutProvider,
 } from "recyclerlistview";
-import FastImage from "react-native-fast-image";
 import { useNavigation } from "@react-navigation/native";
-import ContentLoader from "../../../components/ContentLoader";
 
 const SearchScreen = () => {
   const [results, setResults] = useState([]);

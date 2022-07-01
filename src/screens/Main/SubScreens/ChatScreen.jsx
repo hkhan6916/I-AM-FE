@@ -206,7 +206,7 @@ const ChatScreen = (props) => {
 
   /**
    * If image - Compress, get signed url, upload in background and send mediaKey for the file to the backend and mark message as complete which then gets sent to all recepients.
-   * If video - Compress, get signed url, generate and upload thumbnail, thensend thumbnail key to backend. If success, compress, get signed url and upload video. Then send mediaKey to backend to update the existing message with mediaKey and mark as ready.
+   * If video - Compress, get signed url, generate and upload thumbnail, then send thumbnail key to backend. If success, compress, get signed url and upload video. Then send mediaKey to backend to update the existing message with mediaKey and mark as ready.
    */
   const handleMessageSend = async (chatId) => {
     if (media?.uri && media?.type && socket?.connected) {
@@ -766,14 +766,7 @@ const ChatScreen = (props) => {
         >
           <Text style={{ color: "white" }}>5001</Text>
         </TouchableOpacity> */}
-        {showError ? (
-          <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-            An unknown error occurred
-          </Text>
-        ) : null}
-
         {messages.length ? (
-          // TODO: render placeholder view here if no messages
           <RecyclerListView
             style={{ minHeight: 1, minWidth: 1, transform: [{ scaleY: -1 }] }}
             rowRenderer={rowRenderer}
@@ -783,7 +776,20 @@ const ChatScreen = (props) => {
             onEndReachedThreshold={0.5}
             forceNonDeterministicRendering
           />
+        ) : (
+          <View style={{ flex: 1 }} />
+        )}
+        {!showError ? (
+          <Text
+            style={{
+              color: themeStyle.colors.error.default,
+              textAlign: "center",
+            }}
+          >
+            Something has gone wrong... {"\n"}Please try again later.
+          </Text>
         ) : null}
+
         {userIsBlocked ? (
           <Text
             style={{

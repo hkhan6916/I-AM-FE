@@ -190,7 +190,7 @@ const ProfileScreen = () => {
   useEffect(() => {
     (async () => {
       navigation.addListener("focus", async () => {
-        await getUserPosts();
+        // await getUserPosts();
         await getUserData();
         setPreventCleanup(false);
       });

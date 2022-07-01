@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -23,6 +23,8 @@ const FriendsScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const userData = useSelector((state) => state.userData)?.state;
+
+  const sectionListRef = useRef(null);
 
   const getFriends = async () => {
     const { success, response } = await apiCall(
@@ -156,10 +158,12 @@ const FriendsScreen = () => {
         </Text>
       </TouchableOpacity>
       <SectionList // TODO convert to recycler list view
+        ref={sectionListRef}
         stickySectionHeadersEnabled={true}
         sections={sections}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
+        keyboardShouldPersistTaps="always"
         refreshControl={
           <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
@@ -178,20 +182,6 @@ const FriendsScreen = () => {
               >
                 {title}
               </Text>
-              {name === "contacts" ? (
-                <View
-                  style={{
-                    backgroundColor: themeStyle.colors.grayscale.highest,
-                  }}
-                >
-                  <UserSearchBar
-                    setResults={handleSearch}
-                    customSearch
-                    apiRoute={`/user/friends/search/0`}
-                    onSubmitEditing={() => Keyboard.dismiss()}
-                  />
-                </View>
-              ) : null}
             </View>
           )
         }
@@ -199,18 +189,45 @@ const FriendsScreen = () => {
           name === "requests" ? (
             <TouchableOpacity
               onPress={() => navigation.navigate("FriendRequestsScreen")}
+              style={{
+                height: 48,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
               <Text
                 style={{
                   color: themeStyle.colors.secondary.default,
                   textAlign: "center",
-                  marginVertical: 20,
                 }}
               >
                 View all requests
               </Text>
             </TouchableOpacity>
-          ) : null
+          ) : (
+            <TouchableOpacity
+              style={{
+                height: 48,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              onPress={() =>
+                navigation.navigate("OtherUserFriendsScreen", {
+                  userId: userData?._id,
+                  firstName: userData?.firstName,
+                })
+              }
+            >
+              <Text
+                style={{
+                  color: themeStyle.colors.secondary.default,
+                  textAlign: "center",
+                }}
+              >
+                View all contacts
+              </Text>
+            </TouchableOpacity>
+          )
         }
         contentContainerStyle={{ flexGrow: 1 }}
         onEndReached={() => getFriends()}
@@ -218,25 +235,6 @@ const FriendsScreen = () => {
         initialNumToRender={10}
         maxToRenderPerBatch={5}
       />
-      <TouchableOpacity
-        style={{ height: 48, alignItems: "center", justifyContent: "center" }}
-        onPress={() =>
-          navigation.navigate("OtherUserFriendsScreen", {
-            userId: userData?._id,
-            firstName: userData?.firstName,
-          })
-        }
-      >
-        <Text
-          style={{
-            color: themeStyle.colors.secondary.default,
-            textAlign: "center",
-            fontWeight: "700",
-          }}
-        >
-          View all contacts
-        </Text>
-      </TouchableOpacity>
     </View>
   );
 };

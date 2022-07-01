@@ -210,7 +210,7 @@ const VideoPlayer = ({
               position: "absolute",
               display: disableVideo ? "none" : "flex",
               right: 0,
-              top: 0,
+              bottom: 0,
             }}
           >
             <TouchableOpacity
@@ -226,6 +226,15 @@ const VideoPlayer = ({
                 name={
                   !globalUnMuteVideos ? "ios-volume-mute" : "ios-volume-medium"
                 }
+                style={{
+                  color: themeStyle.colors.white,
+                  textShadowOffset: {
+                    width: 1,
+                    height: 1,
+                  },
+                  textShadowRadius: 8,
+                  textShadowColor: themeStyle.colors.black,
+                }}
                 size={24}
                 color={themeStyle.colors.white}
               />
@@ -237,7 +246,7 @@ const VideoPlayer = ({
         <Text
           style={{
             position: "absolute",
-            bottom: 0,
+            top: 0,
             right: 0,
             backgroundColor: themeStyle.colors.grayscale.higher,
             paddingVertical: 5,
