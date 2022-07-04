@@ -36,7 +36,6 @@ const FriendsScreen = () => {
     const { friendsAsSenderOffset, friendsAsReceiverOffset } = response;
     setOffsets({ friendsAsSenderOffset, friendsAsReceiverOffset });
     if (success) {
-      const currentContacts = sections[1]?.data || [];
       setSections([
         response.requests.length
           ? {
@@ -48,24 +47,12 @@ const FriendsScreen = () => {
         {
           title: "My contacts",
           name: "contacts",
-          data: [...currentContacts, ...response.friends],
+          data: response.friends,
         },
       ]);
-      setFriends([...friends, ...response.friends]);
-      setRequests([...requests, ...response.requests]);
+      setFriends(response.friends);
+      setRequests(response.requests);
     }
-  };
-
-  const handleSearch = (result) => {
-    const updatedSections = [
-      sections[0],
-      {
-        ...sections[1],
-        data: result === "none" ? [] : result?.length ? result : friends,
-      },
-    ];
-
-    setSections(updatedSections);
   };
 
   const acceptFriendRequest = async (user) => {
@@ -125,7 +112,7 @@ const FriendsScreen = () => {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await getFriends();
+    await getFriends(true);
     setRefreshing(false);
   }, []);
 
@@ -186,7 +173,7 @@ const FriendsScreen = () => {
           )
         }
         renderSectionFooter={({ section: { name } }) =>
-          name === "requests" ? (
+          name === "requests" && requests?.length ? (
             <TouchableOpacity
               onPress={() => navigation.navigate("FriendRequestsScreen")}
               style={{
@@ -204,7 +191,7 @@ const FriendsScreen = () => {
                 View all requests
               </Text>
             </TouchableOpacity>
-          ) : (
+          ) : name === "contacts" && friends?.length ? (
             <TouchableOpacity
               style={{
                 height: 48,
@@ -227,10 +214,9 @@ const FriendsScreen = () => {
                 View all contacts
               </Text>
             </TouchableOpacity>
-          )
+          ) : null
         }
         contentContainerStyle={{ flexGrow: 1 }}
-        onEndReached={() => getFriends()}
         onEndReachedThreshold={0.5}
         initialNumToRender={10}
         maxToRenderPerBatch={5}

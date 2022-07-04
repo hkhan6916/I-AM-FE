@@ -18,6 +18,8 @@ import themeStyle from "../../theme.style";
 import apiCall from "../../helpers/apiCall";
 import Logo from "../../Logo";
 import { getExpoPushTokenAsync } from "expo-notifications";
+import Constants from "expo-constants";
+
 const LoginScreen = () => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -47,7 +49,7 @@ const LoginScreen = () => {
       });
       const token = (
         await getExpoPushTokenAsync({
-          experienceId: "@haroonmagnet/Magnet", // TODO: Change experience id in production
+          experienceId: Constants.manifest.extra.experienceId, // TODO: Change experience id in production
         })
       )?.data;
       if (token) {

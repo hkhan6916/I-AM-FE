@@ -25,7 +25,7 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
   const [gifs, setGifs] = useState([]);
 
   const { width: screenWidth } = Dimensions.get("window");
-  const imageHeight = screenWidth <= 400 ? screenWidth / 2 : screenWidth / 3;
+  const imageHeight = screenWidth / 2;
   const handleGifSearch = async (searchInput) => {
     let isCancelled = false;
     if (!isCancelled) {
@@ -77,6 +77,7 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
               height: imageHeight,
               width: "100%",
             }}
+            resizeMode="cover"
             source={{
               uri: item.media[0].nanogif.url,
             }}
@@ -87,6 +88,11 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
       </View>
     );
   }, []);
+
+  const getWindowWidth = () => {
+    // To deal with precision issues on android
+    return Math.round(Dimensions.get("window").width * 1000) / 1000 - 6; //Adjustment for margin given to RLV;
+  };
 
   useEffect(() => {
     (async () => {
@@ -101,10 +107,10 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
 
   const layoutProvider = useRef(
     new LayoutProvider(
-      () => 1,
+      () => 0,
       (_, dim) => {
-        dim.width = screenWidth / 2;
-        dim.height = screenWidth / 2;
+        dim.width = screenWidth / 2 - 1;
+        dim.height = screenWidth / 2 - 1;
       }
     )
   ).current;

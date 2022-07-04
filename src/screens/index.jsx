@@ -78,7 +78,7 @@ const Screens = () => {
       }
       token = (
         await Notifications.getExpoPushTokenAsync({
-          experienceId: "@haroonmagnet/Magnet", // TODO: Change experience id in production
+          experienceId: Constants.manifest.extra.experienceId, // TODO: Move into environment variable
         })
       ).data;
     } else {

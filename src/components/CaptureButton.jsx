@@ -1,5 +1,12 @@
-import React, { useCallback, useMemo, useRef } from "react";
-import { StyleSheet, View, ViewProps, Dimensions } from "react-native";
+import React, { useCallback, useMemo, useRef, useState } from "react";
+import {
+  StyleSheet,
+  View,
+  ViewProps,
+  Dimensions,
+  Button,
+  TouchableOpacity,
+} from "react-native";
 import {
   PanGestureHandler,
   State,
@@ -17,6 +24,8 @@ import Reanimated, {
   useSharedValue,
   withRepeat,
 } from "react-native-reanimated";
+import themeStyle from "../theme.style";
+import { Feather } from "@expo/vector-icons";
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const PAN_GESTURE_HANDLER_FAIL_X = [-screenWidth, screenWidth];
@@ -40,6 +49,7 @@ const _CaptureButton = ({
 }) => {
   const pressDownDate = useRef(undefined);
   const isRecording = useRef(false);
+  const [isVideo, setIsVideo] = useState(false);
   const recordingProgress = useSharedValue(0);
   const takePhotoOptions = useMemo(
     () => ({
@@ -249,51 +259,100 @@ const _CaptureButton = ({
   }, [enabled, isPressingButton]);
 
   return (
-    <TapGestureHandler
-      enabled={enabled}
-      ref={tapHandler}
-      onHandlerStateChange={onHandlerStateChanged}
-      shouldCancelWhenOutside={false}
-      maxDurationMs={99999999} // <-- this prevents the TapGestureHandler from going to State.FAILED when the user moves his finger outside of the child view (to zoom)
-      simultaneousHandlers={panHandler}
+    // <TapGestureHandler
+    //   enabled={enabled}
+    //   ref={tapHandler}
+    //   onHandlerStateChange={onHandlerStateChanged}
+    //   shouldCancelWhenOutside={false}
+    //   maxDurationMs={99999999} // <-- this prevents the TapGestureHandler from going to State.FAILED when the user moves his finger outside of the child view (to zoom)
+    //   simultaneousHandlers={panHandler}
+    // >
+    //   <Reanimated.View {...props} style={[buttonStyle, style]}>
+    //     <PanGestureHandler
+    //       enabled={enabled}
+    //       ref={panHandler}
+    //       failOffsetX={PAN_GESTURE_HANDLER_FAIL_X}
+    //       activeOffsetY={PAN_GESTURE_HANDLER_ACTIVE_Y}
+    //       onGestureEvent={onPanGestureEvent}
+    //       simultaneousHandlers={tapHandler}
+    //     >
+    //       <Reanimated.View style={styles.flex}>
+    //         <Reanimated.View style={[styles.shadow, shadowStyle]} />
+    //         <View style={styles.button} />
+    //       </Reanimated.View>
+    //     </PanGestureHandler>
+    //   </Reanimated.View>
+    // </TapGestureHandler>
+    <View
+      style={[
+        {
+          flexDirection: "row",
+          alignItems: "center",
+          width: "100%",
+          justifyContent: "center",
+        },
+        style.captureButton,
+      ]}
     >
-      <Reanimated.View {...props} style={[buttonStyle, style]}>
-        <PanGestureHandler
-          enabled={enabled}
-          ref={panHandler}
-          failOffsetX={PAN_GESTURE_HANDLER_FAIL_X}
-          activeOffsetY={PAN_GESTURE_HANDLER_ACTIVE_Y}
-          onGestureEvent={onPanGestureEvent}
-          simultaneousHandlers={tapHandler}
+      <TouchableOpacity
+        onPress={() =>
+          isVideo
+            ? isRecording.current
+              ? stopRecording()
+              : startRecording()
+            : takePhoto()
+        }
+      >
+        <View
+          style={{
+            borderWidth: 5,
+            borderColor: themeStyle.colors.white,
+            borderRadius: 50,
+            height: 60,
+            width: 60,
+            justifyContent: "center",
+            alignItems: "center",
+            marginVertical: 20,
+          }}
         >
-          <Reanimated.View style={styles.flex}>
-            <Reanimated.View style={[styles.shadow, shadowStyle]} />
-            <View style={styles.button} />
-          </Reanimated.View>
-        </PanGestureHandler>
-      </Reanimated.View>
-    </TapGestureHandler>
+          {isVideo ? (
+            <View
+              style={{
+                backgroundColor: themeStyle.colors.error.default,
+                height: isRecording.current ? 20 : 40,
+                width: isRecording.current ? 20 : 40,
+                borderRadius: isRecording.current ? 5 : 40,
+              }}
+            />
+          ) : null}
+        </View>
+      </TouchableOpacity>
+      {/* We have some login in captureMode styles so passing down those styles as it prevents some repetition*/}
+      <TouchableOpacity
+        onPress={() => setIsVideo(!isVideo)}
+        style={[style.captureMode, { height: 48, width: 48 }]}
+      >
+        <View
+          style={[
+            {
+              height: 35,
+              width: 35,
+              justifyContent: "center",
+              alignItems: "center",
+              borderRadius: 30,
+              backgroundColor: themeStyle.colors.white,
+            },
+          ]}
+        >
+          <Feather
+            name={isVideo ? "camera" : "video"}
+            size={24}
+            color={themeStyle.colors.black}
+          />
+        </View>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 export const CaptureButton = React.memo(_CaptureButton);
-
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  shadow: {
-    position: "absolute",
-    width: 70,
-    height: 70,
-    borderRadius: 70 / 2,
-    backgroundColor: "#e34077",
-  },
-  button: {
-    width: 70,
-    height: 70,
-    borderRadius: 70 / 2,
-    borderWidth: BORDER_WIDTH,
-    borderColor: "white",
-  },
-});

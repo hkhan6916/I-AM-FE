@@ -47,7 +47,7 @@ const PostAuthor = ({ author }) => {
           <Text
             numberOfLines={1}
             style={{
-              color: themeStyle.colors.grayscale.high,
+              color: themeStyle.colors.grayscale.low,
               maxWidth: 200,
             }}
           >

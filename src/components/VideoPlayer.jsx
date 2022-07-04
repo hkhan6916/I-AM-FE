@@ -80,10 +80,16 @@ const VideoPlayer = ({
             style={{
               position: "absolute",
               fontSize: 20,
-              color: themeStyle.colors.grayscale.low,
+              color: themeStyle.colors.white,
               zIndex: 1,
               textAlign: "center",
               margin: 10,
+              textShadowOffset: {
+                width: 1,
+                height: 1,
+              },
+              textShadowRadius: 8,
+              textShadowColor: themeStyle.colors.black,
             }}
           >
             {isCancelled ? "Upload Cancelled" : "Uploading..."}

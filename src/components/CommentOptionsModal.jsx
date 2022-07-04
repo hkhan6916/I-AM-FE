@@ -70,7 +70,7 @@ const CommentOptionsModal = ({
                     alignItems: "center",
                     justifyContent: "center",
                     width: "100%",
-                    backgroundColor: themeStyle.colors.grayscale.lowest,
+                    backgroundColor: themeStyle.colors.grayscale.highest,
                     borderWidth: 1,
                     borderColor: themeStyle.colors.grayscale.low,
                     padding: 20,
@@ -88,9 +88,7 @@ const CommentOptionsModal = ({
                     alignItems: "center",
                     justifyContent: "center",
                     width: "100%",
-                    backgroundColor: themeStyle.colors.grayscale.lowest,
-                    borderWidth: 1,
-                    borderColor: themeStyle.colors.grayscale.low,
+                    backgroundColor: themeStyle.colors.grayscale.highest,
                     padding: 5,
                   }}
                 >
@@ -138,9 +136,22 @@ const CommentOptionsModal = ({
                     </View>
                   ) : null}
                   {comment.belongsToUser && !isEditing ? (
-                    <View>
-                      <View style={{ marginVertical: 10 }}>
-                        <TouchableOpacity onPress={() => setIsEditing(true)}>
+                    <View style={{ width: "100%" }}>
+                      <View
+                        style={{
+                          borderBottomWidth: 1,
+                          borderBottomColor: themeStyle.colors.grayscale.low,
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={() => setIsEditing(true)}
+                          style={{
+                            width: "100%",
+                            height: 48,
+                            justifyContent: "center",
+                            marginVertical: 10,
+                          }}
+                        >
                           <Text
                             style={{
                               color: themeStyle.colors.secondary.default,
@@ -152,8 +163,16 @@ const CommentOptionsModal = ({
                           </Text>
                         </TouchableOpacity>
                       </View>
-                      <View style={{ marginVertical: 30 }}>
-                        <TouchableOpacity onPress={() => deleteComment()}>
+                      <View>
+                        <TouchableOpacity
+                          onPress={() => deleteComment()}
+                          style={{
+                            width: "100%",
+                            height: 48,
+                            justifyContent: "center",
+                            marginVertical: 10,
+                          }}
+                        >
                           <Text
                             style={{
                               color: themeStyle.colors.error.default,
@@ -209,6 +228,7 @@ const CommentOptionsModal = ({
                               {
                                 paddingVertical: 10,
                                 height: Math.max(48, height),
+                                color: themeStyle.colors.grayscale.lowest,
                               },
                             ]}
                             returnKeyType="go"
@@ -259,13 +279,14 @@ const CommentOptionsModal = ({
                       <TouchableOpacity
                         style={{
                           alignSelf: "flex-end",
-                          marginVertical: 5,
+                          marginVertical: 10,
+                          marginHorizontal: 5,
                         }}
                         onPress={() => setIsEditing(false)}
                       >
                         <Text
                           style={{
-                            color: themeStyle.colors.grayscale.high,
+                            color: themeStyle.colors.grayscale.low,
                           }}
                         >
                           Cancel

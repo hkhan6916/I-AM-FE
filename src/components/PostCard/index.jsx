@@ -137,6 +137,7 @@ const PostCard = ({
                         aspectRatio: 1 / 1,
                         width: screenWidth || 300,
                         height: screenWidth,
+                        backgroundColor: themeStyle.colors.black,
                       }}
                       source={{
                         uri: post.gif,

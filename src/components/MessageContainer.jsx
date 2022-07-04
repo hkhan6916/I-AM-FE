@@ -20,7 +20,7 @@ const MessageContainer = ({
             style={{
               textAlign: "center",
               marginHorizontal: 10,
-              color: themeStyle.colors.grayscale.high,
+              color: themeStyle.colors.grayscale.low,
             }}
           >
             {messageDate}
@@ -35,7 +35,7 @@ const MessageContainer = ({
             style={{
               textAlign: "center",
               marginHorizontal: 10,
-              color: themeStyle.colors.grayscale.high,
+              color: themeStyle.colors.grayscale.low,
             }}
           >
             {firstMessageDate}

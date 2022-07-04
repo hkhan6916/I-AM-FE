@@ -29,6 +29,7 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import openAppSettings from "../../../helpers/openAppSettings";
 import { getInfoAsync } from "expo-file-system";
+import Constants from "expo-constants";
 
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
@@ -173,11 +174,9 @@ const Step1Screen = () => {
 
   const registerUser = async () => {
     const { data: notificationToken } = await getExpoPushTokenAsync({
-      experienceId: "@haroonmagnet/Magnet",
+      experienceId: Constants.manifest.extra.experienceId,
     });
-    const apiUrl = __DEV__
-      ? "http://192.168.5.101:5000"
-      : "https://magnet-be.herokuapp.com";
+    const apiUrl = Constants.manifest.extra.apiUrl;
 
     setRegisterationError("");
     if (profileVideo && !skipProfileVideo) {

@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigation } from "@react-navigation/native";
 import {
-  ScrollView,
   Text,
   View,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
   Keyboard,
   Dimensions,
+  RefreshControl,
+  ActivityIndicator,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
@@ -29,6 +29,7 @@ const CreateChatScreen = () => {
   const [error, setError] = useState(false);
   const [searchedContacts, setSearchedContacts] = useState([]);
   const [offsets, setOffsets] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const data =
     searchedContacts === "none"
@@ -123,13 +124,28 @@ const CreateChatScreen = () => {
     isMounted.current = true;
     (async () => {
       if (userData?.profileVideoUrl) {
+        setLoading(true);
         await getUserContacts();
+        setLoading(false);
       }
     })();
     return () => {
       isMounted.current = false;
     };
   }, []);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator
+          animating
+          size={"large"}
+          color={themeStyle.colors.primary.default}
+        />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <UserSearchBar // TODO: This only searches in the data provided. Users will expect all contacts to be shared not just the current ones loaded. Need to make this call an endpoint possibly
@@ -159,7 +175,7 @@ const CreateChatScreen = () => {
           </Text>
         </View>
       ) : (
-        <View />
+        <View style={{ marginLeft: 10 }} />
       )}
     </View>
   );

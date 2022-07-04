@@ -30,8 +30,8 @@ const Actions = ({ post, handleReaction, navigation }) => {
                 handleReaction(post);
               }}
               style={{
-                width: 40,
-                height: 40,
+                width: 48,
+                height: 48,
                 justifyContent: "center",
                 alignItems: "center",
               }}
@@ -54,7 +54,7 @@ const Actions = ({ post, handleReaction, navigation }) => {
               ) : (
                 <MaterialCommunityIcons
                   name={"thumb-up-outline"}
-                  size={20}
+                  size={22}
                   color={themeStyle.colors.grayscale.lowest}
                 />
               )}
@@ -67,16 +67,15 @@ const Actions = ({ post, handleReaction, navigation }) => {
               })
             }
             style={{
-              width: 40,
-              height: 40,
+              width: 48,
+              height: 48,
               justifyContent: "center",
               alignItems: "center",
-              marginHorizontal: 5,
             }}
           >
             <FontAwesome
               name="comment-o"
-              size={20}
+              size={22}
               color={themeStyle.colors.grayscale.lowest}
             />
           </TouchableOpacity>
@@ -89,8 +88,8 @@ const Actions = ({ post, handleReaction, navigation }) => {
             })
           }
           style={{
-            width: 40,
-            height: 40,
+            width: 48,
+            height: 48,
             justifyContent: "center",
             alignItems: "center",
             marginHorizontal: 5,
@@ -109,22 +108,24 @@ const Actions = ({ post, handleReaction, navigation }) => {
           alignItems: "center",
           justifyContent: "space-between",
           flexDirection: "row",
+          marginTop: 5,
         }}
       >
         {post.likedBy ? (
           <Text
             style={{
-              color: themeStyle.colors.grayscale.lower,
+              color: themeStyle.colors.grayscale.lowest,
               fontSize: 12,
               marginHorizontal: 10,
               marginVertical: 5,
+              flex: 1,
             }}
           >
             Liked by{" "}
             <Text
               style={{
                 fontWeight: "700",
-                color: themeStyle.colors.grayscale.lower,
+                color: themeStyle.colors.grayscale.lowest,
               }}
               onPress={() =>
                 navigation.navigate("UserProfileScreen", {
@@ -139,15 +140,38 @@ const Actions = ({ post, handleReaction, navigation }) => {
         ) : (
           <Text
             style={{
-              color: themeStyle.colors.grayscale.lower,
+              color: themeStyle.colors.grayscale.lowest,
               fontSize: 12,
               marginHorizontal: 10,
               marginVertical: 5,
+              flexWrap: "wrap",
+              flex: 1,
             }}
           >
             {post.likes} likes
           </Text>
         )}
+        {post.numberOfComments ? (
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate("CommentsScreen", {
+                postId: post._id,
+              })
+            }
+          >
+            <Text
+              style={{
+                color: themeStyle.colors.grayscale.lower,
+                fontSize: 12,
+                marginHorizontal: 10,
+                fontWeight: "700",
+              }}
+            >
+              View {post.numberOfComments}{" "}
+              {post.numberOfComments > 1 ? "comments" : "comment"}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
       <PostAge age={post.age} />
     </View>

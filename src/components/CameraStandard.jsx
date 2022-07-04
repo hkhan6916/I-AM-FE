@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useRef, useState, useMemo, useCallback } from "react";
 import {
   StyleSheet,
@@ -14,16 +13,7 @@ import {
   PinchGestureHandler,
   TapGestureHandler,
 } from "react-native-gesture-handler";
-import {
-  CameraDeviceFormat,
-  CameraRuntimeError,
-  FrameProcessorPerformanceSuggestion,
-  PhotoFile,
-  sortFormats,
-  useCameraDevices,
-  useFrameProcessor,
-  VideoFile,
-} from "react-native-vision-camera";
+import { sortFormats, useCameraDevices } from "react-native-vision-camera";
 import * as ScreenOrientation from "expo-screen-orientation";
 import openAppSettings from "../helpers/openAppSettings";
 import { Camera, frameRateIncluded } from "react-native-vision-camera";
@@ -36,9 +26,6 @@ import Reanimated, {
 } from "react-native-reanimated";
 import { useEffect } from "react";
 import { useIsForeground } from "../helpers/hooks/useIsForeground";
-// import { StatusBarBlurBackground } from "./views/StatusBarBlurBackground";
-// import { PressableOpacity } from "react-native-pressable-opacity";
-import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import IonIcon from "react-native-vector-icons/Ionicons";
 import { useIsFocused } from "@react-navigation/core";
 import { CaptureButton } from "./CaptureButton";
@@ -174,6 +161,7 @@ const CameraStandard = ({
       await ScreenOrientation.lockAsync(
         ScreenOrientation.OrientationLock.PORTRAIT_UP
       );
+
       const re = /(?:\.([^.]+))?$/;
       const fileExtension = re.exec(media.path)[1];
       const resizedPhoto =
@@ -403,25 +391,16 @@ const CameraStandard = ({
         style={{
           height: 48,
           width: 48,
-          marginHorizontal: 20,
+          margin: 10,
           zIndex: 9999,
         }}
       >
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={themeStyle.colors.grayscale.lowest}
-          />
-          <Text
-            style={{
-              color: themeStyle.colors.grayscale.lowest,
-              marginLeft: 10,
-            }}
-          >
-            Back
-          </Text>
-        </View>
+        <Ionicons
+          name="chevron-back"
+          size={30}
+          color={themeStyle.colors.grayscale.low}
+          style={styles.iconShadow}
+        />
       </TouchableOpacity>
       {device != null && (
         <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
@@ -458,14 +437,35 @@ const CameraStandard = ({
             ? {
                 right: 0,
                 justifyContent: "center",
-                height: "90%",
+                height: "100%",
                 bottom: 0,
               }
             : { bottom: 0, width: "100%", alignItems: "center" },
         ]}
       >
         <CaptureButton
-          style={[styles.captureButton]}
+          style={{
+            captureButton: {
+              width: screenOrientation === "PORTRAIT" ? "100%" : "auto",
+              height: screenOrientation === "PORTRAIT" ? "auto" : "100%",
+            },
+            captureMode:
+              screenOrientation === "PORTRAIT"
+                ? {
+                    height: 20,
+                    width: 20,
+                    position: "absolute",
+                    right: 50,
+                    justifyContent: "center",
+                  }
+                : {
+                    height: 20,
+                    width: 20,
+                    position: "absolute",
+                    top: 50,
+                    alignItems: "center",
+                  },
+          }}
           camera={camera}
           onMediaCaptured={onMediaCaptured}
           cameraZoom={zoom}

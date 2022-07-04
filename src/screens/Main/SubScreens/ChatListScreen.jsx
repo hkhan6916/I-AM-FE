@@ -134,7 +134,7 @@ const ChatListScreen = () => {
   return (
     <View style={styles.container}>
       {!loaded && !error ? (
-        <View>
+        <View style={{ marginLeft: 10 }}>
           <ContentLoader
             listSize={6}
             active
