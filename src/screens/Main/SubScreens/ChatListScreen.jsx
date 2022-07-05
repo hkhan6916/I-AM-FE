@@ -54,7 +54,7 @@ const ChatListScreen = () => {
   ).current;
 
   let dataProvider = new DataProvider((r1, r2) => {
-    return r1._id !== r2._id;
+    return r1._id !== r2._id || r1.upToDateUsers !== r2.upToDateUsers;
   }).cloneWithRows(chats);
 
   const onRefresh = useCallback(async () => {

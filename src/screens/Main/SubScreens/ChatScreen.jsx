@@ -29,7 +29,7 @@ import getNameDate from "../../../helpers/getNameDate";
 import themeStyle from "../../../theme.style";
 import CameraStandard from "../../../components/CameraStandard";
 import MessageContainer from "../../../components/MessageContainer";
-
+import Constants from "expo-constants";
 import {
   Video as VideoCompress,
   Image as ImageCompress,
@@ -65,6 +65,7 @@ const ChatScreen = (props) => {
   const [userHasBlocked, setUserHasBlocked] = useState(false);
   const [creatingChat, setCreatingChat] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [port, setPort] = useState("5000");
 
   const { chatUserId, chatUserFirstName, existingChat } = props.route.params;
   const navigation = useNavigation();
@@ -103,20 +104,19 @@ const ChatScreen = (props) => {
         `/chat/${chat._id}/messages/${messages.length}`
       );
       if (success) {
-        setMessages([...messages, ...response]);
-        if (messages.length && response.length === 0) {
+        if (messages.length && response?.length === 0) {
           setAllMessagesLoaded(true);
+        } else {
+          setMessages([...messages, ...response]);
         }
       } else {
         setShowError(true);
       }
     }
   };
-  const apiUrl = __DEV__
-    ? "ws://192.168.5.101:5000"
-    : "wss://magnet-be.herokuapp.com";
+  const apiUrl = Constants.manifest.extra.apiWebSocketUrl;
   const initSocket = async (port, token) => {
-    const connection = io(`${apiUrl}`, {
+    const connection = io(apiUrl, {
       auth: {
         token,
       },
@@ -268,12 +268,14 @@ const ChatScreen = (props) => {
         setSendingMessage(false);
         return;
       }
+      setSendingMessage(true);
 
       let postData = {};
       const thumbnailUrl =
         media.type?.split("/")[0] === "video"
           ? await generateThumbnail()
           : null;
+
       if (thumbnailUrl) {
         const { response, success } = await apiCall(
           "POST",
@@ -307,7 +309,6 @@ const ChatScreen = (props) => {
 
       postData = { ...postData, ...message };
 
-      setSendingMessage(true);
       const { response, success } = await apiCall(
         "POST",
         "/chat/message/upload",
@@ -344,11 +345,12 @@ const ChatScreen = (props) => {
             media.uri,
             {
               compressionMethod: "auto",
+              minimumFileSizeForCompress: 20,
               // getCancellationId: (cancellationId) =>
               //   (cancelId = cancellationId),
             },
             (progress) => {
-              // console.log({ videocompression: progress });
+              console.log({ videocompression: progress });
             }
           ).then(async (compressedUrl) => {
             await handleBackgroundUpload(
@@ -517,35 +519,6 @@ const ChatScreen = (props) => {
     [messages, authInfo]
   );
 
-  const renderItem = useCallback(
-    (
-      { item: message, index: i } // change to be more performant like home and profile screen
-    ) => (
-      <MessageContainer
-        cancelUpload={cancelUpload}
-        mediaSize={mediaSize}
-        firstMessageDate={
-          allMessagesLoaded && i === messages.length - 1
-            ? messages[i].stringDate
-            : null
-        }
-        messageDate={
-          i !== messages.length - 1 &&
-          messages[i + 1] &&
-          message.stringDate !== messages[i + 1].stringDate
-            ? messages[i].stringDate
-            : null
-        }
-        message={message}
-        belongsToSender={
-          authInfo?.senderId === message.senderId.toString() ||
-          message.user === "sender"
-        }
-      />
-    ),
-    [messages, authInfo]
-  );
-
   const layoutProvider = useRef(
     new LayoutProvider(
       () => 0,
@@ -562,33 +535,36 @@ const ChatScreen = (props) => {
     );
   }).cloneWithRows(messages);
 
-  useEffect(() => {
-    // TODO: remove isMounted and implement better cleanup that works
-    (async () => {
-      const token = await getItemAsync("authToken");
-      const senderId = await getItemAsync("userId");
-      setAuthInfo({ token, senderId });
+  useEffect(
+    () => {
+      // TODO: remove isMounted and implement better cleanup that works
+      (async () => {
+        const token = await getItemAsync("authToken");
+        const senderId = await getItemAsync("userId");
+        setAuthInfo({ token, senderId });
 
-      if (chat) {
-        await getChatMessages();
-      }
+        if (chat) {
+          await getChatMessages();
+        }
 
-      if (chat?.users?.length) {
-        setRecipient({ userId: chat?.users?.[0]._id, online: false });
-        navigation.setOptions({
-          title: chat?.users?.[0].firstName,
-        });
-      } else {
-        navigation.setOptions({
-          title: chatUserFirstName,
-        });
-      }
-      // below needs to be last so we can init all other data before opening a socket connection and having things change due to incoming messages
-      await initSocket(null, token);
-    })();
+        if (chat?.users?.length) {
+          setRecipient({ userId: chat?.users?.[0]._id, online: false });
+          navigation.setOptions({
+            title: chat?.users?.[0].firstName,
+          });
+        } else {
+          navigation.setOptions({
+            title: chatUserFirstName,
+          });
+        }
+        // below needs to be last so we can init all other data before opening a socket connection and having things change due to incoming messages
+        await initSocket(port, token);
+      })();
 
-    return () => {};
-  }, [chat]);
+      return () => {};
+    },
+    [chat] //[chat, port]
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -665,7 +641,8 @@ const ChatScreen = (props) => {
               return messages?.map((message) => {
                 if (
                   message.mediaType &&
-                  (message._id === _id || message.tempId === tempId)
+                  (message._id === _id ||
+                    (message.tempId && message.tempId === tempId))
                 ) {
                   return {
                     ...message,
@@ -756,13 +733,13 @@ const ChatScreen = (props) => {
       >
         {/* <TouchableOpacity
           style={{ backgroundColor: "red", margin: 20 }}
-          onPress={() => initSocket("5000")}
+          onPress={() => setPort("5000")}
         >
           <Text style={{ color: "white" }}>5000</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={{ backgroundColor: "green", margin: 20 }}
-          onPress={() => initSocket("5001")}
+          onPress={() => setPort("5001")}
         >
           <Text style={{ color: "white" }}>5001</Text>
         </TouchableOpacity> */}
@@ -779,7 +756,7 @@ const ChatScreen = (props) => {
         ) : (
           <View style={{ flex: 1 }} />
         )}
-        {!showError ? (
+        {showError ? (
           <Text
             style={{
               color: themeStyle.colors.error.default,
@@ -808,7 +785,7 @@ const ChatScreen = (props) => {
               marginHorizontal: 10,
             }}
           >
-            You have blocked this user. Unblock them to send a message.
+            You have blocked this user.
           </Text>
         ) : null}
         <View
@@ -967,7 +944,8 @@ const ChatScreen = (props) => {
                 width: 48,
                 opacity:
                   ((!media?.uri || !media.type) && !messageBody) ||
-                  userIsBlocked
+                  userIsBlocked ||
+                  showMediaSizeError
                     ? 0.5
                     : 1,
               }}
@@ -975,7 +953,7 @@ const ChatScreen = (props) => {
                 ((!media?.uri || !media.type) && !messageBody) ||
                 userIsBlocked ||
                 creatingChat ||
-                sendingMessage
+                sendingMessage | showMediaSizeError
               }
               onPress={() => handleMessage()}
             >
@@ -1025,6 +1003,7 @@ const ChatScreen = (props) => {
               onPress={() => {
                 setMedia({});
                 setShowActions(false);
+                setShowMediaSizeError(false);
               }}
               style={{ padding: 10 }}
             >
@@ -1034,7 +1013,7 @@ const ChatScreen = (props) => {
             </TouchableOpacity>
           ) : null}
           {showMediaSizeError ? (
-            <Text>Please send a file smaller than 50MB.</Text>
+            <Text>Choose a file smaller than 50MB.</Text>
           ) : null}
         </View>
       </KeyboardAvoidingView>
