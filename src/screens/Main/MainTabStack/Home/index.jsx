@@ -59,7 +59,7 @@ const HomeScreen = () => {
   const [prevVisible, setPrevVisible] = useState(0);
   const [allVisible, setAllVisible] = useState([]);
   const navigation = useNavigation();
-  const flatlistRef = useRef(null);
+  const listRef = useRef(null);
   const [scrolling, setScrolling] = useState(false);
   const [positionBeforeScroll, setPositionBeforeScroll] = useState(0);
 
@@ -69,7 +69,7 @@ const HomeScreen = () => {
     useRef({
       scrollToTop: () => {
         setCurrentVisible(0);
-        flatlistRef.current?.scrollToOffset({ offset: 2000 });
+        listRef.current?.scrollToOffset({ offset: 2000 });
       },
     })
   );
@@ -352,13 +352,13 @@ const HomeScreen = () => {
           <HomeScreenHeader navigation={navigation} userData={userData} />
           {newPostCreated.state ? (
             <View style={styles.newPostPill}>
-              <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+              <Text style={{ color: themeStyle.colors.white }}>
                 Post {newPostCreated.state.type}
               </Text>
             </View>
           ) : null}
           <RecyclerListView
-            ref={flatlistRef}
+            ref={listRef}
             applyWindowCorrection={_applyWindowCorrection}
             style={{ minHeight: 1, minWidth: 1 }}
             dataProvider={dataProvider}
@@ -570,6 +570,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     position: "absolute",
     marginTop: statusBarHeight + 30,
+    color: themeStyle.colors.white,
   },
 });
 

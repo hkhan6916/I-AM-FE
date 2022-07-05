@@ -144,7 +144,11 @@ const ChatListScreen = () => {
           />
         </View>
       ) : null}
-      {!error && chats.length ? (
+      {error ? (
+        <View>
+          <Text>Oops, something went wrong</Text>
+        </View>
+      ) : chats.length ? (
         <RecyclerListView
           style={{ minHeight: 1, minWidth: 1 }}
           rowRenderer={rowRenderer}
@@ -158,12 +162,8 @@ const ChatListScreen = () => {
             ),
           }}
         />
-      ) : chats.length ? (
-        <View />
       ) : (
-        <View>
-          <Text>Oops, something went wrong</Text>
-        </View>
+        <View />
       )}
       <View
         style={{

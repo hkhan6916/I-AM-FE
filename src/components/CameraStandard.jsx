@@ -440,7 +440,12 @@ const CameraStandard = ({
                 height: "100%",
                 bottom: 0,
               }
-            : { bottom: 0, width: "100%", alignItems: "center" },
+            : {
+                bottom: 0,
+                width: "100%",
+                alignItems: "center",
+                marginBottom: 20,
+              },
         ]}
       >
         <CaptureButton

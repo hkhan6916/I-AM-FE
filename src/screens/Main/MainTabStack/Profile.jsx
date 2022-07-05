@@ -38,11 +38,19 @@ const ProfileScreen = () => {
 
   const navigation = useNavigation();
 
-  const flatlistRef = useRef(null);
+  const listRef = useRef(null);
 
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
-  useScrollToTop(flatlistRef);
+  useScrollToTop(
+    useRef({
+      scrollToTop: () => {
+        listRef.current?.scrollToOffset({ offset: 2000 });
+      },
+    })
+  );
+
+  useScrollToTop(listRef);
   const ViewTypes = {
     HEADER: 0,
     STANDARD: 1,
@@ -267,6 +275,7 @@ const ProfileScreen = () => {
       <View style={{ flex: 1 }}>
         {userData ? (
           <RecyclerListView
+            ref={listRef}
             style={{ minHeight: 1, minWidth: 1 }}
             dataProvider={dataProvider}
             layoutProvider={layoutProvider}

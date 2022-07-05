@@ -24,6 +24,7 @@ import { getInfoAsync } from "expo-file-system";
 import {
   Video as VideoCompress,
   Image as ImageCompress,
+  backgroundUpload as compressorUpload,
 } from "react-native-compressor";
 import VideoPlayer from "expo-video-player";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
@@ -34,7 +35,6 @@ import GifModal from "../../../components/GifModal";
 import openAppSettings from "../../../helpers/openAppSettings";
 import backgroundUpload from "../../../helpers/backgroundUpload";
 import { gestureHandlerRootHOC } from "react-native-gesture-handler";
-import FastImage from "react-native-fast-image";
 import { Image } from "react-native";
 
 const AddScreen = () => {
@@ -112,18 +112,16 @@ const AddScreen = () => {
         const mediaSizeInMb = mediaInfo?.size / 100000;
 
         const format = uri.split(".").pop();
-        const compressedUri = await ImageCompress.compress(
+        await ImageCompress.compress(
           uri,
           {
             compressionMethod: "auto",
-            minimumFileSizeForCompress: 4, //TODO test this if 2mb is correvy for minimum size to compress
+            minimumFileSizeForCompress: 3,
           },
           (progress) => {
             console.log({ compression: progress });
           }
         );
-        const compressedInfo = await getInfoAsync(compressedUri);
-        console.log({ mediaInfo, compressedInfo });
         if (mediaSizeInMb >= 100) {
           return null;
         }
@@ -210,23 +208,61 @@ const AddScreen = () => {
       : Platform.OS == "android"
       ? file?.uri.replace("file://", "")
       : file?.uri;
-    await backgroundUpload({
-      filePath,
-      url: signedData.signedUrl,
-      failureRoute: `/posts/fail/${post?._id}`,
-      onComplete: async () => {
-        const { response, success } = await apiCall("POST", "/posts/new", {
-          postId: post?._id,
-          mediaType: "video",
-          mediaKey: signedData.fileKey,
-        });
-        if (!success) {
-          setError(
-            "Sorry, we could not upload the selected media. Please try again later."
-          );
-        }
-      },
+
+    // await uploadAsync(signedData.signedUrl, filePath, {
+    //   httpMethod: "PUT",
+    //   fieldName: "file",
+    //   // Below are options only supported on Android
+    // })
+    //   .then(async () => {
+    //     const { response, success } = await apiCall("POST", "/posts/new", {
+    //       postId: post?._id,
+    //       mediaType: "video",
+    //       mediaKey: signedData.fileKey,
+    //     });
+    //     if (!success) {
+    //       setError(
+    //         "Sorry, we could not upload the selected media. Please try again later."
+    //       );
+    //     }
+    //   })
+    //   .catch((err) => console.error(err));
+
+    const headers = {};
+
+    await compressorUpload(signedData.signedUrl, filePath, {
+      httpMethod: "PUT",
+      headers,
+    }).then(async () => {
+      const { success } = await apiCall("POST", "/posts/new", {
+        postId: post?._id,
+        mediaType: "video",
+        mediaKey: signedData.fileKey,
+      });
+      if (!success) {
+        setError(
+          "Sorry, we could not upload the selected media. Please try again later."
+        );
+      }
     });
+
+    // await backgroundUpload({
+    //   filePath,
+    //   url: signedData.signedUrl,
+    //   failureRoute: `/posts/fail/${post?._id}`,
+    //   onComplete: async () => {
+    //     const { response, success } = await apiCall("POST", "/posts/new", {
+    //       postId: post?._id,
+    //       mediaType: "video",
+    //       mediaKey: signedData.fileKey,
+    //     });
+    //     if (!success) {
+    //       setError(
+    //         "Sorry, we could not upload the selected media. Please try again later."
+    //       );
+    //     }
+    //   },
+    // });
   };
 
   const handleLargeFileCompression = async (post) => {
@@ -243,7 +279,11 @@ const AddScreen = () => {
       .then(async (compressedUrl) => {
         await handleVideoUpload(compressedUrl, post);
       })
-      .catch((e) => console.log(e));
+      .catch(async (e) => {
+        // await apiCall("GET", `/posts/fail/${post?._id}`);
+
+        console.log(e);
+      }); // TODO:maybe show notification here?
   };
 
   const createPost = async () => {
@@ -294,6 +334,7 @@ const AddScreen = () => {
         allowsMultipleSelection: false,
       });
       setGif("");
+      setThumbnail("");
       if (!result.cancelled) {
         const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
@@ -325,6 +366,7 @@ const AddScreen = () => {
         recording={recording}
         setCameraActive={setCameraActive}
         setFile={async (file) => {
+          setThumbnail("");
           if (file.type?.split("/")[0] === "video") {
             const { uri } = await getThumbnailAsync(file.uri, {
               time: 0,
@@ -386,13 +428,17 @@ const AddScreen = () => {
               }}
             >
               <TouchableOpacity
-                disabled={(!file.uri && !postBody && !gif) || loading}
+                disabled={
+                  (!file.uri && !postBody && !gif) ||
+                  loading ||
+                  showMediaSizeError
+                }
                 onPress={() => createPost()}
               >
                 {loading ? (
                   <ActivityIndicator
                     animating
-                    color={themeStyle.colors.white}
+                    color={themeStyle.colors.secondary.default}
                     size={"small"}
                   />
                 ) : (
@@ -470,8 +516,6 @@ const AddScreen = () => {
                   >
                     <ImageWithCache
                       onLoad={(e) => {
-                        console.log(e?.nativeEvent?.source?.height, "loaded");
-
                         setHeight(e?.nativeEvent?.source?.height);
                         setWidth(e?.nativeEvent?.source?.width);
                       }}

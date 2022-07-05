@@ -402,7 +402,7 @@ const CommentsScreen = (props) => {
               reportComment={reportComment}
             />
           ) : null}
-          <CommentTextInput
+          <CommentTextInput // TODO: this is not aligned right on some devices like moms phone same with replies screen. Should copy how its done for chatscreen
             ref={textInputRef}
             submitAction={postComment}
             replyingTo={replyingTo}
