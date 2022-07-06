@@ -69,13 +69,16 @@ const ShareScreen = (props) => {
             backgroundColor: themeStyle.colors.primary.default,
             borderRadius: 5,
             padding: 10,
+            height: 48,
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           {loading ? (
             <ActivityIndicator
               animating={loading}
               color={themeStyle.colors.white}
-              size="large"
+              size="small"
             />
           ) : (
             <Text

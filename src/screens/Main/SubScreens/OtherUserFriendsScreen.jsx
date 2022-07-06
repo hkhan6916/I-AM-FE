@@ -3,30 +3,27 @@ import {
   View,
   StyleSheet,
   RefreshControl,
-  FlatList,
-  ActivityIndicator,
   Keyboard,
   Dimensions,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
 import { useNavigation } from "@react-navigation/native";
-import themeStyle from "../../../theme.style";
 import UserSearchBar from "../../../components/UserSearchBar";
 import {
   DataProvider,
   LayoutProvider,
   RecyclerListView,
 } from "recyclerlistview";
+import { useSelector } from "react-redux";
 
 const OtherUserFriendsScreen = (props) => {
   const { userId, firstName } = props.route.params;
   const [friends, setFriends] = useState([]);
   const [searchedFriends, setSearchedFriends] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
-
+  const userData = useSelector((state) => state.userData)?.state;
   const { width: screenWidth } = Dimensions.get("window");
   const data =
     searchedFriends === "none"
@@ -50,11 +47,6 @@ const OtherUserFriendsScreen = (props) => {
     setRefreshing(false);
   }, []);
 
-  const renderItem = useCallback(
-    ({ item }) => <UserThumbnail user={item} avatarSize={50} />,
-    []
-  );
-
   const layoutProvider = useRef(
     new LayoutProvider(
       () => 0,
@@ -74,22 +66,12 @@ const OtherUserFriendsScreen = (props) => {
     []
   );
 
-  const listFooterComponent = useCallback(
-    () => (
-      <ActivityIndicator
-        size={"large"}
-        color={themeStyle.colors.primary.default}
-        animating={loading}
-      />
-    ),
-    [loading]
-  );
-
-  const keyExtractor = useCallback((item) => item._id, []);
-
   useEffect(() => {
     navigation.setOptions({
-      title: firstName ? `${firstName}'s contacts` : "",
+      title:
+        firstName && userId !== userData?._id
+          ? `${firstName}'s contacts`
+          : "Contacts",
     });
     (async () => {
       setRefreshing(true);
@@ -107,6 +89,11 @@ const OtherUserFriendsScreen = (props) => {
         apiRoute={`/user/friends/search/0`}
         apiConfig={{ userId }}
         onSubmitEditing={() => Keyboard.dismiss()}
+        placeholder={`Search ${
+          firstName && userId !== userData?._id
+            ? `${firstName}'s contacts`
+            : "contacts"
+        }`}
       />
       {data?.length ? (
         <RecyclerListView

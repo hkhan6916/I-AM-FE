@@ -31,6 +31,8 @@ const CreateChatScreen = () => {
   const [offsets, setOffsets] = useState({});
   const [loading, setLoading] = useState(false);
 
+  const onEndReachedCalledDuringMomentum = useRef(false);
+
   const data =
     searchedContacts === "none"
       ? []
@@ -41,6 +43,11 @@ const CreateChatScreen = () => {
   const navigation = useNavigation();
 
   const { width: screenWidth } = Dimensions.get("window");
+
+  const handleSetSearchedContacts = async (data) => {
+    onEndReachedCalledDuringMomentum.current = true;
+    setSearchedContacts(data);
+  };
 
   const getUserContacts = async () => {
     const { success, response } = await apiCall(
@@ -91,23 +98,6 @@ const CreateChatScreen = () => {
     return r1._id !== r2._id;
   }).cloneWithRows(data);
 
-  const renderItem = useCallback(
-    ({ item: contact }) => (
-      <TouchableOpacity
-        onPress={() => handleChatNavigation(contact._id, contact.firstName)}
-      >
-        <View
-          style={{
-            padding: 20,
-          }}
-        >
-          <UserThumbnail preventClicks user={contact} avatarSize={50} />
-        </View>
-      </TouchableOpacity>
-    ),
-    [contacts]
-  );
-
   const rowRenderer = useCallback(
     (_, item) => (
       <TouchableOpacity
@@ -119,7 +109,6 @@ const CreateChatScreen = () => {
     [contacts]
   );
 
-  const keyExtractor = useCallback((item, i) => item._id, [contacts]);
   useEffect(() => {
     isMounted.current = true;
     (async () => {
@@ -149,21 +138,14 @@ const CreateChatScreen = () => {
   return (
     <View style={styles.container}>
       <UserSearchBar // TODO: This only searches in the data provided. Users will expect all contacts to be shared not just the current ones loaded. Need to make this call an endpoint possibly
-        setResults={setSearchedContacts}
+        setResults={handleSetSearchedContacts}
         onSubmitEditing={() => Keyboard.dismiss()}
         customSearch
+        placeholder={"name, username or job title"}
+        publicUsers
+        avoidSameUser
       />
-
-      {!error && data?.length ? (
-        <RecyclerListView
-          style={{ minHeight: 1, minWidth: 1 }}
-          rowRenderer={rowRenderer}
-          dataProvider={dataProvider}
-          onEndReached={() => getUserContacts()}
-          layoutProvider={layoutProvider}
-          onEndReachedThreshold={0.5}
-        />
-      ) : error ? (
+      {error ? (
         <View>
           <Text
             style={{
@@ -174,6 +156,26 @@ const CreateChatScreen = () => {
             Something went wrong, please try again later.
           </Text>
         </View>
+      ) : data?.length ? (
+        <RecyclerListView
+          style={{ minHeight: 1, minWidth: 1 }}
+          rowRenderer={rowRenderer}
+          dataProvider={dataProvider}
+          onEndReached={() => {
+            if (!onEndReachedCalledDuringMomentum.current) {
+              getUserContacts();
+              onEndReachedCalledDuringMomentum.current = true;
+            }
+          }}
+          layoutProvider={layoutProvider}
+          onEndReachedThreshold={0.5}
+          scrollViewProps={{
+            onMomentumScrollBegin: () => {
+              onEndReachedCalledDuringMomentum.current = false;
+              console.log("hey");
+            },
+          }}
+        />
       ) : (
         <View style={{ marginLeft: 10 }} />
       )}
@@ -184,6 +186,7 @@ const CreateChatScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: themeStyle.colors.grayscale.highest,
   },
 });
 

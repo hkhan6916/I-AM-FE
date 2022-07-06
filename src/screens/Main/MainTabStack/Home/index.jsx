@@ -57,7 +57,6 @@ const HomeScreen = () => {
   const [feedError, setFeedError] = useState("");
   const [currentVisible, setCurrentVisible] = useState(0);
   const [prevVisible, setPrevVisible] = useState(0);
-  const [allVisible, setAllVisible] = useState([]);
   const navigation = useNavigation();
   const listRef = useRef(null);
   const [scrolling, setScrolling] = useState(false);
@@ -239,6 +238,7 @@ const HomeScreen = () => {
       if (!success) {
         setFeed(oldFeed);
       }
+
       return;
     }
 
@@ -251,6 +251,7 @@ const HomeScreen = () => {
       });
     });
     const { success } = await apiCall("GET", `/posts/like/add/${post._id}`);
+
     if (!success) {
       setFeed(oldFeed);
     }
