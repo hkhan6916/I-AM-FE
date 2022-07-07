@@ -29,6 +29,9 @@ const UserSearchBar = ({
   setShowAllResults,
   showAllResults,
   onClear,
+  publicUsers = false,
+  avoidSameUser = false,
+  ...rest
 }) => {
   const [searchInput, setSearchInput] = useState("");
   const [showHistory, setShowHistory] = useState(false);
@@ -63,7 +66,18 @@ const UserSearchBar = ({
     const { response } = await apiCall("POST", apiRoute || "/user/search/0", {
       ...(apiConfig || {}),
       searchTerm,
+      publicUsers,
+      avoidSameUser,
     });
+    if (
+      customSearch &&
+      searchTerm &&
+      !response?.length &&
+      !response?.users?.length
+    ) {
+      setResults("none");
+      return;
+    }
     if (response?.users?.length) {
       setResults(response.users);
       return;
@@ -178,6 +192,7 @@ const UserSearchBar = ({
             onSubmitEditing={
               onSubmitEditing ? () => onSubmitEditing(searchInput) : null
             }
+            {...rest}
           />
         </TouchableWithoutFeedback>
         {searchInput ? (
