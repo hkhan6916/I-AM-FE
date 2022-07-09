@@ -33,6 +33,7 @@ const UserProfileScreen = (props) => {
   const [loading, setLoading] = useState(false);
   const [showPostOptions, setShowPostOptions] = useState(null);
   const [error, setError] = useState("");
+  const [profileVideoVisible, setProfileVideoVisible] = useState(false);
 
   const userData = useSelector((state) => state.userData);
 
@@ -298,6 +299,7 @@ const UserProfileScreen = (props) => {
             sendFriendRequest={sendFriendRequest}
             removeConnection={removeConnection}
             canAdd={userData.state?.profileVideoUrl}
+            isVisible={extendedState.profileVideoVisible}
           />
         );
       }
@@ -413,9 +415,17 @@ const UserProfileScreen = (props) => {
           onEndReached={() => getUserPosts()}
           onEndReachedThreshold={0.5}
           rowRenderer={rowRenderer}
-          extendedState={{ userData }}
+          extendedState={{ userData, profileVideoVisible }}
           renderAheadOffset={screenHeight}
           forceNonDeterministicRendering
+          onVisibleIndicesChanged={(i) => {
+            // TODO: test on old device to see if preview video rerenders cause crashes
+            if (i?.[0] === 0 && !profileVideoVisible) {
+              setProfileVideoVisible(true);
+            } else if (profileVideoVisible) {
+              setProfileVideoVisible(false);
+            }
+          }}
           scrollViewProps={{
             removeClippedSubviews: true,
             refreshControl: (

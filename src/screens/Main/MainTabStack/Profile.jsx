@@ -22,7 +22,6 @@ import {
   DataProvider,
   LayoutProvider,
 } from "recyclerlistview";
-import FastImage from "react-native-fast-image";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -32,8 +31,8 @@ const ProfileScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [showPostOptions, setShowPostOptions] = useState(null);
   const [error, setError] = useState("");
-  const [isFocussed, setIsFocussed] = useState(true);
-  const [preventCleanup, setPreventCleanup] = useState(true);
+  const [profileVideoVisible, setProfileVideoVisible] = useState(false);
+
   const globalUserData = useSelector((state) => state.userData);
 
   const navigation = useNavigation();
@@ -75,17 +74,18 @@ const ProfileScreen = () => {
   };
 
   const handleNavigation = (post) => {
-    setPreventCleanup(true);
     navigation.navigate("MediaScreen", { post });
   };
 
   const rowRenderer = useCallback((type, item, index, extendedState) => {
     //We have only one view type so not checks are needed here
+
     if (type === ViewTypes.HEADER) {
       return (
         <ProfileScreenHeader
           userData={extendedState.userData}
           navigation={navigation}
+          isVisible={extendedState.profileVideoVisible}
         />
       );
     }
@@ -200,12 +200,6 @@ const ProfileScreen = () => {
       navigation.addListener("focus", async () => {
         // await getUserPosts();
         await getUserData();
-        setPreventCleanup(false);
-      });
-      navigation.addListener("blur", async () => {
-        if (!preventCleanup) {
-          setIsFocussed(false);
-        }
       });
     })();
     return () => {
@@ -282,9 +276,17 @@ const ProfileScreen = () => {
             onEndReached={() => getUserPosts()}
             onEndReachedThreshold={0.5}
             rowRenderer={rowRenderer}
-            extendedState={{ userData }}
+            extendedState={{ userData, profileVideoVisible }}
             renderAheadOffset={screenHeight}
             forceNonDeterministicRendering
+            onVisibleIndicesChanged={(i) => {
+              // TODO: test on old device to see if preview video rerenders cause crashes
+              if (i?.[0] === 0 && !profileVideoVisible) {
+                setProfileVideoVisible(true);
+              } else if (profileVideoVisible) {
+                setProfileVideoVisible(false);
+              }
+            }}
             scrollViewProps={{
               removeClippedSubviews: true,
               refreshControl: (

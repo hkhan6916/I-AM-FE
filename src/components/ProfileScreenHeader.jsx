@@ -6,7 +6,7 @@ import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 const ProfileScreenHeader = React.forwardRef(
-  ({ children, userData, ...props }, ref) => {
+  ({ children, userData, isVisible, ...props }, ref) => {
     const navigation = useNavigation();
 
     return (
@@ -17,6 +17,7 @@ const ProfileScreenHeader = React.forwardRef(
             isFullWidth
             previewText={"Tap to play"}
             flipProfileVideo={userData?.flipProfileVideo}
+            isVisible={isVisible}
           />
           {userData?.followersMode ? (
             <View
@@ -119,5 +120,6 @@ ProfileScreenHeader.displayName = "ProfileScreenHeader";
 
 export default React.memo(
   ProfileScreenHeader,
-  (prev, next) => prev.userData === next.userData
+  (prev, next) =>
+    prev.userData === next.userData && prev.isVisible === next.isVisible
 );

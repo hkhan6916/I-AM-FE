@@ -20,6 +20,7 @@ const ProfileInfo = ({
   setUser,
   setUserPosts,
   canAdd,
+  isVisible,
 }) => {
   const [showUserOptions, setShowUserOptions] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
@@ -136,6 +137,7 @@ const ProfileInfo = ({
         isFullWidth
         previewText={"Tap to play"}
         disableBlurListener
+        isVisible={isVisible}
       />
       {!user.isSameUser ? (
         <View
@@ -219,9 +221,11 @@ const ProfileInfo = ({
           style={{
             color: themeStyle.colors.grayscale.lowest,
             textAlign: "center",
+            fontWeight: "700",
+            marginVertical: 10,
           }}
         >
-          Viewing your public profile.
+          Viewing your public profile
         </Text>
       ) : !canAdd ? (
         <View

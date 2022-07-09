@@ -14,6 +14,7 @@ const PreviewVideo = ({
   flipProfileVideo,
   disableBlurListener,
   onLoad,
+  isVisible = true,
 }) => {
   const { width: screenWidth } = Dimensions.get("window");
   const [videoStatus, setVideoStatus] = useState({});
@@ -42,6 +43,14 @@ const PreviewVideo = ({
       onLoad(v);
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      if (isVisible === false) {
+        await profileVideoRef.current?.pauseAsync();
+      }
+    })();
+  }, [isVisible]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("blur", async () => {
@@ -107,6 +116,7 @@ const PreviewVideo = ({
             : themeStyle.colors.grayscale.highest,
         ]}
       >
+        {console.log(isVisible)}
         <TouchableOpacity
           style={{
             alignSelf: "center",
@@ -222,4 +232,7 @@ const PreviewVideo = ({
   );
 };
 
-export default React.memo(PreviewVideo, (prev, next) => prev.uri === next.uri);
+export default React.memo(
+  PreviewVideo,
+  (prev, next) => prev.uri === next.uri && prev.isVisible === next.isVisible
+);
