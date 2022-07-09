@@ -155,6 +155,10 @@ const PostCommentCard = ({
         {comment.replyCount && isNestedInList ? (
           <View style={{ flex: 1, alignItems: "center", padding: 10 }}>
             <TouchableOpacity
+              style={{
+                height: 48,
+                justifyContent: "center",
+              }}
               onPress={() =>
                 navigation.navigate("CommentRepliesScreen", {
                   comment: comment,

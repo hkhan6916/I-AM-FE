@@ -3,13 +3,11 @@ import {
   View,
   StyleSheet,
   SafeAreaView,
-  FlatList,
   RefreshControl,
   ActivityIndicator,
   Platform,
   KeyboardAvoidingView,
   Dimensions,
-  Text,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import PostCommentCard from "../../../components/PostCommentCard";
@@ -36,7 +34,6 @@ const CommentRepliesScreen = (props) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [scrollStarted, setScrollStarted] = useState(false);
   const [showOptionsForComment, setShowOptionsForComment] = useState(null);
   const [error, setError] = useState("");
   const navigation = useNavigation();
@@ -48,7 +45,6 @@ const CommentRepliesScreen = (props) => {
     let isCancelled = false;
     if (!isCancelled) {
       if (!allRepliessLoaded) {
-        setScrollStarted(false);
         setLoadingMore(!refresh);
         const { response, success } = await apiCall(
           "GET",
@@ -196,15 +192,16 @@ const CommentRepliesScreen = (props) => {
       }
       return;
     }
-
-    setReplies((prev) => {
-      return prev.map((p) => {
-        if (p._id === reply._id) {
-          return { ...p, liked: true, likes: (p.likes || 0) + 1 };
-        }
-        return p;
+    if (comment?._id !== reply._id) {
+      setReplies((prev) => {
+        return prev.map((p) => {
+          if (p._id === reply._id) {
+            return { ...p, liked: true, likes: (p.likes || 0) + 1 };
+          }
+          return p;
+        });
       });
-    });
+    }
     const { success } = await apiCall(
       "GET",
       `/posts/comment/like/add/${reply._id}`
@@ -294,7 +291,7 @@ const CommentRepliesScreen = (props) => {
       r1.likes !== r2.likes ||
       r1.liked !== r2.liked
     );
-  }).cloneWithRows([{}, ...replies]);
+  }).cloneWithRows([comment, ...replies]);
 
   const keyExtractor = useCallback(
     (item) => item.customKey || item._id,

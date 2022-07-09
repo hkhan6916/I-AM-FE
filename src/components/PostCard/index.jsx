@@ -36,8 +36,8 @@ const PostCard = ({
 
   return (
     <View style={{ flex: 1 }}>
-      {/* {console.log(isVisible)} */}
-      {/* <Text style={{ color: "white" }}>{post._id}</Text> */}
+      {/* {console.log(isVisible)}
+      <Text style={{ color: "white" }}>{post._id}</Text> */}
       <View style={[styles.container, isPreview && styles.preview]}>
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           {post.postAuthor ? <PostAuthor author={post.postAuthor} /> : null}

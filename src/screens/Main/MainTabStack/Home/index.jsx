@@ -226,7 +226,11 @@ const HomeScreen = () => {
       setFeed((prev) => {
         return prev.map((p) => {
           if (p._id === post._id) {
-            return { ...p, liked: false };
+            return {
+              ...p,
+              liked: false,
+              likes: post.likes ? post.likes - 1 : post.likes,
+            };
           }
           return p;
         });
@@ -245,7 +249,11 @@ const HomeScreen = () => {
     setFeed((prev) => {
       return prev.map((p) => {
         if (p._id === post._id) {
-          return { ...p, liked: true };
+          return {
+            ...p,
+            liked: true,
+            likes: typeof post.likes === "number" ? post.likes + 1 : post.likes,
+          };
         }
         return p;
       });
@@ -325,7 +333,9 @@ const HomeScreen = () => {
 
   let dataProvider = new DataProvider(
     (r1, r2) => {
-      return r1._id !== r2._id || r1.liked !== r2.liked;
+      return (
+        r1._id !== r2._id || r1.liked !== r2.liked || r1.likes !== r2.likes
+      );
     }
     // (index) => `${postIds[index]}`
   ).cloneWithRows(feed);
@@ -365,7 +375,7 @@ const HomeScreen = () => {
             dataProvider={dataProvider}
             layoutProvider={layoutProvider}
             onEndReached={() => getUserFeed()}
-            onEndReachedThreshold={700}
+            onEndReachedThreshold={0.5}
             // initialRenderIndex={currentVisible + 1}
             extendedState={{ currentVisible, scrolling }}
             rowRenderer={rowRenderer}
