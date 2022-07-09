@@ -34,6 +34,7 @@ import {
   LayoutProvider,
 } from "recyclerlistview";
 import FastImage from "react-native-fast-image";
+import ContentLoader from "../../../../components/ContentLoader";
 
 const { statusBarHeight } = Constants;
 
@@ -41,9 +42,8 @@ const HomeScreen = () => {
   const dispatch = useDispatch();
   const newPostCreated = useSelector((state) => state.postCreated);
   const [isFocussed, setFocussed] = useState(false);
-  const initialFeed = useContext(FeedContext);
-  const [feed, setFeed] = useState(initialFeed);
-  const [originalFeed, setOriginalFeed] = useState(initialFeed);
+  const [feed, setFeed] = useState(null);
+  const [originalFeed, setOriginalFeed] = useState(null);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [userData, setUserData] = useState({});
   const [postIds, setPostIds] = useState([]);
@@ -321,6 +321,7 @@ const HomeScreen = () => {
   }, []);
 
   useEffect(() => {
+    if (!feed) return;
     const ids = [...postIds, ...feed.map((post) => post._id.toString())];
     setPostIds(ids);
 
@@ -338,7 +339,7 @@ const HomeScreen = () => {
       );
     }
     // (index) => `${postIds[index]}`
-  ).cloneWithRows(feed);
+  ).cloneWithRows(feed || []);
 
   const layoutProvider = useRef(
     new LayoutProvider(
@@ -355,7 +356,65 @@ const HomeScreen = () => {
     windowCorrection.startCorrection = 220;
   };
 
-  if (feed.length) {
+  useEffect(() => {
+    (async () => {
+      const { success, response } = await apiCall("POST", "/user/feed");
+
+      if (success) {
+        setFeed(response.feed);
+        setOriginalFeed(response.feed);
+      }
+    })();
+  }, []);
+
+  if (!feed) {
+    return (
+      <View style={{ flex: 1 }}>
+        <HomeScreenHeader navigation={navigation} userData={userData} />
+        <ContentLoader
+          primaryColor={themeStyle.colors.grayscale.high}
+          secondaryColor={themeStyle.colors.grayscale.lower}
+          active
+          isPost
+          avatarSize={50}
+          postHeight={screenHeight / 3}
+          style={{
+            backgroundColor: themeStyle.colors.grayscale.cards,
+            borderBottomColor: themeStyle.colors.grayscale.cardsOuter,
+            borderBottomWidth: 4,
+          }}
+        />
+        <ContentLoader
+          primaryColor={themeStyle.colors.grayscale.high}
+          secondaryColor={themeStyle.colors.grayscale.lower}
+          active
+          showAvatar
+          avatarSize={50}
+        />
+        <ContentLoader
+          primaryColor={themeStyle.colors.grayscale.high}
+          secondaryColor={themeStyle.colors.grayscale.lower}
+          active
+          showAvatar
+          avatarSize={50}
+        />
+        <ContentLoader
+          primaryColor={themeStyle.colors.grayscale.high}
+          secondaryColor={themeStyle.colors.grayscale.lower}
+          active
+          showAvatar
+          avatarSize={50}
+        />
+        {/* <ContentLoader active showAvatar avatarSize={50} />
+        <ContentLoader active showAvatar avatarSize={50} />
+        <ContentLoader active showAvatar avatarSize={50} />
+        <ContentLoader active showAvatar avatarSize={50} />
+        <ContentLoader active showAvatar avatarSize={50} /> */}
+      </View>
+    );
+  }
+
+  if (feed?.length) {
     return (
       <SafeAreaView style={styles.container}>
         {/* <Button title="test" onPress={() => navigation.navigate("Test")} /> */}

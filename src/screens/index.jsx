@@ -1,30 +1,26 @@
-import {
-  NavigationContainer,
-  DefaultTheme,
-  useNavigation,
-} from "@react-navigation/native";
+import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
-import { View, Platform, LogBox } from "react-native";
+import { View, Platform } from "react-native";
 import { useSelector } from "react-redux";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
-import { setItemAsync } from "expo-secure-store";
+import { getItemAsync, setItemAsync } from "expo-secure-store";
 import apiCall from "../helpers/apiCall";
 import AuthScreens from "./Auth";
 import UtilityScreens from "./Utility";
 import MainScreens from "./Main";
 import themeStyle from "../theme.style";
 import FeedContext from "../Context";
-import registerNotifications from "../helpers/registerNotifications";
 import { hideAsync, preventAutoHideAsync } from "expo-splash-screen";
 import { useColorScheme } from "react-native";
 import { deleteUserSearchHistoryTable } from "../helpers/sqlite/userSearchHistory";
 import { openDatabase } from "expo-sqlite";
+import NetInfo from "@react-native-community/netinfo";
 
 const Screens = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const [feed, setFeed] = useState([]);
+  const [feed, setFeed] = useState(null);
   const [notificationToken, setNotificationToken] = useState("");
   const [connectionFailed, setConnectionFailed] = useState(false);
 
@@ -41,18 +37,14 @@ const Screens = () => {
     },
   };
   const navigationContainerRef = useRef();
-  const getUserFeed = async () => {
-    const { success, response, message, error } = await apiCall(
-      "POST",
-      "/user/feed"
-    );
-    if (success) {
-      setFeed(response.feed);
-      setLoggedIn(true);
-    } else if (error === "CONNECTION_FAILED" || message !== "Unauthorised") {
+  const checkUserConnected = async () => {
+    const { isConnected } = await NetInfo.fetch();
+    if (!isConnected) {
       setConnectionFailed(true);
     }
+
     setLoaded(true);
+    await hideAsync();
   };
 
   const registerForPushNotificationsAsync = async () => {
@@ -98,10 +90,17 @@ const Screens = () => {
 
   useEffect(() => {
     (async () => {
-      preventAutoHideAsync();
+      if (!loggedIn) {
+        const token = await getItemAsync("authToken");
+        if (token) {
+          setLoggedIn(true);
+        }
+      }
+
+      await preventAutoHideAsync();
       // if not loaded, but authenticated
       if (!loaded || loginAttemptStatus.state) {
-        await getUserFeed();
+        await checkUserConnected();
       }
       // if loaded, but not authenticated. This is used for logging out a user.
       if (loaded && !loginAttemptStatus.state) {
@@ -153,27 +152,19 @@ const Screens = () => {
         }
       });
     }
-    (async () => {
-      if (loaded && notificationToken) {
-        await hideAsync();
-      }
-    })();
     return () => subscription.remove();
   }, [loaded, notificationToken]);
-
+  console.log({ connectionFailed, loggedIn });
   return (
     <NavigationContainer theme={Theme} ref={navigationContainerRef}>
-      {!loaded || !notificationToken ? (
-        // just so the app has something to render always even if it's an empty view
-        <View />
-      ) : loaded && loggedIn && notificationToken ? (
-        <FeedContext.Provider value={feed}>
-          <MainScreens />
-        </FeedContext.Provider>
-      ) : connectionFailed ? (
+      {connectionFailed ? (
         <UtilityScreens />
-      ) : (
+      ) : loggedIn ? (
+        <MainScreens />
+      ) : loaded ? (
         <AuthScreens />
+      ) : (
+        <View />
       )}
     </NavigationContainer>
   );

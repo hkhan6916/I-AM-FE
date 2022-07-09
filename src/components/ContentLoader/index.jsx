@@ -34,6 +34,8 @@ const ContentLoader = ({
   customBackground,
   children,
   hideExtraText,
+  isPost,
+  postHeight,
   style,
 }) => {
   const [animation, setAnimation] = useState(new Animated.Value(0));
@@ -133,7 +135,10 @@ const ContentLoader = ({
     );
   }
   return [...Array(listSize)].map((_, index) => (
-    <View key={index} style={{ width: "100%", marginVertical: 8 }}>
+    <View
+      key={index}
+      style={[{ width: "100%", marginVertical: 8 }, style && style]}
+    >
       <View
         style={[
           styles.container,
@@ -141,13 +146,15 @@ const ContentLoader = ({
           containerStyles,
         ]}
       >
-        {showAvatar ? (
+        {showAvatar || isPost ? (
           <Animated.View
             style={[
               styles.avatar,
               avatarInitialStyles,
               avatarStyles,
-              { backgroundColor: customBackground || interpolatedBackground },
+              {
+                backgroundColor: customBackground || interpolatedBackground,
+              },
             ]}
           />
         ) : null}
@@ -171,6 +178,18 @@ const ContentLoader = ({
           />
         </View>
       </View>
+      {isPost ? (
+        <Animated.View
+          style={[
+            fullWidthStyles,
+            {
+              backgroundColor: customBackground || interpolatedBackground,
+              marginVertical: 10,
+              height: postHeight || 400,
+            },
+          ]}
+        />
+      ) : null}
       {!hideExtraText ? (
         <View style={styles.paragraphContainer}>
           {[...Array(pRows)].map((_, index) => (

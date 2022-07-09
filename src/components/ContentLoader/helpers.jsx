@@ -20,7 +20,7 @@ export const startAnimationHelper = (animation, duration) => {
 export const getInterpolatedColor = (animation) =>
   animation.interpolate({
     inputRange: [0, 1],
-    outputRange: ["#ddd", "#fff"],
+    outputRange: ["#a3a3a3", "#fff"],
   });
 
 export const paragraphInitialStyles = (index, pHeight, pWidth) => {
