@@ -44,6 +44,7 @@ import {
   LayoutProvider,
   RecyclerListView,
 } from "recyclerlistview";
+import ImageWithCache from "../../../components/ImageWithCache";
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -976,18 +977,23 @@ const ChatScreen = (props) => {
           ]}
         >
           {media?.type?.includes("image") ? (
-            <Image
+            <View
               style={{
-                borderRadius: 10,
-                aspectRatio: 1 / 1,
-                // width: "100%",
-                // width: "100%",
-                height: screenWidth,
-                backgroundColor: themeStyle.colors.black,
+                height: screenWidth - 40,
+                alignItems: "center",
+                padding: 5,
               }}
-              resizeMode="contain"
-              source={{ uri: media.uri }}
-            />
+            >
+              <Image
+                resizeMode="contain"
+                source={{ uri: media.uri }}
+                aspectRatio={1 / 1}
+                style={{
+                  height: "100%",
+                  backgroundColor: themeStyle.colors.black,
+                }}
+              />
+            </View>
           ) : media?.type?.includes("video") ? (
             <View style={{ width: 200, height: 200 }}>
               <Video
