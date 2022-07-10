@@ -1,6 +1,6 @@
-const cameraActivatedReducer = (state = false, action) => {
+const canPlayFeedVideosReducer = (state = true, action) => {
   switch (action.type) {
-    case "SET_CAMERA_ACTIVATED":
+    case "SET_CAN_PLAY_FEED_VIDEOS":
       return {
         ...state,
         state: action.payload,
@@ -10,4 +10,4 @@ const cameraActivatedReducer = (state = false, action) => {
   }
 };
 
-export default cameraActivatedReducer;
+export default canPlayFeedVideosReducer;

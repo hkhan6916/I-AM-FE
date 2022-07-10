@@ -6,6 +6,7 @@ import {
   globalUnMuteVideosReducer,
 } from "./postsReducer";
 import cameraActivatedReducer from "./cameraReducer";
+import canPlayFeedVideosReducer from "./deviceReducer";
 
 export default combineReducers({
   loggedIn: loggedInReducer,
@@ -14,4 +15,5 @@ export default combineReducers({
   cameraActivated: cameraActivatedReducer,
   updatedPost: updatedPostReducer,
   globalUnMuteVideos: globalUnMuteVideosReducer,
+  canPlayFeedVideos: canPlayFeedVideosReducer,
 });

@@ -21,7 +21,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import Constants from "expo-constants";
 import themeStyle from "../../../../theme.style";
-import FeedContext from "../../../../Context";
 import PostCard from "../../../../components/PostCard";
 import apiCall from "../../../../helpers/apiCall";
 import { useScrollToTop } from "@react-navigation/native";
@@ -41,6 +40,8 @@ const { statusBarHeight } = Constants;
 const HomeScreen = () => {
   const dispatch = useDispatch();
   const newPostCreated = useSelector((state) => state.postCreated);
+  const canPlayFeedVideos = useSelector((state) => state.canPlayFeedVideos);
+
   const [isFocussed, setFocussed] = useState(false);
   const [feed, setFeed] = useState(null);
   const [originalFeed, setOriginalFeed] = useState(null);
@@ -436,7 +437,10 @@ const HomeScreen = () => {
             onEndReached={() => getUserFeed()}
             onEndReachedThreshold={0.5}
             // initialRenderIndex={currentVisible + 1}
-            extendedState={{ currentVisible, scrolling }}
+            extendedState={{
+              currentVisible: canPlayFeedVideos ? currentVisible : null,
+              scrolling: canPlayFeedVideos ? scrolling : null,
+            }}
             rowRenderer={rowRenderer}
             renderAheadOffset={screenHeight}
             forceNonDeterministicRendering

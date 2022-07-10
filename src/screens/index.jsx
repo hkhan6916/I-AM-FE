@@ -1,7 +1,7 @@
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
 import { View, Platform } from "react-native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import { getItemAsync, setItemAsync } from "expo-secure-store";
@@ -16,6 +16,7 @@ import { useColorScheme } from "react-native";
 import { deleteUserSearchHistoryTable } from "../helpers/sqlite/userSearchHistory";
 import { openDatabase } from "expo-sqlite";
 import NetInfo from "@react-native-community/netinfo";
+import { getTotalMemory } from "react-native-device-info";
 
 const Screens = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -24,7 +25,9 @@ const Screens = () => {
   const [notificationToken, setNotificationToken] = useState("");
   const [connectionFailed, setConnectionFailed] = useState(false);
 
+  const dispatch = useDispatch();
   const loginAttemptStatus = useSelector((state) => state.loggedIn);
+
   const colorScheme = useColorScheme();
   const Theme = {
     ...DefaultTheme,
@@ -44,7 +47,6 @@ const Screens = () => {
     }
 
     setLoaded(true);
-    await hideAsync();
   };
 
   const registerForPushNotificationsAsync = async () => {
@@ -90,17 +92,19 @@ const Screens = () => {
 
   useEffect(() => {
     (async () => {
+      await preventAutoHideAsync();
       if (!loggedIn) {
         const token = await getItemAsync("authToken");
         if (token) {
           setLoggedIn(true);
+          await hideAsync();
         }
       }
 
-      await preventAutoHideAsync();
       // if not loaded, but authenticated
       if (!loaded || loginAttemptStatus.state) {
         await checkUserConnected();
+        await hideAsync();
       }
       // if loaded, but not authenticated. This is used for logging out a user.
       if (loaded && !loginAttemptStatus.state) {
@@ -154,7 +158,20 @@ const Screens = () => {
     }
     return () => subscription.remove();
   }, [loaded, notificationToken]);
-  console.log({ connectionFailed, loggedIn });
+
+  useEffect(() => {
+    (async () => {
+      if (Platform.OS === "android") {
+        const ram = await getTotalMemory();
+        if (!ram) return;
+        // if android phone has less than 6gb ram, don't play feed videos
+        if (ram / 1000000 < 6000) {
+          console.log("heydccdcdcdcdcdcddcdcdcdcdcd");
+          dispatch({ type: "SET_CAN_PLAY_FEED_VIDEOS", payload: false });
+        }
+      }
+    })();
+  }, []);
   return (
     <NavigationContainer theme={Theme} ref={navigationContainerRef}>
       {connectionFailed ? (
