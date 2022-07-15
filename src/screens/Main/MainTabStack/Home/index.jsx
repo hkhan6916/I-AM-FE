@@ -33,7 +33,8 @@ import {
   LayoutProvider,
 } from "recyclerlistview";
 import FastImage from "react-native-fast-image";
-import ContentLoader from "../../../../components/ContentLoader";
+// import ContentLoader from "../../../../components/ContentLoader";
+import PostCardLoader from "../../../../components/ContentLoader/PostCard";
 
 const { statusBarHeight } = Constants;
 
@@ -369,49 +370,17 @@ const HomeScreen = () => {
   }, []);
 
   if (!feed) {
+    // if (feed) {
     return (
-      <View style={{ flex: 1 }}>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          backgroundColor: themeStyle.colors.grayscale.cardsOuter,
+        }}
+      >
         <HomeScreenHeader navigation={navigation} userData={userData} />
-        <ContentLoader
-          primaryColor={themeStyle.colors.grayscale.high}
-          secondaryColor={themeStyle.colors.grayscale.lower}
-          active
-          isPost
-          avatarSize={50}
-          postHeight={screenHeight / 3}
-          style={{
-            backgroundColor: themeStyle.colors.grayscale.cards,
-            borderBottomColor: themeStyle.colors.grayscale.cardsOuter,
-            borderBottomWidth: 4,
-          }}
-        />
-        <ContentLoader
-          primaryColor={themeStyle.colors.grayscale.high}
-          secondaryColor={themeStyle.colors.grayscale.lower}
-          active
-          showAvatar
-          avatarSize={50}
-        />
-        <ContentLoader
-          primaryColor={themeStyle.colors.grayscale.high}
-          secondaryColor={themeStyle.colors.grayscale.lower}
-          active
-          showAvatar
-          avatarSize={50}
-        />
-        <ContentLoader
-          primaryColor={themeStyle.colors.grayscale.high}
-          secondaryColor={themeStyle.colors.grayscale.lower}
-          active
-          showAvatar
-          avatarSize={50}
-        />
-        {/* <ContentLoader active showAvatar avatarSize={50} />
-        <ContentLoader active showAvatar avatarSize={50} />
-        <ContentLoader active showAvatar avatarSize={50} />
-        <ContentLoader active showAvatar avatarSize={50} />
-        <ContentLoader active showAvatar avatarSize={50} /> */}
-      </View>
+        <PostCardLoader hasImage screenWidth={screenWidth} />
+      </SafeAreaView>
     );
   }
 
@@ -607,7 +576,6 @@ const HomeScreen = () => {
                   style={{
                     paddingVertical: 5,
                     paddingHorizontal: 10,
-                    borderWidth: 1,
                     backgroundColor: themeStyle.colors.secondary.default,
                     borderRadius: 5,
                   }}

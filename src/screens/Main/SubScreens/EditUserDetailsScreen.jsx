@@ -501,7 +501,6 @@ const EditUserDetailsScreen = () => {
       </View>
     );
   }
-  // add note to complete profile by adding profile video here
 
   return (
     <SafeAreaView style={styles.container}>
@@ -522,7 +521,7 @@ const EditUserDetailsScreen = () => {
             {!profileVideo && !initialProfileData.profileVideoUrl ? (
               <Text
                 style={{
-                  color: themeStyle.colors.grayscale.lowest,
+                  color: themeStyle.colors.secondary.default,
                   fontWeight: "700",
                   textAlign: "center",
                   marginVertical: 20,
@@ -530,7 +529,7 @@ const EditUserDetailsScreen = () => {
                   marginHorizontal: 10,
                 }}
               >
-                Record a video to complete your profile
+                Record a video to complete your profile.
               </Text>
             ) : null}
             <View style={styles.formContainer}>

@@ -153,7 +153,7 @@ const Actions = ({ post, handleReaction, navigation }) => {
         )}
         {post.numberOfComments ? (
           <TouchableOpacity
-            style={{ height: 48, justifyContent: "center" }}
+            style={{ height: 30, justifyContent: "center" }}
             onPress={() =>
               navigation.navigate("CommentsScreen", {
                 postId: post._id,

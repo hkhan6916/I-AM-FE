@@ -145,6 +145,7 @@ const PreviewVideo = ({
             onReadyForDisplay={() => setReady(true)}
             onLoad={(v) => handleOnLoad(v)}
             onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
+            progressUpdateIntervalMillis={500}
             ref={profileVideoRef}
             source={{
               uri,
