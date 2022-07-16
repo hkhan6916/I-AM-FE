@@ -42,7 +42,7 @@ const AccountVisibilityScreen = () => {
       {userData?.state?.followersMode ? (
         <Text
           style={{
-            color: themeStyle.colors.grayscale.low,
+            color: themeStyle.colors.grayscale.lower,
             marginHorizontal: 10,
             marginTop: 20,
             fontWeight: "700",
@@ -81,7 +81,7 @@ const AccountVisibilityScreen = () => {
         <View>
           <Text
             style={{
-              color: themeStyle.colors.grayscale.low,
+              color: themeStyle.colors.grayscale.lower,
               padding: 10,
               marginVertical: 20,
               fontSize: 14,
@@ -94,7 +94,7 @@ const AccountVisibilityScreen = () => {
           </Text>
           <Text
             style={{
-              color: themeStyle.colors.grayscale.low,
+              color: themeStyle.colors.grayscale.lower,
               paddingHorizontal: 10,
               fontSize: 14,
             }}

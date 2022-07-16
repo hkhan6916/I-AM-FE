@@ -285,7 +285,8 @@ const CommentsScreen = (props) => {
       r1._id !== r2._id ||
       r1.body !== r2.body ||
       r1.likes !== r2.likes ||
-      r1.liked !== r2.liked
+      r1.liked !== r2.liked ||
+      r1.deleted !== r2.deleted
     );
   }).cloneWithRows(comments);
 

@@ -15,8 +15,6 @@ import {
 } from "react-native-confirmation-code-field";
 import themeStyle from "../theme.style";
 
-// import styles from "./styles";
-
 const CELL_COUNT = 6;
 
 const CodeInput = ({ onSubmit, loading }) => {

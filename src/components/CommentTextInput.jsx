@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   ScrollView,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { useSelector } from "react-redux";
 import themeStyle from "../theme.style";
@@ -65,92 +66,104 @@ const CommentTextInput = forwardRef(
             <Text style={styles.replyingToBannerText}>
               Replying to {replyingTo.firstName} {replyingTo.lastName}
             </Text>
-            <TouchableOpacity onPress={() => undoReply()}>
-              <Text>Undo</Text>
+            <TouchableOpacity
+              style={{ height: 48, justifyContent: "center" }}
+              onPress={() => undoReply()}
+            >
+              <Text
+                style={{
+                  fontWeight: "700",
+                  color: themeStyle.colors.secondary.default,
+                }}
+              >
+                Undo
+              </Text>
             </TouchableOpacity>
           </View>
         ) : null}
-        <View
-          style={[
-            styles.inputBoxContainer,
-            hasBorderRadius && { borderRadius: 5 },
-            !userData.state?.profileVideoUrl && { opacity: 0.5 },
-          ]}
-        >
-          <ScrollView scrollEnabled={height > 48}>
-            <TextInput
-              editable={!!userData.state?.profileVideoUrl}
-              maxLength={2000}
-              ref={ref}
-              multiline
-              placeholderTextColor={themeStyle.colors.grayscale.low}
-              style={[
-                styles.inputBox,
-                {
-                  height: height < 48 ? "100%" : height,
-                  paddingTop: height < 48 ? 0 : 10,
-                  paddingBottom: height < 48 ? 0 : 10,
-                },
-                isFullWidth && { flex: 1 },
-              ]}
-              placeholder={
-                replyingToFieldsExists
-                  ? "Type a reply here..."
-                  : "Type a comment here..."
-              }
-              returnKeyType="go"
-              value={commentBody}
-              onChangeText={(v) => setCommentBody(v)}
-              onContentSizeChange={(event) => {
-                setHeight(
-                  event.nativeEvent.contentSize.height < 150
-                    ? event.nativeEvent.contentSize.height
-                    : 150
-                );
-              }}
-            />
-          </ScrollView>
+        <TouchableWithoutFeedback onPress={() => ref?.current?.focus()}>
           <View
-            style={{
-              alignSelf: "flex-end",
-              // marginVertical: 16,
-              height: 48,
-              marginLeft: 5,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            style={[
+              styles.inputBoxContainer,
+              hasBorderRadius && { borderRadius: 5 },
+              !userData.state?.profileVideoUrl && { opacity: 0.5 },
+            ]}
           >
-            {!loading ? (
-              <TouchableOpacity
-                disabled={!commentBody || !userData.state?.profileVideoUrl}
-                onPress={() => handleSubmit()}
-                style={{
-                  height: "100%",
-                  width: "100%",
-                  alignItems: "center",
-                  justifyContent: "center",
+            <ScrollView scrollEnabled={height > 48}>
+              <TextInput
+                editable={!!userData.state?.profileVideoUrl}
+                maxLength={2000}
+                ref={ref}
+                multiline
+                placeholderTextColor={themeStyle.colors.grayscale.low}
+                style={[
+                  styles.inputBox,
+                  {
+                    height: height < 48 ? "100%" : height,
+                    paddingTop: height < 48 ? 0 : 10,
+                    paddingBottom: height < 48 ? 0 : 10,
+                  },
+                  isFullWidth && { flex: 1 },
+                ]}
+                placeholder={
+                  replyingToFieldsExists
+                    ? "Type a reply here..."
+                    : "Type a comment here..."
+                }
+                returnKeyType="default"
+                value={commentBody}
+                onChangeText={(v) => setCommentBody(v)}
+                onContentSizeChange={(event) => {
+                  setHeight(
+                    event.nativeEvent.contentSize.height < 150
+                      ? event.nativeEvent.contentSize.height
+                      : 150
+                  );
                 }}
-              >
-                <Text
-                  style={[
-                    styles.postTrigger,
-                    (!commentBody || !userData.state?.profileVideoUrl) && {
-                      opacity: 0.5,
-                    },
-                  ]}
-                >
-                  Post
-                </Text>
-              </TouchableOpacity>
-            ) : (
-              <ActivityIndicator
-                animating
-                size="small"
-                color={themeStyle.colors.secondary.default}
               />
-            )}
+            </ScrollView>
+            <View
+              style={{
+                alignSelf: "flex-end",
+                // marginVertical: 16,
+                height: 48,
+                marginLeft: 5,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {!loading ? (
+                <TouchableOpacity
+                  disabled={!commentBody || !userData.state?.profileVideoUrl}
+                  onPress={() => handleSubmit()}
+                  style={{
+                    height: "100%",
+                    width: "100%",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.postTrigger,
+                      (!commentBody || !userData.state?.profileVideoUrl) && {
+                        opacity: 0.5,
+                      },
+                    ]}
+                  >
+                    Post
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <ActivityIndicator
+                  animating
+                  size="small"
+                  color={themeStyle.colors.secondary.default}
+                />
+              )}
+            </View>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </View>
     );
   }
@@ -183,8 +196,12 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: 10,
-    backgroundColor: themeStyle.colors.grayscale.low,
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.2)",
+    paddingHorizontal: 10,
+    marginHorizontal: 5,
+    marginBottom: 5,
+    borderRadius: 10,
   },
   replyingToBannerText: {
     color: themeStyle.colors.grayscale.lowest,

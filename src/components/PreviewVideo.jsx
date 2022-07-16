@@ -61,7 +61,6 @@ const PreviewVideo = ({
 
     return unsubscribe;
   }, [navigation]);
-
   if (!uri) {
     return (
       <LinearGradient
@@ -116,7 +115,6 @@ const PreviewVideo = ({
             : themeStyle.colors.grayscale.highest,
         ]}
       >
-        {console.log(isVisible)}
         <TouchableOpacity
           style={{
             alignSelf: "center",

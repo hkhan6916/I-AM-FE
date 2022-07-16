@@ -84,6 +84,7 @@ const PostOptionsModal = ({
                           color: themeStyle.colors.grayscale.lowest,
                           textAlign: "center",
                           marginBottom: 20,
+                          fontWeight: "700",
                         }}
                       >
                         Report
@@ -91,11 +92,14 @@ const PostOptionsModal = ({
                     </TouchableOpacity>
                   ) : null}
                   {belongsToUser ? (
-                    <View>
+                    <View style={{ width: "100%" }}>
                       <TouchableOpacity
                         style={{
-                          height: 65,
+                          height: 48,
                           justifyContent: "center",
+                          borderBottomWidth: 0.5,
+                          borderColor: themeStyle.colors.grayscale.low,
+                          alignItems: "center",
                         }}
                         onPress={() => editPost()}
                       >
@@ -115,14 +119,13 @@ const PostOptionsModal = ({
                         style={{
                           height: 48,
                           justifyContent: "center",
+                          alignItems: "center",
                         }}
                       >
                         <Text
                           style={{
                             color: themeStyle.colors.error.default,
                             textAlign: "center",
-                            marginBottom: 20,
-                            paddingHorizontal: 40,
                           }}
                         >
                           Delete

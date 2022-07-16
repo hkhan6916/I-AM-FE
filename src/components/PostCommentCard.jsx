@@ -109,7 +109,7 @@ const PostCommentCard = ({
               >
                 <Text
                   style={{
-                    color: themeStyle.colors.grayscale.low,
+                    color: themeStyle.colors.grayscale.lower,
                     fontWeight: "700",
                   }}
                 >

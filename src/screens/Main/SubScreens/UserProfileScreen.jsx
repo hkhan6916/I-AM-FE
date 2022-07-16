@@ -214,25 +214,14 @@ const UserProfileScreen = (props) => {
       }
     }
   };
-  const onViewableItemsChanged = ({ viewableItems }) => {
-    viewableItems.forEach((item) => {
-      if (item.isViewable) {
-        setVisibleItems([item.item._id]);
-      }
-    });
-  };
-  const viewabilityConfig = {
-    waitForInteraction: true,
-    viewAreaCoveragePercentThreshold: 50,
-    minimumViewTime: 1500,
-  };
 
-  const viewabilityConfigCallbackPairs = useRef([
-    { onViewableItemsChanged, viewabilityConfig },
-  ]);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await initializeData();
+    initializeData.promise.then(async ({ success, response }) => {
+      if (success) {
+        setUser(response.otherUser);
+      }
+    });
     setRefreshing(false);
   }, []);
 
@@ -274,14 +263,10 @@ const UserProfileScreen = (props) => {
         return p;
       });
     });
-    const { success, message } = await apiCall(
-      "GET",
-      `/posts/like/add/${post._id}`
-    );
+    const { success } = await apiCall("GET", `/posts/like/add/${post._id}`);
     if (!success) {
       setUserPosts(oldUserposts);
     }
-    console.log(message);
   };
 
   const rowRenderer = useCallback(
@@ -345,30 +330,6 @@ const UserProfileScreen = (props) => {
       }
     )
   ).current;
-
-  function renderHeader() {
-    if (isFocused) {
-      return (
-        <ProfileInfo
-          user={user}
-          setUser={setUser}
-          setUserPosts={setUserPosts}
-          recallFriendRequest={recallFriendRequest}
-          acceptFriendRequest={acceptFriendRequest}
-          rejectFriendRequest={rejectFriendRequest}
-          sendFriendRequest={sendFriendRequest}
-          removeConnection={removeConnection}
-          canAdd={userData.state?.profileVideoUrl}
-        />
-      );
-    }
-    return null;
-  }
-
-  const keyExtractor = useCallback(
-    (item) => item?.customKey || item?._id,
-    [userPosts]
-  );
 
   useEffect(() => {
     initializeData.promise.then(async ({ success, response }) => {

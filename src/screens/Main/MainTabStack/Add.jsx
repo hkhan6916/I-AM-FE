@@ -479,13 +479,20 @@ const AddScreen = () => {
                 style={{
                   borderWidth: !showMediaSizeError ? 1 : 2,
                   borderRadius: 5,
+                  backgroundColor: themeStyle.colors.grayscale.high,
                   borderColor: !showMediaSizeError
                     ? themeStyle.colors.primary.default
                     : themeStyle.colors.error.default,
                 }}
               >
                 <TouchableOpacity
-                  style={{ alignSelf: "flex-end" }}
+                  style={{
+                    alignSelf: "flex-end",
+                    height: 48,
+                    width: 48,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
                   onPress={() => {
                     setFile({});
                   }}
@@ -494,6 +501,7 @@ const AddScreen = () => {
                     name="close"
                     size={24}
                     color={themeStyle.colors.grayscale.lowest}
+                    style={{}}
                   />
                 </TouchableOpacity>
                 {showMediaSizeError ? (

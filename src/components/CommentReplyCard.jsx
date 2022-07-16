@@ -26,6 +26,8 @@ const CommentReplyCard = ({
       </Text>
     );
   };
+
+  if (!reply) return <View />;
   if (!reply.deleted) {
     return (
       <View style={styles.replyContainer}>
@@ -69,7 +71,12 @@ const CommentReplyCard = ({
             ) : null}
           </View>
           <TouchableOpacity
-            style={{ marginRight: 20 }}
+            style={{
+              width: 48,
+              height: 48,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
             onPress={() => setShowOptionsForComment(reply)}
           >
             <Entypo
@@ -117,7 +124,7 @@ const CommentReplyCard = ({
             >
               <Text
                 style={{
-                  color: themeStyle.colors.grayscale.low,
+                  color: themeStyle.colors.grayscale.lower,
                   fontWeight: "700",
                 }}
               >
@@ -129,8 +136,9 @@ const CommentReplyCard = ({
                 onPress={() => handleReaction(reply)}
                 style={{
                   justifyContent: "center",
-                  alignItems: "center",
-                  marginHorizontal: 5,
+                  alignItems: "flex-end",
+                  height: 48,
+                  width: 48,
                 }}
               >
                 <MaterialCommunityIcons
@@ -145,7 +153,7 @@ const CommentReplyCard = ({
               </TouchableOpacity>
             ) : null}
 
-            {reply.likes > 0 ? (
+            {reply.likes ? ( // if likes more than 0
               <Text
                 style={{
                   color: themeStyle.colors.grayscale.lowest,
@@ -195,7 +203,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   actionsContainer: {
-    padding: 10,
+    // padding: 10,
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
@@ -207,7 +215,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   replyTrigger: {
-    marginRight: 10,
+    marginHorizontal: 10,
+    margiHormarginHorizontal: 10,
+    height: 48,
+    justifyContent: "center",
+    alignItems: "center",
   },
   likeTrigger: {
     marginRight: 10,
@@ -215,7 +227,6 @@ const styles = StyleSheet.create({
   commentAge: {
     color: themeStyle.colors.grayscale.low,
     marginHorizontal: 10,
-    marginVertical: 5,
     fontSize: 12,
   },
 });

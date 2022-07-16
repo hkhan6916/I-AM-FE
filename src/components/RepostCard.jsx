@@ -27,7 +27,7 @@ const RepostCard = ({ postContent, isPreview }) => {
         }}
       >
         <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-          This post no longer exists.
+          The post you&apos;re looking for could not be found.
         </Text>
       </View>
     );
@@ -166,16 +166,6 @@ const RepostCard = ({ postContent, isPreview }) => {
                 {postContent.body}
               </Text>
             </View>
-            <View
-              style={{
-                position: "absolute",
-                bottom: -10,
-                width: "100%",
-                height: 30,
-                opacity: 0.7,
-                backgroundColor: themeStyle.colors.grayscale.highest,
-              }}
-            />
           </View>
         ) : null}
       </View>

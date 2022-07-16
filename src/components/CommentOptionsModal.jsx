@@ -90,12 +90,15 @@ const CommentOptionsModal = ({
                     width: "100%",
                     backgroundColor: themeStyle.colors.grayscale.highest,
                     padding: 5,
+                    paddingHorizontal: 20,
+                    paddingBottom: Platform.OS === "ios" ? 40 : 20,
                   }}
                 >
                   {!comment.belongsToUser && !showReportOptions ? (
-                    <View style={{ marginVertical: 10 }}>
+                    <View style={{ marginTop: 10 }}>
                       <TouchableOpacity
                         onPress={() => setShowReportOptions(true)}
+                        style={{ height: 48, justifyContent: "center" }}
                       >
                         <Text
                           style={{

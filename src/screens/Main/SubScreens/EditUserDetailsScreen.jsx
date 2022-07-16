@@ -846,8 +846,8 @@ const EditUserDetailsScreen = () => {
                 </Text>
               ) : isUpdating ? (
                 <ActivityIndicator
-                  size="large"
-                  color={themeStyle.colors.primary.default}
+                  size="small"
+                  color={themeStyle.colors.white}
                 />
               ) : (
                 <Text

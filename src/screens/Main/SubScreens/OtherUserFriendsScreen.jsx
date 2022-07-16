@@ -16,6 +16,7 @@ import {
   RecyclerListView,
 } from "recyclerlistview";
 import { useSelector } from "react-redux";
+import themeStyle from "../../../theme.style";
 
 const OtherUserFriendsScreen = (props) => {
   const { userId, firstName } = props.route.params;
@@ -117,6 +118,7 @@ const OtherUserFriendsScreen = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: themeStyle.colors.grayscale.highest,
   },
 });
 

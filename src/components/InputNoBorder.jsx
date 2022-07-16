@@ -57,7 +57,7 @@ const InputNoBorder = ({
             <AntDesign
               name="closecircle"
               size={16}
-              color={themeStyle.colors.grayscale.high}
+              color={themeStyle.colors.grayscale.low}
             />
           </TouchableOpacity>
         ) : null}

@@ -47,7 +47,7 @@ const FollowersModeScreen = () => {
         <Text style={{ color: themeStyle.colors.error.default }}>{error}</Text>
       ) : null}
       <Switch
-        style={{ alignSelf: "flex-start", marginTop: 20 }}
+        style={{ alignSelf: "flex-start", marginTop: 20, marginLeft: 5 }}
         trackColor={{
           false: themeStyle.colors.grayscale.higher,
           true: themeStyle.colors.secondary.light,
@@ -71,7 +71,7 @@ const FollowersModeScreen = () => {
       </Text>
       <Text
         style={{
-          color: themeStyle.colors.grayscale.low,
+          color: themeStyle.colors.grayscale.lower,
           padding: 10,
           marginVertical: 20,
           fontSize: 14,

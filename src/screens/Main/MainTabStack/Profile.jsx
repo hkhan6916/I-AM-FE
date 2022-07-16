@@ -131,7 +131,6 @@ const ProfileScreen = () => {
   const getUserData = async () => {
     setLoading(true);
     const { success, response } = await apiCall("GET", `/user/data`);
-
     if (success) {
       setUserData(response);
     }
@@ -204,7 +203,6 @@ const ProfileScreen = () => {
     })();
     return () => {
       navigation.removeListener("focus");
-      navigation.removeListener("blur");
       setUserPosts([]);
     };
   }, []);

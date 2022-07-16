@@ -50,7 +50,7 @@ const ShareScreen = (props) => {
           color: themeStyle.colors.grayscale.lowest,
         }}
         value={repostBody || ""}
-        placeholder="Write your thoughts here"
+        placeholder="Write your thoughts here."
         multiline
         maxLength={1000}
         onChangeText={(v) => setRepostBody(v)}
