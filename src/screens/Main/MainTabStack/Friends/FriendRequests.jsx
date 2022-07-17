@@ -6,8 +6,9 @@ import {
   TouchableOpacity,
   RefreshControl,
   Dimensions,
+  ActivityIndicator,
+  Platform,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../../../../theme.style";
 import apiCall from "../../../../helpers/apiCall";
 import UserThumbnail from "../../../../components/UserThumbnail";
@@ -16,14 +17,15 @@ import {
   LayoutProvider,
   RecyclerListView,
 } from "recyclerlistview";
+import { ScrollView } from "react-native-gesture-handler";
 
 const FriendRequestsScreen = () => {
   const [currentTab, setCurrentTab] = useState("received");
   const [friendRequestsReceived, setFriendRequestsReceived] = useState([]);
   const [friendRequestsSent, setFriendRequestsSent] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const navigation = useNavigation();
-  const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
+  const [loading, setLoading] = useState(false);
+  const { width: screenWidth } = Dimensions.get("window");
 
   const getFriendRequests = async () => {
     const { success, response } = await apiCall(
@@ -71,9 +73,13 @@ const FriendRequestsScreen = () => {
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
+      setRefreshing(true);
       await getFriendRequests();
+      setRefreshing(false);
+      setLoading(false);
     })();
-  }, [navigation]);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -131,7 +137,20 @@ const FriendRequestsScreen = () => {
             ),
           }}
         />
-      ) : null}
+      ) : (
+        <ScrollView
+          contentContainerStyle={{ flex: 1 }}
+          refreshControl={
+            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+          }
+        >
+          <ActivityIndicator
+            size={"small"}
+            color={themeStyle.colors.grayscale.low}
+            animating={Platform.OS === "ios" ? loading : false}
+          />
+        </ScrollView>
+      )}
     </View>
   );
 };

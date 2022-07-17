@@ -7,7 +7,6 @@ import {
   SafeAreaView,
   StyleSheet,
   Image,
-  FlatList,
   KeyboardAvoidingView,
   Platform,
   Dimensions,
@@ -44,7 +43,6 @@ import {
   LayoutProvider,
   RecyclerListView,
 } from "recyclerlistview";
-import ImageWithCache from "../../../components/ImageWithCache";
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -66,6 +64,7 @@ const ChatScreen = (props) => {
   const [userHasBlocked, setUserHasBlocked] = useState(false);
   const [creatingChat, setCreatingChat] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [port, setPort] = useState("5000");
 
   const { chatUserId, chatUserFirstName, existingChat } = props.route.params;
@@ -545,7 +544,9 @@ const ChatScreen = (props) => {
         setAuthInfo({ token, senderId });
 
         if (chat) {
+          setLoading(true);
           await getChatMessages();
+          setLoading(false);
         }
 
         if (chat?.users?.length) {
@@ -713,6 +714,16 @@ const ChatScreen = (props) => {
     };
   }, [socket, authInfo, chat]);
 
+  if (loading) {
+    return (
+      <View
+        style={{ flex: 1, justifyContent: "flex-start", alignItems: "center" }}
+      >
+        <ActivityIndicator animating size="small" />
+      </View>
+    );
+  }
+
   if (cameraActive) {
     return (
       <CameraStandard
@@ -724,7 +735,6 @@ const ChatScreen = (props) => {
       />
     );
   }
-
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <KeyboardAvoidingView

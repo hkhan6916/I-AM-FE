@@ -6,13 +6,13 @@ import {
   Text,
   SectionList,
   TouchableOpacity,
-  Keyboard,
+  ActivityIndicator,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import apiCall from "../../../../helpers/apiCall";
 import UserThumbnail from "../../../../components/UserThumbnail";
 import themeStyle from "../../../../theme.style";
-import UserSearchBar from "../../../../components/UserSearchBar";
 import { useSelector } from "react-redux";
 const FriendsScreen = () => {
   const [friends, setFriends] = useState([]);
@@ -21,6 +21,7 @@ const FriendsScreen = () => {
   const [offsets, setOffsets] = useState({});
   const navigation = useNavigation();
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const userData = useSelector((state) => state.userData)?.state;
 
@@ -118,8 +119,10 @@ const FriendsScreen = () => {
 
   useEffect(() => {
     (async () => {
-      setRefreshing(true);
+      setRefreshing(Platform.OS === "android");
+      setLoading(Platform.OS === "ios");
       await getFriends();
+      setLoading(false);
       setRefreshing(false);
     })();
   }, []);
@@ -144,6 +147,13 @@ const FriendsScreen = () => {
           All requests
         </Text>
       </TouchableOpacity>
+      {loading ? (
+        <ActivityIndicator
+          size={"small"}
+          color={themeStyle.colors.grayscale.low}
+          animating={loading}
+        />
+      ) : null}
       <SectionList // TODO convert to recycler list view
         ref={sectionListRef}
         stickySectionHeadersEnabled={true}

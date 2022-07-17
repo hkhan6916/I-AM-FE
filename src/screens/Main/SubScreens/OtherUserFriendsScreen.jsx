@@ -5,6 +5,8 @@ import {
   RefreshControl,
   Keyboard,
   Dimensions,
+  ActivityIndicator,
+  Platform,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
@@ -17,12 +19,14 @@ import {
 } from "recyclerlistview";
 import { useSelector } from "react-redux";
 import themeStyle from "../../../theme.style";
+import { ScrollView } from "react-native-gesture-handler";
 
 const OtherUserFriendsScreen = (props) => {
   const { userId, firstName } = props.route.params;
   const [friends, setFriends] = useState([]);
   const [searchedFriends, setSearchedFriends] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
   const userData = useSelector((state) => state.userData)?.state;
   const { width: screenWidth } = Dimensions.get("window");
@@ -75,8 +79,10 @@ const OtherUserFriendsScreen = (props) => {
           : "Contacts",
     });
     (async () => {
-      setRefreshing(true);
+      setLoading(Platform.OS === "ios");
+      setRefreshing(Platform.OS === "android");
       await getFriends();
+      setLoading(false);
       setRefreshing(false);
     })();
   }, []);
@@ -110,7 +116,20 @@ const OtherUserFriendsScreen = (props) => {
             ),
           }}
         />
-      ) : null}
+      ) : (
+        <ScrollView
+          contentContainerStyle={{ flex: 1 }}
+          refreshControl={
+            <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+          }
+        >
+          <ActivityIndicator
+            size={"small"}
+            color={themeStyle.colors.grayscale.low}
+            animating={loading}
+          />
+        </ScrollView>
+      )}
     </View>
   );
 };
