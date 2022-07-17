@@ -1,15 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  View,
-  RefreshControl,
-  FlatList,
-  SafeAreaView,
-  Dimensions,
-  ActivityIndicator,
-} from "react-native";
+import { View, RefreshControl, SafeAreaView, Dimensions } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
-import themeStyle from "../../../theme.style";
 import PostCard from "../../../components/PostCard";
 import ProfileInfo from "../../../components/ProfileInfo";
 import ContentLoader from "../../../components/ContentLoader";
@@ -355,7 +347,7 @@ const UserProfileScreen = (props) => {
       setUserPosts([]);
       initializeData.cancel();
     };
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     (async () => {
@@ -365,6 +357,8 @@ const UserProfileScreen = (props) => {
     })();
     return () => {};
   }, [accepted]);
+
+  if (!isFocused) return null;
 
   if (user && user._id) {
     return (

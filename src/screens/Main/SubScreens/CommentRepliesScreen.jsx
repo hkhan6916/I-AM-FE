@@ -149,6 +149,9 @@ const CommentRepliesScreen = (props) => {
     );
     setLoading(false);
     if (success) {
+      if (showOptionsForComment?._id === comment._id) {
+        navigation.goBack();
+      }
       const newReplies = replies.map((reply) => {
         if (reply._id === showOptionsForComment?._id) {
           return {

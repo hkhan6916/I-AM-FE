@@ -50,16 +50,6 @@ const PostScreen = (props) => {
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
   const lottieRef = useRef(null);
 
-  const handleGoBack = () => {
-    if (prevScreen) {
-      navigation.navigate(prevScreen, {
-        postToUpdate: post,
-      });
-    } else {
-      navigation.goBack();
-    }
-  };
-
   const onTextLayout = (e) => {
     setIsCollapsible(e.nativeEvent.lines.length >= 3);
   };
@@ -74,6 +64,7 @@ const PostScreen = (props) => {
         ...post,
         liked: response.liked,
         likes: response.likes,
+        numberOfComments: response.numberOfComments,
       });
     }
   };
@@ -106,13 +97,18 @@ const PostScreen = (props) => {
   };
 
   useEffect(() => {
-    (async () => await getAdditionalPostData())();
+    navigation.addListener("focus", async () => {
+      await getAdditionalPostData();
+    });
+    return () => {
+      navigation.removeListener("focus");
+    };
   }, []);
 
   if (post) {
     return (
       <SafeAreaView style={styles.container}>
-        <ScrollView style={{ marginVertical: 20 }}>
+        <ScrollView>
           <View>
             {post.postAuthor && (
               <View style={[styles.postAuthorContainer]}>
@@ -237,7 +233,7 @@ const PostScreen = (props) => {
           {post.body ? (
             <View
               style={{
-                marginHorizontal: 10,
+                margin: 10,
               }}
             >
               <Text
@@ -278,10 +274,10 @@ const PostScreen = (props) => {
                   <TouchableOpacity
                     onPress={() => handleReaction()}
                     style={{
-                      width: 40,
-                      height: 40,
+                      width: 48,
+                      height: 48,
                       justifyContent: "center",
-                      alignItems: "center",
+                      alignItems: "flex-start",
                     }}
                   >
                     {post.liked ? (
@@ -300,11 +296,20 @@ const PostScreen = (props) => {
                         }}
                       />
                     ) : (
-                      <MaterialCommunityIcons
-                        name={"thumb-up-outline"}
-                        size={20}
-                        color={themeStyle.colors.grayscale.lowest}
-                      />
+                      <View
+                        style={{
+                          width: 40,
+                          height: 40,
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <MaterialCommunityIcons
+                          name={"thumb-up-outline"}
+                          size={20}
+                          color={themeStyle.colors.grayscale.lowest}
+                        />
+                      </View>
                     )}
                   </TouchableOpacity>
                 ) : null}
@@ -315,11 +320,11 @@ const PostScreen = (props) => {
                     })
                   }
                   style={{
-                    width: 40,
-                    height: 40,
+                    width: 48,
+                    height: 48,
                     justifyContent: "center",
-                    alignItems: "center",
-                    marginHorizontal: 5,
+                    alignItems: "flex-start",
+                    marginHorizontal: 10,
                   }}
                 >
                   <FontAwesome
@@ -337,8 +342,8 @@ const PostScreen = (props) => {
                   })
                 }
                 style={{
-                  width: 40,
-                  height: 40,
+                  width: 48,
+                  height: 48,
                   justifyContent: "center",
                   alignItems: "center",
                   marginHorizontal: 5,
@@ -352,16 +357,52 @@ const PostScreen = (props) => {
                 />
               </TouchableOpacity>
             </View>
-            <Text
+            <View
               style={{
-                color: themeStyle.colors.grayscale.lower,
-                fontSize: 12,
-                marginHorizontal: 10,
-                marginVertical: 5,
+                width: "100%",
+                justifyContent: "space-between",
+                flexDirection: "row",
+                height: 48,
+                alignItems: "center",
               }}
             >
-              {post.likes} likes
-            </Text>
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.lower,
+                  fontSize: 12,
+                  marginHorizontal: 10,
+                  marginVertical: 5,
+                }}
+              >
+                {post.likes} likes
+              </Text>
+              {post.numberOfComments ? (
+                <TouchableOpacity
+                  style={{
+                    height: 48,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  onPress={() =>
+                    navigation.navigate("CommentsScreen", {
+                      postId: post._id,
+                    })
+                  }
+                >
+                  <Text
+                    style={{
+                      color: themeStyle.colors.grayscale.lower,
+                      fontSize: 12,
+                      marginHorizontal: 10,
+                      fontWeight: "700",
+                    }}
+                  >
+                    View {post.numberOfComments}{" "}
+                    {post.numberOfComments > 1 ? "comments" : "comment"}
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
             <PostAge age={post.age} />
           </View>
         </ScrollView>
@@ -379,7 +420,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     paddingHorizontal: 5,
-    marginBottom: 20,
+    marginBottom: 10,
+    marginTop: 10,
     borderColor: themeStyle.colors.grayscale.low,
   },
 });

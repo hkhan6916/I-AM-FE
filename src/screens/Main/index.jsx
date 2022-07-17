@@ -20,8 +20,6 @@ import EditPostScreen from "./SubScreens/EditPostScreen";
 import AccountScreen from "./SubScreens/AccountScreen";
 import FollowersModeScreen from "./SubScreens/FollowersModeScreen";
 import AccountVisibilityeScreen from "./SubScreens/AccountVisibilityScreen";
-import AdScreen from "./SubScreens/AdTest";
-import Test from "./SubScreens/Test";
 import EmailVerificationScreen from "./SubScreens/EmailVerificationScreen";
 
 const Stack = createNativeStackNavigator();
@@ -31,6 +29,10 @@ const MainStack = () => (
     screenOptions={{
       headerStyle: { elevation: 0 },
       cardStyle: { backgroundColor: themeStyle.colors.grayscale.highest },
+      // contentStyle: {
+      //   maxWidth: 320,
+      //   justifyContent: "center",
+      // },
     }}
     initialRouteName="MainTabStack"
   >
