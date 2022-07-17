@@ -23,6 +23,7 @@ import {
   LayoutProvider,
   RecyclerListView,
 } from "recyclerlistview";
+import { ScrollView } from "react-native-gesture-handler";
 
 const CommentsScreen = (props) => {
   const { postId } = props.route.params;
@@ -32,12 +33,10 @@ const CommentsScreen = (props) => {
   // just a set of comment IDs so we don't render newly fetched comments if they've just been added by the user
   const [newCommentsIds, setNewCommentsIds] = useState([]);
   const [allCommentsLoaded, setAllCommentsLoaded] = useState(false);
-  const [newReply, setNewReply] = useState(null);
   const [loading, setLoading] = useState(false);
   const [intialLoading, setInitialLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [scrollStarted, setScrollStarted] = useState(false);
   const [showOptionsForComment, setShowOptionsForComment] = useState(null);
   const [error, setError] = useState("");
 
@@ -46,12 +45,31 @@ const CommentsScreen = (props) => {
 
   const { width: screenWidth } = Dimensions.get("window");
 
-  const getComments = async (onScroll = false) => {
-    if (onScroll && !scrollStarted) return;
+  const getInitialComments = async (refreshing) => {
+    // setAllCommentsLoaded(false);
+    setNewCommentsIds([]);
+    if (!refreshing) {
+      setInitialLoading(true);
+    }
+    await apiCall("GET", `/posts/comments/${postId}/0`).then(
+      ({ success, response }) => {
+        if (success) {
+          if (!response.length) {
+            // setAllCommentsLoaded(true);
+            setComments(response);
+          } else {
+            setComments(response);
+          }
+        }
+      }
+    );
+    setInitialLoading(false);
+  };
+
+  const loadMoreComments = async () => {
     let isCancelled = false;
     if (!isCancelled) {
       if (!allCommentsLoaded) {
-        setScrollStarted(false);
         setLoadingMore(true);
         const { response, success } = await apiCall(
           "GET",
@@ -127,7 +145,6 @@ const CommentsScreen = (props) => {
           return {
             ...comment,
             deleted: true,
-            customKey: `${comment._id}-deleted}`,
           };
         }
         return comment;
@@ -149,7 +166,6 @@ const CommentsScreen = (props) => {
         ...response,
         age: { minutes: 1 },
         new: true,
-        customKey: `${response._id}-new`,
       };
       const updatedComments = [tweakedResponse, ...comments];
 
@@ -218,7 +234,6 @@ const CommentsScreen = (props) => {
               _id: comment._id,
               edited: true,
               updated: true,
-              customKey: `${comment._id}-${body.replace(" ", "-")}`,
             };
           }
           return comment;
@@ -255,20 +270,6 @@ const CommentsScreen = (props) => {
     setError("");
   };
 
-  const renderItem = useCallback(
-    ({ item }) =>
-      newCommentsIds.indexOf(item._id) === -1 || item.new ? ( // prevent newly created comments from rendering again since they'll be fetch from the backend as the user scrolls
-        <PostCommentCard
-          replyToUser={replyToUser}
-          key={item._id}
-          comment={item}
-          setShowOptionsForComment={triggerOptionsModal}
-          handleReaction={handleReaction}
-        />
-      ) : null,
-    [newCommentsIds, comments]
-  );
-
   const layoutProvider = useRef(
     new LayoutProvider(
       // (index) => index,
@@ -286,7 +287,9 @@ const CommentsScreen = (props) => {
       r1.body !== r2.body ||
       r1.likes !== r2.likes ||
       r1.liked !== r2.liked ||
-      r1.deleted !== r2.deleted
+      r1.deleted !== r2.deleted ||
+      r1.replyCount !== r2.replyCount ||
+      r1.new !== r2.new // HERE: was here
     );
   }).cloneWithRows(comments);
 
@@ -320,29 +323,19 @@ const CommentsScreen = (props) => {
     [loadingMore]
   );
 
-  const keyExtractor = useCallback(
-    (item) => item.customKey || item._id,
-    [comments, newCommentsIds]
-  );
-
   useEffect(() => {
     (async () => {
-      setInitialLoading(true);
-      await apiCall("GET", `/posts/comments/${postId}/0`).then(
-        ({ success, response }) => {
-          setInitialLoading(false);
-          if (success) {
-            if (!response.length) {
-              setAllCommentsLoaded(true);
-            } else {
-              setComments(response);
-            }
-          }
+      navigation.addListener("focus", async () => {
+        if (comments) {
+          // refresh comments
+          await getInitialComments(true);
         }
-      );
+      });
+      await getInitialComments();
     })();
     return async () => {
-      (await getComments()).cancel();
+      (await loadMoreComments()).cancel();
+      navigation.removeListener("focus");
     };
   }, []);
 
@@ -372,7 +365,7 @@ const CommentsScreen = (props) => {
             style={{ minHeight: 1, minWidth: 1 }}
             rowRenderer={rowRenderer}
             dataProvider={dataProvider}
-            onEndReached={() => getComments(true)}
+            onEndReached={() => loadMoreComments()}
             layoutProvider={layoutProvider}
             onEndReachedThreshold={0.5}
             forceNonDeterministicRendering
@@ -387,7 +380,7 @@ const CommentsScreen = (props) => {
             }}
           />
         ) : (
-          <View style={{ flex: 1 }} />
+          <ScrollView style={{ flex: 1 }} />
         )}
 
         <View>

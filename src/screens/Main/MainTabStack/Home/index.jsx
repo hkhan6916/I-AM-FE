@@ -380,6 +380,8 @@ const HomeScreen = () => {
       >
         <HomeScreenHeader navigation={navigation} userData={userData} />
         <PostCardLoader hasImage screenWidth={screenWidth} />
+        <PostCardLoader hasImage screenWidth={screenWidth} />
+        <PostCardLoader hasImage screenWidth={screenWidth} />
       </SafeAreaView>
     );
   }
