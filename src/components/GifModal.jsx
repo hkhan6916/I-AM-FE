@@ -145,7 +145,11 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
           >
             <TouchableOpacity
               onPress={() => setShowModal(false)}
-              style={{ justifyContent: "center", flexDirection: "row" }}
+              style={{
+                justifyContent: "center",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
             >
               <AntDesign
                 name="arrowleft"
