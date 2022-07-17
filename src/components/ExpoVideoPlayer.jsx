@@ -1,5 +1,4 @@
-import { Dimensions } from "react-native";
-import { Video } from "expo-av";
+import { Dimensions, Platform, View } from "react-native";
 import React, { useCallback, useRef } from "react";
 import VideoPlayer from "expo-video-player";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
@@ -21,24 +20,29 @@ const ExpoVideoPlayer = ({ uri, isSelfie }) => {
     }, [])
   );
   return (
-    <VideoPlayer
-      autoHidePlayer={false}
-      timeVisible
-      slider={{ height: 100 }}
-      videoProps={{
-        ref: videoRef,
-        shouldPlay: true,
-        resizeMode: "contain",
-        source: {
-          uri: uri,
-        },
-        style: {
-          transform: [{ scaleX: isSelfie ? -1 : 1 }],
-          height: "100%",
-        },
-      }}
-      fullscreen
-    />
+    <View style={{ flex: 1, justifyContent: "center" }}>
+      <VideoPlayer
+        autoHidePlayer={false}
+        timeVisible
+        style={{
+          height: Platform.OS === "android" ? screenHeight : screenHeight - 100,
+        }}
+        slider={{ height: Platform.OS === "android" ? 100 : 0 }}
+        videoProps={{
+          ref: videoRef,
+          shouldPlay: true,
+          resizeMode: "contain",
+          source: {
+            uri: uri,
+          },
+          style: {
+            transform: [{ scaleX: isSelfie ? -1 : 1 }],
+            height: "100%",
+          },
+        }}
+        fullscreen
+      />
+    </View>
   );
 };
 

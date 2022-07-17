@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useContext,
-  useState,
-  useCallback,
-  useRef,
-} from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -222,7 +216,7 @@ const HomeScreen = () => {
   }, []);
 
   const handleReaction = async (post) => {
-    const oldFeed = feed;
+    const oldFeed = feed || originalFeed;
 
     if (post.liked) {
       setFeed((prev) => {
@@ -261,7 +255,6 @@ const HomeScreen = () => {
       });
     });
     const { success } = await apiCall("GET", `/posts/like/add/${post._id}`);
-
     if (!success) {
       setFeed(oldFeed);
     }
@@ -274,7 +267,6 @@ const HomeScreen = () => {
     //   return prevFeed.map((post) => ({ ...post, unMute: state }));
     // });
   };
-
   const rowRenderer = useCallback(
     (_, item, index, extendedState) => {
       return (

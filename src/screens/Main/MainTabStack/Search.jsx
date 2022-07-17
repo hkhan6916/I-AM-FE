@@ -80,7 +80,7 @@ const SearchScreen = () => {
           (item) => !!item.postAuthor.profileGifUrl === true // Move this to the backend where we only return posts for users with completed profiles (with profile gifs)
         )
       );
-      if (!searchItemsVisible && newFeed.length >= 20) {
+      if (!searchItemsVisible && newFeed.length) {
         setTimeout(() => setSearchItemsVisible(true), 400);
       }
     }
@@ -267,7 +267,7 @@ const SearchScreen = () => {
           ) : null}
           {!hideFeedAndSuggestions &&
           !results.length &&
-          searchFeed.length >= 20 &&
+          searchFeed.length &&
           searchItemsVisible ? (
             <RecyclerListView
               style={{

@@ -82,7 +82,7 @@ const SearchFeedItem = ({ post }) => {
               )}
               <Avatar
                 style={{ borderWidth: 1 }}
-                size={20}
+                size={25}
                 avatarUrl={post.postAuthor.profileGifUrl}
                 profileGifHeaders={post.postAuthor.profileGifHeaders}
                 flipProfileVideo={post.postAuthor.flipProfileVideo}
