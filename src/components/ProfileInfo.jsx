@@ -145,6 +145,7 @@ const ProfileInfo = ({
             flexDirection: "row",
             justifyContent: "space-between",
             marginTop: 10,
+            paddingHorizontal: 5,
           }}
         >
           <TouchableOpacity

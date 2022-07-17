@@ -3,6 +3,7 @@ const makeCancelable = (promise) => {
 
   const wrappedPromise = new Promise((resolve, reject) => {
     promise.then(
+      // TODO: handle reject in trycatch when using this function
       (val) => (hasCanceled ? reject({ isCanceled: true }) : resolve(val)),
       (error) => (hasCanceled ? reject({ isCanceled: true }) : reject(error))
     );

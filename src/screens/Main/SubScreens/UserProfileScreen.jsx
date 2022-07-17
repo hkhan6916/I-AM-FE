@@ -207,15 +207,14 @@ const UserProfileScreen = (props) => {
     }
   };
 
-  const onRefresh = useCallback(async () => {
+  const onRefresh = async () => {
     setRefreshing(true);
-    initializeData.promise.then(async ({ success, response }) => {
-      if (success) {
-        setUser(response.otherUser);
-      }
-    });
+    const { success, response } = await apiCall("GET", `/user/${userId}`, null);
+    if (success) {
+      setUser(response.otherUser);
+    }
     setRefreshing(false);
-  }, []);
+  };
 
   const triggerOptionsModal = (post) => {
     setError("");
@@ -238,7 +237,7 @@ const UserProfileScreen = (props) => {
           return p;
         });
       });
-      const { success, message } = await apiCall(
+      const { success } = await apiCall(
         "GET",
         `/posts/like/remove/${post._id}`
       );
@@ -276,7 +275,7 @@ const UserProfileScreen = (props) => {
             sendFriendRequest={sendFriendRequest}
             removeConnection={removeConnection}
             canAdd={userData.state?.profileVideoUrl}
-            isVisible={extendedState.profileVideoVisible}
+            isVisible={extendedState.profileVideoVisible} // If scrolled to top
           />
         );
       }
