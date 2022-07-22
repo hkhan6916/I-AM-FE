@@ -7,7 +7,7 @@ export default {
   expo: {
     name: "Magnet",
     slug: "Magnet",
-    version: "1.0.5",
+    version: "1.0.8",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "automatic",
@@ -25,7 +25,14 @@ export default {
       supportsTablet: true,
       bundleIdentifier: "com.magnetapp.magnet",
       infoPlist: {
-        NSCameraUsageDescription: "This app uses the camera.",
+        NSCameraUsageDescription:
+          "Magnet uses access to your camera to do things such as let you take photos and videos to then post on Magnet.",
+        NSPhotoLibraryAddUsageDescription:
+          "Magnet uses access to your photos to do things such as let you pick images and videos to then post on Magnet.",
+        NSPhotoLibraryUsageDescription:
+          "Magnet uses access to your photos to do things such as let you pick images and videos to then post on Magnet.",
+        NSMicrophoneUsageDescription:
+          "Magnet uses access to your microphone to do things such as record audio when recording videos to then post on Magnet.",
       },
     },
     android: {
@@ -36,7 +43,7 @@ export default {
       useNextNotificationsApi: true,
       googleServicesFile: "./google-services.json",
       package: "com.magnetapp.magnet",
-      versionCode: 3,
+      versionCode: 4,
     },
     web: {
       favicon: "./assets/favicon.png",

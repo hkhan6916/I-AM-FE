@@ -28,11 +28,11 @@ const SettingScreen = () => {
           >
             <View style={styles.optionContent}>
               <Ionicons
-                name="person-outline"
+                name="create-outline"
                 size={14}
                 color={themeStyle.colors.grayscale.lowest}
               />
-              <Text style={styles.basicOptionsText}>My Details</Text>
+              <Text style={styles.basicOptionsText}>Edit My Details</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -46,7 +46,7 @@ const SettingScreen = () => {
                 size={14}
                 color={themeStyle.colors.grayscale.lowest}
               />
-              <Text style={styles.basicOptionsText}>Account</Text>
+              <Text style={styles.basicOptionsText}>Account Settings</Text>
             </View>
           </TouchableOpacity>
         </View>

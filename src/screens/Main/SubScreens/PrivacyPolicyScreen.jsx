@@ -421,14 +421,14 @@ const PrivacyPolicyScreen = () => {
             involving potential threats to the safety of any person and illegal
             activities, or as evidence in litigation in which we are involved.
           </Text>
-          <Text
+          {/* <Text
             style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}
           >
             - Deliver targeted advertising to you. We may use your information
             to develop and display personalized content and advertising (and
             work with third parties who do so) tailored to your interests and/or
             location and to measure its effectiveness.
-          </Text>
+          </Text> */}
         </View>
         <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
           {"\n"}

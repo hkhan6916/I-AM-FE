@@ -444,7 +444,7 @@ const ChatScreen = (props) => {
     if (status !== "granted") {
       Alert.alert(
         "Unable access camera roll",
-        "Please enable storage permissions to post media files.",
+        "Please enable storage permissions to post media from your local files.",
         [
           {
             text: "Cancel",

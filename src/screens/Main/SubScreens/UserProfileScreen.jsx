@@ -232,7 +232,11 @@ const UserProfileScreen = (props) => {
       setUserPosts((prev) => {
         return prev.map((p) => {
           if (p._id === post._id) {
-            return { ...p, liked: false };
+            return {
+              ...p,
+              liked: false,
+              likes: post.likes ? post.likes - 1 : post.likes,
+            };
           }
           return p;
         });
@@ -249,7 +253,11 @@ const UserProfileScreen = (props) => {
     setUserPosts((prev) => {
       return prev.map((p) => {
         if (p._id === post._id) {
-          return { ...p, liked: true };
+          return {
+            ...p,
+            liked: true,
+            likes: typeof post.likes === "number" ? post.likes + 1 : post.likes,
+          };
         }
         return p;
       });
@@ -300,7 +308,9 @@ const UserProfileScreen = (props) => {
 
   let dataProvider = new DataProvider(
     (r1, r2) => {
-      return r1._id !== r2._id || r1.liked !== r2.liked;
+      return (
+        r1._id !== r2._id || r1.liked !== r2.liked || r1.likes !== r2.likes
+      );
     }
     // (index) => `${userPosts[index]?._id}`
   ).cloneWithRows([{}, ...userPosts]);
@@ -356,8 +366,6 @@ const UserProfileScreen = (props) => {
     })();
     return () => {};
   }, [accepted]);
-
-  if (!isFocused) return null;
 
   if (user && user._id) {
     return (

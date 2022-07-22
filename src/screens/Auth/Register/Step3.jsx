@@ -244,7 +244,7 @@ const Step1Screen = () => {
     if (status !== "granted") {
       Alert.alert(
         "Unable access camera roll",
-        "Please enable storage permissions to upload a profile video.",
+        "Please enable storage permissions to upload a profile video from your local files.",
         [
           {
             text: "Cancel",

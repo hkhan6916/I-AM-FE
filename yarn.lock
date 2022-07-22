@@ -4213,6 +4213,13 @@ expo-task-manager@~10.2.0, expo-task-manager@~10.2.1:
     "@expo/config-plugins" "^4.0.14"
     unimodules-app-loader "~3.1.0"
 
+expo-tracking-transparency@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/expo-tracking-transparency/-/expo-tracking-transparency-2.2.0.tgz#81b61966b382c888c4fba9692c49faf61a5dba7c"
+  integrity sha512-MbyQ9Sa42UH5JYVZJRBkkELL15KSDOZ6ijHdAgdx0zBpu/9pLmmDd/NWK/AnCZXUBUaXLliNmhoQ+/NR0S9eGw==
+  dependencies:
+    "@expo/config-plugins" "^4.0.14"
+
 expo-updates-interface@~0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/expo-updates-interface/-/expo-updates-interface-0.6.0.tgz#cef5250106e59572afdfcf245c534754c8c844ba"

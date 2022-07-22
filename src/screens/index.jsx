@@ -94,10 +94,14 @@ const Screens = () => {
     (async () => {
       await preventAutoHideAsync();
       if (!loggedIn) {
-        const token = await getItemAsync("authToken");
-        if (token) {
-          setLoggedIn(true);
-          await hideAsync();
+        try {
+          const token = await getItemAsync("authToken");
+          if (token) {
+            setLoggedIn(true);
+            await hideAsync();
+          }
+        } catch (err) {
+          console.log(err);
         }
       }
 
