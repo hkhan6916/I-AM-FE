@@ -7,7 +7,7 @@ export default {
   expo: {
     name: "Magnet",
     slug: "Magnet",
-    version: "1.1.6",
+    version: "1.1.3",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "automatic",
@@ -44,38 +44,11 @@ export default {
       googleServicesFile: "./google-services.json",
       package: "com.magnetapp.magnet",
       versionCode: 9,
-      blockedPermissions: [
-        "android.permission.USE_FINGERPRINT",
-        "android.permission.USE_BIOMETRIC",
-        "android.permission.WRITE_SETTINGS",
-        "android.permission.VIBRATE",
-        "android.permission.READ_PHONE_STATE",
-        "android.permission.WRITE_CALENDAR",
-        "android.permission.READ_CALENDAR",
-        "android.permission.WRITE_CONTACTS",
-        "android.permission.READ_CONTACTS",
-        "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.ACCESS_BACKGROUND_LOCATION",
-        "android.permission.WAKE_LOCK",
-        "android.permission.RECEIVE_BOOT_COMPLETED",
-      ],
     },
     web: {
       favicon: "./assets/favicon.png",
     },
-    plugins: [
-      "react-native-compressor",
-      "react-native-vision-camera",
-      [
-        "expo-build-properties",
-        {
-          android: {
-            minSdkVersion: 28,
-          },
-        },
-      ],
-    ],
+    plugins: ["react-native-compressor", "react-native-vision-camera"],
     extra: {
       apiUrl: process.env.API_URL,
       apiWebSocketUrl: process.env.API_WEBSOCKET_URL,

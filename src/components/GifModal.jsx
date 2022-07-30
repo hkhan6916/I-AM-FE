@@ -43,7 +43,9 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
 
         setGifs(response.data?.results);
       } catch (err) {
-        setError("Unable to retrieve gifs.");
+        setError(
+          "Unable to retrieve gifs at the moment, please try again later."
+        );
         return;
       }
     }
@@ -172,14 +174,16 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
             onTypingEnd={(v) => handleGifSearch(v)}
           />
           {error ? (
-            <Text
-              style={{
-                color: themeStyle.colors.error.default,
-                textAlign: "center",
-              }}
-            >
-              {error}
-            </Text>
+            <View style={{ flex: 1 }}>
+              <Text
+                style={{
+                  color: themeStyle.colors.error.default,
+                  textAlign: "center",
+                }}
+              >
+                {error}
+              </Text>
+            </View>
           ) : (
             <RecyclerListView
               style={{ flex: 1 }}
