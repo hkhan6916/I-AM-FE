@@ -163,6 +163,8 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
                 style={{
                   width: mediaSize || 200,
                   height: mediaSize || 200,
+                  maxWidth: 500,
+                  maxHeight: 500,
                 }}
               />
             </TouchableOpacity>
@@ -177,6 +179,8 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
                   style={{
                     width: mediaSize || 200,
                     height: mediaSize || 200,
+                    maxWidth: 500,
+                    maxHeight: 500,
                   }}
                 />
                 <View

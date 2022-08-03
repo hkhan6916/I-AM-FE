@@ -7,13 +7,13 @@ import {
   Dimensions,
   SafeAreaView,
   Image,
+  Platform,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import themeStyle from "../theme.style";
 import { getItemAsync } from "expo-secure-store";
 import axios from "axios";
 import SearchBar from "./SearchBar";
-import FastImage from "react-native-fast-image";
 import {
   DataProvider,
   LayoutProvider,
@@ -24,12 +24,16 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
   const [error, setError] = useState("");
   const [gifs, setGifs] = useState([]);
 
-  const { width: screenWidth } = Dimensions.get("window");
+  const { width: screen } = Dimensions.get("window");
+  const screenWidth = Math.min(screen, 900);
   const imageHeight = screenWidth / 2;
   const handleGifSearch = async (searchInput) => {
     let isCancelled = false;
     if (!isCancelled) {
-      const tenorApiKey = await getItemAsync("tenorApiKey");
+      const tenorApiKey =
+        Platform.OS === "web"
+          ? localStorage.getItem("tenorApiKey")
+          : await getItemAsync("tenorApiKey");
       try {
         const response = await axios({
           method: "POST",
@@ -98,7 +102,6 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
 
   useEffect(() => {
     (async () => {
-      await FastImage.clearMemoryCache();
       await handleGifSearch();
     })();
   }, []);
@@ -111,8 +114,8 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
     new LayoutProvider(
       () => 0,
       (_, dim) => {
-        dim.width = screenWidth / 2 - 1;
-        dim.height = screenWidth / 2 - 1;
+        dim.width = screenWidth / Math.round(screenWidth / 200) - 1;
+        dim.height = screenWidth / Math.round(screenWidth / 200) - 1;
       }
     )
   ).current;
@@ -129,6 +132,8 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
         style={{
           backgroundColor: themeStyle.colors.grayscale.highest,
           flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
         <View
@@ -136,6 +141,8 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
             flex: 1,
             backgroundColor: themeStyle.colors.grayscale.highest,
             justifyContent: "center",
+            maxWidth: 900,
+            width: "100%",
           }}
         >
           <View

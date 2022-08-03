@@ -1,14 +1,22 @@
 import React from "react";
-import { Text, View, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Platform,
+  Dimensions,
+} from "react-native";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import Avatar from "./Avatar";
 import themeStyle from "../theme.style";
 import ImageWithCache from "./ImageWithCache";
 import { Feather } from "@expo/vector-icons";
-import FastImage from "react-native-fast-image";
 
 const RepostCard = ({ postContent, isPreview }) => {
   const navigation = useNavigation();
+  const { width: screenWidth } = Dimensions.get("window");
 
   const handleNavigation = () => {
     const pushScreen = StackActions.push("PostScreen", { post: postContent });
@@ -116,6 +124,15 @@ const RepostCard = ({ postContent, isPreview }) => {
               resizeMode="cover"
               mediaUrl={postContent.thumbnailUrl}
               aspectRatio={1 / 1}
+              style={
+                Platform.OS === "web"
+                  ? {
+                      aspectRatio: 1,
+                      height: Math.min(screenWidth, 900 - 20),
+                      width: Math.min(screenWidth, 900 - 20),
+                    }
+                  : {}
+              }
             />
             <View
               style={{
@@ -145,6 +162,16 @@ const RepostCard = ({ postContent, isPreview }) => {
               resizeMode="cover"
               mediaUrl={postContent.mediaUrl}
               aspectRatio={1 / 1}
+              style={
+                Platform.OS === "web"
+                  ? {
+                      aspectRatio: 1,
+                      maxHeight: 500,
+                      height: Math.min(screenWidth, 700 - 20),
+                      width: Math.min(screenWidth, 900 - 20),
+                    }
+                  : {}
+              }
             />
           </View>
         ) : null}

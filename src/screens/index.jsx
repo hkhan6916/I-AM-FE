@@ -10,7 +10,6 @@ import AuthScreens from "./Auth";
 import UtilityScreens from "./Utility";
 import MainScreens from "./Main";
 import themeStyle from "../theme.style";
-import FeedContext from "../Context";
 import { hideAsync, preventAutoHideAsync } from "expo-splash-screen";
 import { useColorScheme } from "react-native";
 import { deleteUserSearchHistoryTable } from "../helpers/sqlite/userSearchHistory";
@@ -21,7 +20,6 @@ import { getTotalMemory } from "react-native-device-info";
 const Screens = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const [feed, setFeed] = useState(null);
   const [notificationToken, setNotificationToken] = useState("");
   const [connectionFailed, setConnectionFailed] = useState(false);
 
@@ -95,7 +93,10 @@ const Screens = () => {
       await preventAutoHideAsync();
       if (!loggedIn) {
         try {
-          const token = await getItemAsync("authToken");
+          const token =
+            Platform.OS === "web"
+              ? localStorage.getItem("authToken")
+              : await getItemAsync("authToken");
           if (token) {
             setLoggedIn(true);
             await hideAsync();
@@ -138,7 +139,7 @@ const Screens = () => {
       }
     );
 
-    if (!notificationToken && loaded) {
+    if (!notificationToken && loaded && Platform.OS !== "web") {
       registerForPushNotificationsAsync().then(async (token) => {
         try {
           if (token) {

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { View, TouchableHighlight, Image } from "react-native";
-import FastImage from "react-native-fast-image";
+import { View, TouchableHighlight } from "react-native";
 import themeStyle from "../theme.style";
 import { Ionicons } from "@expo/vector-icons";
+import Image from "./Image";
 
 const Avatar = ({
   navigation,
@@ -59,14 +59,25 @@ const Avatar = ({
         >
           {avatarUrl ? (
             <Image
-              source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}
-              style={{
-                borderRadius: 10,
-                alignSelf: "center",
-                width: size,
-                height: size,
+              webProps={{
+                style: {
+                  borderRadius: 10,
+                  alignSelf: "center",
+                  width: size,
+                  height: size,
+                  objectFit: "cover",
+                },
               }}
-              resizeMode={FastImage.resizeMode.cover}
+              mobileProps={{
+                style: {
+                  borderRadius: 10,
+                  alignSelf: "center",
+                  width: size,
+                  height: size,
+                },
+                resizeMode: "cover",
+              }}
+              source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}
               onLoad={() => setLoaded(true)}
             />
           ) : (
@@ -91,13 +102,24 @@ const Avatar = ({
           {avatarUrl ? (
             <Image
               source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}
-              resizeMode={FastImage.resizeMode.cover}
               onLoad={() => setLoaded(true)}
-              style={{
-                borderRadius: 10,
-                alignSelf: "center",
-                width: size || 50,
-                height: size || 50,
+              webProps={{
+                style: {
+                  borderRadius: 10,
+                  alignSelf: "center",
+                  width: size || 50,
+                  height: size || 50,
+                  objectFit: "cover",
+                },
+              }}
+              mobileProps={{
+                style: {
+                  borderRadius: 10,
+                  alignSelf: "center",
+                  width: size || 50,
+                  height: size || 50,
+                },
+                resizeMode: "cover",
               }}
             />
           ) : (

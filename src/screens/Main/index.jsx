@@ -21,24 +21,34 @@ import AccountScreen from "./SubScreens/AccountScreen";
 import FollowersModeScreen from "./SubScreens/FollowersModeScreen";
 import AccountVisibilityeScreen from "./SubScreens/AccountVisibilityScreen";
 import EmailVerificationScreen from "./SubScreens/EmailVerificationScreen";
+import { Dimensions } from "react-native";
 
 const Stack = createNativeStackNavigator();
 
 const MainStack = () => (
   <Stack.Navigator
     screenOptions={{
-      headerStyle: { elevation: 0 },
+      headerStyle: { elevation: 0, backgroundColor: "red" },
       cardStyle: { backgroundColor: themeStyle.colors.grayscale.highest },
-      // contentStyle: {
-      //   maxWidth: 320,
-      //   justifyContent: "center",
-      // },
+      ...(Dimensions.get("window").width > 900 // Check this against tablets not using the web
+        ? {
+            contentStyle: {
+              maxWidth: 900,
+              justifyContent: "center",
+              width: "100%",
+              alignSelf: "center",
+            },
+          }
+        : {}),
     }}
     initialRouteName="MainTabStack"
   >
     <Stack.Screen
       options={{
         headerShown: false,
+        contentStyle: {
+          maxWidth: Dimensions.get("window").width,
+        },
       }}
       name="MainTabStack"
       component={MainTabStack}

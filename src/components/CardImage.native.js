@@ -1,4 +1,3 @@
-import FastImage from "react-native-fast-image";
 import React from "react";
 import themeStyle from "../theme.style";
 import { Image } from "react-native";

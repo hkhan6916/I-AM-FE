@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Entypo } from "@expo/vector-icons";
@@ -7,7 +7,6 @@ import themeStyle from "../../theme.style";
 // import apiCall from "../helpers/apiCall";
 import RepostCard from "../RepostCard";
 // import AdCard from "./AdCard";
-import FastImage from "react-native-fast-image";
 import CardImage from "../CardImage";
 import PostAuthor from "./PostAuthor";
 import Actions from "./Actions";

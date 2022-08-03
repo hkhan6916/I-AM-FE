@@ -437,7 +437,10 @@ const EditUserDetailsScreen = () => {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const _userId = await getItemAsync("userId");
+      const _userId =
+        Platform.OS === "web"
+          ? localStorage.getItem("userId")
+          : await getItemAsync("userId");
 
       setUserId(_userId);
 

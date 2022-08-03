@@ -1,6 +1,12 @@
 import React from "react";
 import themeStyle from "../theme.style";
-import { TouchableOpacity, View, Text, ScrollView } from "react-native";
+import {
+  TouchableOpacity,
+  View,
+  Text,
+  ScrollView,
+  Platform,
+} from "react-native";
 import PreviewVideo from "./PreviewVideo";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -8,7 +14,9 @@ import { useNavigation } from "@react-navigation/native";
 const ProfileScreenHeader = React.forwardRef(
   ({ children, userData, isVisible, ...props }, ref) => {
     const navigation = useNavigation();
-
+    if (Platform.OS === "web") {
+      return null;
+    }
     return (
       <ScrollView ref={ref} {...props}>
         <View>

@@ -1,5 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, TouchableOpacity, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  Platform,
+} from "react-native";
 import { Video } from "expo-av";
 import themeStyle from "../theme.style";
 import { LinearGradient } from "expo-linear-gradient";
@@ -83,13 +89,15 @@ const PreviewVideo = ({
             : themeStyle.colors.grayscale.highest,
         ]}
       >
-        <AnimatedLottieView
-          source={require("../../assets/lotties/profileVideo.json")}
-          autoPlay={false}
-          loop={false}
-          progress={0.8}
-          style={{ width: "100%", height: "100%", position: "absolute" }}
-        />
+        {Platform.OS !== "web" ? (
+          <AnimatedLottieView
+            source={require("../../assets/lotties/profileVideo.json")}
+            autoPlay={false}
+            loop={false}
+            progress={0.8}
+            style={{ width: "100%", height: "100%", position: "absolute" }}
+          />
+        ) : null}
       </LinearGradient>
     );
   }
@@ -193,7 +201,7 @@ const PreviewVideo = ({
               ) : null}
             </View>
           ) : null}
-          {!ready ? (
+          {!ready && Platform.OS !== "web" ? (
             <AnimatedLottieView
               source={require("../../assets/lotties/profileVideo.json")}
               autoPlay

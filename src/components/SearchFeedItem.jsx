@@ -4,7 +4,6 @@ import themeStyle from "../theme.style";
 import Avatar from "./Avatar";
 import { Feather } from "@expo/vector-icons";
 import { StackActions, useNavigation } from "@react-navigation/native";
-import FastImage from "react-native-fast-image";
 
 const SearchFeedItem = ({ post }) => {
   const navigation = useNavigation();

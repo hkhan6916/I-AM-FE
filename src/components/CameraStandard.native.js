@@ -27,7 +27,7 @@ import Reanimated, {
 import { useEffect } from "react";
 import { useIsForeground } from "../helpers/hooks/useIsForeground";
 import IonIcon from "react-native-vector-icons/Ionicons";
-import { useIsFocused } from "@react-navigation/core";
+import { useIsFocused } from "@react-navigation/native";
 import { CaptureButton } from "./CaptureButton";
 import { useDispatch } from "react-redux";
 import themeStyle from "../theme.style";

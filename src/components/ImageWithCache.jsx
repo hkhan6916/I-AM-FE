@@ -1,18 +1,11 @@
-import React, { useState } from "react";
-import {
-  View,
-  Modal,
-  TouchableOpacity,
-  Dimensions,
-  ActivityIndicator,
-  Image,
-} from "react-native";
-import FastImage from "react-native-fast-image";
+import React from "react";
+import { View, Modal, TouchableOpacity, Dimensions } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import themeStyle from "../theme.style";
+import Image from "./Image";
 
 const ImageWithCache = ({
-  resizeMode,
+  resizeMode = "contain",
   aspectRatio,
   mediaUrl,
   mediaIsSelfie,
@@ -20,7 +13,6 @@ const ImageWithCache = ({
   isFullScreen,
   toggleFullScreen,
   removeBorderRadius,
-  hideSpinner = false,
   onLoad,
   onError,
   removeBackround,
@@ -28,7 +20,6 @@ const ImageWithCache = ({
   background,
 }) => {
   const { width: screenWidth } = Dimensions.get("window");
-  const [ready, setReady] = useState(false);
 
   if (isFullScreen) {
     return (
@@ -102,24 +93,6 @@ const ImageWithCache = ({
               : background,
         }}
       >
-        {/* {!ready && !hideSpinner ? (
-          <View
-            style={{
-              position: "absolute",
-              zIndex: 1,
-              width: "100%",
-              height: "100%",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <ActivityIndicator
-              animating
-              size={"large"}
-              color={themeStyle.colors.primary.default}
-            />
-          </View>
-        ) : null} */}
         <Image
           onError={() => {
             if (onError) {
@@ -130,25 +103,36 @@ const ImageWithCache = ({
             if (onLoad) {
               onLoad(e);
             }
-            setReady(true);
           }}
-          resizeMode={
-            resizeMode === "cover"
-              ? FastImage.resizeMode.cover
-              : FastImage.resizeMode.contain
-          }
           source={{
             uri: mediaUrl,
             headers: mediaHeaders || {},
           }}
-          style={[
-            {
+          // not using conditional with Platform.OS here for simplicity and less logic
+          mobileProps={{
+            style: [
+              {
+                borderRadius: removeBorderRadius ? 0 : 10,
+                height: "100%",
+              },
+              aspectRatio
+                ? { aspectRatio: aspectRatio }
+                : { width: screenWidth },
+              style && style,
+            ],
+            resizeMode: resizeMode,
+          }}
+          webProps={{
+            style: {
               borderRadius: removeBorderRadius ? 0 : 10,
-              height: "100%",
+              width: "100%",
+              objectFit: resizeMode,
+              ...(aspectRatio
+                ? { aspectRatio: aspectRatio }
+                : { width: "100%", maxWidth: 900 }),
+              ...style,
             },
-            aspectRatio ? { aspectRatio: aspectRatio } : { width: screenWidth },
-            style && style,
-          ]}
+          }}
         />
       </View>
     </View>

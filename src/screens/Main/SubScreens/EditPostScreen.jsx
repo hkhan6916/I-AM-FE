@@ -21,7 +21,6 @@ import RepostCard from "../../../components/RepostCard";
 import VideoPlayer from "expo-video-player";
 import { AntDesign } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
-import FastImage from "react-native-fast-image";
 
 const EditPostScreen = (props) => {
   const [postBody, setPostBody] = useState("");

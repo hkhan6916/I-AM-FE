@@ -1,6 +1,7 @@
 import axios from "axios";
 import { getItemAsync } from "expo-secure-store";
 import Constants from "expo-constants";
+import { Platform } from "react-native";
 
 const apiCall = async (method, route, payload = null) => {
   const apiUrl = Constants.manifest.extra.apiUrl;
@@ -8,13 +9,17 @@ const apiCall = async (method, route, payload = null) => {
   if (!route) return;
   const callConfig = {
     method,
+    // url: `${"http://localhost:5001"}${route}`,
     url: `${apiUrl}${route}`,
     data: payload,
     headers: {},
   };
-
+ 
   try {
-    const token = await getItemAsync("authToken");
+    const token =
+      Platform.OS === "web"
+        ? localStorage.getItem("authToken")
+        : await getItemAsync("authToken");
     if (token) {
       callConfig.headers.Authorization = `Bearer ${token}`;
     }

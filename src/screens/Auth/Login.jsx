@@ -40,18 +40,30 @@ const LoginScreen = () => {
     });
 
     if (success && response.token) {
-      await setItemAsync("userId", response.userId);
-      await setItemAsync("authToken", response.token);
+      if (Platform.OS === "web") {
+        localStorage.setItem("userId", response.userId);
+        localStorage.setItem("authToken", response.token);
+      } else {
+        await setItemAsync("userId", response.userId);
+        await setItemAsync("authToken", response.token);
+      }
+
       dispatch({ type: "SET_USER_DATA", payload: response.userData });
 
       Object.keys(response.apiKeys)?.forEach(async (key) => {
-        await setItemAsync(key, response.apiKeys[key]);
+        if (Platform.OS === "web") {
+          localStorage.setItem(key, response.apiKeys[key]);
+        } else {
+          await setItemAsync(key, response.apiKeys[key]);
+        }
       });
-      const token = (
-        await getExpoPushTokenAsync({
-          experienceId: Constants.manifest.extra.experienceId, // TODO: Change experience id in production
-        })
-      )?.data;
+      const token =
+        Platform.OS !== "web" &&
+        (
+          await getExpoPushTokenAsync({
+            experienceId: Constants.manifest.extra.experienceId, // TODO: Change experience id in production
+          })
+        )?.data;
       if (token) {
         const { success, message } = await apiCall(
           "POST",
@@ -59,7 +71,11 @@ const LoginScreen = () => {
           { notificationToken: token }
         );
         if (success) {
-          await setItemAsync("notificationToken", token);
+          if (Platform.OS === "web") {
+            localStorage.setItem("notificationToken", token);
+          } else {
+            await setItemAsync("notificationToken", token);
+          }
         }
       }
       dispatch({ type: "SET_USER_LOGGED_IN", payload: true });

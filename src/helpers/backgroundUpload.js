@@ -1,4 +1,3 @@
-import { getItemAsync } from "expo-secure-store";
 import Upload from "react-native-background-upload";
 import apiCall from "./apiCall";
 

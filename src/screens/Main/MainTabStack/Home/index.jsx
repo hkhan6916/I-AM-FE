@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   Dimensions,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,7 +27,6 @@ import {
   DataProvider,
   LayoutProvider,
 } from "recyclerlistview";
-import FastImage from "react-native-fast-image";
 // import ContentLoader from "../../../../components/ContentLoader";
 import PostCardLoader from "../../../../components/ContentLoader/PostCard";
 
@@ -298,7 +298,6 @@ const HomeScreen = () => {
 
   useEffect(() => {
     navigation.addListener("focus", async () => {
-      FastImage.clearMemoryCache();
       setFocussed(true);
       const { success, response } = await apiCall("GET", "/user/data");
       if (success) {
@@ -384,72 +383,88 @@ const HomeScreen = () => {
         {/* <Button title="test" onPress={() => navigation.navigate("Test")} /> */}
         <View style={{ flex: 1 }}>
           <HomeScreenHeader navigation={navigation} userData={userData} />
-          {newPostCreated.state ? (
-            <View style={styles.newPostPill}>
-              <Text style={{ color: themeStyle.colors.white }}>
-                Post {newPostCreated.state.type}
-              </Text>
-            </View>
-          ) : null}
-          <RecyclerListView
-            ref={listRef}
-            applyWindowCorrection={_applyWindowCorrection}
-            style={{ minHeight: 1, minWidth: 1 }}
-            dataProvider={dataProvider}
-            layoutProvider={layoutProvider}
-            onEndReached={() => getUserFeed()}
-            onEndReachedThreshold={0.5}
-            // initialRenderIndex={currentVisible + 1}
-            extendedState={{
-              currentVisible: canPlayFeedVideos ? currentVisible : null,
-              scrolling: canPlayFeedVideos ? scrolling : null,
+          <View
+            style={{
+              maxWidth: 900,
+              flex: 1,
+              alignSelf: "center",
+              minWidth: Math.min(screenWidth, 900),
             }}
-            rowRenderer={rowRenderer}
-            renderAheadOffset={screenHeight}
-            forceNonDeterministicRendering
-            renderFooter={renderFooter}
-            onScroll={(event) => {
-              if (
-                !scrolling &&
-                Math.abs(
-                  event.nativeEvent.contentOffset.y - positionBeforeScroll
-                ) > 300 &&
-                currentVisible !== 0
-                // if they scroll far enough, enable scroll to pause video
-              ) {
-                setScrolling(true);
-                setPositionBeforeScroll(event.nativeEvent.contentOffset.y);
-              }
-            }}
-            onVisibleIndicesChanged={async (items) => {
-              if (typeof items[0] === "number" && items[0] !== currentVisible) {
-                setCurrentVisible(items[0]);
-              }
-            }}
-            scrollViewProps={{
-              // decelerationRate: 0.9,
-              removeClippedSubviews: true,
-              onMomentumScrollEnd: () => {
-                if (prevVisible !== currentVisible) {
-                  setScrolling(false);
+          >
+            {newPostCreated.state ? (
+              <View style={styles.newPostPill}>
+                <Text style={{ color: themeStyle.colors.white }}>
+                  Post {newPostCreated.state.type}
+                </Text>
+              </View>
+            ) : null}
+            <RecyclerListView
+              initialOffset={Platform.OS === "web" ? 1 : 0} // prevents broken layout on web where everything is squished on initial load
+              ref={listRef}
+              applyWindowCorrection={_applyWindowCorrection}
+              style={{ minHeight: 1, minWidth: 1 }}
+              dataProvider={dataProvider}
+              layoutProvider={layoutProvider}
+              onEndReached={() => getUserFeed()}
+              onEndReachedThreshold={0.5}
+              // initialRenderIndex={currentVisible + 1}
+              extendedState={{
+                currentVisible: canPlayFeedVideos ? currentVisible : null,
+                scrolling: canPlayFeedVideos ? scrolling : null,
+              }}
+              rowRenderer={rowRenderer}
+              renderAheadOffset={screenHeight}
+              forceNonDeterministicRendering
+              renderFooter={renderFooter}
+              onScroll={(event) => {
+                if (
+                  !scrolling &&
+                  Math.abs(
+                    event.nativeEvent.contentOffset.y - positionBeforeScroll
+                  ) > 300 &&
+                  currentVisible !== 0
+                  // if they scroll far enough, enable scroll to pause video
+                ) {
+                  setScrolling(true);
+                  setPositionBeforeScroll(event.nativeEvent.contentOffset.y);
                 }
-              },
-              refreshControl: (
-                <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-              ),
-            }}
+              }}
+              onVisibleIndicesChanged={async (items) => {
+                if (
+                  typeof items[0] === "number" &&
+                  items[0] !== currentVisible
+                ) {
+                  setCurrentVisible(items[0]);
+                }
+              }}
+              scrollViewProps={{
+                // decelerationRate: 0.9,
+                removeClippedSubviews: true,
+                onMomentumScrollEnd: () => {
+                  if (prevVisible !== currentVisible) {
+                    setScrolling(false);
+                  }
+                },
+                refreshControl: (
+                  <RefreshControl
+                    onRefresh={onRefresh}
+                    refreshing={refreshing}
+                  />
+                ),
+              }}
+            />
+          </View>
+
+          <PostOptionsModal
+            showOptions={!!showPostOptions}
+            setShowPostOptions={setShowPostOptions}
+            reportPost={reportPost}
+            deletePost={deletePost}
+            editPost={editPost}
+            belongsToUser={false}
+            error={error}
           />
         </View>
-
-        <PostOptionsModal
-          showOptions={!!showPostOptions}
-          setShowPostOptions={setShowPostOptions}
-          reportPost={reportPost}
-          deletePost={deletePost}
-          editPost={editPost}
-          belongsToUser={false}
-          error={error}
-        />
       </SafeAreaView>
     );
   }

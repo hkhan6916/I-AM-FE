@@ -25,7 +25,6 @@ import VideoPlayer from "../../../components/VideoPlayer";
 import AnimatedLottieView from "lottie-react-native";
 import { useDispatch } from "react-redux";
 import PostAge from "../../../components/PostAge";
-import FastImage from "react-native-fast-image";
 import CardImage from "../../../components/CardImage";
 
 const PostScreen = (props) => {
