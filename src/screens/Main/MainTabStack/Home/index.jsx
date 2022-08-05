@@ -60,6 +60,15 @@ const HomeScreen = () => {
 
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
+  const maxWidth = Math.min(screenWidth, 900);
+
+  const mobileSpecificListProps =
+    Platform.OS !== "web"
+      ? {
+          renderAheadOffset: screenHeight,
+        }
+      : {};
+
   useScrollToTop(
     useRef({
       scrollToTop: () => {
@@ -338,7 +347,7 @@ const HomeScreen = () => {
     new LayoutProvider(
       () => 0,
       (type, dim) => {
-        dim.width = screenWidth;
+        dim.width = maxWidth;
         dim.height = 490;
       }
     )
@@ -370,9 +379,16 @@ const HomeScreen = () => {
         }}
       >
         <HomeScreenHeader navigation={navigation} userData={userData} />
-        <PostCardLoader hasImage screenWidth={screenWidth} />
-        <PostCardLoader hasImage screenWidth={screenWidth} />
-        <PostCardLoader hasImage screenWidth={screenWidth} />
+        <View
+          style={{
+            backgroundColor: themeStyle.colors.grayscale.cardsOuter,
+            alignItems: "center",
+          }}
+        >
+          <PostCardLoader hasImage screenWidth={maxWidth} />
+          <PostCardLoader hasImage screenWidth={maxWidth} />
+          <PostCardLoader hasImage screenWidth={maxWidth} />
+        </View>
       </SafeAreaView>
     );
   }
@@ -388,7 +404,7 @@ const HomeScreen = () => {
               maxWidth: 900,
               flex: 1,
               alignSelf: "center",
-              minWidth: Math.min(screenWidth, 900),
+              minWidth: maxWidth,
             }}
           >
             {newPostCreated.state ? (
@@ -399,6 +415,7 @@ const HomeScreen = () => {
               </View>
             ) : null}
             <RecyclerListView
+              {...mobileSpecificListProps}
               initialOffset={Platform.OS === "web" ? 1 : 0} // prevents broken layout on web where everything is squished on initial load
               ref={listRef}
               applyWindowCorrection={_applyWindowCorrection}
@@ -413,7 +430,6 @@ const HomeScreen = () => {
                 scrolling: canPlayFeedVideos ? scrolling : null,
               }}
               rowRenderer={rowRenderer}
-              renderAheadOffset={screenHeight}
               forceNonDeterministicRendering
               renderFooter={renderFooter}
               onScroll={(event) => {

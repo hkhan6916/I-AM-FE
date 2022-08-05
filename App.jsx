@@ -6,8 +6,10 @@ import rootReducer from "./src/reducers/rootReducer";
 
 import Screens from "./src/screens";
 import { enableScreens } from "react-native-screens";
-import PerformanceStats from "react-native-performance-stats";
-
+// import PerformanceStats from "react-native-performance-stats";
+import { Platform } from "react-native";
+import { createBrowserApp } from "@react-navigation/web";
+import { createAppContainer, createSwitchNavigator } from "react-navigation";
 const store = createStore(rootReducer);
 const ignoreWarns = [
   "Setting a timer for a long period of time",
@@ -27,26 +29,36 @@ console.warn = (...arg) => {
 
 LogBox.ignoreLogs(ignoreWarns);
 
+const createApp = Platform.select({
+  web: (config) => createBrowserApp(config, { history: "hash" }),
+  default: (config) => createAppContainer(config),
+});
+
+const ScreenNav = createApp(
+  createSwitchNavigator({
+    Main: Screens,
+  })
+);
+
 const App = () => {
   enableScreens();
   useEffect(() => {
-    const listener = PerformanceStats.addListener((stats) => {
-      // console.log(stats); // STATS
-    });
-
-    // you must call .start(true) to get CPU as well
-    PerformanceStats.start();
-
-    // ... at some later point you could call:
-    // PerformanceStats.stop();
-
-    return () => listener.remove();
+    // const listener = PerformanceStats.addListener((stats) => {
+    //   // console.log(stats); // STATS
+    // });
+    // // you must call .start(true) to get CPU as well
+    // PerformanceStats.start();
+    // // ... at some later point you could call:
+    // // PerformanceStats.stop();
+    // return () => listener.remove();
   }, []);
   return (
     <Provider store={store}>
-      <Screens />
+      <ScreenNav />
     </Provider>
   );
 };
 
 export default App;
+
+// export default App;

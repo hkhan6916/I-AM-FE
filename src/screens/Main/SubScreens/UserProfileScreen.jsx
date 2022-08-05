@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, RefreshControl, SafeAreaView, Dimensions } from "react-native";
+import {
+  View,
+  RefreshControl,
+  SafeAreaView,
+  Dimensions,
+  Platform,
+} from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import PostCard from "../../../components/PostCard";
@@ -32,7 +38,12 @@ const UserProfileScreen = (props) => {
   const isFocused = useIsFocused();
 
   const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
-
+  const mobileSpecificListProps =
+    Platform.OS !== "web"
+      ? {
+          renderAheadOffset: screenHeight,
+        }
+      : {};
   const navigation = useNavigation();
 
   const flatlistRef = useRef(null);
@@ -371,6 +382,7 @@ const UserProfileScreen = (props) => {
     return (
       <SafeAreaView style={{ flex: 1 }}>
         <RecyclerListView
+          {...mobileSpecificListProps}
           style={{ minHeight: 1, minWidth: 1 }}
           dataProvider={dataProvider}
           layoutProvider={layoutProvider}
@@ -378,7 +390,6 @@ const UserProfileScreen = (props) => {
           onEndReachedThreshold={0.5}
           rowRenderer={rowRenderer}
           extendedState={{ userData, profileVideoVisible }}
-          renderAheadOffset={screenHeight}
           forceNonDeterministicRendering
           onVisibleIndicesChanged={(i) => {
             // TODO: test on old device to see if preview video rerenders cause crashes

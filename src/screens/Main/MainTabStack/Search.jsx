@@ -46,7 +46,14 @@ const SearchScreen = () => {
     useState("");
 
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
-  const navigation = useNavigation();
+
+  const mobileSpecificListProps =
+    Platform.OS !== "web"
+      ? {
+          renderAheadOffset: 300,
+        }
+      : {};
+
   const db = SQLite.openDatabase("localdb");
 
   const onUserSearch = async (searchQuery) => {
@@ -270,6 +277,7 @@ const SearchScreen = () => {
           searchFeed.length &&
           searchItemsVisible ? (
             <RecyclerListView
+              {...mobileSpecificListProps}
               style={{
                 minHeight: 1,
                 minWidth: 1,
@@ -279,7 +287,6 @@ const SearchScreen = () => {
               onEndReached={() => getSearchFeed()}
               onEndReachedThreshold={0.5}
               rowRenderer={rowRenderer}
-              renderAheadOffset={300}
               scrollViewProps={{
                 removeClippedSubviews: true,
               }}

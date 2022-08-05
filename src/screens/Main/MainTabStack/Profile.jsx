@@ -7,6 +7,7 @@ import {
   View,
   TouchableOpacity,
   Dimensions,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import apiCall from "../../../helpers/apiCall";
@@ -40,6 +41,13 @@ const ProfileScreen = () => {
   const listRef = useRef(null);
 
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
+
+  const mobileSpecificListProps =
+    Platform.OS !== "web"
+      ? {
+          renderAheadOffset: screenHeight,
+        }
+      : {};
 
   useScrollToTop(
     useRef({
@@ -267,6 +275,7 @@ const ProfileScreen = () => {
       <View style={{ flex: 1 }}>
         {userData ? (
           <RecyclerListView
+            {...mobileSpecificListProps}
             ref={listRef}
             style={{ minHeight: 1, minWidth: 1 }}
             dataProvider={dataProvider}
@@ -275,7 +284,6 @@ const ProfileScreen = () => {
             onEndReachedThreshold={0.5}
             rowRenderer={rowRenderer}
             extendedState={{ userData, profileVideoVisible }}
-            renderAheadOffset={screenHeight}
             forceNonDeterministicRendering
             onVisibleIndicesChanged={(i) => {
               // TODO: test on old device to see if preview video rerenders cause crashes
