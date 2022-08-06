@@ -42,6 +42,10 @@ const MediaScreen = (props) => {
     }
   };
 
+  // const getPost = async () =>  {
+  //   const {success, response} = await apiCall('GET',`/posts/fetch/${}`, )
+  // }
+
   const intToString = (value) => {
     var suffixes = ["", "k", "m", "b", "t"];
     var suffixNum = Math.floor(("" + value).length / 3);

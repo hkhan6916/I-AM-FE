@@ -1,5 +1,11 @@
 import React from "react";
-import { View, Modal, TouchableOpacity, Dimensions } from "react-native";
+import {
+  View,
+  Modal,
+  TouchableOpacity,
+  Dimensions,
+  Platform,
+} from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import themeStyle from "../theme.style";
 import Image from "./Image";
@@ -66,11 +72,14 @@ const ImageWithCache = ({
             }}
             resizeMode={"contain"}
             source={{ uri: mediaUrl, headers: mediaHeaders || {} }}
-            style={{
-              borderRadius: removeBorderRadius ? 0 : 10,
-              width: "100%",
-              height: "100%",
-            }}
+            style={[
+              {
+                borderRadius: removeBorderRadius ? 0 : 10,
+                width: "100%",
+                height: "100%",
+              },
+              Platform.OS === "web" && { objectFit: "cover" },
+            ]}
           />
         </View>
       </Modal>

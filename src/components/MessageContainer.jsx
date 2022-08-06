@@ -10,9 +10,10 @@ const MessageContainer = ({
   belongsToSender,
   mediaSize,
   cancelUpload,
+  isWeb,
 }) => {
   return (
-    <View style={{ width: "100%", transform: [{ scaleY: -1 }] }}>
+    <View style={{ width: "100%", transform: [{ scaleY: !isWeb ? -1 : 1 }] }}>
       {messageDate ? (
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <View style={styles.horizontalLines} />

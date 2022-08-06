@@ -1,6 +1,6 @@
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
-import { View, Platform } from "react-native";
+import { View, Platform, Linking } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
@@ -115,7 +115,9 @@ const Screens = () => {
       if (loaded && !loginAttemptStatus.state) {
         setLoggedIn(false);
         await apiCall("GET", "/user/notifications/token/delete");
-        await setItemAsync("authToken", "");
+        Platform.OS === "web"
+          ? localStorage.setItem("authToken", "")
+          : await setItemAsync("authToken", "");
         const db = openDatabase("localdb");
         await deleteUserSearchHistoryTable(db);
       }
@@ -177,7 +179,11 @@ const Screens = () => {
     })();
   }, []);
   return (
-    <NavigationContainer theme={Theme} ref={navigationContainerRef}>
+    <NavigationContainer
+      linking={{}}
+      theme={Theme}
+      ref={navigationContainerRef}
+    >
       {connectionFailed ? (
         <UtilityScreens />
       ) : loggedIn ? (

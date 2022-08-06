@@ -1,10 +1,15 @@
-import React, { useState } from "react";
-import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import React from "react";
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import themeStyle from "../theme.style";
 import Avatar from "./Avatar";
-import apiCall from "../helpers/apiCall";
 import formatAge from "../helpers/formatAge";
 import { Entypo } from "@expo/vector-icons";
 
@@ -14,6 +19,8 @@ const CommentReplyCard = ({
   setShowOptionsForComment,
   handleReaction,
 }) => {
+  const { width: screenWidth } = Dimensions.get("window");
+
   const navigation = useNavigation();
 
   const CommentAge = () => {
@@ -30,7 +37,9 @@ const CommentReplyCard = ({
   if (!reply) return <View />;
   if (!reply.deleted) {
     return (
-      <View style={styles.replyContainer}>
+      <View
+        style={[styles.replyContainer, { width: screenWidth, maxWidth: 900 }]}
+      >
         <View
           style={{
             alignItems: "center",

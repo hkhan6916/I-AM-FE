@@ -1,9 +1,10 @@
 import React from "react";
-import { View, TouchableOpacity, Text, Image } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 import themeStyle from "../theme.style";
 import Avatar from "./Avatar";
 import { Feather } from "@expo/vector-icons";
 import { StackActions, useNavigation } from "@react-navigation/native";
+import Image from "./Image";
 
 const SearchFeedItem = ({ post }) => {
   const navigation = useNavigation();
@@ -42,6 +43,11 @@ const SearchFeedItem = ({ post }) => {
               height: 146,
               opacity: 1,
               backgroundColor: themeStyle.colors.grayscale.high,
+            }}
+            webProps={{
+              style: {
+                objectFit: "cover",
+              },
             }}
           />
           <View style={{ flexDirection: "row", flex: 1 }}>

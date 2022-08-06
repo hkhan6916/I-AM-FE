@@ -20,6 +20,7 @@ const PostCommentCard = ({
   setShowOptionsForComment,
   handleReaction,
 }) => {
+  const { width: screenWidth } = Dimensions.get("window");
   const navigation = useNavigation();
 
   const CommentAge = () => {
@@ -39,7 +40,7 @@ const PostCommentCard = ({
 
   if (!comment.deleted) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { width: screenWidth, maxWidth: 900 }]}>
         <View
           style={{
             flexDirection: "row",

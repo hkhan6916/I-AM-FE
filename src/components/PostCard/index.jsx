@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Text, View, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Platform,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Entypo } from "@expo/vector-icons";
 import VideoPlayer from "../VideoPlayer";
@@ -137,6 +144,8 @@ const PostCard = ({
                         width: screenWidth || 300,
                         height: screenWidth,
                         backgroundColor: themeStyle.colors.black,
+                        maxWidth: 900,
+                        maxHeight: 500,
                       }}
                       source={{
                         uri: post.gif,
@@ -152,7 +161,7 @@ const PostCard = ({
                     }}
                   >
                     <VideoPlayer
-                      disableVideo={disableVideo}
+                      disableVideo={disableVideo || Platform.OS === "web"}
                       shouldPlay={isVisible}
                       mediaIsSelfie={post.mediaIsSelfie}
                       url={post.mediaUrl}

@@ -37,7 +37,6 @@ import { getThumbnailAsync } from "expo-video-thumbnails";
 import openAppSettings from "../../../helpers/openAppSettings";
 import backgroundUpload from "../../../helpers/backgroundUpload";
 import { gestureHandlerRootHOC } from "react-native-gesture-handler";
-
 import {
   DataProvider,
   LayoutProvider,
@@ -74,6 +73,12 @@ const ChatScreen = (props) => {
 
   const mediaSize = screenWidth / 1.5;
 
+  const orderMessagesByPlatform = (newMessage) => {
+    return Platform.OS === "web"
+      ? [...messages, newMessage]
+      : [newMessage, ...messages];
+  };
+
   const createChat = async () => {
     // If the chat doesn't exist, send request
     if (!existingChat) {
@@ -107,7 +112,16 @@ const ChatScreen = (props) => {
         if (messages.length && response?.length === 0) {
           setAllMessagesLoaded(true);
         } else {
-          setMessages([...messages, ...response]);
+          if (Platform.OS === "web") {
+            setMessages([
+              ...messages,
+              ...response.sort(
+                (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+              ),
+            ]);
+          } else {
+            setMessages([...messages, ...response]);
+          }
         }
       } else {
         setShowError(true);
@@ -162,7 +176,10 @@ const ChatScreen = (props) => {
       return;
     }
 
-    const token = await getItemAsync("authToken");
+    const token =
+      Platform.OS === "web"
+        ? localStorage.getItem("authToken")
+        : await getItemAsync("authToken");
 
     await backgroundUpload({
       filePath,
@@ -242,23 +259,21 @@ const ChatScreen = (props) => {
           ).then(() => {
             const mediaType = media.type?.split("/")[0];
             if (socket) {
-              setMessages([
-                {
-                  body: messageBody,
-                  chatId,
-                  senderId: authInfo?.senderId,
-                  user: "sender",
-                  mediaUrl: media.uri,
-                  mediaHeaders: {}, // recieved as null if media is video
-                  mediaType,
-                  stringTime: get12HourTime(new Date()),
-                  stringDate: getNameDate(new Date()),
-                  tempId,
-                  _id: tempId, // Incase we use _id anywhere, we need a unique field so we pass a temporary id
-                  ready: true,
-                },
-                ...messages,
-              ]);
+              const newMessages = orderMessagesByPlatform({
+                body: messageBody,
+                chatId,
+                senderId: authInfo?.senderId,
+                user: "sender",
+                mediaUrl: media.uri,
+                mediaHeaders: {}, // recieved as null if media is video
+                mediaType,
+                stringTime: get12HourTime(new Date()),
+                stringDate: getNameDate(new Date()),
+                tempId,
+                _id: tempId, // Incase we use _id anywhere, we need a unique field so we pass a temporary id
+                ready: true,
+              });
+              setMessages(newMessages);
               setMessageBody("");
               setHeight(0);
               setMedia({});
@@ -317,24 +332,23 @@ const ChatScreen = (props) => {
       setSendingMessage(false);
 
       if (success) {
-        setMessages([
-          {
-            body: messageBody,
-            chatId,
-            senderId: authInfo?.senderId,
-            user: "sender",
-            mediaUrl: "",
-            mediaHeaders: {}, // recieved as null if media is video
-            mediaType: media.type?.split("/")[0],
-            thumbnailUrl:
-              media.type?.split("/")[0] === "video" ? thumbnailUrl : null,
-            stringTime: get12HourTime(new Date()),
-            stringDate: getNameDate(new Date()),
-            _id: response._id,
-            ready: false,
-          },
-          ...messages,
-        ]);
+        const newMessages = orderMessagesByPlatform({
+          body: messageBody,
+          chatId,
+          senderId: authInfo?.senderId,
+          user: "sender",
+          mediaUrl: "",
+          mediaHeaders: {}, // recieved as null if media is video
+          mediaType: media.type?.split("/")[0],
+          thumbnailUrl:
+            media.type?.split("/")[0] === "video" ? thumbnailUrl : null,
+          stringTime: get12HourTime(new Date()),
+          stringDate: getNameDate(new Date()),
+          _id: response._id,
+          ready: false,
+        });
+
+        setMessages(newMessages);
         setMessageBody("");
         setHeight(0);
         setMedia({});
@@ -363,23 +377,21 @@ const ChatScreen = (props) => {
                 setShowError(true);
               }
               if (socket) {
-                setMessages([
-                  // update message with id once uploaded full media
-                  {
-                    body: messageBody,
-                    chatId,
-                    senderId: authInfo?.senderId,
-                    user: "sender",
-                    mediaUrl: media.uri,
-                    thumbnailUrl,
-                    mediaHeaders: response.mediaHeaders,
-                    mediaType,
-                    stringTime: get12HourTime(new Date()),
-                    stringDate: getNameDate(new Date()),
-                    _id: response._id,
-                  },
-                  ...messages,
-                ]);
+                const newMessages = orderMessagesByPlatform({
+                  body: messageBody,
+                  chatId,
+                  senderId: authInfo?.senderId,
+                  user: "sender",
+                  mediaUrl: media.uri,
+                  thumbnailUrl,
+                  mediaHeaders: response.mediaHeaders,
+                  mediaType,
+                  stringTime: get12HourTime(new Date()),
+                  stringDate: getNameDate(new Date()),
+                  _id: response._id,
+                });
+
+                setMessages(newMessages);
                 setMessageBody("");
                 setHeight(0);
                 setMedia({});
@@ -402,19 +414,18 @@ const ChatScreen = (props) => {
       online: !!recipient?.online,
       recipientId: recipient?.userId,
     });
-    setMessages([
-      {
-        body: messageBody,
-        chatId,
-        senderId: authInfo?.senderId,
-        user: "sender",
-        stringTime: get12HourTime(new Date()),
-        stringDate: getNameDate(new Date()),
-        _id: nanoid(),
-        ready: true,
-      },
-      ...messages,
-    ]);
+    const newMessages = orderMessagesByPlatform({
+      body: messageBody,
+      chatId,
+      senderId: authInfo?.senderId,
+      user: "sender",
+      stringTime: get12HourTime(new Date()),
+      stringDate: getNameDate(new Date()),
+      _id: nanoid(),
+      ready: true,
+    });
+
+    setMessages(newMessages);
     setMessageBody("");
     setHeight(0);
 
@@ -462,6 +473,7 @@ const ChatScreen = (props) => {
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         quality: 0.3,
       });
+
       if (!result.cancelled) {
         const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
@@ -539,8 +551,14 @@ const ChatScreen = (props) => {
     () => {
       // TODO: remove isMounted and implement better cleanup that works
       (async () => {
-        const token = await getItemAsync("authToken");
-        const senderId = await getItemAsync("userId");
+        const token =
+          Platform.OS === "web"
+            ? localStorage.getItem("authToken")
+            : await getItemAsync("authToken");
+        const senderId =
+          Platform.OS === "web"
+            ? localStorage.getItem("userId")
+            : await getItemAsync("userId");
         setAuthInfo({ token, senderId });
 
         if (chat) {
@@ -670,24 +688,43 @@ const ChatScreen = (props) => {
             setMessages((prevMessages) => {
               if (senderId !== authInfo.senderId) {
                 if (!prevMessages.find((message) => message._id === _id)) {
-                  return [
-                    {
-                      body,
-                      chatId,
-                      senderId,
-                      user,
-                      mediaHeaders,
-                      mediaUrl,
-                      mediaType,
-                      thumbnailUrl,
-                      thumbnailHeaders,
-                      stringDate,
-                      stringTime,
-                      _id,
-                      ready: true,
-                    },
-                    ...prevMessages,
-                  ];
+                  return Platform.OS !== "web"
+                    ? [
+                        {
+                          body,
+                          chatId,
+                          senderId,
+                          user,
+                          mediaHeaders,
+                          mediaUrl,
+                          mediaType,
+                          thumbnailUrl,
+                          thumbnailHeaders,
+                          stringDate,
+                          stringTime,
+                          _id,
+                          ready: true,
+                        },
+                        ...prevMessages,
+                      ]
+                    : [
+                        ...prevMessages,
+                        {
+                          body,
+                          chatId,
+                          senderId,
+                          user,
+                          mediaHeaders,
+                          mediaUrl,
+                          mediaType,
+                          thumbnailUrl,
+                          thumbnailHeaders,
+                          stringDate,
+                          stringTime,
+                          _id,
+                          ready: true,
+                        },
+                      ];
                 } else {
                   return prevMessages;
                 }
@@ -754,7 +791,7 @@ const ChatScreen = (props) => {
         >
           <Text style={{ color: "white" }}>5001</Text>
         </TouchableOpacity> */}
-        {messages.length ? (
+        {messages.length && Platform.OS !== "web" ? (
           <RecyclerListView
             style={{ minHeight: 1, minWidth: 1, transform: [{ scaleY: -1 }] }}
             rowRenderer={rowRenderer}
@@ -764,6 +801,36 @@ const ChatScreen = (props) => {
             onEndReachedThreshold={0.5}
             forceNonDeterministicRendering
           />
+        ) : messages.length && Platform.OS === "web" ? (
+          <ScrollView
+            style={{ minHeight: 1, minWidth: 1, transform: [{ scaleY: 1 }] }}
+          >
+            {messages.map((item, i) => (
+              <MessageContainer
+                key={i}
+                cancelUpload={cancelUpload}
+                mediaSize={mediaSize}
+                firstMessageDate={
+                  allMessagesLoaded && i === messages.length - 1
+                    ? messages[i].stringDate
+                    : null
+                } // TODO: test this on mobile and web for performance
+                messageDate={
+                  i !== messages.length - 1 &&
+                  messages[i + 1] &&
+                  item.stringDate !== messages[i + 1].stringDate
+                    ? messages[i].stringDate
+                    : null
+                }
+                message={item}
+                belongsToSender={
+                  authInfo?.senderId === item.senderId.toString() ||
+                  item.user === "sender"
+                }
+                isWeb={Platform.OS === "web"}
+              />
+            ))}
+          </ScrollView>
         ) : (
           <View style={{ flex: 1 }} />
         )}
@@ -808,79 +875,83 @@ const ChatScreen = (props) => {
             paddingVertical: 10,
           }}
         >
-          <View
-            style={[
-              {
-                flexDirection: "column",
-                justifyContent: "flex-end",
-                alignItems: "center",
-                height: "100%",
-              },
-            ]}
-          >
-            <TouchableOpacity
+          {Platform.OS !== "web" ? (
+            <View
               style={[
                 {
-                  marginHorizontal: 5,
+                  flexDirection: "column",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  height: "100%",
+                },
+              ]}
+            >
+              <TouchableOpacity
+                style={[
+                  {
+                    marginHorizontal: 5,
+                    width: 48,
+                    height: 48,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "rgba(140, 140, 140, 0.8)",
+                    borderRadius: 50,
+                    marginBottom: 5,
+                  },
+                  !showActions && { display: "none" },
+                ]}
+                onPress={() => pickImage()}
+              >
+                <FontAwesome
+                  name="photo"
+                  size={24}
+                  color={themeStyle.colors.white}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  {
+                    marginHorizontal: 5,
+                    width: 48,
+                    height: 48,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "rgba(140, 140, 140, 0.8)",
+                    borderRadius: 50,
+                    marginBottom: 5,
+                  },
+                  !showActions && { display: "none" },
+                ]}
+                onPress={() => handleActivateCamera(true)}
+              >
+                <Ionicons
+                  name="camera-outline"
+                  size={26}
+                  color={themeStyle.colors.white}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{
                   width: 48,
                   height: 48,
+                  marginHorizontal: 10,
                   justifyContent: "center",
                   alignItems: "center",
-                  backgroundColor: "rgba(140, 140, 140, 0.8)",
-                  borderRadius: 50,
-                  marginBottom: 5,
-                },
-                !showActions && { display: "none" },
-              ]}
-              onPress={() => pickImage()}
-            >
-              <FontAwesome
-                name="photo"
-                size={24}
-                color={themeStyle.colors.white}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                {
-                  marginHorizontal: 5,
-                  width: 48,
-                  height: 48,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  backgroundColor: "rgba(140, 140, 140, 0.8)",
-                  borderRadius: 50,
-                  marginBottom: 5,
-                },
-                !showActions && { display: "none" },
-              ]}
-              onPress={() => handleActivateCamera(true)}
-            >
-              <Ionicons
-                name="camera-outline"
-                size={26}
-                color={themeStyle.colors.white}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                width: 48,
-                height: 48,
-                marginHorizontal: 10,
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: 100,
-                backgroundColor: "rgba(140, 140, 140, 0.3)",
-              }}
-              onPress={() => setShowActions(!showActions)}
-            >
-              <Ionicons
-                name={showActions ? "close" : "add"}
-                size={26}
-                color={themeStyle.colors.grayscale.lowest}
-              />
-            </TouchableOpacity>
-          </View>
+                  borderRadius: 100,
+                  backgroundColor: "rgba(140, 140, 140, 0.3)",
+                }}
+                onPress={() => setShowActions(!showActions)}
+              >
+                <Ionicons
+                  name={showActions ? "close" : "add"}
+                  size={26}
+                  color={themeStyle.colors.grayscale.lowest}
+                />
+              </TouchableOpacity>
+            </View>
+          ) : null}
           <View
             style={{
               display: "flex",

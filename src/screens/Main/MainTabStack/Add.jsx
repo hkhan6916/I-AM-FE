@@ -576,13 +576,14 @@ const AddScreen = () => {
               <View
                 style={{
                   height: screenWidth - 40,
+                  maxHeight: 540,
                   alignItems: "center",
                   padding: 5,
                 }}
               >
                 <Image
-                  resizeMode="cover"
-                  style={{ width: "100%", height: "100%" }}
+                  resizeMode="contain"
+                  style={{ width: "100%", height: "100%", maxHeight: 500 }}
                   source={{ uri: gif }}
                 />
               </View>
@@ -598,36 +599,40 @@ const AddScreen = () => {
             }}
           >
             <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginHorizontal: 10,
-                }}
-              >
-                <TouchableOpacity onPress={() => setCameraActive(true)}>
-                  <FontAwesome
-                    name="camera"
-                    size={24}
-                    color={themeStyle.colors.grayscale.lowest}
-                  />
-                </TouchableOpacity>
-              </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginHorizontal: 10,
-                }}
-              >
-                <TouchableOpacity onPress={() => pickMedia()}>
-                  <FontAwesome
-                    name="image"
-                    size={24}
-                    color={themeStyle.colors.grayscale.lowest}
-                  />
-                </TouchableOpacity>
-              </View>
+              {Platform.OS !== "web" ? (
+                <>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginHorizontal: 10,
+                    }}
+                  >
+                    <TouchableOpacity onPress={() => setCameraActive(true)}>
+                      <FontAwesome
+                        name="camera"
+                        size={24}
+                        color={themeStyle.colors.grayscale.lowest}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginHorizontal: 10,
+                    }}
+                  >
+                    <TouchableOpacity onPress={() => pickMedia()}>
+                      <FontAwesome
+                        name="image"
+                        size={24}
+                        color={themeStyle.colors.grayscale.lowest}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : null}
               <View
                 style={{
                   flexDirection: "row",

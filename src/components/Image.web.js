@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const Image = ({ source = {}, webProps, ...rest }) => {
+const Image = ({ source = {}, webProps, style, ...rest }) => {
   const [srcBlob, setSrcBlob] = useState(false);
 
   const options = {
@@ -16,7 +16,17 @@ const Image = ({ source = {}, webProps, ...rest }) => {
       .catch((err) => console.log({ err }));
   }, []);
 
-  return <img src={srcBlob} {...rest} {...webProps} />;
+  return (
+    <img
+      src={srcBlob}
+      {...webProps}
+      style={{
+        ...style,
+        ...(webProps.style || {}),
+      }}
+      {...rest}
+    />
+  );
 };
 
 export default Image;
