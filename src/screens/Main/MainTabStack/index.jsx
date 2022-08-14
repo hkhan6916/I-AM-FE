@@ -9,6 +9,7 @@ import SearchStack from "./Search";
 import FriendsScreen from "./Friends";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
+import webPersistUserData from "../../../helpers/webPersistUserData";
 
 const Tab = createBottomTabNavigator();
 
@@ -22,6 +23,7 @@ const MainTabStack = () => {
 
     if (success) {
       dispatch({ type: "SET_USER_DATA", payload: response });
+      webPersistUserData(response);
     }
   };
   useEffect(() => {

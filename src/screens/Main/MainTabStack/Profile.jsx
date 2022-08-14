@@ -23,6 +23,7 @@ import {
   DataProvider,
   LayoutProvider,
 } from "recyclerlistview";
+import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -34,7 +35,12 @@ const ProfileScreen = () => {
   const [error, setError] = useState("");
   const [profileVideoVisible, setProfileVideoVisible] = useState(false);
 
-  const globalUserData = useSelector((state) => state.userData);
+  const nativeGobalUserData = useSelector((state) => state.userData);
+
+  const globalUserData =
+    Platform.OS === "web"
+      ? { state: getWebPersistedUserData() }
+      : nativeGobalUserData;
 
   const navigation = useNavigation();
 
@@ -272,7 +278,9 @@ const ProfileScreen = () => {
           </Text>
         </View>
       ) : null}
-      <View style={{ flex: 1 }}>
+      <View
+        style={{ alignSelf: "center", width: "100%", flex: 1, maxWidth: 900 }}
+      >
         {userData ? (
           <RecyclerListView
             {...mobileSpecificListProps}

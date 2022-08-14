@@ -1,16 +1,26 @@
 import { FontAwesome, AntDesign } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
-import { Text, TextInput, View } from "react-native";
+import { Platform, Text, TextInput, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import CodeInput from "../../../components/CodeInput";
 import apiCall from "../../../helpers/apiCall";
+import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
+import webPersistUserData from "../../../helpers/webPersistUserData";
 import themeStyle from "../../../theme.style";
 
 const EmailVerificationScreen = () => {
   const [error, setError] = useState("");
   const [verified, setVerified] = useState(false);
   const [loading, setLoading] = useState(false);
-  const userData = useSelector((state) => state.userData)?.state || {};
+
+  const existingNativeUserData =
+    useSelector((state) => state.userData)?.state || {};
+
+  const userData =
+    Platform.OS === "web"
+      ? getWebPersistedUserData() || {}
+      : existingNativeUserData;
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -43,6 +53,7 @@ const EmailVerificationScreen = () => {
       type: "SET_USER_DATA",
       payload: { ...userData, verified: true },
     });
+    webPersistUserData({ ...userData, verified: true });
   };
   if (error)
     return (
@@ -84,31 +95,40 @@ const EmailVerificationScreen = () => {
     );
   }
   return (
-    <View style={{ flex: 1, justifyContent: "center", padding: 20 }}>
-      <Text
-        style={{
-          textAlign: "center",
-          color: themeStyle.colors.grayscale.lowest,
-          fontSize: 24,
-        }}
-      >
-        We sent a code code{" "}
-        {userData.email ? `to ${userData.email}` : "to your email"}
-      </Text>
-      <Text
-        style={{
-          textAlign: "center",
-          color: themeStyle.colors.grayscale.lowest,
-          fontSize: 14,
-          marginTop: 20,
-        }}
-      >
-        Please enter the code we sent to your email.
-      </Text>
-      <CodeInput
-        loading={loading}
-        onSubmit={(code) => handleVerification(code)}
-      />
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 20,
+      }}
+    >
+      <View style={{ maxWidth: 500 }}>
+        <Text
+          style={{
+            textAlign: "center",
+            color: themeStyle.colors.grayscale.lowest,
+            fontSize: 24,
+          }}
+        >
+          We sent a code code{" "}
+          {userData.email ? `to ${userData.email}` : "to your email"}
+        </Text>
+        <Text
+          style={{
+            textAlign: "center",
+            color: themeStyle.colors.grayscale.lowest,
+            fontSize: 14,
+            marginTop: 20,
+          }}
+        >
+          Please enter the code we sent to your email.
+        </Text>
+        <CodeInput
+          loading={loading}
+          onSubmit={(code) => handleVerification(code)}
+        />
+      </View>
     </View>
   );
 };

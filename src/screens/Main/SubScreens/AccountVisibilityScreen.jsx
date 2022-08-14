@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Text, Switch, SafeAreaView, View } from "react-native";
+import { Text, Switch, SafeAreaView, View, Platform } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import apiCall from "../../../helpers/apiCall";
+import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
+import webPersistUserData from "../../../helpers/webPersistUserData";
 import themeStyle from "../../../theme.style";
 
 const AccountVisibilityScreen = () => {
-  const userData = useSelector((state) => state.userData);
+  const nativeUserData = useSelector((state) => state.userData);
+
+  const userData =
+    Platform.OS === "web"
+      ? { state: getWebPersistedUserData() }
+      : nativeUserData;
+
   const dispatch = useDispatch();
   const [enabled, setEnabled] = useState(false);
   const [error, setError] = useState("");
@@ -23,6 +31,10 @@ const AccountVisibilityScreen = () => {
           ...userData.state,
           ...response.userData,
         },
+      });
+      webPersistUserData({
+        ...userData.state,
+        ...response.userData,
       });
     } else {
       setEnabled(!enabled);

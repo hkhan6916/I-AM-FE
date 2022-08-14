@@ -19,6 +19,7 @@ import {
   LayoutProvider,
   RecyclerListView,
 } from "recyclerlistview";
+import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 
 const UserProfileScreen = (props) => {
   const { userId } = props.route.params;
@@ -33,7 +34,12 @@ const UserProfileScreen = (props) => {
   const [error, setError] = useState("");
   const [profileVideoVisible, setProfileVideoVisible] = useState(false);
 
-  const userData = useSelector((state) => state.userData);
+  const nativeUserData = useSelector((state) => state.userData);
+
+  const userData =
+    Platform.OS === "web"
+      ? { state: getWebPersistedUserData() }
+      : nativeUserData;
 
   const isFocused = useIsFocused();
 

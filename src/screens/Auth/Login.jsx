@@ -19,6 +19,7 @@ import apiCall from "../../helpers/apiCall";
 import Logo from "../../Logo";
 import { getExpoPushTokenAsync } from "expo-notifications";
 import Constants from "expo-constants";
+import webPersistUserData from "../../helpers/webPersistUserData";
 
 const LoginScreen = () => {
   const [identifier, setIdentifier] = useState("");
@@ -49,7 +50,7 @@ const LoginScreen = () => {
       }
 
       dispatch({ type: "SET_USER_DATA", payload: response.userData });
-
+      webPersistUserData(response.userData);
       Object.keys(response.apiKeys)?.forEach(async (key) => {
         if (Platform.OS === "web") {
           localStorage.setItem(key, response.apiKeys[key]);
@@ -95,6 +96,8 @@ const LoginScreen = () => {
 
   const goToSignUpScreen = () => {
     dispatch({ type: "SET_USER_DATA", payload: {} });
+    webPersistUserData({});
+
     navigation.navigate("Register");
   };
 

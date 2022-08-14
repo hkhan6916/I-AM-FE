@@ -7,6 +7,7 @@ import {
   StyleSheet,
   SafeAreaView,
   FlatList,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../../../theme.style";
@@ -14,6 +15,8 @@ import Input from "../../../components/Input";
 import { useSelector, useDispatch } from "react-redux";
 import { Entypo, Feather } from "@expo/vector-icons";
 import apiCall from "../../../helpers/apiCall";
+import webPersistUserData from "../../../helpers/webPersistUserData";
+import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 
 const Step1Screen = () => {
   const [firstName, setFirstName] = useState("");
@@ -36,12 +39,26 @@ const Step1Screen = () => {
     }
     return false;
   };
-  const existingInfo = useSelector((state) => state.userData);
+
+  const existingNativeUserData = useSelector((state) => state.userData);
+
+  const existingInfo =
+    Platform.OS === "web"
+      ? { state: getWebPersistedUserData() }
+      : existingNativeUserData;
+
   const handleNext = () => {
     dispatch({
       type: "SET_USER_DATA",
       payload: { ...existingInfo.state, firstName, lastName, jobTitle },
     });
+    webPersistUserData({
+      ...existingInfo.state,
+      firstName,
+      lastName,
+      jobTitle,
+    });
+
     navigation.navigate("Step2");
   };
 

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,6 +17,8 @@ import validateEmail from "../../../helpers/validateEmail";
 import validatePassword from "../../../helpers/validatePassword";
 import { useSelector, useDispatch } from "react-redux";
 import PasswordInput from "../../../components/PasswordInput";
+import webPersistUserData from "../../../helpers/webPersistUserData";
+import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 
 const Step2Screen = () => {
   const [email, setEmail] = useState("");
@@ -25,7 +28,13 @@ const Step2Screen = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const existingInfo = useSelector((state) => state.userData);
+
+  const existingNativeUserData = useSelector((state) => state.userData);
+
+  const existingInfo =
+    Platform.OS === "web"
+      ? { state: getWebPersistedUserData() }
+      : existingNativeUserData;
 
   const checkAllDetailsProvided = () => {
     if (
@@ -107,6 +116,12 @@ const Step2Screen = () => {
             email: email,
             password: password,
           },
+        });
+        webPersistUserData({
+          ...existingInfo.state,
+          username: username,
+          email: email,
+          password: password,
         });
         navigation.navigate("Step3");
       }

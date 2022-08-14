@@ -5,13 +5,22 @@ import {
   TouchableOpacity,
   Switch,
   SafeAreaView,
+  Platform,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import apiCall from "../../../helpers/apiCall";
+import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
+import webPersistUserData from "../../../helpers/webPersistUserData";
 import themeStyle from "../../../theme.style";
 
 const FollowersModeScreen = () => {
-  const userData = useSelector((state) => state.userData);
+  const existingNativeUserData = useSelector((state) => state.userData);
+
+  const userData =
+    Platform.OS === "web"
+      ? { state: getWebPersistedUserData() }
+      : existingNativeUserData;
+
   const dispatch = useDispatch();
   const [enabled, setEnabled] = useState(false);
   const [error, setError] = useState("");
@@ -30,6 +39,11 @@ const FollowersModeScreen = () => {
           followersMode: response.followersMode,
           private: false,
         },
+      });
+      webPersistUserData({
+        ...userData.state,
+        followersMode: response.followersMode,
+        private: false,
       });
     } else {
       setEnabled(!enabled);

@@ -56,8 +56,6 @@ const AddScreen = () => {
 
   const { width: screenWidth } = Dimensions.get("window");
 
-  const userData = useSelector((state) => state.userData);
-
   const dispatch = useDispatch();
   const createPostData = async () => {
     let postData = {};

@@ -35,7 +35,9 @@ const PostCommentCard = ({
   };
 
   const handleReplyToComment = async () => {
-    navigation.navigate("CommentRepliesScreen", { comment: comment });
+    navigation.navigate("CommentRepliesScreen", {
+      comment: comment,
+    });
   };
 
   if (!comment.deleted) {

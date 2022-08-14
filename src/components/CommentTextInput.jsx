@@ -8,8 +8,10 @@ import {
   ActivityIndicator,
   ScrollView,
   TouchableWithoutFeedback,
+  Platform,
 } from "react-native";
 import { useSelector } from "react-redux";
+import getWebPersistedUserData from "../helpers/getWebPersistedData";
 import themeStyle from "../theme.style";
 
 const CommentTextInput = forwardRef(
@@ -28,7 +30,12 @@ const CommentTextInput = forwardRef(
     const [loading, setLoading] = useState(false);
     const [height, setHeight] = useState(1);
 
-    const userData = useSelector((state) => state.userData);
+    const nativeUserData = useSelector((state) => state.userData);
+
+    const userData =
+      Platform.OS === "web"
+        ? { state: getWebPersistedUserData() }
+        : nativeUserData;
 
     const undoReply = () => {
       setReplyingTo(null);

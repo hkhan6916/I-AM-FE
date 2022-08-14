@@ -14,6 +14,7 @@ import apiCall from "../../../../helpers/apiCall";
 import UserThumbnail from "../../../../components/UserThumbnail";
 import themeStyle from "../../../../theme.style";
 import { useSelector } from "react-redux";
+import getWebPersistedUserData from "../../../../helpers/getWebPersistedData";
 const FriendsScreen = () => {
   const [friends, setFriends] = useState([]);
   const [requests, setRequests] = useState([]);
@@ -23,7 +24,10 @@ const FriendsScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const userData = useSelector((state) => state.userData)?.state;
+  const nativeUserData = useSelector((state) => state.userData)?.state;
+
+  const userData =
+    Platform.OS === "web" ? getWebPersistedUserData() : nativeUserData;
 
   const sectionListRef = useRef(null);
 

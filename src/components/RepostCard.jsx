@@ -106,6 +106,8 @@ const RepostCard = ({ postContent, isPreview }) => {
                 aspectRatio: 1 / 1,
                 width: "100%",
                 height: "100%",
+                maxHeight: 500,
+                maxWidth: 878,
               }}
               source={{ uri: postContent.gif }}
             />
@@ -128,8 +130,10 @@ const RepostCard = ({ postContent, isPreview }) => {
                 Platform.OS === "web"
                   ? {
                       aspectRatio: 1,
-                      height: Math.min(screenWidth, 900 - 20),
-                      width: Math.min(screenWidth, 900 - 20),
+                      height: screenWidth - 22,
+                      width: screenWidth - 22,
+                      maxHeight: 500,
+                      maxWidth: 878,
                     }
                   : {}
               }
@@ -166,9 +170,10 @@ const RepostCard = ({ postContent, isPreview }) => {
                 Platform.OS === "web"
                   ? {
                       aspectRatio: 1,
+                      height: screenWidth - 22,
+                      width: screenWidth - 22,
+                      maxWidth: 900 - 22,
                       maxHeight: 500,
-                      height: Math.min(screenWidth, 700 - 20),
-                      width: Math.min(screenWidth, 900 - 20),
                     }
                   : {}
               }

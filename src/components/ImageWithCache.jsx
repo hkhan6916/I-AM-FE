@@ -25,7 +25,38 @@ const ImageWithCache = ({
   style,
   background,
 }) => {
-  const { width: screenWidth } = Dimensions.get("window");
+  const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+
+  const platformProps =
+    Platform.OS === "web"
+      ? {
+          webProps: {
+            style: {
+              borderRadius: removeBorderRadius ? 0 : 10,
+              width: "100%",
+              objectFit: resizeMode,
+              ...(aspectRatio
+                ? { aspectRatio: aspectRatio }
+                : { width: "100%", maxWidth: 900 }),
+              ...style,
+            },
+          },
+        }
+      : {
+          mobileProps: {
+            style: [
+              {
+                borderRadius: removeBorderRadius ? 0 : 10,
+                height: "100%",
+              },
+              aspectRatio
+                ? { aspectRatio: aspectRatio }
+                : { width: screenWidth },
+              style && style,
+            ],
+            resizeMode: resizeMode,
+          },
+        };
 
   if (isFullScreen) {
     return (
@@ -77,8 +108,10 @@ const ImageWithCache = ({
                 borderRadius: removeBorderRadius ? 0 : 10,
                 width: "100%",
                 height: "100%",
+                maxHeight: screenHeight,
+                maxWidth: screenWidth,
               },
-              Platform.OS === "web" && { objectFit: "cover" },
+              Platform.OS === "web" && { objectFit: "contain" },
             ]}
           />
         </View>
@@ -118,30 +151,7 @@ const ImageWithCache = ({
             headers: mediaHeaders || {},
           }}
           // not using conditional with Platform.OS here for simplicity and less logic
-          mobileProps={{
-            style: [
-              {
-                borderRadius: removeBorderRadius ? 0 : 10,
-                height: "100%",
-              },
-              aspectRatio
-                ? { aspectRatio: aspectRatio }
-                : { width: screenWidth },
-              style && style,
-            ],
-            resizeMode: resizeMode,
-          }}
-          webProps={{
-            style: {
-              borderRadius: removeBorderRadius ? 0 : 10,
-              width: "100%",
-              objectFit: resizeMode,
-              ...(aspectRatio
-                ? { aspectRatio: aspectRatio }
-                : { width: "100%", maxWidth: 900 }),
-              ...style,
-            },
-          }}
+          {...platformProps}
         />
       </View>
     </View>

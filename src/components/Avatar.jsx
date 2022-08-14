@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TouchableHighlight } from "react-native";
+import { View, TouchableHighlight, Platform } from "react-native";
 import themeStyle from "../theme.style";
 import { Ionicons } from "@expo/vector-icons";
 import Image from "./Image";
@@ -16,6 +16,7 @@ const Avatar = ({
   style,
 }) => {
   const [loaded, setLoaded] = useState(false);
+
   return (
     <View
       style={[
@@ -59,24 +60,29 @@ const Avatar = ({
         >
           {avatarUrl ? (
             <Image
-              webProps={{
-                style: {
-                  borderRadius: 10,
-                  alignSelf: "center",
-                  width: size,
-                  height: size,
-                  objectFit: "cover",
-                },
-              }}
-              mobileProps={{
-                style: {
-                  borderRadius: 10,
-                  alignSelf: "center",
-                  width: size,
-                  height: size,
-                },
-                resizeMode: "cover",
-              }}
+              {...(Platform.OS === "web"
+                ? {
+                    webProps: {
+                      style: {
+                        borderRadius: 10,
+                        alignSelf: "center",
+                        width: size,
+                        height: size,
+                        objectFit: "cover",
+                      },
+                    },
+                  }
+                : {
+                    mobileProps: {
+                      style: {
+                        borderRadius: 10,
+                        alignSelf: "center",
+                        width: size,
+                        height: size,
+                      },
+                      resizeMode: "cover",
+                    },
+                  })}
               source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}
               onLoad={() => setLoaded(true)}
             />
@@ -103,24 +109,29 @@ const Avatar = ({
             <Image
               source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}
               onLoad={() => setLoaded(true)}
-              webProps={{
-                style: {
-                  borderRadius: 10,
-                  alignSelf: "center",
-                  width: size || 50,
-                  height: size || 50,
-                  objectFit: "cover",
-                },
-              }}
-              mobileProps={{
-                style: {
-                  borderRadius: 10,
-                  alignSelf: "center",
-                  width: size || 50,
-                  height: size || 50,
-                },
-                resizeMode: "cover",
-              }}
+              {...(Platform.OS === "web"
+                ? {
+                    webProps: {
+                      style: {
+                        borderRadius: 10,
+                        alignSelf: "center",
+                        width: size || 50,
+                        height: size || 50,
+                        objectFit: "cover",
+                      },
+                    },
+                  }
+                : {
+                    mobileProps: {
+                      style: {
+                        borderRadius: 10,
+                        alignSelf: "center",
+                        width: size || 50,
+                        height: size || 50,
+                      },
+                      resizeMode: "cover",
+                    },
+                  })}
             />
           ) : (
             <View

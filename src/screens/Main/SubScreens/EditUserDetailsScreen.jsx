@@ -34,6 +34,8 @@ import { useDispatch, useSelector } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 import openAppSettings from "../../../helpers/openAppSettings";
 import { getInfoAsync } from "expo-file-system";
+import webPersistUserData from "../../../helpers/webPersistUserData";
+import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 
 const { statusBarHeight } = Constants;
 const EditUserDetailsScreen = () => {
@@ -84,7 +86,13 @@ const EditUserDetailsScreen = () => {
     typingTimeout: 0,
   });
 
-  const userdata = useSelector((state) => state.userData);
+  const existingNativeUserData = useSelector((state) => state.userData);
+
+  const userdata =
+    Platform.OS === "web"
+      ? { state: getWebPersistedUserData() }
+      : existingNativeUserData;
+
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
@@ -383,6 +391,10 @@ const EditUserDetailsScreen = () => {
                         ...initialProfileData,
                         ...response,
                       },
+                    });
+                    webPersistUserData({
+                      ...initialProfileData,
+                      ...response,
                     });
                   }
                 }

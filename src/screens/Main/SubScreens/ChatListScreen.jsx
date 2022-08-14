@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   Dimensions,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Entypo } from "@expo/vector-icons";
@@ -20,6 +21,7 @@ import {
   LayoutProvider,
   RecyclerListView,
 } from "recyclerlistview";
+import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 
 const ChatListScreen = () => {
   const [chats, setChats] = useState([]);
@@ -28,7 +30,11 @@ const ChatListScreen = () => {
   const [loaded, setLoaded] = useState(false);
 
   const navigation = useNavigation();
-  const userData = useSelector((state) => state.userData);
+  const nativeUserData = useSelector((state) => state.userData);
+  const userData =
+    Platform.OS === "web"
+      ? { state: getWebPersistedUserData() }
+      : nativeUserData;
 
   const { width: screenWidth } = Dimensions.get("window");
 

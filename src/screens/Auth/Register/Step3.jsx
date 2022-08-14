@@ -30,6 +30,8 @@ import * as ImagePicker from "expo-image-picker";
 import openAppSettings from "../../../helpers/openAppSettings";
 import { getInfoAsync } from "expo-file-system";
 import Constants from "expo-constants";
+import webPersistUserData from "../../../helpers/webPersistUserData";
+import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
@@ -64,7 +66,13 @@ const Step1Screen = () => {
   const [registerationError, setRegisterationError] = useState("");
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const existingInfo = useSelector((state) => state.userData);
+
+  const existingNativeUserData = useSelector((state) => state.userData);
+
+  const existingInfo =
+    Platform.OS === "web"
+      ? { state: getWebPersistedUserData() }
+      : existingNativeUserData;
 
   const profileVideoIsValid = () => {
     if (tooShort || tooLong) return false;
@@ -149,6 +157,7 @@ const Step1Screen = () => {
                   type: "SET_USER_DATA",
                   payload: {},
                 });
+                webPersistUserData({});
                 setTimeout(() => navigation.navigate("Login"), 500);
               } else {
                 setRegisterationError(
@@ -199,6 +208,7 @@ const Step1Screen = () => {
           type: "SET_USER_DATA",
           payload: {},
         });
+        webPersistUserData({});
         setTimeout(() => navigation.navigate("Login"), 500);
       } else {
         setRegisterationError("An error occurred. Please try again.");

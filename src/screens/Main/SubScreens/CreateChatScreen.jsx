@@ -9,6 +9,7 @@ import {
   Dimensions,
   RefreshControl,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
@@ -20,10 +21,15 @@ import {
   RecyclerListView,
 } from "recyclerlistview";
 import { useSelector } from "react-redux";
+import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 
 const CreateChatScreen = () => {
   const isMounted = useRef(null);
-  const userData = useSelector((state) => state.userData)?.state;
+
+  const nativeUserData = useSelector((state) => state.userData)?.state;
+
+  const userData =
+    Platform.OS === "web" ? getWebPersistedUserData() : nativeUserData;
 
   const [contacts, setContacts] = useState([]);
   const [error, setError] = useState(false);
@@ -172,7 +178,6 @@ const CreateChatScreen = () => {
           scrollViewProps={{
             onMomentumScrollBegin: () => {
               onEndReachedCalledDuringMomentum.current = false;
-              console.log("hey");
             },
           }}
         />

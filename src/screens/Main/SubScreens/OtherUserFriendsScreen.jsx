@@ -20,6 +20,7 @@ import {
 import { useSelector } from "react-redux";
 import themeStyle from "../../../theme.style";
 import { ScrollView } from "react-native-gesture-handler";
+import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 
 const OtherUserFriendsScreen = (props) => {
   const { userId, firstName } = props.route.params;
@@ -28,7 +29,12 @@ const OtherUserFriendsScreen = (props) => {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-  const userData = useSelector((state) => state.userData)?.state;
+
+  const nativeUserData = useSelector((state) => state.userData)?.state;
+
+  const userData =
+    Platform.OS === "web" ? getWebPersistedUserData() : nativeUserData;
+
   const { width: screenWidth } = Dimensions.get("window");
   const data =
     searchedFriends === "none"
