@@ -14,7 +14,7 @@ import {
   Alert,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import CameraStandard from "../../../components/CameraStandard";
@@ -338,7 +338,7 @@ const AddScreen = () => {
         const mediaSizeInMb = mediaInfo.size / 1000000;
         if (mediaSizeInMb > 100) {
           setShowMediaSizeError(true);
-          setFile({ ...result, ...mediaInfo });
+          setFile({ uri: "none" });
           setLoading(false);
           return;
         }
@@ -353,9 +353,14 @@ const AddScreen = () => {
   };
 
   const handleGifSelect = (gifUrl) => {
+    setShowMediaSizeError(false);
     setFile({});
     setGif(gifUrl);
   };
+
+  if (!isFocused) {
+    return null;
+  }
 
   if (cameraActive && isFocused) {
     return (
@@ -493,6 +498,7 @@ const AddScreen = () => {
                   }}
                   onPress={() => {
                     setFile({});
+                    setShowMediaSizeError(false);
                   }}
                 >
                   <AntDesign
@@ -502,6 +508,7 @@ const AddScreen = () => {
                     style={{}}
                   />
                 </TouchableOpacity>
+
                 {showMediaSizeError ? (
                   <Text
                     style={{
@@ -511,8 +518,7 @@ const AddScreen = () => {
                   >
                     Choose a file smaller than 100MB
                   </Text>
-                ) : null}
-                {thumbnail ? (
+                ) : thumbnail ? (
                   <View
                     style={{
                       height: screenWidth,

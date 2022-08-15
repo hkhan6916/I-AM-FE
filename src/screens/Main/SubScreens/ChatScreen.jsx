@@ -774,6 +774,7 @@ const ChatScreen = (props) => {
       setChatUserId(userId);
       setChatUserFirstName(firstName);
     }
+    return () => setMedia({});
   }, [persistedParams]);
 
   if (loading) {
@@ -1126,13 +1127,15 @@ const ChatScreen = (props) => {
               }}
               style={{ padding: 10 }}
             >
-              <Text style={{ color: themeStyle.colors.error.default }}>
+              <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
                 Cancel
               </Text>
             </TouchableOpacity>
           ) : null}
           {showMediaSizeError ? (
-            <Text>Choose a file smaller than 50MB.</Text>
+            <Text style={{ color: themeStyle.colors.error.default }}>
+              Choose a file smaller than 50MB.
+            </Text>
           ) : null}
         </View>
       </KeyboardAvoidingView>
