@@ -19,7 +19,7 @@ import {
 } from "recyclerlistview";
 import { ScrollView } from "react-native-gesture-handler";
 
-const FriendRequestsScreen = () => {
+const ContactRequestsScreen = () => {
   const [currentTab, setCurrentTab] = useState("received");
   const [friendRequestsReceived, setFriendRequestsReceived] = useState([]);
   const [friendRequestsSent, setFriendRequestsSent] = useState([]);
@@ -179,4 +179,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FriendRequestsScreen;
+export default ContactRequestsScreen;

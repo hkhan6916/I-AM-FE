@@ -104,7 +104,7 @@ const ProfileScreenHeader = React.forwardRef(
                 size={24}
                 color={themeStyle.colors.grayscale.lower}
               />
-              <TouchableOpacity onPress={() => navigation.navigate("Friends")}>
+              <TouchableOpacity onPress={() => navigation.navigate("Contacts")}>
                 <Text
                   style={{
                     marginHorizontal: 10,

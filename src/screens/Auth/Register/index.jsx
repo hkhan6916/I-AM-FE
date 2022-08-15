@@ -7,7 +7,7 @@ import themeStyle from "../../../theme.style";
 
 const Stack = createNativeStackNavigator();
 
-const FriendsStack = () => (
+const RegisterStack = () => (
   <Stack.Navigator
     initialRouteName="Step1"
     screenOptions={{
@@ -44,4 +44,4 @@ const FriendsStack = () => (
     />
   </Stack.Navigator>
 );
-export default FriendsStack;
+export default RegisterStack;

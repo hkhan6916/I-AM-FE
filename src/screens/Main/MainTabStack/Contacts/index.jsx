@@ -1,12 +1,12 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import FriendsScreen from "./Friends";
-import FriendRequestsScreen from "./FriendRequests";
+import ContactsScreen from "./Contacts";
+import ContactRequestsScreen from "./ContactRequests";
 import themeStyle from "../../../../theme.style";
 
 const Stack = createNativeStackNavigator();
-const FriendsStack = () => (
-  <Stack.Navigator initialRouteName="FriendsScreen">
+const ContactsStack = () => (
+  <Stack.Navigator initialRouteName="ContactsScreen">
     <Stack.Screen
       options={{
         headerShown: true,
@@ -19,12 +19,12 @@ const FriendsStack = () => (
         },
         title: "Contacts",
       }}
-      name="FriendsScreen"
-      component={FriendsScreen}
+      name="ContactsScreen"
+      component={ContactsScreen}
     />
     <Stack.Screen
-      name="FriendRequestsScreen"
-      component={FriendRequestsScreen}
+      name="ContactRequestsScreen"
+      component={ContactRequestsScreen}
       options={{
         headerShown: true,
         headerTintColor: themeStyle.colors.primary.default,
@@ -40,4 +40,4 @@ const FriendsStack = () => (
   </Stack.Navigator>
 );
 
-export default FriendsStack;
+export default ContactsStack;

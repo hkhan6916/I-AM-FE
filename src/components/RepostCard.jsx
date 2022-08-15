@@ -14,7 +14,7 @@ import themeStyle from "../theme.style";
 import ImageWithCache from "./ImageWithCache";
 import { Feather } from "@expo/vector-icons";
 
-const RepostCard = ({ postContent, isPreview }) => {
+const RepostCard = ({ postContent, isPreview, mediaIsFullWidth = false }) => {
   const navigation = useNavigation();
   const { width: screenWidth } = Dimensions.get("window");
 
@@ -131,9 +131,9 @@ const RepostCard = ({ postContent, isPreview }) => {
                   ? {
                       aspectRatio: 1,
                       height: screenWidth - 22,
-                      width: screenWidth - 22,
+                      width: mediaIsFullWidth ? "100%" : screenWidth - 22,
+                      maxWidth: 900 - 22,
                       maxHeight: 500,
-                      maxWidth: 878,
                     }
                   : {}
               }
@@ -171,7 +171,7 @@ const RepostCard = ({ postContent, isPreview }) => {
                   ? {
                       aspectRatio: 1,
                       height: screenWidth - 22,
-                      width: screenWidth - 22,
+                      width: mediaIsFullWidth ? "100%" : screenWidth - 22,
                       maxWidth: 900 - 22,
                       maxHeight: 500,
                     }

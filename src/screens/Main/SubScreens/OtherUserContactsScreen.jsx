@@ -22,7 +22,7 @@ import themeStyle from "../../../theme.style";
 import { ScrollView } from "react-native-gesture-handler";
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 
-const OtherUserFriendsScreen = (props) => {
+const OtherUserContactsScreen = (props) => {
   const { userId, firstName } = props.route.params;
   const [friends, setFriends] = useState([]);
   const [searchedFriends, setSearchedFriends] = useState([]);
@@ -147,4 +147,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OtherUserFriendsScreen;
+export default OtherUserContactsScreen;

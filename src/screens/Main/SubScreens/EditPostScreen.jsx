@@ -269,7 +269,11 @@ const EditPostScreen = (props) => {
             </View>
           ) : null}
           {existingPost?.repostPostId ? (
-            <RepostCard postContent={existingPost?.repostPostObj} isPreview />
+            <RepostCard
+              postContent={existingPost?.repostPostObj}
+              mediaIsFullWidth
+              isPreview
+            />
           ) : null}
         </ScrollView>
         <View

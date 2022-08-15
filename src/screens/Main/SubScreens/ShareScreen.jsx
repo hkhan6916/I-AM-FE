@@ -75,7 +75,7 @@ const ShareScreen = (props) => {
         onChangeText={(v) => setRepostBody(v)}
         placeholderTextColor={themeStyle.colors.grayscale.lower}
       />
-      <RepostCard postContent={post} isPreview={true} />
+      <RepostCard postContent={post} isPreview={true} mediaIsFullWidth />
       <View
         style={{
           width: "100%",

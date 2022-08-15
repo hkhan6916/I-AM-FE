@@ -30,7 +30,7 @@ const ProfileInfo = ({
 
   const handleUserFriendsNavigation = () => {
     // pushes a new screen on top of the prev one to create a journey
-    const pushScreen = StackActions.push("OtherUserFriendsScreen", {
+    const pushScreen = StackActions.push("OtherUserContactsScreen", {
       userId: user?._id,
       firstName: user?.firstName,
     });

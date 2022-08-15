@@ -15,7 +15,7 @@ import UserThumbnail from "../../../../components/UserThumbnail";
 import themeStyle from "../../../../theme.style";
 import { useSelector } from "react-redux";
 import getWebPersistedUserData from "../../../../helpers/getWebPersistedData";
-const FriendsScreen = () => {
+const ContactsScreen = () => {
   const [friends, setFriends] = useState([]);
   const [requests, setRequests] = useState([]);
   const [sections, setSections] = useState([]);
@@ -139,7 +139,7 @@ const FriendsScreen = () => {
           marginTop: 20,
           marginBottom: 10,
         }}
-        onPress={() => navigation.navigate("FriendRequestsScreen")}
+        onPress={() => navigation.navigate("ContactRequestsScreen")}
       >
         <Text
           style={{
@@ -189,7 +189,7 @@ const FriendsScreen = () => {
         renderSectionFooter={({ section: { name } }) =>
           name === "requests" && requests?.length ? (
             <TouchableOpacity
-              onPress={() => navigation.navigate("FriendRequestsScreen")}
+              onPress={() => navigation.navigate("ContactRequestsScreen")}
               style={{
                 height: 48,
                 alignItems: "center",
@@ -213,7 +213,7 @@ const FriendsScreen = () => {
                 justifyContent: "center",
               }}
               onPress={() =>
-                navigation.navigate("OtherUserFriendsScreen", {
+                navigation.navigate("OtherUserContactsScreen", {
                   userId: userData?._id,
                   firstName: userData?.firstName,
                 })
@@ -246,4 +246,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FriendsScreen;
+export default ContactsScreen;

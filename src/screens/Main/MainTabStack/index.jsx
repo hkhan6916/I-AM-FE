@@ -6,7 +6,7 @@ import HomeScreen from "./Home";
 import AddScreen from "./Add";
 import ProfileScreen from "./Profile";
 import SearchStack from "./Search";
-import FriendsScreen from "./Friends";
+import ContactsScreen from "./Contacts";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import webPersistUserData from "../../../helpers/webPersistUserData";
@@ -70,7 +70,7 @@ const MainTabStack = () => {
             iconName = "happy";
           } else if (route.name === "Search") {
             iconName = "search";
-          } else if (route.name === "Friends") {
+          } else if (route.name === "Contacts") {
             iconName = "people";
           }
 
@@ -87,7 +87,7 @@ const MainTabStack = () => {
       <Tab.Screen headerShown name="Home" component={HomeScreen} />
       <Tab.Screen name="Search" component={SearchStack} />
       <Tab.Screen name="Add" component={AddScreen} />
-      <Tab.Screen name="Friends" component={FriendsScreen} />
+      <Tab.Screen name="Contacts" component={ContactsScreen} />
       <Tab.Screen name="Me" component={ProfileScreen} />
     </Tab.Navigator>
   );

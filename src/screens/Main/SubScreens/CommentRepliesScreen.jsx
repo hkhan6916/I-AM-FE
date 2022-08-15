@@ -367,6 +367,10 @@ const CommentRepliesScreen = (props) => {
           forceNonDeterministicRendering
           renderFooter={renderFooter}
           scrollViewProps={{
+            contentContainerStyle: {
+              maxWidth: 900,
+              alignSelf: "center",
+            },
             refreshControl: (
               <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
             ),
@@ -385,12 +389,21 @@ const CommentRepliesScreen = (props) => {
             reportComment={reportComment}
           />
         ) : null}
-        <CommentTextInput
-          ref={textInputRef}
-          submitAction={postComment}
-          replyingTo={replyingTo}
-          setReplyingTo={setReplyingTo}
-        />
+        <View
+          style={{
+            maxWidth: 900,
+            marginTop: 20,
+            width: "100%",
+            alignSelf: "center",
+          }}
+        >
+          <CommentTextInput
+            ref={textInputRef}
+            submitAction={postComment}
+            replyingTo={replyingTo}
+            setReplyingTo={setReplyingTo}
+          />
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

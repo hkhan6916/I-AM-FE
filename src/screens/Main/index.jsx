@@ -15,11 +15,11 @@ import EditUserDetailsScreen from "./SubScreens/EditUserDetailsScreen";
 import SettingsScreen from "./SubScreens/SettingsScreen";
 import PrivacyPolicyScreen from "./SubScreens/PrivacyPolicyScreen";
 import TermsOfUseScreen from "./SubScreens/TermsOfUseScreen";
-import OtherUserFriendsScreen from "./SubScreens/OtherUserFriendsScreen";
+import OtherUserContactsScreen from "./SubScreens/OtherUserContactsScreen";
 import EditPostScreen from "./SubScreens/EditPostScreen";
 import AccountScreen from "./SubScreens/AccountScreen";
 import FollowersModeScreen from "./SubScreens/FollowersModeScreen";
-import AccountVisibilityeScreen from "./SubScreens/AccountVisibilityScreen";
+import AccountVisibilityScreen from "./SubScreens/AccountVisibilityScreen";
 import EmailVerificationScreen from "./SubScreens/EmailVerificationScreen";
 import { Dimensions } from "react-native";
 
@@ -59,6 +59,9 @@ const MainStack = () => (
         headerTintColor: themeStyle.colors.primary.default,
         headerTitleStyle: {
           fontWeight: "bold",
+        },
+        contentStyle: {
+          maxWidth: Dimensions.get("window").width,
         },
         headerStyle: {
           backgroundColor: themeStyle.colors.grayscale.highest,
@@ -104,6 +107,9 @@ const MainStack = () => (
         headerStyle: {
           backgroundColor: themeStyle.colors.grayscale.highest,
         },
+        contentStyle: {
+          maxWidth: Dimensions.get("window").width,
+        },
       }}
       name="CommentsScreen"
       component={CommentsScreen}
@@ -119,6 +125,9 @@ const MainStack = () => (
         headerStyle: {
           backgroundColor: themeStyle.colors.grayscale.highest,
         },
+        contentStyle: {
+          maxWidth: Dimensions.get("window").width,
+        },
       }}
       name="CommentRepliesScreen"
       component={CommentsRepliesScreen}
@@ -130,6 +139,9 @@ const MainStack = () => (
         headerShown: true,
         headerStyle: {
           backgroundColor: themeStyle.colors.grayscale.highest,
+        },
+        contentStyle: {
+          maxWidth: Dimensions.get("window").width,
         },
       }}
       name="PostScreen"
@@ -145,6 +157,9 @@ const MainStack = () => (
         },
         headerStyle: {
           backgroundColor: themeStyle.colors.grayscale.highest,
+        },
+        contentStyle: {
+          maxWidth: Dimensions.get("window").width,
         },
       }}
       name="ChatScreen"
@@ -267,8 +282,8 @@ const MainStack = () => (
           backgroundColor: themeStyle.colors.grayscale.highest,
         },
       }}
-      name="OtherUserFriendsScreen"
-      component={OtherUserFriendsScreen}
+      name="OtherUserContactsScreen"
+      component={OtherUserContactsScreen}
     />
     <Stack.Screen
       options={{
@@ -312,8 +327,8 @@ const MainStack = () => (
           backgroundColor: themeStyle.colors.grayscale.highest,
         },
       }}
-      name="AccountVisibilityeScreen"
-      component={AccountVisibilityeScreen}
+      name="AccountVisibilityScreen"
+      component={AccountVisibilityScreen}
     />
     <Stack.Screen
       options={{
