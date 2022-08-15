@@ -222,7 +222,7 @@ const ProfileScreen = () => {
   }, []);
 
   useEffect(() => {
-    if (globalUserData.state) {
+    if (globalUserData.state && Object.keys(userData).length === 0) {
       setUserData(globalUserData.state);
     }
   }, [globalUserData?.state]);
@@ -278,41 +278,42 @@ const ProfileScreen = () => {
           </Text>
         </View>
       ) : null}
-      <View
-        style={{ alignSelf: "center", width: "100%", flex: 1, maxWidth: 900 }}
-      >
-        {userData ? (
-          <RecyclerListView
-            {...mobileSpecificListProps}
-            ref={listRef}
-            style={{ minHeight: 1, minWidth: 1 }}
-            dataProvider={dataProvider}
-            layoutProvider={layoutProvider}
-            onEndReached={() => getUserPosts()}
-            onEndReachedThreshold={0.5}
-            rowRenderer={rowRenderer}
-            extendedState={{ userData, profileVideoVisible }}
-            forceNonDeterministicRendering
-            onVisibleIndicesChanged={(i) => {
-              // TODO: test on old device to see if preview video rerenders cause crashes
-              if (i?.[0] === 0 && !profileVideoVisible) {
-                setProfileVideoVisible(true);
-              } else if (profileVideoVisible) {
-                setProfileVideoVisible(false);
-              }
-            }}
-            scrollViewProps={{
-              removeClippedSubviews: true,
-              refreshControl: (
-                <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
-              ),
-              // decelerationRate: 0.9,
-            }}
+      {userData ? (
+        <RecyclerListView
+          {...mobileSpecificListProps}
+          ref={listRef}
+          style={{ minHeight: 1, minWidth: 1 }}
+          dataProvider={dataProvider}
+          layoutProvider={layoutProvider}
+          onEndReached={() => getUserPosts()}
+          onEndReachedThreshold={0.5}
+          rowRenderer={rowRenderer}
+          extendedState={{ userData, profileVideoVisible }}
+          forceNonDeterministicRendering
+          onVisibleIndicesChanged={(i) => {
+            // TODO: test on old device to see if preview video rerenders cause crashes
+            if (i?.[0] === 0 && !profileVideoVisible) {
+              setProfileVideoVisible(true);
+            } else if (profileVideoVisible) {
+              setProfileVideoVisible(false);
+            }
+          }}
+          scrollViewProps={{
+            contentContainerStyle: {
+              maxWidth: 900,
+              alignSelf: "center",
+            },
+            removeClippedSubviews: true,
+            refreshControl: (
+              <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+            ),
+            // decelerationRate: 0.9,
+          }}
 
-            // ListHeaderComponent={renderHeaderComponent}
-          />
-        ) : null}
-      </View>
+          // ListHeaderComponent={renderHeaderComponent}
+        />
+      ) : null}
+
       <PostOptionsModal
         showOptions={!!showPostOptions}
         setShowPostOptions={setShowPostOptions}

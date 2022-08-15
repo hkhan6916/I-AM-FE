@@ -14,9 +14,12 @@ import webPersistUserData from "../../../helpers/webPersistUserData";
 import themeStyle from "../../../theme.style";
 
 const FollowersModeScreen = () => {
+  // only used to prevent unnecessary re-renders in useefect as global userdata will change on toggle
+  const [userData, setUserData] = useState(null);
+
   const existingNativeUserData = useSelector((state) => state.userData);
 
-  const userData =
+  const globalUserData =
     Platform.OS === "web"
       ? { state: getWebPersistedUserData() }
       : existingNativeUserData;
@@ -35,13 +38,13 @@ const FollowersModeScreen = () => {
       dispatch({
         type: "SET_USER_DATA",
         payload: {
-          ...userData.state,
+          ...globalUserData.state,
           followersMode: response.followersMode,
           private: false,
         },
       });
       webPersistUserData({
-        ...userData.state,
+        ...globalUserData.state,
         followersMode: response.followersMode,
         private: false,
       });
@@ -50,11 +53,13 @@ const FollowersModeScreen = () => {
       setError("Unable to toggle followers mode. Please try again later");
     }
   };
+
   useEffect(() => {
-    if (userData?.state) {
-      setEnabled(!!userData.state?.followersMode);
+    if (!userData && globalUserData?.state) {
+      setUserData(globalUserData?.state);
+      setEnabled(globalUserData?.state?.followersMode);
     }
-  }, [userData]);
+  }, [globalUserData?.state]);
   return (
     <SafeAreaView style={{ flex: 1 }}>
       {error ? (
@@ -92,7 +97,7 @@ const FollowersModeScreen = () => {
         }}
       >
         Enabling <Text style={{ fontWeight: "700" }}>followers mode</Text> will
-        make your public profile follow only. Your account will be made public
+        make your public profile follow-only. Your account will be made public
         by default and you will only receive the feed for the users you add as
         contacts, not your followers.
       </Text>

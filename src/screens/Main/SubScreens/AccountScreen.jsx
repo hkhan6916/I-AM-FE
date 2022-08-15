@@ -137,7 +137,7 @@ const AccountScreen = () => {
         </View>
         <View style={styles.option}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("AccountVisibilityeScreen")}
+            onPress={() => navigation.navigate("AccountVisibilityScreen")}
           >
             <View style={styles.optionContent}>
               <Text style={styles.basicOptionsText}>Profile Visibility</Text>

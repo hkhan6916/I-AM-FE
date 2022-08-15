@@ -21,12 +21,21 @@ import {
   LayoutProvider,
   RecyclerListView,
 } from "recyclerlistview";
+import usePersistedWebParams from "../../../helpers/hooks/usePersistedWebParams";
 
 const CommentRepliesScreen = (props) => {
-  const { comment: initialComment } = props.route.params;
+  const routeParamsObj = props.route.params;
+  const persistedParams = usePersistedWebParams(routeParamsObj);
 
+  // if route params has values then return it else null
+  const params =
+    routeParamsObj[Object.keys(routeParamsObj)[0]] !== "[object Object]"
+      ? routeParamsObj
+      : null;
+
+  // const initialComment = JSON.parse(props.route.params.comment);
   const [replies, setReplies] = useState([]);
-  const [comment, setComment] = useState(initialComment);
+  const [comment, setComment] = useState(null);
   // just a set of reply IDs so we don't render newly fetched replys if they've just been added by the user
   const [newRepliesIds, setNewRepliesIds] = useState([]);
   const [replyingTo, setReplyingTo] = useState(null);
@@ -44,7 +53,7 @@ const CommentRepliesScreen = (props) => {
   const getCommentReplies = async (refresh = false) => {
     let isCancelled = false;
     if (!isCancelled) {
-      if (!allRepliessLoaded) {
+      if (!allRepliessLoaded && comment) {
         setLoadingMore(!refresh);
         const { response, success } = await apiCall(
           "GET",
@@ -329,13 +338,18 @@ const CommentRepliesScreen = (props) => {
 
   useEffect(() => {
     (async () => {
+      // if params is null, try destructering from persistedParams
+      if (!comment) {
+        const { comment: initialComment } = params || persistedParams;
+        setComment(initialComment);
+      }
       await getCommentReplies();
     })();
     return async () => {
       (await getCommentReplies()).cancel();
     };
-  }, [navigation]);
-
+  }, [navigation, comment]);
+  if (!comment) return null;
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView

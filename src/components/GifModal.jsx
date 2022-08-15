@@ -80,7 +80,7 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
             style={{
               justifyContent: "center",
               alignItems: "center",
-              height: imageHeight,
+              height: screenWidth / Math.round(screenWidth / 200),
               width: "100%",
             }}
             resizeMode="cover"

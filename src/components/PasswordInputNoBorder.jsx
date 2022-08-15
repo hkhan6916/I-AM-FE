@@ -71,9 +71,9 @@ const styles = StyleSheet.create({
     color: themeStyle.colors.error.default,
   },
   label: {
-    fontWeight: "400",
-    fontSize: 12,
+    fontWeight: "700",
     color: themeStyle.colors.grayscale.lowest,
+    textAlign: "left",
   },
   textInput: {
     fontSize: 15,

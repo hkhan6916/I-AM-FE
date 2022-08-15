@@ -57,7 +57,6 @@ export default {
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_BACKGROUND_LOCATION",
-        "android.permission.WAKE_LOCK",
         "android.permission.RECEIVE_BOOT_COMPLETED",
       ],
     },

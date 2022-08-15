@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   ScrollView,
@@ -13,10 +13,21 @@ import apiCall from "../../../helpers/apiCall";
 import { useDispatch } from "react-redux";
 import RepostCard from "../../../components/RepostCard";
 import themeStyle from "../../../theme.style";
+import usePersistedWebParams from "../../../helpers/hooks/usePersistedWebParams";
 
 const ShareScreen = (props) => {
-  const { prevScreen, post } = props.route.params;
+  const { prevScreen } = props.route.params;
 
+  const routeParamsObj = props.route.params;
+  const persistedParams = usePersistedWebParams(routeParamsObj);
+
+  // if route params has values then return it else null
+  const params =
+    routeParamsObj[Object.keys(routeParamsObj)[0]] !== "[object Object]"
+      ? routeParamsObj
+      : null;
+
+  const [post, setPost] = useState(null);
   const [repostBody, setRepostBody] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -39,6 +50,14 @@ const ShareScreen = (props) => {
       navigation.navigate(prevScreen);
     }
   };
+
+  useEffect(() => {
+    const { post: initialPost } = params || persistedParams;
+    if (!post) {
+      setPost(initialPost);
+    }
+  }, [persistedParams, params]);
+  if (!post) return null;
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <TextInput

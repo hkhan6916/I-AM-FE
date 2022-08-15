@@ -396,91 +396,78 @@ const HomeScreen = () => {
   if (feed?.length) {
     return (
       <SafeAreaView style={styles.container}>
-        {/* <Button title="test" onPress={() => navigation.navigate("Test")} /> */}
         <View style={{ flex: 1 }}>
           <HomeScreenHeader navigation={navigation} userData={userData} />
-          <View
-            style={{
-              maxWidth: 900,
-              flex: 1,
-              alignSelf: "center",
-              minWidth: maxWidth,
+          {newPostCreated.state ? (
+            <View style={styles.newPostPill}>
+              <Text style={{ color: themeStyle.colors.white }}>
+                Post {newPostCreated.state.type}
+              </Text>
+            </View>
+          ) : null}
+          <RecyclerListView
+            {...mobileSpecificListProps}
+            initialOffset={Platform.OS === "web" ? 1 : 0} // prevents broken layout on web where everything is squished on initial load
+            ref={listRef}
+            applyWindowCorrection={_applyWindowCorrection}
+            style={{ minHeight: 1, minWidth: 1 }}
+            dataProvider={dataProvider}
+            layoutProvider={layoutProvider}
+            onEndReached={() => getUserFeed()}
+            onEndReachedThreshold={0.5}
+            // initialRenderIndex={currentVisible + 1}
+            extendedState={{
+              currentVisible: canPlayFeedVideos ? currentVisible : null,
+              scrolling: canPlayFeedVideos ? scrolling : null,
             }}
-          >
-            {newPostCreated.state ? (
-              <View style={styles.newPostPill}>
-                <Text style={{ color: themeStyle.colors.white }}>
-                  Post {newPostCreated.state.type}
-                </Text>
-              </View>
-            ) : null}
-            <RecyclerListView
-              {...mobileSpecificListProps}
-              initialOffset={Platform.OS === "web" ? 1 : 0} // prevents broken layout on web where everything is squished on initial load
-              ref={listRef}
-              applyWindowCorrection={_applyWindowCorrection}
-              style={{ minHeight: 1, minWidth: 1 }}
-              dataProvider={dataProvider}
-              layoutProvider={layoutProvider}
-              onEndReached={() => getUserFeed()}
-              onEndReachedThreshold={0.5}
-              // initialRenderIndex={currentVisible + 1}
-              extendedState={{
-                currentVisible: canPlayFeedVideos ? currentVisible : null,
-                scrolling: canPlayFeedVideos ? scrolling : null,
-              }}
-              rowRenderer={rowRenderer}
-              forceNonDeterministicRendering
-              renderFooter={renderFooter}
-              onScroll={(event) => {
-                if (
-                  !scrolling &&
-                  Math.abs(
-                    event.nativeEvent.contentOffset.y - positionBeforeScroll
-                  ) > 300 &&
-                  currentVisible !== 0
-                  // if they scroll far enough, enable scroll to pause video
-                ) {
-                  setScrolling(true);
-                  setPositionBeforeScroll(event.nativeEvent.contentOffset.y);
+            rowRenderer={rowRenderer}
+            forceNonDeterministicRendering
+            renderFooter={renderFooter}
+            onScroll={(event) => {
+              if (
+                !scrolling &&
+                Math.abs(
+                  event.nativeEvent.contentOffset.y - positionBeforeScroll
+                ) > 300 &&
+                currentVisible !== 0
+                // if they scroll far enough, enable scroll to pause video
+              ) {
+                setScrolling(true);
+                setPositionBeforeScroll(event.nativeEvent.contentOffset.y);
+              }
+            }}
+            onVisibleIndicesChanged={async (items) => {
+              if (typeof items[0] === "number" && items[0] !== currentVisible) {
+                setCurrentVisible(items[0]);
+              }
+            }}
+            scrollViewProps={{
+              contentContainerStyle: {
+                maxWidth: 900,
+                alignSelf: "center",
+              },
+              removeClippedSubviews: true,
+              onMomentumScrollEnd: () => {
+                if (prevVisible !== currentVisible) {
+                  setScrolling(false);
                 }
-              }}
-              onVisibleIndicesChanged={async (items) => {
-                if (
-                  typeof items[0] === "number" &&
-                  items[0] !== currentVisible
-                ) {
-                  setCurrentVisible(items[0]);
-                }
-              }}
-              scrollViewProps={{
-                // decelerationRate: 0.9,
-                removeClippedSubviews: true,
-                onMomentumScrollEnd: () => {
-                  if (prevVisible !== currentVisible) {
-                    setScrolling(false);
-                  }
-                },
-                refreshControl: (
-                  <RefreshControl
-                    onRefresh={onRefresh}
-                    refreshing={refreshing}
-                  />
-                ),
-              }}
-            />
-          </View>
-
-          <PostOptionsModal
-            showOptions={!!showPostOptions}
-            setShowPostOptions={setShowPostOptions}
-            reportPost={reportPost}
-            deletePost={deletePost}
-            editPost={editPost}
-            belongsToUser={false}
-            error={error}
+              },
+              refreshControl: (
+                <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+              ),
+            }}
           />
         </View>
+
+        <PostOptionsModal
+          showOptions={!!showPostOptions}
+          setShowPostOptions={setShowPostOptions}
+          reportPost={reportPost}
+          deletePost={deletePost}
+          editPost={editPost}
+          belongsToUser={false}
+          error={error}
+        />
       </SafeAreaView>
     );
   }
@@ -491,8 +478,6 @@ const HomeScreen = () => {
         <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
       }
     >
-      {/* <Button title="test" onPress={() => navigation.navigate("AdScreen")} /> */}
-
       <SafeAreaView>
         <HomeScreenHeader userData={userData} navigation={navigation} />
         {newPostCreated.state ? (

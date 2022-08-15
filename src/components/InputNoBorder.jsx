@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: "700",
     color: themeStyle.colors.grayscale.lowest,
+    textAlign: "left",
   },
   visibleTextInputs: {
     fontSize: 15,

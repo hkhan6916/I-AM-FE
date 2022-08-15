@@ -3,7 +3,6 @@ import {
   View,
   StyleSheet,
   SafeAreaView,
-  FlatList,
   RefreshControl,
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -24,9 +23,19 @@ import {
   RecyclerListView,
 } from "recyclerlistview";
 import { ScrollView } from "react-native-gesture-handler";
+import usePersistedWebParams from "../../../helpers/hooks/usePersistedWebParams";
 
 const CommentsScreen = (props) => {
-  const { postId } = props.route.params;
+  const routeParamsObj = props.route.params;
+  const persistedParams = usePersistedWebParams(routeParamsObj);
+
+  // if route params has values then return it else null
+  const params =
+    routeParamsObj[Object.keys(routeParamsObj)[0]] !== "[object Object]"
+      ? routeParamsObj
+      : null;
+
+  const { postId } = params || persistedParams;
 
   const [comments, setComments] = useState([]);
   const [replyingTo, setReplyingTo] = useState(null);
@@ -341,7 +350,7 @@ const CommentsScreen = (props) => {
 
   if (intialLoading) {
     return (
-      <View>
+      <View style={{ maxWidth: 900, width: "100%", alignSelf: "center" }}>
         <ContentLoader active showAvatar avatarSize={50} />
         <ContentLoader active showAvatar avatarSize={50} />
         <ContentLoader active showAvatar avatarSize={50} />
@@ -371,6 +380,10 @@ const CommentsScreen = (props) => {
             forceNonDeterministicRendering
             renderFooter={renderFooter}
             scrollViewProps={{
+              contentContainerStyle: {
+                maxWidth: 900,
+                alignSelf: "center",
+              },
               onScrollEndDrag: () => {
                 Keyboard.dismiss();
               },
@@ -396,12 +409,21 @@ const CommentsScreen = (props) => {
               reportComment={reportComment}
             />
           ) : null}
-          <CommentTextInput // TODO: this is not aligned right on some devices like moms phone same with replies screen. Should copy how its done for chatscreen
-            ref={textInputRef}
-            submitAction={postComment}
-            replyingTo={replyingTo}
-            setReplyingTo={setReplyingTo}
-          />
+          <View
+            style={{
+              maxWidth: 900,
+              marginTop: 20,
+              width: "100%",
+              alignSelf: "center",
+            }}
+          >
+            <CommentTextInput // TODO: this is not aligned right on some devices like moms phone same with replies screen. Should copy how its done for chatscreen
+              ref={textInputRef}
+              submitAction={postComment}
+              replyingTo={replyingTo}
+              setReplyingTo={setReplyingTo}
+            />
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

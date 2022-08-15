@@ -42,6 +42,7 @@ import {
   LayoutProvider,
   RecyclerListView,
 } from "recyclerlistview";
+import usePersistedWebParams from "../../../helpers/hooks/usePersistedWebParams";
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -55,7 +56,10 @@ const ChatScreen = (props) => {
   const [showError, setShowError] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [recording, setRecording] = useState(false);
-  const [chat, setChat] = useState(props.route.params.existingChat);
+  const [chat, setChat] = useState(null);
+  const [existingChat, setExistingChat] = useState(null);
+  const [chatUserId, setChatUserId] = useState(null);
+  const [chatUserFirstName, setChatUserFirstName] = useState(null);
   const [allMessagesLoaded, setAllMessagesLoaded] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [recipient, setRecipient] = useState(null);
@@ -66,7 +70,15 @@ const ChatScreen = (props) => {
   const [loading, setLoading] = useState(false);
   const [port, setPort] = useState("5000");
 
-  const { chatUserId, chatUserFirstName, existingChat } = props.route.params;
+  const routeParamsObj = props.route.params;
+  const persistedParams = usePersistedWebParams(routeParamsObj);
+
+  // if route params has values then return it else null
+  const params =
+    routeParamsObj[Object.keys(routeParamsObj)[0]] !== "[object Object]"
+      ? routeParamsObj
+      : null;
+
   const navigation = useNavigation();
 
   const { width: screenWidth } = Dimensions.get("window");
@@ -583,7 +595,7 @@ const ChatScreen = (props) => {
 
       return () => {};
     },
-    [chat] //[chat, port]
+    [chat, params, persistedParams] //[chat, port]
   );
 
   useEffect(() => {
@@ -750,6 +762,19 @@ const ChatScreen = (props) => {
       }
     };
   }, [socket, authInfo, chat]);
+  useEffect(() => {
+    if (!existingChat) {
+      const { existingChat: existing } = params || persistedParams;
+      setExistingChat(existing);
+      setChat(existing);
+    }
+    if (!chatUserFirstName || !chatUserId) {
+      const { chatUserId: userId, chatUserFirstName: firstName } =
+        params || persistedParams;
+      setChatUserId(userId);
+      setChatUserFirstName(firstName);
+    }
+  }, [persistedParams]);
 
   if (loading) {
     return (
@@ -806,29 +831,33 @@ const ChatScreen = (props) => {
             style={{ minHeight: 1, minWidth: 1, transform: [{ scaleY: 1 }] }}
           >
             {messages.map((item, i) => (
-              <MessageContainer
+              <View
                 key={i}
-                cancelUpload={cancelUpload}
-                mediaSize={mediaSize}
-                firstMessageDate={
-                  allMessagesLoaded && i === messages.length - 1
-                    ? messages[i].stringDate
-                    : null
-                } // TODO: test this on mobile and web for performance
-                messageDate={
-                  i !== messages.length - 1 &&
-                  messages[i + 1] &&
-                  item.stringDate !== messages[i + 1].stringDate
-                    ? messages[i].stringDate
-                    : null
-                }
-                message={item}
-                belongsToSender={
-                  authInfo?.senderId === item.senderId.toString() ||
-                  item.user === "sender"
-                }
-                isWeb={Platform.OS === "web"}
-              />
+                style={{ width: "100%", maxWidth: 900, alignSelf: "center" }}
+              >
+                <MessageContainer
+                  cancelUpload={cancelUpload}
+                  mediaSize={mediaSize}
+                  firstMessageDate={
+                    allMessagesLoaded && i === messages.length - 1
+                      ? messages[i].stringDate
+                      : null
+                  } // TODO: test this on mobile and web for performance
+                  messageDate={
+                    i !== messages.length - 1 &&
+                    messages[i + 1] &&
+                    item.stringDate !== messages[i + 1].stringDate
+                      ? messages[i].stringDate
+                      : null
+                  }
+                  message={item}
+                  belongsToSender={
+                    authInfo?.senderId === item.senderId.toString() ||
+                    item.user === "sender"
+                  }
+                  isWeb={Platform.OS === "web"}
+                />
+              </View>
             ))}
           </ScrollView>
         ) : (
@@ -873,6 +902,7 @@ const ChatScreen = (props) => {
             // maxHeight: 100,
             alignItems: "flex-end",
             paddingVertical: 10,
+            justifyContent: "center",
           }}
         >
           {Platform.OS !== "web" ? (
@@ -965,6 +995,8 @@ const ChatScreen = (props) => {
               borderRadius: 5,
               flex: 1,
               opacity: userHasBlocked || userIsBlocked ? 0.3 : 1,
+              maxWidth: 900,
+              alignSelf: "center",
             }}
           >
             <ScrollView scrollEnabled={height > 48}>

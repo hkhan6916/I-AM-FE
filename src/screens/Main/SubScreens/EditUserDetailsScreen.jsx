@@ -455,12 +455,12 @@ const EditUserDetailsScreen = () => {
           : await getItemAsync("userId");
 
       setUserId(_userId);
-
-      const cameraStatus = await Camera.requestCameraPermissionsAsync();
-      setHasCameraPermission(cameraStatus.status === "granted");
-      const audioStatus = await Camera.requestMicrophonePermissionsAsync();
-      setHasAudioPermission(audioStatus.status === "granted");
-
+      if (Platform.OS !== "web") {
+        const cameraStatus = await Camera.requestCameraPermissionsAsync();
+        setHasCameraPermission(cameraStatus.status === "granted");
+        const audioStatus = await Camera.requestMicrophonePermissionsAsync();
+        setHasAudioPermission(audioStatus.status === "granted");
+      }
       const { response, success } = await apiCall("GET", "/user/data");
       setLoading(false);
       if (success) {
@@ -484,7 +484,7 @@ const EditUserDetailsScreen = () => {
     }
   }, [cameraActivated]);
 
-  if (cameraActivated) {
+  if (cameraActivated && Platform.OS !== "web") {
     return (
       <ProfileVideoCamera
         setRecording={setRecording}
@@ -544,122 +544,152 @@ const EditUserDetailsScreen = () => {
                   marginHorizontal: 10,
                 }}
               >
-                Record a video to complete your profile.
+                {Platform.OS !== "web"
+                  ? "Record a profile video to complete your profile."
+                  : "Record a profile video to complete your profile through the Magnet App."}
               </Text>
             ) : null}
             <View style={styles.formContainer}>
-              {(profileVideo && faceDetected) ||
-              (!profileVideo && initialProfileData.profileVideoUrl) ? (
-                <View>
-                  <PreviewVideo
-                    onLoad={(info) => handleFaceDetection(info?.durationMillis)}
-                    flipProfileVideo={
-                      profileVideo && !loadingVideo
-                        ? !!(Platform.OS === "android" && !pickedFromCameraRoll)
-                        : !!initialProfileData.flipProfileVideo
-                    }
-                    isFullWidth
-                    uri={profileVideo || initialProfileData?.profileVideoUrl}
-                    headers={initialProfileData?.profileVideoHeaders}
-                  />
-                  {!detectingFaces &&
-                  !loadingVideo &&
-                  !faceDetected &&
-                  profileVideo ? (
-                    <Text style={styles.faceDetectionError}>
-                      {tooShort
-                        ? "Profile video must be at least 3 seconds long."
-                        : tooLong
-                        ? "Profile video must be no longer than 30 seconds."
-                        : !faceDetected
-                        ? "Face was not fully detected. Please make sure your face is shown at the start and end of your profile video when introducing yourself."
-                        : ""}
-                    </Text>
+              {Platform.OS !== "web" ? (
+                <>
+                  {(profileVideo && faceDetected) ||
+                  (!profileVideo && initialProfileData.profileVideoUrl) ? (
+                    <View>
+                      <PreviewVideo
+                        onLoad={(info) =>
+                          handleFaceDetection(info?.durationMillis)
+                        }
+                        flipProfileVideo={
+                          profileVideo && !loadingVideo
+                            ? !!(
+                                Platform.OS === "android" &&
+                                !pickedFromCameraRoll
+                              )
+                            : !!initialProfileData.flipProfileVideo
+                        }
+                        isFullWidth
+                        uri={
+                          profileVideo || initialProfileData?.profileVideoUrl
+                        }
+                        headers={initialProfileData?.profileVideoHeaders}
+                      />
+                      {!detectingFaces &&
+                      !loadingVideo &&
+                      !faceDetected &&
+                      profileVideo ? (
+                        <Text style={styles.faceDetectionError}>
+                          {tooShort
+                            ? "Profile video must be at least 3 seconds long."
+                            : tooLong
+                            ? "Profile video must be no longer than 30 seconds."
+                            : !faceDetected
+                            ? "Face was not fully detected. Please make sure your face is shown at the start and end of your profile video when introducing yourself."
+                            : ""}
+                        </Text>
+                      ) : null}
+                      {profileVideo ? (
+                        <TouchableOpacity
+                          style={{ marginVertical: 10 }}
+                          onPress={() => {
+                            setProfileVideo("");
+                            setFaceDetected(true);
+                            setDetectingFaces(false);
+                            setLoadingVideo(false);
+                            setTooShort(false);
+                            setTooLong(false);
+                          }}
+                        >
+                          <Text style={styles.resetProfileVideoText}>
+                            Reset Profile Video
+                          </Text>
+                        </TouchableOpacity>
+                      ) : null}
+                    </View>
+                  ) : profileVideo ? (
+                    <View>
+                      <PreviewVideo
+                        onLoad={(info) =>
+                          handleFaceDetection(info?.durationMillis)
+                        }
+                        isFullWidth
+                        flipProfileVideo={
+                          Platform.OS === "android" &&
+                          profileVideo &&
+                          !pickedFromCameraRoll
+                        }
+                        uri={profileVideo}
+                      />
+                      <View style={styles.faceDetectionError}>
+                        {!detectingFaces && !loadingVideo ? (
+                          <Text style={styles.faceDetectionError}>
+                            {tooShort
+                              ? "Profile video must be at least 3 seconds long."
+                              : tooLong
+                              ? "Profile video must be no longer than 30 seconds."
+                              : !faceDetected
+                              ? "Face was not fully detected. Please make sure your face is shown at the start and end of your profile video when introducing yourself."
+                              : ""}
+                          </Text>
+                        ) : null}
+                        <TouchableOpacity
+                          style={{ marginVertical: 10 }}
+                          onPress={() => setProfileVideo("")}
+                        >
+                          <Text style={styles.resetProfileVideoText}>
+                            Reset Profile Video
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
                   ) : null}
-                  {profileVideo ? (
-                    <TouchableOpacity
-                      style={{ marginVertical: 10 }}
-                      onPress={() => {
-                        setProfileVideo("");
-                        setFaceDetected(true);
-                        setDetectingFaces(false);
-                        setLoadingVideo(false);
-                        setTooShort(false);
-                        setTooLong(false);
-                      }}
-                    >
-                      <Text style={styles.resetProfileVideoText}>
-                        Reset Profile Video
-                      </Text>
-                    </TouchableOpacity>
-                  ) : null}
-                </View>
-              ) : profileVideo ? (
-                <View>
-                  <PreviewVideo
-                    onLoad={(info) => handleFaceDetection(info?.durationMillis)}
-                    isFullWidth
-                    flipProfileVideo={
-                      Platform.OS === "android" &&
-                      profileVideo &&
-                      !pickedFromCameraRoll
-                    }
-                    uri={profileVideo}
-                  />
-                  <View style={styles.faceDetectionError}>
-                    {!detectingFaces && !loadingVideo ? (
-                      <Text style={styles.faceDetectionError}>
-                        {tooShort
-                          ? "Profile video must be at least 3 seconds long."
-                          : tooLong
-                          ? "Profile video must be no longer than 30 seconds."
-                          : !faceDetected
-                          ? "Face was not fully detected. Please make sure your face is shown at the start and end of your profile video when introducing yourself."
-                          : ""}
-                      </Text>
-                    ) : null}
-                    <TouchableOpacity
-                      style={{ marginVertical: 10 }}
-                      onPress={() => setProfileVideo("")}
-                    >
-                      <Text style={styles.resetProfileVideoText}>
-                        Reset Profile Video
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
+                </>
               ) : null}
-              <View>
-                <TouchableOpacity
-                  style={styles.takeVideoButton}
-                  onPress={() => {
-                    setFaceDetected(false);
-                    setCameraActivated(true);
-                    setRecordingLength(recordingLength);
-                  }}
-                >
-                  <Text style={styles.takeVideoButtonText}>
-                    <Ionicons name="videocam" size={14} /> Take new profile
-                    video
+              {Platform.OS !== "web" ? (
+                <View>
+                  <TouchableOpacity
+                    style={styles.takeVideoButton}
+                    onPress={() => {
+                      setFaceDetected(false);
+                      setCameraActivated(true);
+                      setRecordingLength(recordingLength);
+                    }}
+                  >
+                    <Text style={styles.takeVideoButtonText}>
+                      <Ionicons name="videocam" size={14} /> Take new profile
+                      video
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.takeVideoButton}
+                    onPress={() => {
+                      setRecordingLength(recordingLength);
+                      pickProfileVideo();
+                    }}
+                  >
+                    <Text style={styles.takeVideoButtonText}>
+                      <FontAwesome5
+                        name="images"
+                        size={14}
+                        color={themeStyle.colors.grayscale.lowest}
+                      />{" "}
+                      Upload new profile video
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={{ marginVertical: 20 }}>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      textAlign: "center",
+                      color: themeStyle.colors.primary.default,
+                      fontWeight: "700",
+                    }}
+                  >
+                    Download the Magnet App to upload or take a profile video.
                   </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.takeVideoButton}
-                  onPress={() => {
-                    setRecordingLength(recordingLength);
-                    pickProfileVideo();
-                  }}
-                >
-                  <Text style={styles.takeVideoButtonText}>
-                    <FontAwesome5
-                      name="images"
-                      size={14}
-                      color={themeStyle.colors.grayscale.lowest}
-                    />{" "}
-                    Upload new profile video
-                  </Text>
-                </TouchableOpacity>
-              </View>
+                </View>
+              )}
               <InputNoBorder
                 error={validationErrors?.firstName}
                 label="First Name"

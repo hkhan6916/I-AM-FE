@@ -7,12 +7,14 @@ import webPersistUserData from "../../../helpers/webPersistUserData";
 import themeStyle from "../../../theme.style";
 
 const AccountVisibilityScreen = () => {
-  const nativeUserData = useSelector((state) => state.userData);
+  // only used to prevent unnecessary re-renders in useefect as global userdata will change on toggle
+  const [userData, setUserData] = useState(null);
+  const nativeGlobalUserData = useSelector((state) => state.userData);
 
-  const userData =
+  const globalUserData =
     Platform.OS === "web"
       ? { state: getWebPersistedUserData() }
-      : nativeUserData;
+      : nativeGlobalUserData;
 
   const dispatch = useDispatch();
   const [enabled, setEnabled] = useState(false);
@@ -28,12 +30,16 @@ const AccountVisibilityScreen = () => {
       dispatch({
         type: "SET_USER_DATA",
         payload: {
-          ...userData.state,
+          ...globalUserData.state,
           ...response.userData,
         },
       });
       webPersistUserData({
-        ...userData.state,
+        ...globalUserData.state,
+        ...response.userData,
+      });
+      setUserData({
+        ...globalUserData.state,
         ...response.userData,
       });
     } else {
@@ -41,11 +47,14 @@ const AccountVisibilityScreen = () => {
       setError("Unable to toggle private mode. Please try again later");
     }
   };
+
   useEffect(() => {
-    if (userData?.state) {
-      setEnabled(!!userData.state?.private);
+    if (!userData && globalUserData?.state) {
+      setUserData(globalUserData?.state);
+      setEnabled(globalUserData?.state?.private);
     }
-  }, [userData]);
+  }, [globalUserData?.state]);
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       {error ? (

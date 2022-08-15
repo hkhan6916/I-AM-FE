@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   SafeAreaView,
+  Dimensions,
 } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
 import {
@@ -22,13 +23,24 @@ import ExpoVideoPlayer from "../../../components/ExpoVideoPlayer";
 import { StatusBar } from "expo-status-bar";
 
 import useScreenOrientation from "../../../helpers/hooks/useScreenOrientation";
+import usePersistedWebParams from "../../../helpers/hooks/usePersistedWebParams";
 const MediaScreen = (props) => {
-  const { post: initialPost } = props.route.params;
-  const [liked, setLiked] = useState(initialPost.liked);
-  const [likes, setLikes] = useState(initialPost.likes);
-  const [post, setPost] = useState(initialPost);
+  const routeParamsObj = props.route.params;
+  const persistedParams = usePersistedWebParams(routeParamsObj);
+
+  // if route params has values then return it else null
+  const params =
+    routeParamsObj[Object.keys(routeParamsObj)[0]] !== "[object Object]"
+      ? routeParamsObj
+      : null;
+
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(0);
+  const [post, setPost] = useState(null);
 
   const navigation = useNavigation();
+
+  const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
   const getAdditionalPostData = async () => {
     const { success, response } = await apiCall(
@@ -102,6 +114,16 @@ const MediaScreen = (props) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!post) {
+      const { post: initialPost } = params || persistedParams;
+      setLiked(initialPost?.liked);
+      setLikes(initialPost?.likes);
+      setPost(initialPost);
+    }
+  }, [params, persistedParams]);
+
+  if (!post) return null;
   return (
     <Fragment>
       <SafeAreaView
@@ -148,7 +170,11 @@ const MediaScreen = (props) => {
                 mediaHeaders={post.mediaHeaders}
                 mediaUrl={post.mediaUrl}
                 removeBorderRadius
-                style={{ backgroundColor: themeStyle.colors.black }}
+                style={{
+                  backgroundColor: themeStyle.colors.black,
+                  maxHeight: screenHeight,
+                  maxWidth: screenWidth,
+                }}
               />
             </View>
           ) : null}

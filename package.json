@@ -16,6 +16,7 @@
     "@react-navigation/bottom-tabs": "^6.0.7",
     "@react-navigation/native": "^6.0.0",
     "@react-navigation/native-stack": "^6.0.0",
+    "@react-navigation/web": "^1.0.0-alpha.9",
     "axios": "^0.24.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "dotenv": "^16.0.1",
@@ -70,6 +71,7 @@
     "react-native-video-controls": "^2.8.1",
     "react-native-vision-camera": "^2.13.3",
     "react-native-web": "0.17.7",
+    "react-navigation": "^4.4.4",
     "react-redux": "^7.2.5",
     "recyclerlistview": "3.0.5",
     "redux": "^4.1.1",
@@ -77,6 +79,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
+    "@expo/webpack-config": "^0.17.0",
     "eslint": "^8.5.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^8.3.0",
