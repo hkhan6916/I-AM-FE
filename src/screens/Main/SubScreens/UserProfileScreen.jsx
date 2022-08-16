@@ -288,20 +288,32 @@ const UserProfileScreen = (props) => {
   const rowRenderer = useCallback(
     (type, item, index, extendedState) => {
       //We have only one view type so not checks are needed here
-      if (type === ViewTypes.HEADER && isFocused) {
+      if (type === ViewTypes.HEADER) {
+        if (isFocused) {
+          return (
+            <ProfileInfo
+              user={user}
+              setUser={setUser}
+              setUserPosts={setUserPosts}
+              recallFriendRequest={recallFriendRequest}
+              acceptFriendRequest={acceptFriendRequest}
+              rejectFriendRequest={rejectFriendRequest}
+              sendFriendRequest={sendFriendRequest}
+              removeConnection={removeConnection}
+              canAdd={userData.state?.profileVideoUrl}
+              isVisible={extendedState.profileVideoVisible} // If scrolled to top
+            />
+          );
+        }
         return (
-          <ProfileInfo
-            user={user}
-            setUser={setUser}
-            setUserPosts={setUserPosts}
-            recallFriendRequest={recallFriendRequest}
-            acceptFriendRequest={acceptFriendRequest}
-            rejectFriendRequest={rejectFriendRequest}
-            sendFriendRequest={sendFriendRequest}
-            removeConnection={removeConnection}
-            canAdd={userData.state?.profileVideoUrl}
-            isVisible={extendedState.profileVideoVisible} // If scrolled to top
-          />
+          <View
+            style={{
+              height: screenWidth + 150,
+              width: screenWidth + 150,
+              maxWidth: 900,
+              maxHeight: 900,
+            }}
+          ></View>
         );
       }
       if (!item.deleted) {
@@ -406,6 +418,10 @@ const UserProfileScreen = (props) => {
             }
           }}
           scrollViewProps={{
+            contentContainerStyle: {
+              maxWidth: 900,
+              alignSelf: "center",
+            },
             removeClippedSubviews: true,
             refreshControl: (
               <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />

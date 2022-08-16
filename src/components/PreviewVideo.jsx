@@ -106,11 +106,14 @@ const PreviewVideo = ({
       <LinearGradient
         start={[0, 0.5]}
         end={[1, 0.5]}
-        style={{
-          padding: 2,
-          width: isFullWidth ? screenWidth : screenWidth / 1.5,
-          height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
-        }}
+        style={[
+          {
+            padding: 2,
+            width: isFullWidth ? screenWidth : screenWidth / 1.5,
+            height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
+          },
+          Platform.OS === "web" && { maxWidth: 900, maxHeight: 600 },
+        ]}
         colors={[
           ready
             ? themeStyle.colors.primary.default
@@ -124,9 +127,15 @@ const PreviewVideo = ({
         ]}
       >
         <TouchableOpacity
-          style={{
-            alignSelf: "center",
-          }}
+          style={[
+            { alignSelf: "center" },
+            Platform.OS === "web" && {
+              width: isFullWidth ? screenWidth : screenWidth / 1.5,
+              height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
+              maxWidth: 900,
+              maxHeight: 600,
+            },
+          ]}
           onPress={() => {
             if (profileVideoRef) {
               videoStatus.isPlaying
@@ -146,6 +155,13 @@ const PreviewVideo = ({
                 borderRadius: isFullWidth ? 0 : 10,
                 aspectRatio: 1,
                 transform: [{ scaleX: flipProfileVideo ? -1 : 1 }],
+              },
+              Platform.OS === "web" && {
+                width: screenWidth,
+                height: screenWidth,
+                maxWidth: 900,
+                maxHeight: 600,
+                alignItems: "center",
               },
             ]}
             onReadyForDisplay={() => setReady(true)}
