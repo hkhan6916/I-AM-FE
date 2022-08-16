@@ -158,6 +158,9 @@ const ContactRequestsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    maxWidth: 900,
+    alignSelf: "center",
+    width: "100%",
   },
   activeTab: {
     borderBottomWidth: 3,
@@ -165,6 +168,9 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: "row",
+    borderBottomColor: themeStyle.colors.grayscale.high,
+    borderBottomWidth: 1,
+    paddingBottom: 5,
   },
   requestsTab: {
     marginHorizontal: 10,

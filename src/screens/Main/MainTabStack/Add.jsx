@@ -54,7 +54,7 @@ const AddScreen = () => {
 
   const navigation = useNavigation();
 
-  const { width: screenWidth } = Dimensions.get("window");
+  const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
   const dispatch = useDispatch();
   const createPostData = async () => {
@@ -465,7 +465,7 @@ const AddScreen = () => {
           <ScrollView contentContainerStyle={{ padding: 10 }}>
             <TextInput
               style={{
-                minHeight: 100,
+                minHeight: Platform.OS === "web" ? screenHeight / 2 : 100,
                 textAlignVertical: "top",
                 fontSize: 16,
                 color: themeStyle.colors.grayscale.lowest,

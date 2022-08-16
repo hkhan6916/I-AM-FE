@@ -1,12 +1,6 @@
 import React from "react";
 import themeStyle from "../theme.style";
-import {
-  TouchableOpacity,
-  View,
-  Text,
-  ScrollView,
-  Platform,
-} from "react-native";
+import { TouchableOpacity, View, Text, ScrollView } from "react-native";
 import PreviewVideo from "./PreviewVideo";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";

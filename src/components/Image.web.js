@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const Image = ({ source = {}, webProps, style, ...rest }) => {
+const Image = ({ source = {}, webProps = {}, style = {}, ...rest }) => {
   const [srcBlob, setSrcBlob] = useState(false);
 
   const options = {

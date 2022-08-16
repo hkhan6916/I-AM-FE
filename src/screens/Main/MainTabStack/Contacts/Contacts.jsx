@@ -243,6 +243,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: themeStyle.colors.grayscale.highest,
+    maxWidth: 900,
+    alignSelf: "center",
+    width: "100%",
   },
 });
 
