@@ -14,9 +14,6 @@ import { useNavigation } from "@react-navigation/native";
 const ProfileScreenHeader = React.forwardRef(
   ({ children, userData, isVisible, ...props }, ref) => {
     const navigation = useNavigation();
-    if (Platform.OS === "web") {
-      return null;
-    }
     return (
       <ScrollView ref={ref} {...props}>
         <View>
