@@ -13,6 +13,8 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  FlatList,
+  SectionList,
 } from "react-native";
 import { getItemAsync } from "expo-secure-store";
 import { io } from "socket.io-client";
@@ -85,10 +87,8 @@ const ChatScreen = (props) => {
 
   const mediaSize = screenWidth / 1.5;
 
-  const orderMessagesByPlatform = (newMessage) => {
-    return Platform.OS === "web"
-      ? [...messages, newMessage]
-      : [newMessage, ...messages];
+  const createUpdatedMessagesArray = (newMessage) => {
+    return [newMessage, ...messages];
   };
 
   const createChat = async () => {
@@ -114,26 +114,17 @@ const ChatScreen = (props) => {
   };
 
   const getChatMessages = async () => {
-    if (chat && existingChat) {
+    if (chat && existingChat && !allMessagesLoaded) {
       setShowError(false);
       const { response, success } = await apiCall(
         "GET",
         `/chat/${chat._id}/messages/${messages.length}`
       );
       if (success) {
-        if (messages.length && response?.length === 0) {
+        if (messages.length && !response?.length) {
           setAllMessagesLoaded(true);
         } else {
-          if (Platform.OS === "web") {
-            setMessages([
-              ...messages,
-              ...response.sort(
-                (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-              ),
-            ]);
-          } else {
-            setMessages([...messages, ...response]);
-          }
+          setMessages([...messages, ...response]);
         }
       } else {
         setShowError(true);
@@ -271,7 +262,7 @@ const ChatScreen = (props) => {
           ).then(() => {
             const mediaType = media.type?.split("/")[0];
             if (socket) {
-              const newMessages = orderMessagesByPlatform({
+              const newMessages = createUpdatedMessagesArray({
                 body: messageBody,
                 chatId,
                 senderId: authInfo?.senderId,
@@ -344,7 +335,7 @@ const ChatScreen = (props) => {
       setSendingMessage(false);
 
       if (success) {
-        const newMessages = orderMessagesByPlatform({
+        const newMessages = createUpdatedMessagesArray({
           body: messageBody,
           chatId,
           senderId: authInfo?.senderId,
@@ -389,7 +380,7 @@ const ChatScreen = (props) => {
                 setShowError(true);
               }
               if (socket) {
-                const newMessages = orderMessagesByPlatform({
+                const newMessages = createUpdatedMessagesArray({
                   body: messageBody,
                   chatId,
                   senderId: authInfo?.senderId,
@@ -426,7 +417,7 @@ const ChatScreen = (props) => {
       online: !!recipient?.online,
       recipientId: recipient?.userId,
     });
-    const newMessages = orderMessagesByPlatform({
+    const newMessages = createUpdatedMessagesArray({
       body: messageBody,
       chatId,
       senderId: authInfo?.senderId,
@@ -700,43 +691,24 @@ const ChatScreen = (props) => {
             setMessages((prevMessages) => {
               if (senderId !== authInfo.senderId) {
                 if (!prevMessages.find((message) => message._id === _id)) {
-                  return Platform.OS !== "web"
-                    ? [
-                        {
-                          body,
-                          chatId,
-                          senderId,
-                          user,
-                          mediaHeaders,
-                          mediaUrl,
-                          mediaType,
-                          thumbnailUrl,
-                          thumbnailHeaders,
-                          stringDate,
-                          stringTime,
-                          _id,
-                          ready: true,
-                        },
-                        ...prevMessages,
-                      ]
-                    : [
-                        ...prevMessages,
-                        {
-                          body,
-                          chatId,
-                          senderId,
-                          user,
-                          mediaHeaders,
-                          mediaUrl,
-                          mediaType,
-                          thumbnailUrl,
-                          thumbnailHeaders,
-                          stringDate,
-                          stringTime,
-                          _id,
-                          ready: true,
-                        },
-                      ];
+                  return [
+                    {
+                      body,
+                      chatId,
+                      senderId,
+                      user,
+                      mediaHeaders,
+                      mediaUrl,
+                      mediaType,
+                      thumbnailUrl,
+                      thumbnailHeaders,
+                      stringDate,
+                      stringTime,
+                      _id,
+                      ready: true,
+                    },
+                    ...prevMessages,
+                  ];
                 } else {
                   return prevMessages;
                 }
@@ -828,14 +800,23 @@ const ChatScreen = (props) => {
             forceNonDeterministicRendering
           />
         ) : messages.length && Platform.OS === "web" ? (
-          <ScrollView
-            style={{ minHeight: 1, minWidth: 1, transform: [{ scaleY: 1 }] }}
-          >
-            {messages.map((item, i) => (
+          <FlatList
+            data={messages}
+            onEndReached={() => getChatMessages()}
+            onEndReachedThreshold={0.5}
+            inverted
+            disableVirtualization={true}
+            keyExtractor={(item, i) => item._id + i}
+            style={{ flex: 1 }}
+            renderItem={({ item, i }) => (
               <View
-                key={i}
-                style={{ width: "100%", maxWidth: 900, alignSelf: "center" }}
+                style={{
+                  width: "100%",
+                  maxWidth: 900,
+                  alignSelf: "center",
+                }}
               >
+                <Text>{item.stringDate}</Text>
                 <MessageContainer
                   cancelUpload={cancelUpload}
                   mediaSize={mediaSize}
@@ -843,7 +824,7 @@ const ChatScreen = (props) => {
                     allMessagesLoaded && i === messages.length - 1
                       ? messages[i].stringDate
                       : null
-                  } // TODO: test this on mobile and web for performance
+                  }
                   messageDate={
                     i !== messages.length - 1 &&
                     messages[i + 1] &&
@@ -859,8 +840,8 @@ const ChatScreen = (props) => {
                   isWeb={Platform.OS === "web"}
                 />
               </View>
-            ))}
-          </ScrollView>
+            )}
+          />
         ) : (
           <View style={{ flex: 1 }} />
         )}
