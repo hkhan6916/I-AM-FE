@@ -20,6 +20,9 @@ import Logo from "../../Logo";
 import { getExpoPushTokenAsync } from "expo-notifications";
 import Constants from "expo-constants";
 import webPersistUserData from "../../helpers/webPersistUserData";
+import { openURL } from "expo-linking";
+import IosBadge from "../../components/AppStoreBadges/AppStoreBadge";
+import PlayStoreBadge from "../../components/AppStoreBadges/PlaystoreBadge";
 
 const LoginScreen = () => {
   const [identifier, setIdentifier] = useState("");
@@ -169,20 +172,68 @@ const LoginScreen = () => {
           <Text style={styles.loginError}>{loginError}</Text>
         ) : null}
       </View>
-      <View style={styles.signupSection}>
-        <Text style={styles.signupText}>
-          Haven&apos;t signed up yet?{" "}
-          <Text
-            onPress={() => goToSignUpScreen()}
+      {Platform.OS !== "web" ? (
+        <View style={styles.signupSection}>
+          <Text style={styles.signupText}>
+            Haven&apos;t signed up yet?{" "}
+            <Text
+              onPress={() => goToSignUpScreen()}
+              style={{
+                fontWeight: "700",
+                color: themeStyle.colors.secondary.default,
+              }}
+            >
+              Sign Up
+            </Text>
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.signupSection}>
+          <Text style={styles.signupText}>
+            Haven&apos;t signed up yet?{" "}
+            <Text
+              style={{
+                fontWeight: "700",
+              }}
+            >
+              Download the Magnet App below.
+            </Text>
+          </Text>
+          <View
             style={{
-              fontWeight: "700",
-              color: themeStyle.colors.secondary.default,
+              width: "100%",
+              flexDirection: "row",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-evenly",
+              marginTop: 50,
             }}
           >
-            Sign Up
-          </Text>
-        </Text>
-      </View>
+            <TouchableOpacity
+              onPress={() =>
+                openURL(
+                  `https://apps.apple.com/gb/app/magnet-connect-socialise/${Constants.manifest.extra.appStoreId}`
+                )
+              }
+            >
+              <View>
+                <IosBadge />
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() =>
+                openURL(
+                  `https://play.google.com/store/apps/details?id=${Constants.manifest.extra.packageName}`
+                )
+              }
+            >
+              <View>
+                <PlayStoreBadge />
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </ScrollView>
   );
 };
@@ -197,6 +248,9 @@ const styles = StyleSheet.create({
     backgroundColor: themeStyle.colors.grayscale.highest,
     alignItems: "center",
     justifyContent: "center",
+    maxWidth: 900,
+    alignSelf: "center",
+    width: "100%",
   },
   logoContainer: {
     marginBottom: 20,
@@ -260,6 +314,8 @@ const styles = StyleSheet.create({
   signupSection: {
     position: "relative",
     bottom: 10,
+    maxWidth: 900,
+    alignSelf: "center",
   },
 });
 

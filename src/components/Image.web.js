@@ -14,6 +14,8 @@ const Image = ({ source = {}, webProps = {}, style = {}, ...rest }) => {
         setSrcBlob(URL.createObjectURL(blob));
       })
       .catch((err) => console.log({ err }));
+
+    return () => setSrcBlob(false);
   }, []);
 
   return (

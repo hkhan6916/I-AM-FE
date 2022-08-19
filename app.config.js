@@ -43,7 +43,7 @@ export default {
       useNextNotificationsApi: true,
       googleServicesFile: "./google-services.json",
       package: "com.magnetapp.magnet",
-      versionCode: 9,
+      versionCode: 10,
       blockedPermissions: [
         "android.permission.USE_FINGERPRINT",
         "android.permission.USE_BIOMETRIC",
@@ -79,6 +79,8 @@ export default {
       apiUrl: process.env.API_URL,
       apiWebSocketUrl: process.env.API_WEBSOCKET_URL,
       experienceId: process.env.EXPERIENCE_ID,
+      packageName: process.env.PACKAGE_NAME,
+      appStoreId: process.env.APP_STORE_ID,
     },
   },
 };

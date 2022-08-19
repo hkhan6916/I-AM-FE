@@ -1,9 +1,17 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  Platform,
+} from "react-native";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import ImageWithCache from "./ImageWithCache";
 import themeStyle from "../theme.style";
 import ExpoVideoPlayer from "./ExpoVideoPlayer";
+import slashedDate from "../helpers/slashedDate";
 
 const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
   const {
@@ -66,37 +74,139 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
       <View
         style={[
           styles.subContainer,
-          { alignItems: belongsToSender ? "flex-end" : "flex-start" },
+          {
+            alignItems: belongsToSender ? "flex-end" : "flex-start",
+          },
         ]}
       >
-        <View
-          style={[
-            styles.message,
-            belongsToSender
-              ? {
-                  marginLeft: 50,
-                  backgroundColor: themeStyle.colors.primary.default,
-                }
-              : {
-                  marginRight: 50,
-                  backgroundColor: themeStyle.colors.secondary.default,
-                },
-          ]}
-        >
-          {failed && !ready ? (
+        <View>
+          {Platform.OS === "web" ? (
             <View
-              style={{ flexDirection: "row", justifyContent: "space-between" }}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                alignSelf: belongsToSender ? "flex-end" : "flex-start",
+                // marginLeft: !belongsToSender ? 10 : 0,
+                // marginRight: belongsToSender ? 10 : 0,
+                marginVertical: 10,
+              }}
             >
-              <TouchableOpacity onPress={() => cancelUpload(message?._id)}>
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontWeight: "700",
+                  textAlign: "right",
+                  color: themeStyle.colors.grayscale.lowest,
+                  alignSelf: belongsToSender ? "flex-end" : "flex-start",
+                }}
+              >
+                {belongsToSender
+                  ? "Me"
+                  : `${message.user?.firstName || ""}, ${
+                      message.user?.jobTitle || ""
+                    }`}
+              </Text>
+              <View
+                style={{
+                  height: 5,
+                  width: 5,
+                  borderRadius: 5,
+                  backgroundColor: themeStyle.colors.grayscale.lowest,
+                  color: themeStyle.colors.grayscale.lowest,
+                  alignSelf: "center",
+                  marginHorizontal: 4,
+                }}
+              />
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontWeight: "700",
+                  textAlign: "right",
+                  color: themeStyle.colors.grayscale.lowest,
+                  alignSelf: belongsToSender ? "flex-end" : "flex-start",
+                }}
+              >
+                {slashedDate(message.createdAt)}
+              </Text>
+            </View>
+          ) : null}
+          <View
+            style={[
+              styles.message,
+              belongsToSender
+                ? {
+                    marginLeft: 50,
+                    backgroundColor: themeStyle.colors.primary.default,
+                    borderTopRightRadius: 0,
+                  }
+                : {
+                    marginRight: 50,
+                    backgroundColor: themeStyle.colors.secondary.default,
+                    borderTopLeftRadius: 0,
+                  },
+            ]}
+          >
+            {failed && !ready ? (
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <TouchableOpacity onPress={() => cancelUpload(message?._id)}>
+                  <Text
+                    style={{
+                      color: themeStyle.colors.error.default,
+                      fontWeight: "700",
+                    }}
+                  >
+                    Delete
+                  </Text>
+                </TouchableOpacity>
                 <Text
                   style={{
-                    color: themeStyle.colors.error.default,
+                    fontSize: 12,
                     fontWeight: "700",
+                    textAlign: "right",
+                    color: themeStyle.colors.white,
+                    alignSelf: belongsToSender ? "flex-end" : "flex-start",
+                    padding: 5,
                   }}
                 >
-                  Delete
+                  Failed to send message.
                 </Text>
-              </TouchableOpacity>
+              </View>
+            ) : !ready ? (
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <TouchableOpacity onPress={() => cancelUpload(message?._id)}>
+                  <Text
+                    style={{
+                      color: themeStyle.colors.error.default,
+                      fontWeight: "700",
+                    }}
+                  >
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "700",
+                    textAlign: "right",
+                    color: themeStyle.colors.white,
+                    alignSelf: belongsToSender ? "flex-end" : "flex-start",
+                    marginBottom: 5,
+                  }}
+                >
+                  Sending...
+                </Text>
+              </View>
+            ) : (
               <Text
                 style={{
                   fontSize: 12,
@@ -104,78 +214,21 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
                   textAlign: "right",
                   color: themeStyle.colors.white,
                   alignSelf: belongsToSender ? "flex-end" : "flex-start",
-                  padding: 5,
                 }}
               >
-                Failed to send message.
+                {stringTime}
               </Text>
-            </View>
-          ) : !ready ? (
-            <View
-              style={{ flexDirection: "row", justifyContent: "space-between" }}
-            >
-              <TouchableOpacity onPress={() => cancelUpload(message?._id)}>
-                <Text
-                  style={{
-                    color: themeStyle.colors.error.default,
-                    fontWeight: "700",
-                  }}
-                >
-                  Cancel
-                </Text>
-              </TouchableOpacity>
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontWeight: "700",
-                  textAlign: "right",
-                  color: themeStyle.colors.white,
-                  alignSelf: belongsToSender ? "flex-end" : "flex-start",
-                  marginBottom: 5,
-                }}
-              >
-                Sending...
-              </Text>
-            </View>
-          ) : (
-            <Text
-              style={{
-                fontSize: 12,
-                fontWeight: "700",
-                textAlign: "right",
-                color: themeStyle.colors.white,
-                alignSelf: belongsToSender ? "flex-end" : "flex-start",
-              }}
-            >
-              {stringTime}
-            </Text>
-          )}
-          {mediaUrl && mediaType === "image" ? (
-            <TouchableOpacity onPress={() => setMediaFullScreen(true)}>
-              <ImageWithCache
-                removeBorderRadius
-                resizeMode="cover"
-                mediaUrl={mediaUrl}
-                mediaHeaders={mediaHeaders}
-                aspectRatio={1 / 1}
-                toggleFullScreen={setMediaFullScreen}
-                isFullScreen={mediaFullScreen}
-                style={{
-                  width: mediaSize || 200,
-                  height: mediaSize || 200,
-                  maxWidth: 500,
-                  maxHeight: 500,
-                }}
-              />
-            </TouchableOpacity>
-          ) : thumbnailUrl && mediaType === "video" ? (
-            <TouchableOpacity onPress={() => setMediaFullScreen(true)}>
-              <View style={{ alignItems: "center", justifyContent: "center" }}>
+            )}
+            {mediaUrl && mediaType === "image" ? (
+              <TouchableOpacity onPress={() => setMediaFullScreen(true)}>
                 <ImageWithCache
                   removeBorderRadius
                   resizeMode="cover"
-                  mediaUrl={thumbnailUrl}
-                  mediaHeaders={thumbnailHeaders || {}}
+                  mediaUrl={mediaUrl}
+                  mediaHeaders={mediaHeaders}
+                  aspectRatio={1 / 1}
+                  toggleFullScreen={setMediaFullScreen}
+                  isFullScreen={mediaFullScreen}
                   style={{
                     width: mediaSize || 200,
                     height: mediaSize || 200,
@@ -183,25 +236,51 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
                     maxHeight: 500,
                   }}
                 />
+              </TouchableOpacity>
+            ) : thumbnailUrl && mediaType === "video" ? (
+              <TouchableOpacity onPress={() => setMediaFullScreen(true)}>
                 <View
-                  style={{
-                    position: "absolute",
-                    backgroundColor: themeStyle.colors.secondary.light,
-                    borderRadius: 100,
-                  }}
+                  style={{ alignItems: "center", justifyContent: "center" }}
                 >
-                  <MaterialCommunityIcons
-                    name="play"
-                    size={60}
-                    color={themeStyle.colors.grayscale.lowest}
+                  <ImageWithCache
+                    removeBorderRadius
+                    resizeMode="cover"
+                    mediaUrl={thumbnailUrl}
+                    mediaHeaders={thumbnailHeaders || {}}
+                    style={{
+                      width: mediaSize || 200,
+                      height: mediaSize || 200,
+                      maxWidth: 500,
+                      maxHeight: 500,
+                    }}
                   />
+                  <View
+                    style={{
+                      position: "absolute",
+                      backgroundColor: themeStyle.colors.secondary.light,
+                      borderRadius: 100,
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="play"
+                      size={60}
+                      color={themeStyle.colors.grayscale.lowest}
+                    />
+                  </View>
                 </View>
-              </View>
-            </TouchableOpacity>
-          ) : null}
-          {body ? (
-            <Text style={{ color: themeStyle.colors.white }}>{body}</Text>
-          ) : null}
+              </TouchableOpacity>
+            ) : null}
+            {body ? (
+              <Text
+                style={{
+                  color: themeStyle.colors.white,
+                  textAlign: "left",
+                }}
+              >
+                {body}
+              </Text>
+            ) : null}
+          </View>
         </View>
       </View>
     </View>
@@ -221,10 +300,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 5,
     // margin: 20,
+    paddingVertical: 10,
   },
   subContainer: {
     marginHorizontal: 10,
-    flex: 1,
+    // flex: 1,
   },
 });
 

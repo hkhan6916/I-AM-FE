@@ -816,7 +816,6 @@ const ChatScreen = (props) => {
                   alignSelf: "center",
                 }}
               >
-                <Text>{item.stringDate}</Text>
                 <MessageContainer
                   cancelUpload={cancelUpload}
                   mediaSize={mediaSize}
