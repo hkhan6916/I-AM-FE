@@ -59,60 +59,69 @@ const ShareScreen = (props) => {
   }, [persistedParams, params]);
   if (!post) return null;
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <TextInput
-        style={{
-          minHeight: 100,
-          textAlignVertical: "top",
-          margin: 20,
-          fontSize: 16,
-          color: themeStyle.colors.grayscale.lowest,
-        }}
-        value={repostBody || ""}
-        placeholder="Write your thoughts here."
-        multiline
-        maxLength={1000}
-        onChangeText={(v) => setRepostBody(v)}
-        placeholderTextColor={themeStyle.colors.grayscale.lower}
-      />
-      <RepostCard postContent={post} isPreview={true} mediaIsFullWidth />
-      <View
-        style={{
+    <View style={{ flex: 1 }}>
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          maxWidth: 900,
+          alignSelf: "center",
           width: "100%",
-          padding: 10,
         }}
       >
-        <TouchableOpacity
-          onPress={() => handleRepost()}
+        <TextInput
           style={{
-            backgroundColor: themeStyle.colors.primary.default,
-            borderRadius: 5,
+            minHeight: 100,
+            textAlignVertical: "top",
+            margin: 20,
+            fontSize: 16,
+            color: themeStyle.colors.grayscale.lowest,
+          }}
+          value={repostBody || ""}
+          placeholder="Write your thoughts here."
+          multiline
+          maxLength={1000}
+          onChangeText={(v) => setRepostBody(v)}
+          placeholderTextColor={themeStyle.colors.grayscale.lower}
+        />
+        <RepostCard postContent={post} isPreview={true} mediaIsFullWidth />
+        <View
+          style={{
+            width: "100%",
             padding: 10,
-            height: 48,
-            alignItems: "center",
-            justifyContent: "center",
           }}
         >
-          {loading ? (
-            <ActivityIndicator
-              animating={loading}
-              color={themeStyle.colors.white}
-              size="small"
-            />
-          ) : (
-            <Text
-              style={{
-                color: themeStyle.colors.white,
-                fontSize: 16,
-                textAlign: "center",
-              }}
-            >
-              Share
-            </Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          <TouchableOpacity
+            onPress={() => handleRepost()}
+            style={{
+              backgroundColor: themeStyle.colors.primary.default,
+              borderRadius: 5,
+              padding: 10,
+              height: 48,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {loading ? (
+              <ActivityIndicator
+                animating={loading}
+                color={themeStyle.colors.white}
+                size="small"
+              />
+            ) : (
+              <Text
+                style={{
+                  color: themeStyle.colors.white,
+                  fontSize: 16,
+                  textAlign: "center",
+                }}
+              >
+                Share
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 

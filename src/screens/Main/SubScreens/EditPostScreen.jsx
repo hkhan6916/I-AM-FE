@@ -118,7 +118,14 @@ const EditPostScreen = (props) => {
       />
       {Platform.OS === "ios" ? <StatusBar translucent={true} /> : null}
       <SafeAreaView style={styles.container}>
-        <ScrollView contentContainerStyle={{ padding: 10 }}>
+        <ScrollView
+          contentContainerStyle={{
+            padding: 10,
+            maxWidth: 900,
+            alignSelf: "center",
+            width: "100%",
+          }}
+        >
           {postBody.length >= 2000 - 25 ? (
             <Text style={styles.postLimitMessage}>
               {2000 - postBody.length} Characters Remaining
