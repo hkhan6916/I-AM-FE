@@ -480,12 +480,10 @@ const AddScreen = () => {
             {file.uri ? (
               <View
                 style={{
-                  borderWidth: !showMediaSizeError ? 1 : 2,
-                  borderRadius: 5,
-                  backgroundColor: themeStyle.colors.grayscale.high,
-                  borderColor: !showMediaSizeError
-                    ? themeStyle.colors.primary.default
-                    : themeStyle.colors.error.default,
+                  borderWidth: showMediaSizeError ? 2 : 0,
+                  borderColor: themeStyle.colors.error.default,
+                  backgroundColor: "rgba(0,0,0,0.4)",
+                  borderRadius: 10,
                 }}
               >
                 <TouchableOpacity
@@ -521,7 +519,6 @@ const AddScreen = () => {
                 ) : thumbnail ? (
                   <View
                     style={{
-                      height: screenWidth,
                       alignItems: "center",
                       padding: 5,
                     }}
@@ -578,18 +575,42 @@ const AddScreen = () => {
               </View>
             ) : gif ? (
               <View
-                style={{
-                  height: screenWidth - 40,
-                  maxHeight: 540,
-                  alignItems: "center",
-                  padding: 5,
-                }}
+                style={{ backgroundColor: "rgba(0,0,0,0.4)", borderRadius: 10 }}
               >
-                <Image
-                  resizeMode="contain"
-                  style={{ width: "100%", height: "100%", maxHeight: 500 }}
-                  source={{ uri: gif }}
-                />
+                <TouchableOpacity
+                  style={{
+                    alignSelf: "flex-end",
+                    height: 48,
+                    width: 48,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  onPress={() => {
+                    setFile({});
+                    setShowMediaSizeError(false);
+                    setGif("");
+                  }}
+                >
+                  <AntDesign
+                    name="close"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                    style={{}}
+                  />
+                </TouchableOpacity>
+                <View
+                  style={{
+                    maxHeight: 340,
+                    alignItems: "center",
+                    padding: 5,
+                  }}
+                >
+                  <Image
+                    resizeMode="contain"
+                    style={{ width: "100%", height: "100%", maxHeight: 300 }}
+                    source={{ uri: gif }}
+                  />
+                </View>
               </View>
             ) : null}
           </ScrollView>

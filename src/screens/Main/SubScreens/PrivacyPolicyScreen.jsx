@@ -170,7 +170,7 @@ const PrivacyPolicyScreen = () => {
       >
         Personal Information Provided by You.{"\n"}
       </Text>
-      <Text>
+      <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
         We collect names; email addresses; job titles; usernames; passwords;
         profile videos; profile gifs generated using your profile video; and
         other similar information. {"\n"}All personal information that you
@@ -468,7 +468,7 @@ const PrivacyPolicyScreen = () => {
       >
         4. WHO WILL YOUR INFORMATION BE SHARED WITH?
       </Text>
-      <Text>
+      <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
         {"\n"}
         <Text
           style={{

@@ -266,6 +266,9 @@ const MainStack = () => (
         headerStyle: {
           backgroundColor: themeStyle.colors.grayscale.highest,
         },
+        contentStyle: {
+          maxWidth: Dimensions.get("window").width,
+        },
       }}
       name="TermsOfUseScreen"
       component={TermsOfUseScreen}

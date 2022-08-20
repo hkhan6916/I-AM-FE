@@ -13,7 +13,6 @@ import {
   Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Video } from "expo-av";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import ImageWithCache from "../../../components/ImageWithCache";
@@ -159,7 +158,7 @@ const EditPostScreen = (props) => {
           />
           {existingPost &&
           (existingPost?.body !== postBody ||
-            (existingPost?.mediaUrl && removeMedia)) ? (
+            ((existingPost?.mediaUrl || existingPost?.gif) && removeMedia)) ? (
             <TouchableOpacity
               style={{ alignSelf: "flex-end", marginVertical: 20 }}
               onPress={() => {

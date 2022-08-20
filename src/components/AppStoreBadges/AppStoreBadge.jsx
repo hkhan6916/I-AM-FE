@@ -1,5 +1,5 @@
 import React from "react";
-import Svg, { Path, G } from "react-native-Svg";
+import Svg, { Path, G } from "react-native-svg";
 
 const IosBadge = () => (
   <Svg

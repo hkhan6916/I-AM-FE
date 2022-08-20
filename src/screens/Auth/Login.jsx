@@ -22,7 +22,7 @@ import Constants from "expo-constants";
 import webPersistUserData from "../../helpers/webPersistUserData";
 import { openURL } from "expo-linking";
 import IosBadge from "../../components/AppStoreBadges/AppStoreBadge";
-import PlayStoreBadge from "../../components/AppStoreBadges/PlaystoreBadge";
+import PlayStoreBadge from "../../components/AppStoreBadges/PlayStoreBadge";
 
 const LoginScreen = () => {
   const [identifier, setIdentifier] = useState("");

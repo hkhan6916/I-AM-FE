@@ -70,6 +70,7 @@ const ChatScreen = (props) => {
   const [creatingChat, setCreatingChat] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
   const [port, setPort] = useState("5000");
 
   const routeParamsObj = props.route.params;
@@ -116,10 +117,12 @@ const ChatScreen = (props) => {
   const getChatMessages = async () => {
     if (chat && existingChat && !allMessagesLoaded) {
       setShowError(false);
+      setLoadingMessages(true);
       const { response, success } = await apiCall(
         "GET",
         `/chat/${chat._id}/messages/${messages.length}`
       );
+      setLoadingMessages(false);
       if (success) {
         if (messages.length && !response?.length) {
           setAllMessagesLoaded(true);
@@ -789,6 +792,11 @@ const ChatScreen = (props) => {
         >
           <Text style={{ color: "white" }}>5001</Text>
         </TouchableOpacity> */}
+        <ActivityIndicator
+          size="small"
+          animating={loadingMessages}
+          color={themeStyle.colors.secondary.default}
+        />
         {messages.length && Platform.OS !== "web" ? (
           <RecyclerListView
             style={{ minHeight: 1, minWidth: 1, transform: [{ scaleY: -1 }] }}

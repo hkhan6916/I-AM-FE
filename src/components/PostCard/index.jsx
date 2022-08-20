@@ -118,6 +118,9 @@ const PostCard = ({
                     style={{
                       flex: 1,
                       flexDirection: "column",
+                      alignItems: "center",
+                      maxHeight: 500,
+                      backgroundColor: themeStyle.colors.black,
                     }}
                   >
                     <View

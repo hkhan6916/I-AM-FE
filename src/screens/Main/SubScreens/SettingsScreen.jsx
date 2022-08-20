@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   View,
+  Platform,
 } from "react-native";
 import { setItemAsync } from "expo-secure-store";
 import { useDispatch } from "react-redux";
@@ -50,34 +51,38 @@ const SettingScreen = () => {
             </View>
           </TouchableOpacity>
         </View>
-        <View style={styles.option}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("PrivacyPolicyScreen")}
-          >
-            <View style={styles.optionContent}>
-              <Ionicons
-                name="lock-closed-outline"
-                size={14}
-                color={themeStyle.colors.grayscale.lowest}
-              />
-              <Text style={styles.basicOptionsText}>Privacy Policy</Text>
+        {Platform.OS !== "web" ? (
+          <>
+            <View style={styles.option}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("PrivacyPolicyScreen")}
+              >
+                <View style={styles.optionContent}>
+                  <Ionicons
+                    name="lock-closed-outline"
+                    size={14}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                  <Text style={styles.basicOptionsText}>Privacy Policy</Text>
+                </View>
+              </TouchableOpacity>
             </View>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.option}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("TermsOfUseScreen")}
-          >
-            <View style={styles.optionContent}>
-              <Ionicons
-                name="clipboard-outline"
-                size={14}
-                color={themeStyle.colors.grayscale.lowest}
-              />
-              <Text style={styles.basicOptionsText}>Terms Of Use</Text>
+            <View style={styles.option}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("TermsOfUseScreen")}
+              >
+                <View style={styles.optionContent}>
+                  <Ionicons
+                    name="clipboard-outline"
+                    size={14}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                  <Text style={styles.basicOptionsText}>Terms Of Use</Text>
+                </View>
+              </TouchableOpacity>
             </View>
-          </TouchableOpacity>
-        </View>
+          </>
+        ) : null}
       </View>
       <View style={styles.signoutContainer}>
         <TouchableOpacity onPress={() => logout()}>

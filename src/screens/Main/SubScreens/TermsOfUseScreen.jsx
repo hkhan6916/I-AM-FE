@@ -69,7 +69,7 @@ const TermsOfUseScreen = () => {
         Magnet (hereinafter: Application) is a piece of software created to
         enable people to connect easily and customized for Android and Apple
         mobile devices. It is used to create a network of people you can
-        communicate directly with.
+        communicate with directly.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         The Application is not tailored to comply with industry-specific
@@ -110,8 +110,8 @@ const TermsOfUseScreen = () => {
         2.3 You may not reverse engineer, translate, disassemble, integrate,
         decompile, integrate, remove, modify, combine, create derivative works
         or updates of, adapt, or attempt to derive the source code of the
-        Application, or any part thereof (except with Magnet&apos;s prior
-        written consent).
+        Application, or any part thereof (except with MAGNET SOFTWARE&apos;s
+        prior written consent).
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         2.4 You may not copy (excluding when expressly authorized by this
@@ -183,9 +183,9 @@ const TermsOfUseScreen = () => {
         Play Store Overview for this licensed Application.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-        4.2 Magnet and the End-User acknowledge that neither Google nor Apple
-        have any obligation whatsoever to furnish any maintenance and support
-        services with respect to the licensed Application.
+        4.2 MAGNET SOFTWARE and the End-User acknowledge that neither Google nor
+        Apple have any obligation whatsoever to furnish any maintenance and
+        support services with respect to the licensed Application.
       </Text>
       <Text
         style={{
@@ -399,20 +399,20 @@ const TermsOfUseScreen = () => {
         inappropriately or culpably, combined or installed with inappropriate
         hardware or software, used with inappropriate accessories, regardless if
         by Yourself or by third parties, or if there are any other reasons
-        outside of Magnet&apos;s sphere of influence that affect the
+        outside of MAGNET SOFTWARE&apos;s sphere of influence that affect the
         executability of the Application.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         9.3 You are required to inspect the Application immediately after
-        installing it and notify Magnet about issues discovered without delay by
-        e-mail provided in Product Claims. The defect report will be taken into
-        consideration and further investigated if it has been mailed within a
-        period of fourteen (14) days after discovery.
+        installing it and notify MAGNET SOFTWARE about issues discovered without
+        delay by e-mail provided in Product Claims. The defect report will be
+        taken into consideration and further investigated if it has been mailed
+        within a period of fourteen (14) days after discovery.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-        9.4 If we confirm that the Application is defective, Magnet reserves a
-        choice to remedy the situation either by means of solving the defect or
-        substitute delivery.
+        9.4 If we confirm that the Application is defective, MAGNET SOFTWARE
+        reserves a choice to remedy the situation either by means of solving the
+        defect or substitute delivery.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         9.5 In the event of any failure of the Application to conform to any
@@ -441,11 +441,11 @@ const TermsOfUseScreen = () => {
         10. PRODUCT CLAIMS
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-        Magnet and the End-User acknowledge that Magnet, and not Apple nor
-        Google, is responsible for addressing any claims of the End-User or any
-        third party relating to the licensed Application or the End-User’s
-        possession and/or use of that licensed Application, including, but not
-        limited to:
+        MAGNET SOFTWARE and the End-User acknowledge that MAGNET SOFTWARE, and
+        not Apple nor Google, is responsible for addressing any claims of the
+        End-User or any third party relating to the licensed Application or the
+        End-User’s possession and/or use of that licensed Application,
+        including, but not limited to:
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         (i) product liability claims;
@@ -504,11 +504,12 @@ const TermsOfUseScreen = () => {
         {"\n"}13. TERMINATION
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-        The license is valid until terminated by Magnet or by You. Your rights
-        under this license will terminate automatically and without notice from
-        Magnet if You fail to adhere to any term(s) of this license. Upon
-        License termination, You shall stop all use of the Application, and
-        destroy all copies, full or partial, of the Application.
+        The license is valid until terminated by MAGNET SOFTWARE or by You. Your
+        rights under this license will terminate automatically and without
+        notice from MAGNET SOFTWARE if You fail to adhere to any term(s) of this
+        license. Upon License termination, You shall stop all use of the
+        Application, and destroy all copies, full or partial, of the
+        Application.
       </Text>
       <Text
         style={{
@@ -522,8 +523,9 @@ const TermsOfUseScreen = () => {
         14. THIRD-PARTY TERMS OF AGREEMENTS AND BENEFICIARY
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-        Magnet represents and warrants that Magnet will comply with applicable
-        third-party terms of agreement when using licensed Application.
+        MAGNET SOFTWARE represents and warrants that the Application will comply
+        with applicable third-party terms of agreement when using licensed
+        Application.
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
         In Accordance with Section 9 of the &quot;Instructions for Minimum Terms
@@ -547,13 +549,13 @@ const TermsOfUseScreen = () => {
         15. INTELLECTUAL PROPERTY RIGHTS
       </Text>
       <Text style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}>
-        Magnet and the End-User acknowledge that, in the event of any
+        MAGNET SOFTWARE and the End-User acknowledge that, in the event of any
         third-party claim that the licensed Application or the End-User&apos;s
         possession and use of that licensed Application infringes on the third
-        party&apos;s intellectual property rights, Magnet, and not Apple nor
-        Google, will be solely responsible for the investigation, defense,
-        settlement and discharge or any such intellectual property infringement
-        claims.
+        party&apos;s intellectual property rights, MAGNET SOFTWARE, and not
+        Apple nor Google, will be solely responsible for the investigation,
+        defense, settlement and discharge or any such intellectual property
+        infringement claims.
       </Text>
       <Text
         style={{
