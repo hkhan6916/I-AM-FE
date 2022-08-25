@@ -74,7 +74,7 @@ const Screens = () => {
         })
       ).data;
     } else {
-      alert("Must use physical device for Push Notifications");
+      alert("Must use a physical device for Push Notifications");
     }
     if (Platform === "android") {
       Notifications.setNotificationChannelAsync("default", {

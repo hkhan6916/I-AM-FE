@@ -4,9 +4,9 @@ import {
   MaterialCommunityIcons,
   FontAwesome,
   Ionicons,
+  MaterialIcons,
 } from "@expo/vector-icons";
 import themeStyle from "../../theme.style";
-import AnimatedLottieView from "lottie-react-native";
 import PostAge from "../PostAge";
 const Actions = ({ post, handleReaction, navigation }) => {
   const lottieRef = useRef(null);
@@ -37,19 +37,10 @@ const Actions = ({ post, handleReaction, navigation }) => {
               }}
             >
               {post.liked ? (
-                <AnimatedLottieView
-                  ref={lottieRef}
-                  autoPlay={false}
-                  loop={false}
-                  progress={1}
-                  speed={1}
-                  source={require("../../../assets/lotties/like.json")}
-                  style={{
-                    width: 40,
-                    height: 40,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+                <MaterialIcons
+                  name={"thumb-up"}
+                  size={22}
+                  color={themeStyle.colors.secondary.default}
                 />
               ) : (
                 <MaterialCommunityIcons

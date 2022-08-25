@@ -97,7 +97,6 @@ const EditPostScreen = (props) => {
       })();
     }
   }, [navigation, postId]);
-
   if (loading) {
     return (
       <ActivityIndicator
@@ -163,6 +162,7 @@ const EditPostScreen = (props) => {
             maxLength={2000}
             onChangeText={(v) => setPostBody(v)}
           />
+
           {existingPost &&
           (existingPost?.body !== postBody ||
             ((existingPost?.mediaUrl || existingPost?.gif) && removeMedia)) ? (
@@ -185,12 +185,13 @@ const EditPostScreen = (props) => {
           ) : null}
           {!removeMedia &&
           !existingPost?.repostPostId &&
-          (existingPost?.mediaUrl || existingPost?.gif) ? (
+          (existingPost?.mediaUrl ||
+            existingPost?.thumbnailUrl ||
+            existingPost?.gif) ? (
             <View
               style={{
-                borderRadius: 5,
-                borderWidth: 1,
-                borderColor: themeStyle.colors.primary.default,
+                backgroundColor: "rgba(0,0,0,0.4)",
+                borderRadius: 10,
               }}
             >
               <TouchableOpacity
@@ -222,7 +223,6 @@ const EditPostScreen = (props) => {
               ) : existingPost?.mediaType === "video" ? (
                 <View
                   style={{
-                    height: screenWidth,
                     alignItems: "center",
                     padding: 20,
                   }}
@@ -239,24 +239,47 @@ const EditPostScreen = (props) => {
                           uri: existingPost?.mediaUrl,
                         },
                       }}
-                      style={{ height: 300 }}
+                      style={{ height: screenWidth > 500 ? 500 : screenWidth }}
                     />
                   ) : (
-                    <ImageWithCache
-                      removeBackround
-                      removeBorderRadius
-                      resizeMode="contain"
-                      mediaUrl={existingPost?.thumbnailUrl}
-                      mediaHeaders={existingPost?.thumbnailHeaders}
-                      aspectRatio={1 / 1}
-                      mediaIsSelfie={existingPost?.mediaIsSelfi}
-                    />
+                    <View>
+                      <Text
+                        style={{
+                          position: "absolute",
+                          fontSize: 20,
+                          color: themeStyle.colors.white,
+                          zIndex: 1,
+                          textAlign: "center",
+                          margin: 10,
+                          textShadowOffset: {
+                            width: 1,
+                            height: 1,
+                          },
+                          textShadowRadius: 8,
+                          textShadowColor: themeStyle.colors.black,
+                        }}
+                      >
+                        {"Uploading..."}
+                      </Text>
+
+                      <ImageWithCache
+                        removeBackround
+                        removeBorderRadius
+                        resizeMode="contain"
+                        mediaUrl={existingPost?.thumbnailUrl}
+                        mediaHeaders={existingPost?.thumbnailHeaders}
+                        aspectRatio={1 / 1}
+                        mediaIsSelfie={existingPost?.mediaIsSelfie}
+                        style={{
+                          height: screenWidth > 500 ? 500 : screenWidth,
+                        }}
+                      />
+                    </View>
                   )}
                 </View>
               ) : existingPost?.mediaType === "image" ? (
                 <View
                   style={{
-                    height: screenWidth - 40,
                     alignItems: "center",
                     padding: 20,
                   }}

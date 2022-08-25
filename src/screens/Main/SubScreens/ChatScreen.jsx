@@ -14,7 +14,6 @@ import {
   Alert,
   ActivityIndicator,
   FlatList,
-  SectionList,
 } from "react-native";
 import { getItemAsync } from "expo-secure-store";
 import { io } from "socket.io-client";
@@ -275,6 +274,7 @@ const ChatScreen = (props) => {
                 mediaType,
                 stringTime: get12HourTime(new Date()),
                 stringDate: getNameDate(new Date()),
+                createdAt: new Date(),
                 tempId,
                 _id: tempId, // Incase we use _id anywhere, we need a unique field so we pass a temporary id
                 ready: true,
@@ -350,6 +350,7 @@ const ChatScreen = (props) => {
             media.type?.split("/")[0] === "video" ? thumbnailUrl : null,
           stringTime: get12HourTime(new Date()),
           stringDate: getNameDate(new Date()),
+          createdAt: new Date(),
           _id: response._id,
           ready: false,
         });
@@ -394,6 +395,7 @@ const ChatScreen = (props) => {
                   mediaType,
                   stringTime: get12HourTime(new Date()),
                   stringDate: getNameDate(new Date()),
+                  createdAt: new Date(),
                   _id: response._id,
                 });
 
@@ -427,6 +429,7 @@ const ChatScreen = (props) => {
       user: "sender",
       stringTime: get12HourTime(new Date()),
       stringDate: getNameDate(new Date()),
+      createdAt: new Date(),
       _id: nanoid(),
       ready: true,
     });
@@ -811,7 +814,7 @@ const ChatScreen = (props) => {
           <FlatList
             data={messages}
             onEndReached={() => getChatMessages()}
-            onEndReachedThreshold={0.5}
+            onEndReachedThreshold={0.9}
             inverted
             disableVirtualization={true}
             keyExtractor={(item, i) => item._id + i}

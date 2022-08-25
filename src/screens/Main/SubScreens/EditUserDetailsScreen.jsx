@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  TextInput,
   Text,
   TouchableOpacity,
   ScrollView,
@@ -12,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Linking,
 } from "react-native";
 import Constants from "expo-constants";
 import { useNavigation } from "@react-navigation/native";
@@ -682,11 +682,23 @@ const EditUserDetailsScreen = () => {
                     style={{
                       fontSize: 16,
                       textAlign: "center",
-                      color: themeStyle.colors.primary.default,
                       fontWeight: "700",
+                      color: themeStyle.colors.grayscale.lowest,
                     }}
                   >
-                    Download the Magnet App to upload or take a profile video.
+                    Download the{" "}
+                    <Text
+                      style={{ color: themeStyle.colors.primary.default }}
+                      onPress={async () => {
+                        const canOpen = await Linking.canOpenURL("/");
+                        if (canOpen) {
+                          Linking.openURL("/");
+                        }
+                      }}
+                    >
+                      Magnet App
+                    </Text>{" "}
+                    to upload or take a profile video.
                   </Text>
                 </View>
               )}

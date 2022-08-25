@@ -41,7 +41,7 @@ const PostCard = ({
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, width: screenWidth, maxWidth: 900 }}>
       {/* {console.log(isVisible)}
       <Text style={{ color: "white" }}>{post._id}</Text> */}
       <View style={[styles.container, isPreview && styles.preview]}>
