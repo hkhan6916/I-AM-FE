@@ -1,5 +1,5 @@
-import { Appearance } from "react-native";
-let colorScheme = Appearance.getColorScheme();
+import { Appearance, Platform } from "react-native";
+let colorScheme = Platform.OS !== "web" ? Appearance.getColorScheme() : "light";
 const themeStyle =
   colorScheme === "dark"
     ? {

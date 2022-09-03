@@ -611,6 +611,7 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: themeStyle.colors.grayscale.cardsOuter,
   },
   newPostPill: {
     zIndex: 3, // works on ios

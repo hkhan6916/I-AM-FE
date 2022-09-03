@@ -8,6 +8,7 @@ npm-debug.*
 *.key
 *.mobileprovision
 *.orig.*
+web-build/
 
 # macOS
 .DS_Store
@@ -68,6 +69,7 @@ buck-out/
 
 # Expo
 .expo/
+web-build/
 dist/
 
 # @end expo-cli

@@ -575,7 +575,13 @@ const AddScreen = () => {
               </View>
             ) : gif ? (
               <View
-                style={{ backgroundColor: "rgba(0,0,0,0.4)", borderRadius: 10 }}
+                style={{
+                  backgroundColor: "rgba(0,0,0,0.4)",
+                  borderRadius: 10,
+                  maxWidth: 900,
+                  alignSelf: "center",
+                  width: "100%",
+                }}
               >
                 <TouchableOpacity
                   style={{
@@ -603,6 +609,7 @@ const AddScreen = () => {
                     maxHeight: 340,
                     alignItems: "center",
                     padding: 5,
+                    height: screenWidth - 40,
                   }}
                 >
                   <Image

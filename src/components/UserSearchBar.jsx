@@ -9,6 +9,7 @@ import {
   FlatList,
   TouchableWithoutFeedback,
   Keyboard,
+  Platform,
 } from "react-native";
 import themeStyle from "../theme.style";
 import apiCall from "../helpers/apiCall";
@@ -214,7 +215,11 @@ const UserSearchBar = ({
           </TouchableOpacity>
         ) : null}
       </View>
-      {showHistory && !resultsVisible && !feedIsVisible && !customSearch ? (
+      {showHistory &&
+      !resultsVisible &&
+      !feedIsVisible &&
+      !customSearch &&
+      Platform.OS !== "web" ? (
         <View style={{ justifyContent: "space-between", flexDirection: "row" }}>
           <Text
             style={{ color: themeStyle.colors.grayscale.lowest, margin: 10 }}

@@ -31,7 +31,7 @@ const MainStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { elevation: 0, backgroundColor: "red" },
+        headerStyle: { elevation: 0 },
         cardStyle: { backgroundColor: themeStyle.colors.grayscale.highest },
         ...(screenWidth > 900 // Check this against tablets not using the web
           ? {

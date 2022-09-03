@@ -20,6 +20,7 @@ import {
   RecyclerListView,
 } from "recyclerlistview";
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
+import themeStyle from "../../../theme.style";
 
 const UserProfileScreen = (props) => {
   const { userId } = props.route.params;
@@ -398,7 +399,12 @@ const UserProfileScreen = (props) => {
 
   if (user && user._id) {
     return (
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          backgroundColor: themeStyle.colors.grayscale.cardsOuter,
+        }}
+      >
         <RecyclerListView
           {...mobileSpecificListProps}
           style={{ minHeight: 1, minWidth: 1 }}
