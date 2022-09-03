@@ -412,6 +412,8 @@ const AddScreen = () => {
               flexDirection: "row",
               alignItems: "center",
               justifyContent: "space-between",
+              borderBottomColor: themeStyle.colors.grayscale.higher,
+              borderBottomWidth: 2,
             }}
           >
             <Text
