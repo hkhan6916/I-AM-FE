@@ -11,6 +11,7 @@ import {
   SafeAreaView,
   Platform,
   Alert,
+  Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera";
@@ -32,6 +33,7 @@ import { getInfoAsync } from "expo-file-system";
 import Constants from "expo-constants";
 import webPersistUserData from "../../../helpers/webPersistUserData";
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
+import CameraStandard from "../../../components/CameraStandard";
 
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
@@ -40,7 +42,10 @@ const Step1Screen = () => {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [hasAudioPermission, setHasAudioPermission] = useState(null);
 
-  const [cameraActivated, setCameraActivated] = useState(false);
+  const [profileVideoCameraActivated, setProfileVideoCameraActivated] =
+    useState(false);
+  const [profileImageCameraActivated, setProfileImageCameraActivated] =
+    useState(false);
 
   const [showVideoSizeError, setShowVideoSizeError] = useState(false);
   const [tooShort, setTooShort] = useState(false);
@@ -55,7 +60,7 @@ const Step1Screen = () => {
   const [detectingFaces, setDetectingFaces] = useState(false);
 
   const [profileVideo, setProfileVideo] = useState("");
-  const [prevProfileVideo, setPrevProfileVideo] = useState("");
+  const [profileImage, setProfileImage] = useState("");
 
   const [loadingVideo, setLoadingVideo] = useState(false);
 
@@ -63,7 +68,7 @@ const Step1Screen = () => {
 
   const [pickedFromCameraRoll, setPickedFromCameraRoll] = useState(false);
 
-  const [registerationError, setRegisterationError] = useState("");
+  const [registrationError, setRegistrationError] = useState("");
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
@@ -74,7 +79,8 @@ const Step1Screen = () => {
       ? { state: getWebPersistedUserData() }
       : existingNativeUserData;
 
-  const profileVideoIsValid = () => {
+  const profileMediaIsValid = () => {
+    if (profileImage && !profileVideo && faceDetected) return true;
     if (tooShort || tooLong) return false;
     if (profileVideo && faceDetected) {
       return true;
@@ -93,7 +99,10 @@ const Step1Screen = () => {
       {
         ...existingInfo.state,
         notificationToken,
-        profileVideoFileName: profileVideo.replace(/^.*[\\\/]/, ""),
+        profileVideoFileName:
+          profileVideo && profileVideo.replace(/^.*[\\/]/, ""),
+        profileImageFileName:
+          profileImage && profileImage.replace(/^.*[\\/]/, ""),
         flipProfileVideo: (
           Platform.OS === "android" && !pickedFromCameraRoll
         ).toString(), //TODO check if we still need to convert to string
@@ -101,8 +110,8 @@ const Step1Screen = () => {
     );
     setVerifying(false);
     if (!success) {
-      setRegisterationError(
-        "We could not verify your registeration details. Please try again later."
+      setRegistrationError(
+        "We could not verify your registration details. Please try again later."
       );
       return;
     }
@@ -110,11 +119,13 @@ const Step1Screen = () => {
 
     const filePath =
       Platform.OS == "android"
-        ? profileVideo.replace("file://", "")
-        : profileVideo;
+        ? (profileVideo || profileImage).replace("file://", "")
+        : profileVideo || profileImage;
     if (notificationToken) {
       const options = {
-        url: response.signedProfileVideoUploadUrl,
+        url: profileVideo
+          ? response.signedProfileVideoUploadUrl
+          : response.signedProfileImageUploadUrl,
         path: filePath, // path to file
         method: "PUT",
         type: "raw",
@@ -131,14 +142,14 @@ const Step1Screen = () => {
           Upload.addListener("error", uploadId, async (error) => {
             setLoading(false);
             console.log({ error });
-            setRegisterationError(
+            setRegistrationError(
               "We could not upload your profile video. Please try again later."
             );
           });
           Upload.addListener("cancelled", uploadId, async (cancelled) => {
             console.log({ cancelled });
             setLoading(false);
-            setRegisterationError(
+            setRegistrationError(
               "We could not upload your profile video. Please try again later."
             );
           });
@@ -151,6 +162,7 @@ const Step1Screen = () => {
                 flipProfileVideo:
                   Platform.OS === "android" && !pickedFromCameraRoll,
                 profileVideoKey: response.profileVideoKey,
+                profileImageKey: response.profileImageKey,
               });
               if (success) {
                 dispatch({
@@ -160,12 +172,12 @@ const Step1Screen = () => {
                 webPersistUserData({});
                 setTimeout(() => navigation.navigate("Login"), 500);
               } else {
-                setRegisterationError(
+                setRegistrationError(
                   "We could not create your account. Please try again later."
                 );
               }
             } else {
-              setRegisterationError(
+              setRegistrationError(
                 "We could not upload your profile video. Please try again later."
               );
             }
@@ -174,7 +186,7 @@ const Step1Screen = () => {
         .catch(async (err) => {
           console.log(err);
           setLoading(false);
-          setRegisterationError(
+          setRegistrationError(
             "We could not upload your profile video. Please try again later."
           );
         });
@@ -187,8 +199,8 @@ const Step1Screen = () => {
     });
     const apiUrl = Constants.manifest.extra.apiUrl;
 
-    setRegisterationError("");
-    if (profileVideo && !skipProfileVideo) {
+    setRegistrationError("");
+    if ((profileVideo || profileImage) && !skipProfileVideo) {
       await sendUserData(apiUrl, notificationToken);
     } else {
       setVerifying(true);
@@ -209,31 +221,43 @@ const Step1Screen = () => {
           payload: {},
         });
         webPersistUserData({});
-        setTimeout(() => navigation.navigate("Login"), 500);
+        setTimeout(() => navigation.navigate("Login"), 300);
       } else {
-        setRegisterationError("An error occurred. Please try again.");
+        setRegistrationError("An error occurred. Please try again.");
       }
     }
   };
 
-  const handleFaceDetection = async (duration) => {
+  const handleFaceDetection = async (duration, profileImageUri) => {
     setLoadingVideo(true);
     setTooShort(false);
     setTooLong(false);
     setDetectingFaces(true);
-    if (Number(duration) < 3000) {
+    if (Number(duration) < 3000 && !profileImageUri) {
       setDetectingFaces(false);
       setLoadingVideo(false);
       setTooShort(true);
       return;
     }
-    if (Number(duration) > 30000) {
+    if (Number(duration) > 30000 && !profileImageUri) {
       setDetectingFaces(false);
       setLoadingVideo(false);
       setTooLong(true);
       return;
     }
     setDetectingFaces(true);
+    if (profileImageUri) {
+      const { faces } = await detectFacesAsync(profileImageUri);
+
+      if (faces?.length) {
+        setFaceDetected(true);
+      } else {
+        setFaceDetected(false);
+      }
+      setDetectingFaces(false);
+      return;
+    }
+
     const { uri } = await getThumbnailAsync(profileVideo, {
       time: 3000,
     });
@@ -241,7 +265,6 @@ const Step1Screen = () => {
 
     if (faces?.length) {
       setFaceDetected(true);
-      setPrevProfileVideo(profileVideo);
     } else {
       setFaceDetected(false);
     }
@@ -316,15 +339,15 @@ const Step1Screen = () => {
       setHasCameraPermission(null);
       setHasAudioPermission(null);
     };
-  }, [cameraActivated]);
+  }, [profileVideoCameraActivated]);
 
   useEffect(() => {
-    if (cameraActivated || loading) {
+    if (profileVideoCameraActivated || profileImageCameraActivated || loading) {
       navigation.setOptions({ headerShown: false });
     } else {
       navigation.setOptions({ headerShown: true });
     }
-  }, [cameraActivated, loading]);
+  }, [profileVideoCameraActivated, profileImageCameraActivated, loading]);
 
   if (loading) {
     return (
@@ -359,20 +382,38 @@ const Step1Screen = () => {
     );
   }
 
-  if (cameraActivated) {
+  if (profileVideoCameraActivated) {
     return (
       <ProfileVideoCamera
         setRecording={setRecording}
         setProfileVideo={(video) => {
           setPickedFromCameraRoll(false);
           setProfileVideo(video);
+          setProfileImage("");
         }}
-        setCameraActivated={setCameraActivated}
+        setCameraActivated={setProfileVideoCameraActivated}
         setRecordingLength={setRecordingLength}
         recording={recording}
         recordingLength={recordingLength}
         hasCameraPermission={hasCameraPermission}
         hasAudioPermission={hasAudioPermission}
+      />
+    );
+  }
+
+  if (profileImageCameraActivated) {
+    return (
+      <CameraStandard
+        cameraActive={profileImageCameraActivated}
+        recording={recording}
+        disableVideo
+        defaultCameraPosition="front"
+        setCameraActive={setProfileImageCameraActivated}
+        setFile={async (file) => {
+          setProfileImage(file.uri);
+          handleFaceDetection(0, file.uri);
+          setProfileVideo("");
+        }}
       />
     );
   }
@@ -384,7 +425,7 @@ const Step1Screen = () => {
           <Text
             style={[styles.signupText, skipProfileVideo && { opacity: 0.1 }]}
           >
-            Your Profile Video
+            A face for your account
           </Text>
           <Text
             style={{
@@ -452,7 +493,27 @@ const Step1Screen = () => {
               </View>
             </SafeAreaView>
           </Modal>
-          {profileVideo && faceDetected && !skipProfileVideo ? (
+
+          {profileImage && !skipProfileVideo ? (
+            <View>
+              <Image
+                source={{ uri: profileImage }}
+                style={{
+                  width: screenWidth / 1.3,
+                  height: screenWidth / 1.3,
+                  borderRadius: screenWidth / 1.3 / 2,
+                  borderWidth: 2,
+                  borderColor: themeStyle.colors.primary.default,
+                }}
+              />
+              {!detectingFaces && !faceDetected ? (
+                <Text style={styles.faceDetectionError}>
+                  Face was not fully detected. Please make sure your face is
+                  shown in your profile image.
+                </Text>
+              ) : null}
+            </View>
+          ) : profileVideo && faceDetected && !skipProfileVideo ? (
             <View>
               <PreviewVideo
                 uri={profileVideo}
@@ -501,7 +562,24 @@ const Step1Screen = () => {
               style={[styles.takeVideoButton]}
               onPress={() => {
                 setFaceDetected(false);
-                setCameraActivated(true);
+                setProfileImageCameraActivated(true);
+              }}
+            >
+              <Text style={[styles.takeVideoButtonText]}>
+                <Ionicons
+                  name="videocam"
+                  size={14}
+                  color={themeStyle.colors.grayscale.lowest}
+                />{" "}
+                Take profile photo
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              disabled={skipProfileVideo}
+              style={[styles.takeVideoButton]}
+              onPress={() => {
+                setFaceDetected(false);
+                setProfileVideoCameraActivated(true);
               }}
             >
               <Text style={[styles.takeVideoButtonText]}>
@@ -561,18 +639,25 @@ const Step1Screen = () => {
           ) : null}
           <TouchableOpacity
             style={[
-              styles.registerationButton,
+              styles.registrationButton,
               {
-                opacity: !profileVideoIsValid() || loadingVideo ? 0.5 : 1,
+                opacity:
+                  !profileMediaIsValid() || (profileVideo && loadingVideo)
+                    ? 0.5
+                    : 1,
                 minWidth: 100,
                 alignItems: "center",
               },
             ]}
             onPress={() => registerUser()}
-            disabled={!profileVideoIsValid() || loadingVideo || verifying}
+            disabled={
+              !profileMediaIsValid() ||
+              (profileVideo && loadingVideo) ||
+              verifying
+            }
           >
             {!verifying ? (
-              <Text style={styles.registerationButtonText}>
+              <Text style={styles.registrationButtonText}>
                 Sign Up <Ionicons name="paper-plane-outline" size={14} />
               </Text>
             ) : (
@@ -601,8 +686,8 @@ const Step1Screen = () => {
               Need ideas?
             </Text>
           </TouchableOpacity>
-          {registerationError ? (
-            <Text style={styles.registerationError}>{registerationError}</Text>
+          {registrationError ? (
+            <Text style={styles.registrationError}>{registrationError}</Text>
           ) : null}
         </View>
       </ScrollView>
@@ -622,7 +707,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     textAlign: "center",
   },
-  registerationError: {
+  registrationError: {
     textAlign: "center",
     color: themeStyle.colors.error.default,
     fontWeight: "500",
@@ -645,14 +730,14 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     alignItems: "center",
   },
-  registerationButton: {
+  registrationButton: {
     paddingVertical: 10,
     paddingHorizontal: 15,
     margin: 20,
     borderRadius: 50,
     backgroundColor: themeStyle.colors.primary.default,
   },
-  registerationButtonText: {
+  registrationButtonText: {
     color: themeStyle.colors.white,
   },
   takeVideoButton: {
@@ -722,6 +807,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: themeStyle.colors.primary.default,
     fontWeight: "700",
+    textAlign: "center",
   },
   helpModalListItem: {
     fontWeight: "700",

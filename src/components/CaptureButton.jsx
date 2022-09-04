@@ -44,6 +44,7 @@ const _CaptureButton = ({
   enabled,
   setIsPressingButton,
   setRecording,
+  disableVideo,
   style,
   ...props
 }) => {
@@ -328,29 +329,31 @@ const _CaptureButton = ({
         </View>
       </TouchableOpacity>
       {/* We have some login in captureMode styles so passing down those styles as it prevents some repetition*/}
-      <TouchableOpacity
-        onPress={() => setIsVideo(!isVideo)}
-        style={[style.captureMode, { height: 48, width: 48 }]}
-      >
-        <View
-          style={[
-            {
-              height: 40,
-              width: 40,
-              justifyContent: "center",
-              alignItems: "center",
-              borderRadius: 30,
-              backgroundColor: themeStyle.colors.white,
-            },
-          ]}
+      {!disableVideo ? (
+        <TouchableOpacity
+          onPress={() => setIsVideo(!isVideo)}
+          style={[style.captureMode, { height: 48, width: 48 }]}
         >
-          <Feather
-            name={isVideo ? "camera" : "video"}
-            size={24}
-            color={themeStyle.colors.black}
-          />
-        </View>
-      </TouchableOpacity>
+          <View
+            style={[
+              {
+                height: 40,
+                width: 40,
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: 30,
+                backgroundColor: themeStyle.colors.white,
+              },
+            ]}
+          >
+            <Feather
+              name={isVideo ? "camera" : "video"}
+              size={24}
+              color={themeStyle.colors.black}
+            />
+          </View>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 };

@@ -21,6 +21,7 @@ const PreviewVideo = ({
   disableBlurListener,
   onLoad,
   isVisible = true,
+  isRounded = false,
 }) => {
   const { width: screenWidth } = Dimensions.get("window");
   const [videoStatus, setVideoStatus] = useState({});
@@ -152,7 +153,7 @@ const PreviewVideo = ({
                 width: "100%",
                 height: "100%",
                 borderColor: themeStyle.colors.primary.default,
-                borderRadius: isFullWidth ? 0 : 10,
+                borderRadius: isRounded ? 10 : 0,
                 aspectRatio: 1,
                 transform: [{ scaleX: flipProfileVideo ? -1 : 1 }],
               },

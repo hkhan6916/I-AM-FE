@@ -49,6 +49,8 @@ const CameraStandard = ({
   recording,
   setFile,
   setRecording,
+  disableVideo,
+  defaultCameraPosition = "back",
 }) => {
   const screenOrientation = useScreenOrientation(true);
   const orientation = useOrientation(recording);
@@ -67,7 +69,7 @@ const CameraStandard = ({
   const isForeground = useIsForeground();
   const isActive = isFocussed && isForeground;
 
-  const [cameraPosition, setCameraPosition] = useState("back");
+  const [cameraPosition, setCameraPosition] = useState(defaultCameraPosition);
   const [flash, setFlash] = useState("off");
   const [enableNightMode, setEnableNightMode] = useState(false);
   const dispatch = useDispatch();
@@ -480,6 +482,7 @@ const CameraStandard = ({
           enabled={isCameraInitialized && isActive}
           setIsPressingButton={setIsPressingButton}
           setRecording={setRecording}
+          disableVideo={disableVideo}
         />
       </View>
 
