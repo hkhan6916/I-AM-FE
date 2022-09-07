@@ -1,9 +1,10 @@
 import React from "react";
 import themeStyle from "../theme.style";
-import { TouchableOpacity, View, Text, ScrollView } from "react-native";
+import { TouchableOpacity, View, Text, ScrollView, Image } from "react-native";
 import PreviewVideo from "./PreviewVideo";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import PreviewProfileImage from "./PreviewProfileImage";
 
 const ProfileScreenHeader = React.forwardRef(
   ({ children, userData, isVisible, ...props }, ref) => {
@@ -11,13 +12,20 @@ const ProfileScreenHeader = React.forwardRef(
     return (
       <ScrollView ref={ref} {...props}>
         <View>
-          <PreviewVideo
-            uri={userData?.profileVideoUrl}
-            isFullWidth
-            previewText={"Tap to play"}
-            flipProfileVideo={userData?.flipProfileVideo}
-            isVisible={isVisible}
-          />
+          {userData?.profileVideoUrl ? (
+            <PreviewVideo
+              uri={userData?.profileVideoUrl}
+              isFullWidth
+              previewText={"Tap to play"}
+              flipProfileVideo={userData?.flipProfileVideo}
+              isVisible={isVisible}
+            />
+          ) : userData?.profileImageUrl ? (
+            <PreviewProfileImage
+              url={userData.profileImageUrl}
+              headers={userData?.profileImageHeaders}
+            />
+          ) : null}
           {userData?.followersMode ? (
             <View
               style={{

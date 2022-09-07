@@ -52,6 +52,7 @@ const CardImage = ({
           flex: 1,
           width: screenWidth,
           height: isFull ? screenHeight / 1.2 : decidedHeight,
+          maxHeight: Math.min(screenHeight - 100, 900),
           maxWidth: 900,
           backgroundColor: themeStyle.colors.black,
           objectFit: "contain",
