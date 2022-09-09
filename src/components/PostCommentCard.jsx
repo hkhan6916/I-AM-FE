@@ -52,8 +52,13 @@ const PostCommentCard = ({
             <Avatar
               userId={comment.userId}
               navigation={navigation}
-              avatarUrl={comment.commentAuthor?.profileGifUrl}
+              avatarUrl={
+                comment.commentAuthor?.profileGifUrl ||
+                comment.commentAuthor?.profileImageUrl
+              }
+              hasBorder={!!comment.commentAuthor?.profileGifUrl}
               profileGifHeaders={comment.commentAuthor?.profileGifHeaders}
+              profileImageHeaders={comment.commentAuthor?.profileImageHeaders}
               size={40}
               flipProfileVideo={comment.commentAuthor?.flipProfileVideo}
             />

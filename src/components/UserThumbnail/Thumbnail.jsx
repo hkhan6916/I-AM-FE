@@ -21,8 +21,10 @@ const Thumbnail = ({
     <Avatar
       navigation={navigation}
       size={avatarSize}
-      avatarUrl={user.profileGifUrl}
+      avatarUrl={user.profileGifUrl || user.profileImageUrl}
+      hasBorder={!!user.profileGifUrl}
       profileGifHeaders={user.profileGifHeaders}
+      profileImageHeaders={user.profileImageHeaders}
       preventClicks
       flipProfileVideo={user?.flipProfileVideo}
     />

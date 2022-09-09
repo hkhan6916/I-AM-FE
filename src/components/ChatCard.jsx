@@ -15,8 +15,10 @@ const ChatCard = ({ chat, onPress, userId }) => {
         <Avatar
           preventClicks
           size={50}
-          avatarUrl={user.profileGifUrl || ""}
+          avatarUrl={user.profileGifUrl || user.profileImageUrl || ""}
+          hasBorder={!!user.profileGifUrl}
           profileGifHeaders={user.profileGifHeaders}
+          profileImageHeaders={user.profileImageHeaders}
           flipProfileVideo={user.flipProfileVideo}
         />
         <View style={styles.chatInfo}>

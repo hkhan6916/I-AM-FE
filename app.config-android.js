@@ -7,7 +7,7 @@ export default {
   expo: {
     name: "Magnet",
     slug: "Magnet",
-    version: "1.1.3",
+    version: "1.1.6",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "automatic",
@@ -43,7 +43,7 @@ export default {
       useNextNotificationsApi: true,
       googleServicesFile: "./google-services.json",
       package: "com.magnetapp.magnet",
-      versionCode: 9,
+      versionCode: 10,
       blockedPermissions: [
         "android.permission.USE_FINGERPRINT",
         "android.permission.USE_BIOMETRIC",
@@ -66,6 +66,7 @@ export default {
     plugins: [
       "react-native-compressor",
       "react-native-vision-camera",
+      "@config-plugins/ffmpeg-kit-react-native",
       [
         "expo-build-properties",
         {

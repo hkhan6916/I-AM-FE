@@ -103,15 +103,20 @@ const PreviewVideo = ({
     );
   }
   return (
-    <View>
+    <View
+      style={{ width: screenWidth, maxWidth: 900, justifyContent: "center" }}
+    >
       <LinearGradient
         start={[0, 0.5]}
         end={[1, 0.5]}
         style={[
           {
-            padding: 2,
-            width: isFullWidth ? screenWidth : screenWidth / 1.5,
-            height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
+            padding: 2.5,
+            width: (isFullWidth ? screenWidth : screenWidth / 1.5) - 5,
+            height:
+              (isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5) - 5,
+            alignSelf: "center",
+            borderRadius: 5,
           },
           Platform.OS === "web" && { maxWidth: 900, maxHeight: 600 },
         ]}

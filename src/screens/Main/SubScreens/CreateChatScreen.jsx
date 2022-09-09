@@ -118,7 +118,7 @@ const CreateChatScreen = () => {
   useEffect(() => {
     isMounted.current = true;
     (async () => {
-      if (userData?.profileVideoUrl) {
+      if (userData?.profileVideoUrl || userData?.profileImageUrl) {
         setLoading(true);
         await getUserContacts();
         setLoading(false);

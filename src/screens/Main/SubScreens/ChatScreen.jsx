@@ -736,7 +736,6 @@ const ChatScreen = (props) => {
         socket.off("userJoinedRoom");
         socket.off("userLeftRoom");
         socket.off("receiveUserOnlineStatus");
-        setSocket(null);
       }
     };
   }, [socket, authInfo, chat]);
@@ -752,7 +751,10 @@ const ChatScreen = (props) => {
       setChatUserId(userId);
       setChatUserFirstName(firstName);
     }
-    return () => setMedia({});
+    return () => {
+      setMedia({});
+      setSocket(null);
+    };
   }, [persistedParams]);
 
   if (loading) {

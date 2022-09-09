@@ -48,7 +48,11 @@ export default {
     web: {
       favicon: "./assets/favicon.png",
     },
-    plugins: ["react-native-compressor", "react-native-vision-camera"],
+    plugins: [
+      "react-native-compressor",
+      "react-native-vision-camera",
+      "@config-plugins/ffmpeg-kit-react-native",
+    ],
     extra: {
       apiUrl: process.env.API_URL,
       apiWebSocketUrl: process.env.API_WEBSOCKET_URL,

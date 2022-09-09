@@ -145,8 +145,13 @@ const PostScreen = (props) => {
                     navigation={navigation}
                     userId={post.postAuthor._id}
                     size={50}
-                    avatarUrl={post.postAuthor.profileGifUrl}
+                    avatarUrl={
+                      post.postAuthor.profileGifUrl ||
+                      post.postAuthor.profileImageUrl
+                    }
+                    hasBorder={!!post.postAuthor.profileGifUrl}
                     profileGifHeaders={post.postAuthor.profileGifHeaders}
+                    profileImageHeaders={post.postAuthor.profileImageHeaders}
                     flipProfileVideo={post.postAuthor?.flipProfileVideo}
                   />
                   <View

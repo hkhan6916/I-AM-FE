@@ -252,7 +252,8 @@ const ProfileScreen = () => {
           />
         </TouchableOpacity>
       </View>
-      {!userData?.verified && userData?.profileVideoUrl ? (
+      {!userData?.verified &&
+      (userData?.profileVideoUrl || userData?.profileImageUrl) ? (
         <View
           style={{
             backgroundColor: "rgba(19, 130, 148, 0.2)",

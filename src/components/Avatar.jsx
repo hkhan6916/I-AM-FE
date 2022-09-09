@@ -12,11 +12,11 @@ const Avatar = ({
   preventClicks,
   hasBorder,
   profileGifHeaders,
+  profileImageHeaders,
   flipProfileVideo,
   style,
 }) => {
   const [loaded, setLoaded] = useState(false);
-
   return (
     <View
       style={[
@@ -83,7 +83,10 @@ const Avatar = ({
                       resizeMode: "cover",
                     },
                   })}
-              source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}
+              source={{
+                uri: avatarUrl,
+                headers: profileGifHeaders || profileImageHeaders || {},
+              }}
               onLoad={() => setLoaded(true)}
             />
           ) : (
@@ -107,7 +110,10 @@ const Avatar = ({
         <View>
           {avatarUrl ? (
             <Image
-              source={{ uri: avatarUrl, headers: profileGifHeaders || {} }}
+              source={{
+                uri: avatarUrl,
+                headers: profileGifHeaders || profileImageHeaders || {},
+              }}
               onLoad={() => setLoaded(true)}
               {...(Platform.OS === "web"
                 ? {

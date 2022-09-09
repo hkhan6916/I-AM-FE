@@ -52,8 +52,13 @@ const CommentReplyCard = ({
               userId={reply.userId}
               navigation={navigation}
               size={35}
-              avatarUrl={reply.replyAuthor?.profileGifUrl}
+              avatarUrl={
+                reply.replyAuthor?.profileGifUrl ||
+                reply.replyAuthor?.profileImageUrl
+              }
+              hasBorder={!!reply.replyAuthor?.profileGifUrl}
               profileGifHeaders={reply.replyAuthor?.profileGifHeaders}
+              profileImageHeaders={reply.replyAuthor?.profileImageHeaders}
               flipProfileVideo={reply.replyAuthor?.flipProfileVideo}
             />
             <TouchableOpacity

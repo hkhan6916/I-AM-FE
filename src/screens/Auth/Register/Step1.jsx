@@ -214,7 +214,6 @@ const Step1Screen = () => {
               onBlur={() => setJobTitleOptions([])}
               onEndEditing={() => setJobTitleOptions([])}
               onClear={() => setJobTitleOptions([])}
-              onFocus={() => console.log("hey")}
               onChangeText={(v) => {
                 if (!v) {
                   setJobTitleOptions([]);

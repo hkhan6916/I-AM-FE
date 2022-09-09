@@ -8,7 +8,6 @@ const usePersistedWebParams = (newParams = {}) => {
       const persistedData = localStorage.getItem("params") || "{}";
       // params have values meaning no refresh, so we store it in localstorage
       if (newParams[Object.keys(newParams)[0]] !== "[object Object]") {
-        console.log("hey");
         localStorage.setItem("params", JSON.stringify(newParams));
       }
       setParams(JSON.parse(persistedData));

@@ -13,8 +13,10 @@ const PostAuthor = ({ author }) => {
         navigation={navigation}
         userId={author._id}
         size={50}
-        avatarUrl={author.profileGifUrl}
+        avatarUrl={author.profileGifUrl || author.profileImageUrl}
+        hasBorder={!!author.profileGifUrl}
         profileGifHeaders={author.profileGifHeaders}
+        profileImageHeaders={author.profileImageHeaders}
         flipProfileVideo={author.flipProfileVideo}
       />
       <View

@@ -9,6 +9,7 @@ import PreviewVideo from "./PreviewVideo";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import apiCall from "../helpers/apiCall";
 import UserOptionsModal from "./UserOptionsModal";
+import PreviewProfileImage from "./PreviewProfileImage";
 
 const ProfileInfo = ({
   user,
@@ -130,15 +131,22 @@ const ProfileInfo = ({
         user={user}
         removeConnection={removeConnection}
       />
+      {user?.profileVideoUrl ? (
+        <PreviewVideo
+          uri={user.profileVideoUrl}
+          flipProfileVideo={user.flipProfileVideo}
+          isFullWidth
+          previewText={"Tap to play"}
+          disableBlurListener
+          isVisible={isVisible}
+        />
+      ) : user?.profileImageUrl ? (
+        <PreviewProfileImage
+          url={user.profileImageUrl}
+          headers={user?.profileImageHeaders}
+        />
+      ) : null}
 
-      <PreviewVideo
-        uri={user.profileVideoUrl}
-        flipProfileVideo={user.flipProfileVideo}
-        isFullWidth
-        previewText={"Tap to play"}
-        disableBlurListener
-        isVisible={isVisible}
-      />
       {!user.isSameUser ? (
         <View
           style={{

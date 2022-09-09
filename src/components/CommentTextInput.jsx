@@ -57,7 +57,8 @@ const CommentTextInput = forwardRef(
       replyingTo && replyingTo.firstName && replyingTo.lastName;
     return (
       <View>
-        {!userData.state?.profileVideoUrl ? (
+        {!userData.state?.profileVideoUrl &&
+        !userData.state?.profileImageUrl ? (
           <Text
             style={{
               color: themeStyle.colors.grayscale.lowest,
@@ -93,12 +94,18 @@ const CommentTextInput = forwardRef(
             style={[
               styles.inputBoxContainer,
               hasBorderRadius && { borderRadius: 5 },
-              !userData.state?.profileVideoUrl && { opacity: 0.5 },
+              !userData.state?.profileVideoUrl &&
+                !userData.state?.profileImageUrl && { opacity: 0.5 },
             ]}
           >
             <ScrollView scrollEnabled={height > 48}>
               <TextInput
-                editable={!!userData.state?.profileVideoUrl}
+                editable={
+                  !!(
+                    userData.state?.profileVideoUrl ||
+                    userData.state?.profileImageUrl
+                  )
+                }
                 maxLength={2000}
                 ref={ref}
                 multiline
@@ -141,7 +148,11 @@ const CommentTextInput = forwardRef(
             >
               {!loading ? (
                 <TouchableOpacity
-                  disabled={!commentBody || !userData.state?.profileVideoUrl}
+                  disabled={
+                    !commentBody ||
+                    (!userData.state?.profileVideoUrl &&
+                      !userData.state?.profileImageUrl)
+                  }
                   onPress={() => handleSubmit()}
                   style={{
                     height: "100%",
@@ -153,7 +164,9 @@ const CommentTextInput = forwardRef(
                   <Text
                     style={[
                       styles.postTrigger,
-                      (!commentBody || !userData.state?.profileVideoUrl) && {
+                      (!commentBody ||
+                        (!userData.state?.profileVideoUrl &&
+                          !userData.state?.profileImageUrl)) && {
                         opacity: 0.5,
                       },
                     ]}

@@ -485,7 +485,7 @@ const HomeScreen = () => {
             Post {newPostCreated.state.type}
           </Text>
         ) : null}
-        {userData.profileVideoUrl ? (
+        {userData.profileVideoUrl || userData.profileImageUrl ? (
           <View
             style={{
               flexDirection: "column",

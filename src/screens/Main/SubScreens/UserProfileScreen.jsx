@@ -301,7 +301,10 @@ const UserProfileScreen = (props) => {
               rejectFriendRequest={rejectFriendRequest}
               sendFriendRequest={sendFriendRequest}
               removeConnection={removeConnection}
-              canAdd={userData.state?.profileVideoUrl}
+              canAdd={
+                userData.state?.profileVideoUrl ||
+                userData.state?.profileImageUrl
+              }
               isVisible={extendedState.profileVideoVisible} // If scrolled to top
             />
           );

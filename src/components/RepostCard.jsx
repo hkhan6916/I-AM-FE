@@ -63,8 +63,13 @@ const RepostCard = ({ postContent, isPreview, mediaIsFullWidth = false }) => {
             navigation={navigation}
             userId={postContent.postAuthor._id}
             size={50}
-            avatarUrl={postContent.postAuthor.profileGifUrl}
+            avatarUrl={
+              postContent.postAuthor.profileGifUrl ||
+              postContent.postAuthor.profileImageUrl
+            }
+            hasBorder={!!postContent.postAuthor.profileGifUrl}
             profileGifHeaders={postContent.postAuthor.profileGifHeaders}
+            profileImageHeaders={postContent.postAuthor.profileImageHeaders}
             flipProfileVideo={postContent.postAuthor?.flipProfileVideo}
           />
           <View
