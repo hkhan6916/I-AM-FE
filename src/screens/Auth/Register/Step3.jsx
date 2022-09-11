@@ -34,6 +34,7 @@ import Constants from "expo-constants";
 import webPersistUserData from "../../../helpers/webPersistUserData";
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 import CameraStandard from "../../../components/CameraStandard";
+import convertVideoToMp4 from "../../../helpers/convertVideoToMp4";
 
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
@@ -93,6 +94,7 @@ const Step1Screen = () => {
 
   const sendUserData = async (notificationToken) => {
     setVerifying(true);
+    let profileVideoUri = await convertVideoToMp4(profileVideo);
     const { response, success } = await apiCall(
       "POST",
       "/user/verify-registeration-details",
@@ -100,7 +102,7 @@ const Step1Screen = () => {
         ...existingInfo.state,
         notificationToken,
         profileVideoFileName:
-          profileVideo && profileVideo.replace(/^.*[\\/]/, ""),
+          profileVideoUri && profileVideoUri.replace(/^.*[\\/]/, ""),
         profileImageFileName:
           profileImage && profileImage.replace(/^.*[\\/]/, ""),
         flipProfileVideo: (
@@ -119,11 +121,11 @@ const Step1Screen = () => {
 
     const filePath =
       Platform.OS == "android"
-        ? (profileVideo || profileImage).replace("file://", "")
-        : profileVideo || profileImage;
+        ? (profileVideoUri || profileImage).replace("file://", "")
+        : profileVideoUri || profileImage;
     if (notificationToken) {
       const options = {
-        url: profileVideo
+        url: profileVideoUri
           ? response.signedProfileVideoUploadUrl
           : response.signedProfileImageUploadUrl,
         path: filePath, // path to file

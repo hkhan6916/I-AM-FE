@@ -66,7 +66,12 @@ export default {
     plugins: [
       "react-native-compressor",
       "react-native-vision-camera",
-      "@config-plugins/ffmpeg-kit-react-native",
+      [
+        "@config-plugins/ffmpeg-kit-react-native",
+        {
+          package: "min-gpl",
+        },
+      ],
       [
         "expo-build-properties",
         {

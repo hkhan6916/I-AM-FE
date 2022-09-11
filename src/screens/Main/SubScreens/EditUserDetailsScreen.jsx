@@ -39,6 +39,8 @@ import { getInfoAsync } from "expo-file-system";
 import webPersistUserData from "../../../helpers/webPersistUserData";
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 import CameraStandard from "../../../components/CameraStandard";
+import convertVideoToMp4 from "../../../helpers/convertVideoToMp4";
+import generateGif from "../../../helpers/generateGif";
 
 const { statusBarHeight } = Constants;
 const EditUserDetailsScreen = () => {
@@ -88,6 +90,7 @@ const EditUserDetailsScreen = () => {
 
   const [showUpdatedPill, setShowUpdatedPill] = useState(false);
   const [pickedFromCameraRoll, setPickedFromCameraRoll] = useState(false);
+  const [gif, setGif] = useState("");
 
   const [typingStatus, setTypingStatus] = useState({
     name: "",
@@ -275,8 +278,106 @@ const EditUserDetailsScreen = () => {
     return validationResult;
   };
 
+  const handleSignedUploads = async (
+    options,
+    signedData,
+    ignoreUpdateCall = false
+  ) => {
+    Upload.startUpload(options)
+      .then((uploadId) => {
+        Upload.addListener("progress", uploadId, (progress) => {
+          console.log(progress);
+        });
+        Upload.addListener("error", uploadId, async (data) => {
+          if (!unFocussed) {
+            setIsUpdating(false);
+            const other = JSON.parse(data.responseBody)?.other;
+
+            if (other?.validationErrors) {
+              setValidationErrors(other.validationErrors);
+            } else {
+              setUpdateError(
+                "Sorry, we couldn't update your details. Please try again later"
+              );
+            }
+          }
+        });
+        Upload.addListener("cancelled", uploadId, async (data) => {
+          if (!unFocussed) {
+            setIsUpdating(false);
+            const other = JSON.parse(data.responseBody)?.other;
+
+            if (other?.validationErrors) {
+              setValidationErrors(other.validationErrors);
+            } else {
+              setUpdateError(
+                "Sorry, we couldn't update your details. Please try again later"
+              );
+            }
+          }
+        });
+        Upload.addListener("completed", uploadId, async (data) => {
+          if (data.responseCode === 200) {
+            if (!ignoreUpdateCall) {
+              if (!unFocussed) {
+                setIsUpdating(false);
+              }
+              const { success, response } = await apiCall(
+                "POST",
+                "/user/update/details",
+                {
+                  flipProfileVideo:
+                    Platform.OS === "android" && !pickedFromCameraRoll,
+                  profileVideoKey: signedData?.profileVideoKey,
+                  profileImageKey: signedData?.profileImageKey,
+                  profileGifKey: signedData?.profileGifKey,
+                }
+              );
+              if (!unFocussed) {
+                if (!success) {
+                  setUpdateError(
+                    "Sorry, we could not update your details. Please try again later"
+                  );
+                } else {
+                  setInitialProfileData(response);
+                  if (initialProfileData) {
+                    dispatch({
+                      type: "SET_USER_DATA",
+                      payload: {
+                        ...initialProfileData,
+                        ...response,
+                      },
+                    });
+                    webPersistUserData({
+                      ...initialProfileData,
+                      ...response,
+                    });
+                  }
+                }
+              }
+            }
+          } else if (!unFocussed) {
+            setUpdateError(
+              "Sorry, we couldn't update your details. Please try again later"
+            );
+          }
+        });
+      })
+      .catch(async (e) => {
+        console.log(e);
+        if (!unFocussed) {
+          setUpdateError(
+            `Sorry, we couldn't upload your ${
+              profileVideo ? "profile video" : "profile image"
+            }. Please try again later.`
+          );
+        }
+      });
+  };
+
   const updateProfile = async () => {
     setUpdateError("");
+
     const validationResults = await validateInfo();
     if (Object.keys(validationResults).length) {
       return;
@@ -330,15 +431,32 @@ const EditUserDetailsScreen = () => {
           );
         }
       }
+
+      const validVideoTypes = ["mp4", "webm"];
+      const profileVideoUri = !validVideoTypes.includes(
+        profileVideo?.split(".")[1]
+      )
+        ? await convertVideoToMp4(profileVideo)
+        : profileVideo;
+
+      const gifUri = profileVideo ? await generateGif(profileVideoUri) : null;
+
       if (profileVideo && !faceDetected) return;
       if (profileImage && !faceDetected) return;
+      if (profileVideo && !gifUri) {
+        setUpdateError(
+          "Sorry, there was an issue processing your profile video. Please try again."
+        );
+
+        return;
+      }
       const apiRoute = profileVideo
         ? "/files/signed-video-profile-upload-url"
         : "/files/signed-image-profile-upload-url";
       const { response: signedData, success: signedDataSuccess } =
         await apiCall("POST", apiRoute, {
           username: userdata?.state?.username || "",
-          filename: (profileVideo || profileImage)?.replace(/^.*[\\\/]/, ""),
+          filename: (profileVideoUri || profileImage)?.replace(/^.*[\\\/]/, ""),
         });
       if (!signedDataSuccess) {
         setUpdateError(
@@ -351,10 +469,31 @@ const EditUserDetailsScreen = () => {
       // get signed url
       // if successfully uploaded profile video, send flipproflilevideo plus the profile video key to backend
 
+      if (gifUri) {
+        const filePath =
+          Platform.OS == "android" ? gifUri.replace("file://", "") : gifUri;
+        const options = {
+          url: signedData?.signedGifUrl,
+          path: filePath, // path to file
+          method: "PUT",
+          type: "raw",
+          maxRetries: 2, // set retry count (Android only). Default 2
+          field: "file",
+          // Below are options only supported on Android
+          notification: {
+            enabled: false,
+          },
+          useUtf8Charset: true,
+          // customUploadId: post?._id,
+        };
+
+        await handleSignedUploads(options, signedData, true);
+      }
+
       const filePath =
         Platform.OS == "android"
-          ? (profileVideo || profileImage).replace("file://", "")
-          : profileVideo || profileImage;
+          ? (profileVideoUri || profileImage).replace("file://", "")
+          : profileVideoUri || profileImage;
 
       const options = {
         url: signedData?.signedUrl,
@@ -370,94 +509,7 @@ const EditUserDetailsScreen = () => {
         useUtf8Charset: true,
         // customUploadId: post?._id,
       };
-      Upload.startUpload(options)
-        .then((uploadId) => {
-          Upload.addListener("progress", uploadId, (progress) => {
-            console.log(progress);
-          });
-          Upload.addListener("error", uploadId, async (data) => {
-            if (!unFocussed) {
-              setIsUpdating(false);
-              const other = JSON.parse(data.responseBody)?.other;
-
-              if (other?.validationErrors) {
-                setValidationErrors(other.validationErrors);
-              } else {
-                setUpdateError(
-                  "Sorry, we couldn't update your details. Please try again later"
-                );
-              }
-            }
-          });
-          Upload.addListener("cancelled", uploadId, async (data) => {
-            if (!unFocussed) {
-              setIsUpdating(false);
-              const other = JSON.parse(data.responseBody)?.other;
-
-              if (other?.validationErrors) {
-                setValidationErrors(other.validationErrors);
-              } else {
-                setUpdateError(
-                  "Sorry, we couldn't update your details. Please try again later"
-                );
-              }
-            }
-          });
-          Upload.addListener("completed", uploadId, async (data) => {
-            if (data.responseCode === 200) {
-              if (!unFocussed) {
-                setIsUpdating(false);
-              }
-
-              const { success, response } = await apiCall(
-                "POST",
-                "/user/update/details",
-                {
-                  flipProfileVideo:
-                    Platform.OS === "android" && !pickedFromCameraRoll,
-                  profileVideoKey: signedData?.profileVideoKey,
-                  profileImageKey: signedData?.profileImageKey,
-                }
-              );
-              if (!unFocussed) {
-                if (!success) {
-                  setUpdateError(
-                    "Sorry, we couldn't update your details. Please try again later"
-                  );
-                } else {
-                  setInitialProfileData(response);
-                  if (initialProfileData) {
-                    dispatch({
-                      type: "SET_USER_DATA",
-                      payload: {
-                        ...initialProfileData,
-                        ...response,
-                      },
-                    });
-                    webPersistUserData({
-                      ...initialProfileData,
-                      ...response,
-                    });
-                  }
-                }
-              }
-            } else if (!unFocussed) {
-              setUpdateError(
-                "Sorry, we couldn't update your details. Please try again later"
-              );
-            }
-          });
-        })
-        .catch(async (e) => {
-          console.log(e);
-          if (!unFocussed) {
-            setUpdateError(
-              `Sorry, we couldn't upload your ${
-                profileVideo ? "profile video" : "profile image"
-              }. Please try again later.`
-            );
-          }
-        });
+      await handleSignedUploads(options, signedData, false);
     }
   };
 
@@ -595,6 +647,7 @@ const EditUserDetailsScreen = () => {
               {profileVideo && faceDetected ? "Updating..." : "Updated"}
             </Text>
           ) : null}
+
           <ScrollView
             style={{ marginBottom: 48 }}
             keyboardShouldPersistTaps="handled"
@@ -748,7 +801,7 @@ const EditUserDetailsScreen = () => {
                       setShowProfileVideoOptions(false);
                     }}
                   >
-                    <View
+                    <SafeAreaView
                       style={{
                         flex: 1,
                         alignItems: "center",
@@ -938,7 +991,7 @@ const EditUserDetailsScreen = () => {
                           </TouchableOpacity>
                         </>
                       )}
-                    </View>
+                    </SafeAreaView>
                   </Modal>
                   <TouchableOpacity
                     style={[styles.takeVideoButton]}

@@ -8,7 +8,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
-    "@config-plugins/ffmpeg-kit-react-native": "^3.0.0",
+    "@config-plugins/ffmpeg-kit-react-native": "^2.0.0",
     "@expo/vector-icons": "^13.0.0",
     "@expo/videoplayer": "^0.4.0",
     "@react-native-community/cli": "^6.1.0",
@@ -49,7 +49,7 @@
     "expo-tracking-transparency": "^2.2.0",
     "expo-video-player": "^2.0.4",
     "expo-video-thumbnails": "~6.3.0",
-    "ffmpeg-kit-react-native": "^4.5.2",
+    "ffmpeg-kit-react-native": "4.5.1",
     "lottie-react-native": "^5.0.1",
     "mime-types": "^2.1.35",
     "nanoid": "^3.1.29",
