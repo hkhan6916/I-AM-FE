@@ -804,193 +804,200 @@ const EditUserDetailsScreen = () => {
                     <SafeAreaView
                       style={{
                         flex: 1,
-                        alignItems: "center",
-                        justifyContent: "center",
                         backgroundColor: themeStyle.colors.grayscale.highest,
                       }}
                     >
                       <View
                         style={{
-                          position: "absolute",
-                          top: 10,
-                          right: 10,
-                          zIndex: 10,
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: themeStyle.colors.grayscale.highest,
+                          flex: 1,
                         }}
                       >
-                        <TouchableOpacity
-                          onPress={() => {
-                            setShowProfileImageOptions(false);
-                            setShowProfileVideoOptions(false);
+                        <View
+                          style={{
+                            position: "absolute",
+                            top: 10,
+                            right: 10,
+                            zIndex: 10,
                           }}
                         >
-                          <AntDesign
-                            name="close"
-                            size={24}
-                            color={themeStyle.colors.white}
-                            style={{
-                              color: themeStyle.colors.white,
-                              textShadowOffset: {
-                                width: 1,
-                                height: 1,
-                              },
-                              textShadowRadius: 8,
-                              textShadowColor: themeStyle.colors.black,
+                          <TouchableOpacity
+                            onPress={() => {
+                              setShowProfileImageOptions(false);
+                              setShowProfileVideoOptions(false);
                             }}
-                          />
-                        </TouchableOpacity>
+                          >
+                            <AntDesign
+                              name="close"
+                              size={24}
+                              color={themeStyle.colors.white}
+                              style={{
+                                color: themeStyle.colors.white,
+                                textShadowOffset: {
+                                  width: 1,
+                                  height: 1,
+                                },
+                                textShadowRadius: 8,
+                                textShadowColor: themeStyle.colors.black,
+                              }}
+                            />
+                          </TouchableOpacity>
+                        </View>
+                        {showProfileImageOptions ? (
+                          <>
+                            <Text
+                              style={{
+                                textAlign: "center",
+                                color: themeStyle.colors.grayscale.lowest,
+                                marginBottom: 30,
+                                fontSize: 20,
+                              }}
+                            >
+                              Upload or take a profile image.
+                            </Text>
+                            <TouchableOpacity
+                              style={[styles.takeVideoButton]}
+                              onPress={() => {
+                                setFaceDetected(false);
+                                setProfileImageCameraActivated(true);
+                              }}
+                            >
+                              <View
+                                style={{
+                                  height: screenWidth / 3,
+                                  width: screenWidth / 3,
+                                  alignItems: "center",
+                                  justifyContent: "space-evenly",
+                                }}
+                              >
+                                <Text style={[styles.takeVideoButtonText]}>
+                                  <Entypo
+                                    name="camera"
+                                    size={40}
+                                    color={themeStyle.colors.grayscale.lowest}
+                                  />{" "}
+                                </Text>
+                                <Text
+                                  style={{
+                                    textAlign: "center",
+                                    color: themeStyle.colors.grayscale.lowest,
+                                  }}
+                                >
+                                  Capture
+                                </Text>
+                              </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              style={[styles.takeVideoButton]}
+                              onPress={() => {
+                                setRecordingLength(30);
+                                pickProfileMedia("image");
+                              }}
+                            >
+                              <View
+                                style={{
+                                  height: screenWidth / 3,
+                                  width: screenWidth / 3,
+                                  alignItems: "center",
+                                  justifyContent: "space-evenly",
+                                }}
+                              >
+                                <Text style={[styles.takeVideoButtonText]}>
+                                  <FontAwesome5
+                                    name="images"
+                                    size={40}
+                                    color={themeStyle.colors.grayscale.lowest}
+                                  />{" "}
+                                </Text>
+                                <Text
+                                  style={{
+                                    textAlign: "center",
+                                    color: themeStyle.colors.grayscale.lowest,
+                                  }}
+                                >
+                                  Upload
+                                </Text>
+                              </View>
+                            </TouchableOpacity>
+                          </>
+                        ) : (
+                          <>
+                            <Text
+                              style={{
+                                textAlign: "center",
+                                color: themeStyle.colors.grayscale.lowest,
+                                marginBottom: 30,
+                                fontSize: 20,
+                              }}
+                            >
+                              Upload or record a profile video.
+                            </Text>
+                            <TouchableOpacity
+                              style={styles.takeVideoButton}
+                              onPress={() => {
+                                setFaceDetected(false);
+                                setProfileVideoCameraActivated(true);
+                                setRecordingLength(30);
+                              }}
+                            >
+                              <View
+                                style={{
+                                  height: screenWidth / 3,
+                                  width: screenWidth / 3,
+                                  alignItems: "center",
+                                  justifyContent: "space-evenly",
+                                }}
+                              >
+                                <Text style={styles.takeVideoButtonText}>
+                                  <Ionicons name="videocam" size={40} />
+                                </Text>
+                                <Text
+                                  style={{
+                                    textAlign: "center",
+                                    color: themeStyle.colors.grayscale.lowest,
+                                  }}
+                                >
+                                  Record
+                                </Text>
+                              </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              style={styles.takeVideoButton}
+                              onPress={() => {
+                                setRecordingLength(30);
+                                pickProfileMedia("video");
+                              }}
+                            >
+                              <View
+                                style={{
+                                  height: screenWidth / 3,
+                                  width: screenWidth / 3,
+                                  alignItems: "center",
+                                  justifyContent: "space-evenly",
+                                }}
+                              >
+                                <Text style={styles.takeVideoButtonText}>
+                                  <FontAwesome5
+                                    name="images"
+                                    size={40}
+                                    color={themeStyle.colors.grayscale.lowest}
+                                  />{" "}
+                                </Text>
+                                <Text
+                                  style={{
+                                    textAlign: "center",
+                                    color: themeStyle.colors.grayscale.lowest,
+                                  }}
+                                >
+                                  Upload
+                                </Text>
+                              </View>
+                            </TouchableOpacity>
+                          </>
+                        )}
                       </View>
-                      {showProfileImageOptions ? (
-                        <>
-                          <Text
-                            style={{
-                              textAlign: "center",
-                              color: themeStyle.colors.grayscale.lowest,
-                              marginBottom: 30,
-                              fontSize: 20,
-                            }}
-                          >
-                            Upload or take a profile image.
-                          </Text>
-                          <TouchableOpacity
-                            style={[styles.takeVideoButton]}
-                            onPress={() => {
-                              setFaceDetected(false);
-                              setProfileImageCameraActivated(true);
-                            }}
-                          >
-                            <View
-                              style={{
-                                height: screenWidth / 3,
-                                width: screenWidth / 3,
-                                alignItems: "center",
-                                justifyContent: "space-evenly",
-                              }}
-                            >
-                              <Text style={[styles.takeVideoButtonText]}>
-                                <Entypo
-                                  name="camera"
-                                  size={40}
-                                  color={themeStyle.colors.grayscale.lowest}
-                                />{" "}
-                              </Text>
-                              <Text
-                                style={{
-                                  textAlign: "center",
-                                  color: themeStyle.colors.grayscale.lowest,
-                                }}
-                              >
-                                Capture
-                              </Text>
-                            </View>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={[styles.takeVideoButton]}
-                            onPress={() => {
-                              setRecordingLength(30);
-                              pickProfileMedia("image");
-                            }}
-                          >
-                            <View
-                              style={{
-                                height: screenWidth / 3,
-                                width: screenWidth / 3,
-                                alignItems: "center",
-                                justifyContent: "space-evenly",
-                              }}
-                            >
-                              <Text style={[styles.takeVideoButtonText]}>
-                                <FontAwesome5
-                                  name="images"
-                                  size={40}
-                                  color={themeStyle.colors.grayscale.lowest}
-                                />{" "}
-                              </Text>
-                              <Text
-                                style={{
-                                  textAlign: "center",
-                                  color: themeStyle.colors.grayscale.lowest,
-                                }}
-                              >
-                                Upload
-                              </Text>
-                            </View>
-                          </TouchableOpacity>
-                        </>
-                      ) : (
-                        <>
-                          <Text
-                            style={{
-                              textAlign: "center",
-                              color: themeStyle.colors.grayscale.lowest,
-                              marginBottom: 30,
-                              fontSize: 20,
-                            }}
-                          >
-                            Upload or record a profile video.
-                          </Text>
-                          <TouchableOpacity
-                            style={styles.takeVideoButton}
-                            onPress={() => {
-                              setFaceDetected(false);
-                              setProfileVideoCameraActivated(true);
-                              setRecordingLength(30);
-                            }}
-                          >
-                            <View
-                              style={{
-                                height: screenWidth / 3,
-                                width: screenWidth / 3,
-                                alignItems: "center",
-                                justifyContent: "space-evenly",
-                              }}
-                            >
-                              <Text style={styles.takeVideoButtonText}>
-                                <Ionicons name="videocam" size={40} />
-                              </Text>
-                              <Text
-                                style={{
-                                  textAlign: "center",
-                                  color: themeStyle.colors.grayscale.lowest,
-                                }}
-                              >
-                                Record
-                              </Text>
-                            </View>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={styles.takeVideoButton}
-                            onPress={() => {
-                              setRecordingLength(30);
-                              pickProfileMedia("video");
-                            }}
-                          >
-                            <View
-                              style={{
-                                height: screenWidth / 3,
-                                width: screenWidth / 3,
-                                alignItems: "center",
-                                justifyContent: "space-evenly",
-                              }}
-                            >
-                              <Text style={styles.takeVideoButtonText}>
-                                <FontAwesome5
-                                  name="images"
-                                  size={40}
-                                  color={themeStyle.colors.grayscale.lowest}
-                                />{" "}
-                              </Text>
-                              <Text
-                                style={{
-                                  textAlign: "center",
-                                  color: themeStyle.colors.grayscale.lowest,
-                                }}
-                              >
-                                Upload
-                              </Text>
-                            </View>
-                          </TouchableOpacity>
-                        </>
-                      )}
                     </SafeAreaView>
                   </Modal>
                   <TouchableOpacity
