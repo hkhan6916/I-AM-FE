@@ -8,6 +8,7 @@ import {
   Dimensions,
   ActivityIndicator,
   Platform,
+  ScrollView,
 } from "react-native";
 import themeStyle from "../../../../theme.style";
 import apiCall from "../../../../helpers/apiCall";
@@ -17,7 +18,6 @@ import {
   LayoutProvider,
   RecyclerListView,
 } from "recyclerlistview";
-import { ScrollView } from "react-native-gesture-handler";
 
 const ContactRequestsScreen = () => {
   const [currentTab, setCurrentTab] = useState("received");

@@ -5,15 +5,19 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": { "ANDROID_SDK_ROOT": "/Users/haroonkhan/Library/Android/sdk" }
     },
     "preview": {
       "distribution": "internal",
       "ios": {
         "simulator": true
-      }
+      },
+      "env": { "ANDROID_SDK_ROOT": "/Users/haroonkhan/Library/Android/sdk" }
     },
-    "production": {}
+    "production": {
+      "env": { "ANDROID_SDK_ROOT": "/Users/haroonkhan/Library/Android/sdk" }
+    }
   },
   "submit": {
     "production": {}

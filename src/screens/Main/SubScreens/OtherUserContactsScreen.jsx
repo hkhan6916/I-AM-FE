@@ -7,6 +7,7 @@ import {
   Dimensions,
   ActivityIndicator,
   Platform,
+  ScrollView,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import UserThumbnail from "../../../components/UserThumbnail";
@@ -19,7 +20,6 @@ import {
 } from "recyclerlistview";
 import { useSelector } from "react-redux";
 import themeStyle from "../../../theme.style";
-import { ScrollView } from "react-native-gesture-handler";
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 
 const OtherUserContactsScreen = (props) => {

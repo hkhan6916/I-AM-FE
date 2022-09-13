@@ -7,7 +7,7 @@ export default {
   expo: {
     name: "Magnet",
     slug: "Magnet",
-    version: "1.1.3",
+    version: "1.1.6",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "automatic",
@@ -43,7 +43,22 @@ export default {
       useNextNotificationsApi: true,
       googleServicesFile: "./google-services.json",
       package: "com.magnetapp.magnet",
-      versionCode: 9,
+      versionCode: 10,
+      blockedPermissions: [
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.WRITE_SETTINGS",
+        "android.permission.VIBRATE",
+        "android.permission.READ_PHONE_STATE",
+        "android.permission.WRITE_CALENDAR",
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CONTACTS",
+        "android.permission.READ_CONTACTS",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+      ],
     },
     web: {
       favicon: "./assets/favicon.png",
@@ -57,6 +72,26 @@ export default {
           package: "min-gpl",
         },
       ],
+      [
+        "expo-build-properties",
+        {
+          android: {
+            minSdkVersion: 28,
+            packagingOptions: {
+              pickFirst: [
+                "/armeabi-v7a/libfolly_runtime.so",
+                "/x86/libfolly_runtime.so",
+                "/arm64-v8a/libfolly_runtime.so",
+                "/x86_64/libfolly_runtime.so",
+                "lib/arm64-v8a/libc++_shared.so",
+                "lib/armeabi-v7a/libc++_shared.so",
+                "lib/x86/libc++_shared.so",
+                "lib/x86_64/libc++_shared.so",
+              ],
+            },
+          },
+        },
+      ],
     ],
     extra: {
       apiUrl: process.env.API_URL,
@@ -64,6 +99,9 @@ export default {
       experienceId: process.env.EXPERIENCE_ID,
       packageName: process.env.PACKAGE_NAME,
       appStoreId: process.env.APP_STORE_ID,
+      eas: {
+        projectId: "c8d33980-51de-472d-977a-dc62d80d2683",
+      },
     },
   },
 };

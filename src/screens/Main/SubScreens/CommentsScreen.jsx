@@ -9,6 +9,7 @@ import {
   Platform,
   Keyboard,
   Dimensions,
+  ScrollView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import PostCommentCard from "../../../components/PostCommentCard";
@@ -22,7 +23,6 @@ import {
   LayoutProvider,
   RecyclerListView,
 } from "recyclerlistview";
-import { ScrollView } from "react-native-gesture-handler";
 import usePersistedWebParams from "../../../helpers/hooks/usePersistedWebParams";
 
 const CommentsScreen = (props) => {
