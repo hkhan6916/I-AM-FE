@@ -78,7 +78,12 @@ const Step1Screen = () => {
               (letter) => letter.toUpperCase()
             );
           });
-          setJobTitleOptions(response.length <= 5 ? response : []);
+
+          const jobTitles = response?.filter(
+            (jobTitle) =>
+              !jobTitle?.title?.includes("_") && !jobTitle?.title?.includes("'")
+          );
+          setJobTitleOptions(response.length <= 5 ? jobTitles : []);
         }
       }, 200),
     });
@@ -165,11 +170,9 @@ const Step1Screen = () => {
             {jobTitleOptions?.length ? (
               <ScrollView
                 style={{
-                  // alignSelf: "flex-start",
                   position: "absolute",
                   bottom: 185,
                   zIndex: 111,
-                  // left: 20,
                   backgroundColor: themeStyle.colors.grayscale.higher,
                   paddingHorizontal: 10,
                   width: "100%",
@@ -180,7 +183,6 @@ const Step1Screen = () => {
                   {jobTitleOptions.map((item, i) => (
                     <TouchableOpacity
                       style={{
-                        // marginVertical: 10,
                         height: 48,
                         justifyContent: "center",
                         borderTopColor: themeStyle.colors.grayscale.highest,

@@ -31,7 +31,7 @@ import validatePassword from "../../../helpers/validatePassword";
 import PasswordInputNoBorder from "../../../components/PasswordInputNoBorder";
 import { detectFacesAsync } from "expo-face-detector";
 import { getThumbnailAsync } from "expo-video-thumbnails";
-import Upload from "react-native-background-upload";
+// import Upload from "react-native-background-upload";
 import { useDispatch, useSelector } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 import openAppSettings from "../../../helpers/openAppSettings";
@@ -41,6 +41,7 @@ import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 import CameraStandard from "../../../components/CameraStandard";
 import convertVideoToMp4 from "../../../helpers/convertVideoToMp4";
 import generateGif from "../../../helpers/generateGif";
+import { FileSystemUploadType, uploadAsync } from "expo-file-system";
 
 const { statusBarHeight } = Constants;
 const EditUserDetailsScreen = () => {
@@ -283,96 +284,62 @@ const EditUserDetailsScreen = () => {
     signedData,
     ignoreUpdateCall = false
   ) => {
-    Upload.startUpload(options)
-      .then((uploadId) => {
-        Upload.addListener("progress", uploadId, (progress) => {
-          console.log(progress);
-        });
-        Upload.addListener("error", uploadId, async (data) => {
-          if (!unFocussed) {
-            setIsUpdating(false);
-            const other = JSON.parse(data.responseBody)?.other;
-
-            if (other?.validationErrors) {
-              setValidationErrors(other.validationErrors);
-            } else {
-              setUpdateError(
-                "Sorry, we couldn't update your details. Please try again later"
-              );
-            }
-          }
-        });
-        Upload.addListener("cancelled", uploadId, async (data) => {
-          if (!unFocussed) {
-            setIsUpdating(false);
-            const other = JSON.parse(data.responseBody)?.other;
-
-            if (other?.validationErrors) {
-              setValidationErrors(other.validationErrors);
-            } else {
-              setUpdateError(
-                "Sorry, we couldn't update your details. Please try again later"
-              );
-            }
-          }
-        });
-        Upload.addListener("completed", uploadId, async (data) => {
-          if (data.responseCode === 200) {
-            if (!ignoreUpdateCall) {
-              if (!unFocussed) {
-                setIsUpdating(false);
-              }
-              const { success, response } = await apiCall(
-                "POST",
-                "/user/update/details",
-                {
-                  flipProfileVideo:
-                    Platform.OS === "android" && !pickedFromCameraRoll,
-                  profileVideoKey: signedData?.profileVideoKey,
-                  profileImageKey: signedData?.profileImageKey,
-                  profileGifKey: signedData?.profileGifKey,
-                }
-              );
-              if (!unFocussed) {
-                if (!success) {
-                  setUpdateError(
-                    "Sorry, we could not update your details. Please try again later"
-                  );
-                } else {
-                  setInitialProfileData(response);
-                  if (initialProfileData) {
-                    dispatch({
-                      type: "SET_USER_DATA",
-                      payload: {
-                        ...initialProfileData,
-                        ...response,
-                      },
-                    });
-                    webPersistUserData({
-                      ...initialProfileData,
-                      ...response,
-                    });
-                  }
-                }
-              }
-            }
-          } else if (!unFocussed) {
-            setUpdateError(
-              "Sorry, we couldn't update your details. Please try again later"
-            );
-          }
-        });
-      })
-      .catch(async (e) => {
-        console.log(e);
-        if (!unFocussed) {
-          setUpdateError(
-            `Sorry, we couldn't upload your ${
-              profileVideo ? "profile video" : "profile image"
-            }. Please try again later.`
-          );
-        }
+    try {
+      const response = await uploadAsync(options.url, options.path, {
+        fieldName: "file",
+        httpMethod: options.method,
+        uploadType: FileSystemUploadType.BINARY_CONTENT,
       });
+      if (response.status === 200) {
+        if (!ignoreUpdateCall) {
+          if (!unFocussed) {
+            setIsUpdating(false);
+          }
+          const { success, response } = await apiCall(
+            "POST",
+            "/user/update/details",
+            {
+              flipProfileVideo:
+                Platform.OS === "android" && !pickedFromCameraRoll,
+              profileVideoKey: signedData?.profileVideoKey,
+              profileImageKey: signedData?.profileImageKey,
+              profileGifKey: signedData?.profileGifKey,
+            }
+          );
+          if (!unFocussed) {
+            if (!success) {
+              setUpdateError(
+                "Sorry, we could not update your details. Please try again later"
+              );
+            } else {
+              setInitialProfileData(response);
+              if (initialProfileData) {
+                dispatch({
+                  type: "SET_USER_DATA",
+                  payload: {
+                    ...initialProfileData,
+                    ...response,
+                  },
+                });
+                webPersistUserData({
+                  ...initialProfileData,
+                  ...response,
+                });
+              }
+            }
+          }
+        }
+      } else if (!unFocussed) {
+        setUpdateError(
+          "Sorry, we couldn't update your details. Please try again later"
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      setUpdateError(
+        "Sorry, we couldn't update your details. Please try again later"
+      );
+    }
   };
 
   const updateProfile = async () => {

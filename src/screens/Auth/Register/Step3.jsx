@@ -25,7 +25,7 @@ import PreviewVideo from "../../../components/PreviewVideo";
 import { detectFacesAsync } from "expo-face-detector";
 import { getThumbnailAsync } from "expo-video-thumbnails";
 import AnimatedLottieView from "lottie-react-native";
-import Upload from "react-native-background-upload";
+// import Upload from "react-native-background-upload";
 import { FontAwesome5 } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import openAppSettings from "../../../helpers/openAppSettings";
@@ -34,7 +34,9 @@ import Constants from "expo-constants";
 import webPersistUserData from "../../../helpers/webPersistUserData";
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 import CameraStandard from "../../../components/CameraStandard";
+import generateGif from "../../../helpers/generateGif";
 import convertVideoToMp4 from "../../../helpers/convertVideoToMp4";
+import { FileSystemUploadType, uploadAsync } from "expo-file-system";
 
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
@@ -92,10 +94,76 @@ const Step1Screen = () => {
     return false;
   };
 
+  const handleSignedUploads = async (
+    options,
+    signedData,
+    ignoreUpdateCall = false,
+    notificationToken
+  ) => {
+    try {
+      const uploadResponse = await uploadAsync(options.url, options.path, {
+        fieldName: "file",
+        httpMethod: options.method,
+        uploadType: FileSystemUploadType.BINARY_CONTENT,
+      });
+      if (!ignoreUpdateCall) {
+        if (uploadResponse.status === 200) {
+          const { success } = await apiCall("POST", `/user/register`, {
+            ...existingInfo.state,
+            notificationToken,
+            flipProfileVideo:
+              Platform.OS === "android" && !pickedFromCameraRoll,
+            profileVideoKey: signedData.profileVideoKey,
+            profileGifKey: signedData.profileGifKey,
+            profileImageKey: signedData.profileImageKey,
+          });
+          if (success) {
+            dispatch({
+              type: "SET_USER_DATA",
+              payload: {},
+            });
+            webPersistUserData({});
+            setTimeout(
+              () =>
+                navigation.navigate("Login", {
+                  newlyRegisteredCredentials: {
+                    username: existingInfo?.state?.username,
+                    password: existingInfo?.state?.password,
+                  },
+                }),
+              300
+            );
+          } else {
+            setRegistrationError(
+              "We could not create your account. Please try again later."
+            );
+          }
+        } else {
+          setRegistrationError(
+            `We could not upload your profile ${
+              profileImage ? "image" : "video"
+            }. Please try again later.`
+          );
+        }
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+      setRegistrationError(
+        `We could not upload your profile ${
+          profileImage ? "image" : "video"
+        }. Please try again later.`
+      );
+    }
+  };
+
   const sendUserData = async (notificationToken) => {
-    setVerifying(true);
-    let profileVideoUri = await convertVideoToMp4(profileVideo);
-    const { response, success } = await apiCall(
+    setLoading(true);
+    const profileVideoUri = await convertVideoToMp4(profileVideo);
+    const gifUri = profileVideo ? await generateGif(profileVideoUri) : null;
+
+    const { response, success, message } = await apiCall(
       "POST",
       "/user/verify-registeration-details",
       {
@@ -103,6 +171,7 @@ const Step1Screen = () => {
         notificationToken,
         profileVideoFileName:
           profileVideoUri && profileVideoUri.replace(/^.*[\\/]/, ""),
+        profileGifFileName: gifUri && gifUri.replace(/^.*[\\/]/, ""),
         profileImageFileName:
           profileImage && profileImage.replace(/^.*[\\/]/, ""),
         flipProfileVideo: (
@@ -110,88 +179,39 @@ const Step1Screen = () => {
         ).toString(), //TODO check if we still need to convert to string
       }
     );
-    setVerifying(false);
     if (!success) {
       setRegistrationError(
         "We could not verify your registration details. Please try again later."
       );
       return;
     }
-    setLoading(true);
 
     const filePath =
       Platform.OS == "android"
         ? (profileVideoUri || profileImage).replace("file://", "")
         : profileVideoUri || profileImage;
     if (notificationToken) {
+      if (gifUri) {
+        const filePath =
+          Platform.OS == "android" ? gifUri.replace("file://", "") : gifUri;
+        const options = {
+          url: response?.signedProfileGifUploadUrl,
+          path: filePath, // path to file
+          method: "PUT",
+        };
+
+        await handleSignedUploads(options, response, true, notificationToken);
+      }
+
       const options = {
         url: profileVideoUri
           ? response.signedProfileVideoUploadUrl
           : response.signedProfileImageUploadUrl,
         path: filePath, // path to file
         method: "PUT",
-        type: "raw",
-        maxRetries: 2, // set retry count (Android only). Default 2
-        // Below are options only supported on Android
-        notification: {
-          enabled: false,
-        },
-        useUtf8Charset: true,
       };
-      Upload.startUpload(options)
-        .then((uploadId) => {
-          Upload.addListener("progress", uploadId, () => {});
-          Upload.addListener("error", uploadId, async (error) => {
-            setLoading(false);
-            console.log({ error });
-            setRegistrationError(
-              "We could not upload your profile video. Please try again later."
-            );
-          });
-          Upload.addListener("cancelled", uploadId, async (cancelled) => {
-            console.log({ cancelled });
-            setLoading(false);
-            setRegistrationError(
-              "We could not upload your profile video. Please try again later."
-            );
-          });
-          Upload.addListener("completed", uploadId, async (data) => {
-            setLoading(false);
-            if (data.responseCode === 200) {
-              const { success } = await apiCall("POST", `/user/register`, {
-                ...existingInfo.state,
-                notificationToken,
-                flipProfileVideo:
-                  Platform.OS === "android" && !pickedFromCameraRoll,
-                profileVideoKey: response.profileVideoKey,
-                profileImageKey: response.profileImageKey,
-              });
-              if (success) {
-                dispatch({
-                  type: "SET_USER_DATA",
-                  payload: {},
-                });
-                webPersistUserData({});
-                setTimeout(() => navigation.navigate("Login"), 500);
-              } else {
-                setRegistrationError(
-                  "We could not create your account. Please try again later."
-                );
-              }
-            } else {
-              setRegistrationError(
-                "We could not upload your profile video. Please try again later."
-              );
-            }
-          });
-        })
-        .catch(async (err) => {
-          console.log(err);
-          setLoading(false);
-          setRegistrationError(
-            "We could not upload your profile video. Please try again later."
-          );
-        });
+
+      await handleSignedUploads(options, response, false, notificationToken);
     }
   };
 
@@ -223,7 +243,16 @@ const Step1Screen = () => {
           payload: {},
         });
         webPersistUserData({});
-        setTimeout(() => navigation.navigate("Login"), 300);
+        setTimeout(
+          () =>
+            navigation.navigate("Login", {
+              newlyRegisteredCredentials: {
+                username: existingInfo?.state?.username,
+                password: existingInfo?.state?.password,
+              },
+            }),
+          300
+        );
       } else {
         setRegistrationError("An error occurred. Please try again.");
       }
@@ -279,7 +308,7 @@ const Step1Screen = () => {
     if (status !== "granted") {
       Alert.alert(
         "Unable access camera roll",
-        "Please enable storage permissions to upload a profile video from your local files.",
+        "Please enable storage permissions to upload media from your local files.",
         [
           {
             text: "Cancel",

@@ -24,7 +24,7 @@ import { openURL } from "expo-linking";
 import IosBadge from "../../components/AppStoreBadges/AppStoreBadge";
 import PlayStoreBadge from "../../components/AppStoreBadges/PlayStoreBadge";
 
-const LoginScreen = () => {
+const LoginScreen = ({ route }) => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -105,13 +105,20 @@ const LoginScreen = () => {
   };
 
   useEffect(() => {
+    if (
+      route?.params?.newlyRegisteredCredentials?.password &&
+      route?.params?.newlyRegisteredCredentials?.username
+    ) {
+      setIdentifier(route.params.newlyRegisteredCredentials.username);
+      setPassword(route.params.newlyRegisteredCredentials.password);
+    }
     const unsubscribe = navigation.addListener("blur", () => {
       setLoginError("");
       setShowPassword(false);
     });
 
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation, route]);
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.formContainer}>
