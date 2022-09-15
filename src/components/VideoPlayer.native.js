@@ -6,7 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import Video from "react-native-video";
+import { Video } from "expo-av";
 import themeStyle from "../theme.style";
 import { Feather } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
@@ -96,65 +96,36 @@ const VideoPlayer = ({
           </Text>
         ) : null}
         <View style={{ backgroundColor: themeStyle.colors.black }}>
-          {/* <View
-            style={{
-              position: !preventPlay || shouldPlay ? "absolute" : "relative",
-              top: 0,
-              width: "100%",
-              height: "100%",
-              opacity:
-                !readyForDisplay || isUploading || isCancelled || preventPlay
-                  ? 0.7
-                  : 0,
-            }}
-          >
-            <CardImage
-              mediaHeaders={thumbnailHeaders}
-              mediaUrl={thumbnailUrl}
-              screenWidth={screenWidth}
-              screenHeight={screenHeight}
-              height={height}
-              width={width}
-            />
-          </View> */}
-          {!readyForDisplay ||
-          isUploading ||
-          isCancelled ||
-          preventPlay ||
-          disableVideo ? (
-            <CardImage
-              mediaHeaders={thumbnailHeaders}
-              mediaUrl={thumbnailUrl}
-              screenWidth={screenWidth}
-              screenHeight={screenHeight}
-              height={height}
-              width={width}
-            />
-          ) : null}
-
-          {/* {!preventPlay || shouldPlay ? ( */}
           {!isUploading && !isCancelled && !preventPlay && !disableVideo ? (
             <Video
-              onReadyForDisplay={() => {
-                setReadyForDisplay(true);
-              }}
-              repeat={true}
-              // isMuted={(!showToggle || isMuted) && !unMute}
-              paused={!shouldPlay}
-              muted={!globalUnMuteVideos}
-              // shouldPlay={shouldPlay || !preventPlay}
+              onReadyForDisplay={() => setReadyForDisplay(true)}
+              isLooping={true}
+              shouldPlay={shouldPlay}
+              usePoster
+              isMuted={!globalUnMuteVideos}
               ref={video}
-              playInBackground={false}
-              // isLooping={true}
+              posterSource={{ uri: thumbnailUrl, headers: thumbnailHeaders }}
+              posterStyle={[
+                {
+                  width: screenWidth,
+                  height: decidedHeight,
+                  backgroundColor: themeStyle.colors.black,
+                },
+                (!height || !width) && {
+                  width: screenWidth,
+                  height: screenWidth,
+                  aspectRatio: 1 / 1,
+                },
+              ]}
+              // playInBackground={false}
               style={[
                 {
-                  // aspectRatio: aspectRatio || 1,
-                  height: !readyForDisplay ? 0 : decidedHeight,
+                  height: decidedHeight,
                   width: Math.min(screenWidth, screenHeight), // math.min needed for when user switches back from landscape
                 },
                 (!height || !width) && {
                   width: screenWidth,
-                  height: !readyForDisplay ? 0 : "100%",
+                  height: "100%",
                   aspectRatio: 1 / 1,
                 },
               ]}
@@ -163,8 +134,11 @@ const VideoPlayer = ({
               }}
               useNativeControls={false}
               resizeMode="contain"
-              onProgress={(status) => setVideoStatus(status)}
-              // onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
+              // onProgress={(status) => setVideoStatus(status)}
+              onPlaybackStatusUpdate={(status) => {
+                setVideoStatus(status);
+                setReadyForDisplay(status.isLoaded);
+              }}
             />
           ) : null}
           {/* ) : null} */}
