@@ -12,10 +12,11 @@ import {
   Platform,
   Alert,
   Image,
+  Linking,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, FontAwesome5, AntDesign, Entypo } from "@expo/vector-icons";
 import { getExpoPushTokenAsync } from "expo-notifications";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
@@ -26,7 +27,6 @@ import { detectFacesAsync } from "expo-face-detector";
 import { getThumbnailAsync } from "expo-video-thumbnails";
 import AnimatedLottieView from "lottie-react-native";
 // import Upload from "react-native-background-upload";
-import { FontAwesome5 } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import openAppSettings from "../../../helpers/openAppSettings";
 import { getInfoAsync } from "expo-file-system";
@@ -37,13 +37,16 @@ import CameraStandard from "../../../components/CameraStandard";
 import generateGif from "../../../helpers/generateGif";
 import convertVideoToMp4 from "../../../helpers/convertVideoToMp4";
 import { FileSystemUploadType, uploadAsync } from "expo-file-system";
-
+import PreviewProfileImage from "../../../components/PreviewProfileImage";
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [hasAudioPermission, setHasAudioPermission] = useState(null);
+
+  const [showProfileVideoOptions, setShowProfileVideoOptions] = useState(false);
+  const [showProfileImageOptions, setShowProfileImageOptions] = useState(false);
 
   const [profileVideoCameraActivated, setProfileVideoCameraActivated] =
     useState(false);
@@ -297,18 +300,23 @@ const Step1Screen = () => {
     if (faces?.length) {
       setFaceDetected(true);
     } else {
-      setFaceDetected(false);
+      // try to detect face again but towards the end of the video
+      const { uri } = await getThumbnailAsync(profileVideo, {
+        time: Number(duration) - 1000,
+      });
+      const { faces } = await detectFacesAsync(uri);
+      setFaceDetected(!!faces?.length);
     }
     setDetectingFaces(false);
     setLoadingVideo(false);
   };
 
-  const pickProfileVideo = async () => {
+  const pickProfileMedia = async (type = "video") => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
         "Unable access camera roll",
-        "Please enable storage permissions to upload media from your local files.",
+        `Please enable storage permissions to upload a profile ${type} from your local files.`,
         [
           {
             text: "Cancel",
@@ -323,27 +331,32 @@ const Step1Screen = () => {
 
     if (status === "granted") {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        mediaTypes:
+          type === "video"
+            ? ImagePicker.MediaTypeOptions.Videos
+            : ImagePicker.MediaTypeOptions.Images,
         quality: 0.3,
         allowsMultipleSelection: false,
         videoMaxDuration: 30,
         allowsEditing: false,
       });
       if (!result.cancelled) {
+        setShowProfileImageOptions(false);
+        setShowProfileVideoOptions(false);
         const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
         if (mediaSizeInMb > 50) {
           setShowVideoSizeError(true);
           Alert.alert(
-            "Unable to process this video",
-            "This video is too large. Please choose a video that is 50MB or smaller in size.",
+            `Unable to process this ${type}`,
+            `This ${type} is too large. Please choose a ${type} that is 50MB or smaller in size.`,
             [
               {
                 text: "Cancel",
               },
               {
-                text: "Select Another Video",
-                onPress: () => pickProfileVideo(),
+                text: `Select Another ${type}`,
+                onPress: () => pickProfileMedia(type),
               },
             ]
           );
@@ -354,7 +367,13 @@ const Step1Screen = () => {
         setDetectingFaces(false);
         setPickedFromCameraRoll(true);
         setShowVideoSizeError(false);
-        setProfileVideo(result.uri);
+        if (type === "video") {
+          setProfileVideo(result.uri);
+        } else {
+          setProfileImage(result.uri);
+          await handleFaceDetection(0, result.uri);
+          setProfileVideo("");
+        }
       }
     }
   };
@@ -421,6 +440,8 @@ const Step1Screen = () => {
           setPickedFromCameraRoll(false);
           setProfileVideo(video);
           setProfileImage("");
+          setShowProfileImageOptions(false);
+          setShowProfileVideoOptions(false);
         }}
         setCameraActivated={setProfileVideoCameraActivated}
         setRecordingLength={setRecordingLength}
@@ -444,6 +465,8 @@ const Step1Screen = () => {
           setProfileImage(file.uri);
           handleFaceDetection(0, file.uri);
           setProfileVideo("");
+          setShowProfileImageOptions(false);
+          setShowProfileVideoOptions(false);
         }}
       />
     );
@@ -467,7 +490,7 @@ const Step1Screen = () => {
               opacity: skipProfileVideo ? 0.1 : 1,
             }}
           >
-            Build quality connections with profile videos.
+            Build quality connections by adding a profile image or video.
           </Text>
           <Modal
             visible={showHelpModal}
@@ -527,16 +550,7 @@ const Step1Screen = () => {
 
           {profileImage && !skipProfileVideo ? (
             <View>
-              <Image
-                source={{ uri: profileImage }}
-                style={{
-                  width: screenWidth / 1.3,
-                  height: screenWidth / 1.3,
-                  borderRadius: screenWidth / 1.3 / 2,
-                  borderWidth: 2,
-                  borderColor: themeStyle.colors.primary.default,
-                }}
-              />
+              <PreviewProfileImage url={profileImage} />
               {!detectingFaces && !faceDetected ? (
                 <Text style={styles.faceDetectionError}>
                   Face was not fully detected. Please make sure your face is
@@ -587,70 +601,274 @@ const Step1Screen = () => {
               ) : null}
             </View>
           ) : null}
-          <View style={{ opacity: skipProfileVideo ? 0.1 : 1 }}>
-            <TouchableOpacity
-              disabled={skipProfileVideo}
-              style={[styles.takeVideoButton]}
-              onPress={() => {
-                setFaceDetected(false);
-                setProfileImageCameraActivated(true);
-              }}
-            >
-              <Text style={[styles.takeVideoButtonText]}>
-                <Ionicons
-                  name="videocam"
-                  size={14}
-                  color={themeStyle.colors.grayscale.lowest}
-                />{" "}
-                Take profile photo
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              disabled={skipProfileVideo}
-              style={[styles.takeVideoButton]}
-              onPress={() => {
-                setFaceDetected(false);
-                setProfileVideoCameraActivated(true);
-              }}
-            >
-              <Text style={[styles.takeVideoButtonText]}>
-                <Ionicons
-                  name="videocam"
-                  size={14}
-                  color={themeStyle.colors.grayscale.lowest}
-                />{" "}
-                Take profile video
-              </Text>
-            </TouchableOpacity>
-            <Text
-              style={{
-                textAlign: "center",
-                color: themeStyle.colors.grayscale.lowest,
-                fontWeight: "700",
-              }}
-            >
-              or
-            </Text>
-            <TouchableOpacity
-              onPress={() => pickProfileVideo()}
-              style={[styles.uploadVideoButton]}
-              disabled={skipProfileVideo}
-            >
-              <Text
-                style={{
-                  color: themeStyle.colors.grayscale.lowest,
-                  fontWeight: "900",
+          {Platform.OS !== "web" ? (
+            <View>
+              <Modal
+                visible={showProfileVideoOptions || showProfileImageOptions}
+                onRequestClose={() => {
+                  setShowProfileImageOptions(false);
+                  setShowProfileVideoOptions(false);
                 }}
               >
-                <FontAwesome5
-                  name="images"
-                  size={14}
-                  color={themeStyle.colors.grayscale.lowest}
-                />{" "}
-                Upload profile video
+                <SafeAreaView
+                  style={{
+                    flex: 1,
+                    backgroundColor: themeStyle.colors.grayscale.highest,
+                  }}
+                >
+                  <View
+                    style={{
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: themeStyle.colors.grayscale.highest,
+                      flex: 1,
+                    }}
+                  >
+                    <View
+                      style={{
+                        position: "absolute",
+                        top: 10,
+                        right: 10,
+                        zIndex: 10,
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => {
+                          setShowProfileImageOptions(false);
+                          setShowProfileVideoOptions(false);
+                        }}
+                      >
+                        <AntDesign
+                          name="close"
+                          size={24}
+                          color={themeStyle.colors.white}
+                          style={{
+                            color: themeStyle.colors.white,
+                            textShadowOffset: {
+                              width: 1,
+                              height: 1,
+                            },
+                            textShadowRadius: 8,
+                            textShadowColor: themeStyle.colors.black,
+                          }}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                    {showProfileImageOptions ? (
+                      <>
+                        <Text
+                          style={{
+                            textAlign: "center",
+                            color: themeStyle.colors.grayscale.lowest,
+                            marginBottom: 30,
+                            fontSize: 20,
+                          }}
+                        >
+                          Upload or take a profile image.
+                        </Text>
+                        <TouchableOpacity
+                          style={[styles.takeVideoButton]}
+                          onPress={() => {
+                            setFaceDetected(false);
+                            setProfileImageCameraActivated(true);
+                          }}
+                        >
+                          <View
+                            style={{
+                              height: screenWidth / 3,
+                              width: screenWidth / 3,
+                              alignItems: "center",
+                              justifyContent: "space-evenly",
+                            }}
+                          >
+                            <Text style={[styles.takeVideoButtonText]}>
+                              <Entypo
+                                name="camera"
+                                size={40}
+                                color={themeStyle.colors.grayscale.lowest}
+                              />{" "}
+                            </Text>
+                            <Text
+                              style={{
+                                textAlign: "center",
+                                color: themeStyle.colors.grayscale.lowest,
+                              }}
+                            >
+                              Capture
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[styles.takeVideoButton]}
+                          onPress={() => {
+                            setRecordingLength(30);
+                            pickProfileMedia("image");
+                          }}
+                        >
+                          <View
+                            style={{
+                              height: screenWidth / 3,
+                              width: screenWidth / 3,
+                              alignItems: "center",
+                              justifyContent: "space-evenly",
+                            }}
+                          >
+                            <Text style={[styles.takeVideoButtonText]}>
+                              <FontAwesome5
+                                name="images"
+                                size={40}
+                                color={themeStyle.colors.grayscale.lowest}
+                              />{" "}
+                            </Text>
+                            <Text
+                              style={{
+                                textAlign: "center",
+                                color: themeStyle.colors.grayscale.lowest,
+                              }}
+                            >
+                              Upload
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                      </>
+                    ) : (
+                      <>
+                        <Text
+                          style={{
+                            textAlign: "center",
+                            color: themeStyle.colors.grayscale.lowest,
+                            marginBottom: 30,
+                            fontSize: 20,
+                          }}
+                        >
+                          Upload or record a profile video.
+                        </Text>
+                        <TouchableOpacity
+                          style={styles.takeVideoButton}
+                          onPress={() => {
+                            setFaceDetected(false);
+                            setProfileVideoCameraActivated(true);
+                            setRecordingLength(30);
+                          }}
+                        >
+                          <View
+                            style={{
+                              height: screenWidth / 3,
+                              width: screenWidth / 3,
+                              alignItems: "center",
+                              justifyContent: "space-evenly",
+                            }}
+                          >
+                            <Text style={styles.takeVideoButtonText}>
+                              <Ionicons name="videocam" size={40} />
+                            </Text>
+                            <Text
+                              style={{
+                                textAlign: "center",
+                                color: themeStyle.colors.grayscale.lowest,
+                              }}
+                            >
+                              Record
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.takeVideoButton}
+                          onPress={() => {
+                            setRecordingLength(30);
+                            pickProfileMedia("video");
+                          }}
+                        >
+                          <View
+                            style={{
+                              height: screenWidth / 3,
+                              width: screenWidth / 3,
+                              alignItems: "center",
+                              justifyContent: "space-evenly",
+                            }}
+                          >
+                            <Text style={styles.takeVideoButtonText}>
+                              <FontAwesome5
+                                name="images"
+                                size={40}
+                                color={themeStyle.colors.grayscale.lowest}
+                              />{" "}
+                            </Text>
+                            <Text
+                              style={{
+                                textAlign: "center",
+                                color: themeStyle.colors.grayscale.lowest,
+                              }}
+                            >
+                              Upload
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                      </>
+                    )}
+                  </View>
+                </SafeAreaView>
+              </Modal>
+              <View style={{ marginTop: 20 }}>
+                <TouchableOpacity
+                  style={[styles.takeVideoButton]}
+                  onPress={() => {
+                    setShowProfileImageOptions(true);
+                  }}
+                >
+                  <Text style={[styles.takeVideoButtonText]}>
+                    <Ionicons
+                      name="videocam"
+                      size={14}
+                      color={themeStyle.colors.grayscale.lowest}
+                    />{" "}
+                    Add profile photo
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.takeVideoButton]}
+                  onPress={() => {
+                    setShowProfileVideoOptions(true);
+                  }}
+                >
+                  <Text style={[styles.takeVideoButtonText]}>
+                    <Ionicons
+                      name="videocam"
+                      size={14}
+                      color={themeStyle.colors.grayscale.lowest}
+                    />{" "}
+                    Add profile video
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : (
+            <View style={{ marginVertical: 20 }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  textAlign: "center",
+                  fontWeight: "700",
+                  color: themeStyle.colors.grayscale.lowest,
+                }}
+              >
+                Download the{" "}
+                <Text
+                  style={{ color: themeStyle.colors.primary.default }}
+                  onPress={async () => {
+                    const canOpen = await Linking.canOpenURL("/");
+                    if (canOpen) {
+                      Linking.openURL("/");
+                    }
+                  }}
+                >
+                  Magnet App
+                </Text>{" "}
+                to add a profile image or video.
               </Text>
-            </TouchableOpacity>
-          </View>
+            </View>
+          )}
+
           {!skipProfileVideo ? (
             <TouchableOpacity
               disabled={skipProfileVideo}
@@ -699,6 +917,22 @@ const Step1Screen = () => {
               />
             )}
           </TouchableOpacity>
+          {skipProfileVideo ? (
+            <TouchableOpacity
+              style={{ marginTop: 20 }}
+              onPress={() => setSkipProfileVideo(false)}
+            >
+              <Text
+                style={{
+                  color: themeStyle.colors.secondary.default,
+                  fontWeight: "700",
+                  marginVertical: 20,
+                }}
+              >
+                No, I want to add a face
+              </Text>
+            </TouchableOpacity>
+          ) : null}
           <TouchableOpacity
             style={{
               marginVertical: 20,

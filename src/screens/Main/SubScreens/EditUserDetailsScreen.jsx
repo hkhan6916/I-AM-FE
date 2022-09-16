@@ -18,7 +18,13 @@ import {
 import Constants from "expo-constants";
 import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera";
-import { Ionicons, FontAwesome5, AntDesign, Entypo } from "@expo/vector-icons";
+import {
+  Ionicons,
+  FontAwesome5,
+  AntDesign,
+  Entypo,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import { getItemAsync } from "expo-secure-store";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
@@ -622,20 +628,22 @@ const EditUserDetailsScreen = () => {
             {!profileVideo &&
             !initialProfileData.profileVideoUrl &&
             !initialProfileData.profileImageUrl ? (
-              <Text
-                style={{
-                  color: themeStyle.colors.secondary.default,
-                  fontWeight: "700",
-                  textAlign: "center",
-                  marginVertical: 20,
-                  fontSize: 20,
-                  marginHorizontal: 10,
-                }}
-              >
-                {Platform.OS !== "web"
-                  ? `Add a profile image or video to complete your profile.`
-                  : "Add a profile image or video to complete your profile using the Magnet App."}
-              </Text>
+              <View style={{ width: "100%", alignItems: "center" }}>
+                <Text
+                  style={{
+                    color: themeStyle.colors.grayscale.lowest,
+                    fontWeight: "700",
+                    textAlign: "center",
+                    marginVertical: 20,
+                    fontSize: 20,
+                    marginHorizontal: 10,
+                  }}
+                >
+                  {Platform.OS !== "web"
+                    ? `Add a profile image or video to complete your profile.`
+                    : "Add a profile image or video to complete your profile using the Magnet App."}
+                </Text>
+              </View>
             ) : null}
             <View style={styles.formContainer}>
               {Platform.OS !== "web" ? (
@@ -978,7 +986,7 @@ const EditUserDetailsScreen = () => {
                         name="videocam"
                         size={14}
                         color={themeStyle.colors.grayscale.lowest}
-                      />
+                      />{" "}
                       Add profile photo
                     </Text>
                   </TouchableOpacity>
@@ -993,7 +1001,7 @@ const EditUserDetailsScreen = () => {
                         name="videocam"
                         size={14}
                         color={themeStyle.colors.grayscale.lowest}
-                      />
+                      />{" "}
                       Add profile video
                     </Text>
                   </TouchableOpacity>

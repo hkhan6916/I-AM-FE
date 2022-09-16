@@ -8,7 +8,10 @@ const convertVideoToMp4 = async (videoUri) => {
 
   const outputUri = baseDir + newFileName;
   try {
-    //https://stackoverflow.com/questions/21184014/ffmpeg-converted-mp4-file-does-not-play-in-firefox-and-chrome
+    /**
+     * FLAG: -pix_fmt yuv420p
+     * URL: https://stackoverflow.com/questions/21184014/ffmpeg-converted-mp4-file-does-not-play-in-firefox-and-chrome
+     * */
     await FFmpegKit.execute(
       `-i ${videoUri} -vcodec h264 -pix_fmt yuv420p -acodec copy ${outputUri}`
     );

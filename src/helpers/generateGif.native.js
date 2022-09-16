@@ -8,7 +8,6 @@ const generateGif = async (videoUri) => {
 
   const outputUri = baseDir + newFileName;
   try {
-    //https://stackoverflow.com/questions/21184014/ffmpeg-converted-mp4-file-does-not-play-in-firefox-and-chrome
     await FFmpegKit.execute(
       `-i ${videoUri} -vf "scale=320:-1:flags=lanczos,fps=3" ${outputUri}`
     );

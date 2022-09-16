@@ -2,7 +2,12 @@ import React from "react";
 import themeStyle from "../theme.style";
 import { TouchableOpacity, View, Text, ScrollView, Image } from "react-native";
 import PreviewVideo from "./PreviewVideo";
-import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import PreviewProfileImage from "./PreviewProfileImage";
 
@@ -25,7 +30,58 @@ const ProfileScreenHeader = React.forwardRef(
               url={userData.profileImageUrl}
               headers={userData?.profileImageHeaders}
             />
-          ) : null}
+          ) : (
+            <View
+              style={{
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <PreviewVideo uri={null} isFullWidth />
+              <View
+                style={{
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: 20,
+                }}
+              >
+                <Text
+                  style={{
+                    fontWeight: "700",
+                    marginBottom: 20,
+                    color: themeStyle.colors.grayscale.lowest,
+                    width: 250,
+                    textAlign: "center",
+                  }}
+                >
+                  Complete your profile by adding a profile image or video.
+                </Text>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("EditUserDetailsScreen")}
+                >
+                  <View
+                    style={{
+                      paddingVertical: 5,
+                      paddingHorizontal: 10,
+                      backgroundColor: themeStyle.colors.secondary.default,
+                      borderRadius: 5,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontWeight: "700",
+                        color: themeStyle.colors.white,
+                      }}
+                    >
+                      Complete profile
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
           {userData?.followersMode ? (
             <View
               style={{

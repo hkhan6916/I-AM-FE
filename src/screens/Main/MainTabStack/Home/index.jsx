@@ -577,7 +577,7 @@ const HomeScreen = () => {
                   textAlign: "center",
                 }}
               >
-                Complete your profile by adding a profile video.
+                Complete your profile by adding a profile image or video.
               </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate("EditUserDetailsScreen")}

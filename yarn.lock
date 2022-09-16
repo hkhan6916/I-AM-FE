@@ -5465,7 +5465,7 @@ expo-updates-interface@~0.7.0:
   resolved "https://registry.yarnpkg.com/expo-updates-interface/-/expo-updates-interface-0.7.0.tgz#f4f03b61dbdd949cac9fb44e250e1162ba177650"
   integrity sha512-saThnbrYDSjKxfMFFguAvh5o5KGabvAOHItkJRwq2L3c0T/3q26Q0kM83880h/+TTtAVsl1+Vhny9d+ImD3yvQ==
 
-expo-video-player@^2.0.4:
+expo-video-player@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/expo-video-player/-/expo-video-player-2.1.0.tgz#fe87fef8ba584c4f97d63b6f1874d812711a9abe"
   integrity sha512-yZLA+hv3qGXDkGPS6c//ufKsBeIsSl4wZPLEi16qZYjJY78tykKlb39EfpQiBK311YTY80YKdpxUI+pIi521tw==

@@ -96,6 +96,16 @@ const VideoPlayer = ({
           </Text>
         ) : null}
         <View style={{ backgroundColor: themeStyle.colors.black }}>
+          {isUploading || isCancelled || preventPlay || disableVideo ? (
+            <CardImage
+              mediaHeaders={thumbnailHeaders}
+              mediaUrl={thumbnailUrl}
+              screenWidth={screenWidth}
+              screenHeight={screenHeight}
+              height={height}
+              width={width}
+            />
+          ) : null}
           {!isUploading && !isCancelled && !preventPlay && !disableVideo ? (
             <Video
               onReadyForDisplay={() => setReadyForDisplay(true)}

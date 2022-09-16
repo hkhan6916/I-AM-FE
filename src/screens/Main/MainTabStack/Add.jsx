@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -53,6 +53,8 @@ const AddScreen = () => {
   const [thumbnail, setThumbnail] = useState("");
 
   const navigation = useNavigation();
+
+  const videoRef = useRef(null);
 
   const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -358,9 +360,19 @@ const AddScreen = () => {
     setGif(gifUrl);
   };
 
-  if (!isFocused) {
-    return null;
-  }
+  useEffect(() => {
+    (async () => {
+      if (file?.uri && file?.type?.split("/")[0] === "video") {
+        if (!isFocused) {
+          await videoRef?.current?.pauseAsync(); // fixes audio issues if using music for example
+          await videoRef?.current?.unloadAsync(); // remove from memory
+        }
+        if (isFocused) {
+          await videoRef?.current?.loadAsync({ uri: file.uri }); // add back to memory
+        }
+      }
+    })();
+  }, [isFocused, file]);
 
   if (cameraActive && isFocused) {
     return (
@@ -496,8 +508,10 @@ const AddScreen = () => {
                     alignItems: "center",
                     justifyContent: "center",
                   }}
-                  onPress={() => {
-                    setFile({});
+                  onPress={async () => {
+                    await videoRef?.current?.pauseAsync(); // fixes audio issues if using music for example
+                    await videoRef?.current?.unloadAsync(); // remove from memory
+                    setFile({}); // make sure video is no longer in state
                     setShowMediaSizeError(false);
                   }}
                 >
@@ -544,6 +558,7 @@ const AddScreen = () => {
                         source: {
                           uri: file.uri,
                         },
+                        ref: videoRef,
                         style: {
                           transform: [{ scaleX: file.isSelfie ? -1 : 1 }],
                           height: "100%",
