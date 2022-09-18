@@ -150,6 +150,7 @@ const Step2Screen = () => {
             label="Username"
             value={username}
             setValue={setUsername}
+            maxLength={30}
             onChangeText={(v) => {
               setUsername(v);
               if (validationErrors.username) {
@@ -164,6 +165,7 @@ const Step2Screen = () => {
             }
           />
           <Input
+            maxLength={200}
             isOutlined
             error={
               validationErrors.email?.exists

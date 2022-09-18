@@ -1033,6 +1033,7 @@ const EditUserDetailsScreen = () => {
                 </View>
               )}
               <InputNoBorder
+                maxLength={40}
                 error={validationErrors?.firstName}
                 label="First Name"
                 value={
@@ -1049,6 +1050,7 @@ const EditUserDetailsScreen = () => {
                 }}
               />
               <InputNoBorder
+                maxLength={40}
                 error={validationErrors?.lastName}
                 label="Last Name"
                 value={
@@ -1106,6 +1108,7 @@ const EditUserDetailsScreen = () => {
                   </ScrollView>
                 ) : null}
                 <InputNoBorder
+                  maxLength={40}
                   label="Job title"
                   value={
                     jobTitle !== null ? jobTitle : initialProfileData.jobTitle
@@ -1130,6 +1133,7 @@ const EditUserDetailsScreen = () => {
                 />
               </View>
               <InputNoBorder
+                maxLength={30}
                 error={
                   validationErrors?.username?.exists
                     ? "A user with this username already exists."
@@ -1153,6 +1157,7 @@ const EditUserDetailsScreen = () => {
                 }
               />
               <InputNoBorder
+                maxLength={200}
                 error={
                   validationErrors?.email?.exists
                     ? "A user with this email already exists."

@@ -39,6 +39,7 @@ const PasswordInputNoBorder = ({
         ]}
       >
         <TextInput
+          maxLength={200}
           style={styles.passwordInput}
           placeholderTextColor={themeStyle.colors.grayscale.low}
           secureTextEntry={!showPassword}

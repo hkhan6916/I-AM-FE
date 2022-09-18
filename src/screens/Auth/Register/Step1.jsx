@@ -136,6 +136,7 @@ const Step1Screen = () => {
           <View style={styles.formContainer}>
             <Text style={styles.titleText}>A bit about you</Text>
             <Input
+              maxLength={40}
               isOutlined
               error={validationErrors?.firstName}
               label="First Name"
@@ -152,6 +153,7 @@ const Step1Screen = () => {
               }}
             />
             <Input
+              maxLength={40}
               isOutlined
               error={validationErrors?.lastName}
               label="Last Name"
@@ -208,6 +210,7 @@ const Step1Screen = () => {
               </ScrollView>
             ) : null}
             <Input
+              maxLength={40}
               isOutlined
               error={validationErrors?.jobTitle}
               label="Job Title/Education"
