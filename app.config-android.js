@@ -77,6 +77,18 @@ export default {
         {
           android: {
             minSdkVersion: 28,
+            packagingOptions: {
+              pickFirst: [
+                "/armeabi-v7a/libfolly_runtime.so",
+                "/x86/libfolly_runtime.so",
+                "/arm64-v8a/libfolly_runtime.so",
+                "/x86_64/libfolly_runtime.so",
+                "lib/arm64-v8a/libc++_shared.so",
+                "lib/armeabi-v7a/libc++_shared.so",
+                "lib/x86/libc++_shared.so",
+                "lib/x86_64/libc++_shared.so",
+              ],
+            },
           },
         },
       ],
@@ -87,6 +99,9 @@ export default {
       experienceId: process.env.EXPERIENCE_ID,
       packageName: process.env.PACKAGE_NAME,
       appStoreId: process.env.APP_STORE_ID,
+      eas: {
+        projectId: "c8d33980-51de-472d-977a-dc62d80d2683",
+      },
     },
   },
 };
