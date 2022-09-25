@@ -6,7 +6,10 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "env": { "ANDROID_SDK_ROOT": "/Users/haroonkhan/Library/Android/sdk" }
+      "env": { "ANDROID_SDK_ROOT": "/Users/haroonkhan/Library/Android/sdk" },
+      "ios": {
+        "credentialsSource": "remote"
+      }
     },
     "preview": {
       "distribution": "internal",

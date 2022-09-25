@@ -36,6 +36,7 @@ import openAppSettings from "../../../helpers/openAppSettings";
 import backgroundUpload from "../../../helpers/backgroundUpload";
 import { gestureHandlerRootHOC } from "react-native-gesture-handler";
 import { Image } from "react-native";
+import convertVideoToMp4 from "../../../helpers/convertVideoToMp4";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -266,8 +267,12 @@ const AddScreen = () => {
   };
 
   const handleLargeFileCompression = async (post) => {
+    const convertedToMp4Url =
+      file.uri?.split(".").pop !== "mp4"
+        ? await convertVideoToMp4(file.uri)
+        : file.uri;
     await VideoCompress.compress(
-      file.uri,
+      convertedToMp4Url,
       {
         compressionMethod: "auto",
         minimumFileSizeForCompress: 10,
@@ -291,7 +296,6 @@ const AddScreen = () => {
     await handlePostCreation().then(async (post) => {
       if (!post) return;
       setPostBody("");
-      setFile("");
       if (file.type?.split("/")[0] === "video") {
         dispatch({
           type: "SET_POST_CREATED",

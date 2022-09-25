@@ -166,17 +166,19 @@ const Step1Screen = () => {
     const profileVideoUri = await convertVideoToMp4(profileVideo);
     const gifUri = profileVideo ? await generateGif(profileVideoUri) : null;
 
-    const { response, success, message } = await apiCall(
+    const { response, success } = await apiCall(
       "POST",
       "/user/verify-registeration-details",
       {
         ...existingInfo.state,
         notificationToken,
-        profileVideoFileName:
-          profileVideoUri && profileVideoUri.replace(/^.*[\\/]/, ""),
-        profileGifFileName: gifUri && gifUri.replace(/^.*[\\/]/, ""),
-        profileImageFileName:
-          profileImage && profileImage.replace(/^.*[\\/]/, ""),
+        profileVideoFileName: profileVideoUri
+          ? profileVideoUri.replace(/^.*[\\/]/, "")
+          : "",
+        profileGifFileName: gifUri ? gifUri.replace(/^.*[\\/]/, "") : "",
+        profileImageFileName: profileImage
+          ? profileImage.replace(/^.*[\\/]/, "")
+          : "",
         flipProfileVideo: (
           Platform.OS === "android" && !pickedFromCameraRoll
         ).toString(), //TODO check if we still need to convert to string
@@ -188,7 +190,6 @@ const Step1Screen = () => {
       );
       return;
     }
-
     const filePath =
       Platform.OS == "android"
         ? (profileVideoUri || profileImage).replace("file://", "")
@@ -399,14 +400,15 @@ const Step1Screen = () => {
     }
   }, [profileVideoCameraActivated, profileImageCameraActivated, loading]);
 
-  if (loading) {
+  if (loading && !registrationError) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text
           style={{
-            color: themeStyle.colors.grayscale.lowest,
-            fontSize: 20,
+            color: themeStyle.colors.primary.default,
+            fontSize: 24,
             fontWeight: "700",
+            marginBottom: 40,
           }}
         >
           Creating your account
@@ -414,11 +416,19 @@ const Step1Screen = () => {
         <Text
           style={{
             textAlign: "center",
-            fontSize: 12,
+            fontSize: 16,
             color: themeStyle.colors.grayscale.lowest,
+            fontWeight: "700",
           }}
         >
-          This usually takes less than 15 seconds...
+          Just setting some things up for you... {"\n"}
+          {profileImage || profileVideo ? (
+            <Text style={{ fontSize: 12 }}>
+              {profileImage
+                ? "(This should takes less than 5 seconds.)"
+                : "(This usually takes less than 15 seconds.)"}
+            </Text>
+          ) : null}
         </Text>
         <View style={{ width: 200, height: 200 }}>
           <AnimatedLottieView
