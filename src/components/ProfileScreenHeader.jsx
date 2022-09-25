@@ -1,14 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import themeStyle from "../theme.style";
 import { TouchableOpacity, View, Text, ScrollView } from "react-native";
 import PreviewVideo from "./PreviewVideo";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import PreviewProfileImage from "./PreviewProfileImage";
+import JobHistoryItem from "./JobHistoryItem";
+import { List } from "react-native-paper";
 
 const ProfileScreenHeader = React.forwardRef(
   ({ children, userData, isVisible, getUserJobHistory, ...props }, ref) => {
     const navigation = useNavigation();
+    const [showJobHistory, setShowJobHistory] = useState(false);
     return (
       <ScrollView ref={ref} {...props}>
         <View>
@@ -166,25 +169,58 @@ const ProfileScreenHeader = React.forwardRef(
                 </Text>
               </TouchableOpacity>
             </View>
-            <View>
-              {userData?.userJobHistory?.length <= 5 && // incase for whatever reason we have more than 5 userJobHistory records in userData. Don't want to crash the app :D
-                userData?.userJobHistory.map((role) => (
-                  <Text
-                    key={role._id}
-                    style={{ color: themeStyle.colors.grayscale.lowest }}
-                  >
-                    {role.roleName}
-                  </Text>
-                ))}
-            </View>
+            <TouchableOpacity
+              onPress={() => setShowJobHistory(!showJobHistory)}
+              style={{ marginVertical: 20 }}
+            >
+              <View
+                style={{
+                  backgroundColor: "rgba(21, 23, 31, 1)",
+                  width: "100%",
+                  height: 48,
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Ionicons
+                  name={showJobHistory ? "briefcase-outline" : "briefcase"}
+                  size={24}
+                  color={themeStyle.colors.grayscale.lower}
+                  style={{ marginHorizontal: 10 }}
+                />
+                <Text
+                  style={{
+                    fontSize: 16,
+                    color: themeStyle.colors.grayscale.lowest,
+                    fontWeight: "700",
+                  }}
+                >
+                  Work
+                </Text>
+              </View>
+            </TouchableOpacity>
+            {showJobHistory && userData?.userJobHistory?.length <= 5 && (
+              <>
+                <View>
+                  {
+                    // incase for whatever reason we have more than 5 userJobHistory records in userData. Don't want to crash the app :D
+                    userData?.userJobHistory.map((role) => (
+                      <JobHistoryItem key={role._id} jobRole={role} />
+                    ))
+                  }
+                </View>
+              </>
+            )}
 
-            {userData?.numberOfJobHistoryRecords > 5 ? (
+            {showJobHistory && userData?.numberOfJobHistoryRecords > 5 ? (
               <View>
                 <TouchableOpacity onPress={() => getUserJobHistory()}>
                   <Text
                     style={{
                       color: themeStyle.colors.grayscale.lowest,
                       textAlign: "center",
+                      marginVertical: 10,
+                      fontWeight: "700",
                     }}
                   >
                     View all

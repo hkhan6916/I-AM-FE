@@ -296,12 +296,12 @@ const ProfileScreen = () => {
                 justifyContent: "center",
                 maxWidth: 900,
                 width: "100%",
+                padding: 15,
               }}
             >
               <View
                 style={{
                   alignSelf: "flex-start",
-                  marginHorizontal: 10,
                   marginVertical: 10,
                 }}
               >
