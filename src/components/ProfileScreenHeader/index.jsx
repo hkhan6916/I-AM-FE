@@ -1,17 +1,28 @@
 import React, { useState } from "react";
-import themeStyle from "../theme.style";
+import themeStyle from "../../theme.style";
 import { TouchableOpacity, View, Text, ScrollView } from "react-native";
-import PreviewVideo from "./PreviewVideo";
+import PreviewVideo from "../PreviewVideo";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import PreviewProfileImage from "./PreviewProfileImage";
-import JobHistoryItem from "./JobHistoryItem";
-import { List } from "react-native-paper";
+import PreviewProfileImage from "../PreviewProfileImage";
+import JobHistoryDropdown from "./JobHistoryDropdown";
+import EducationHistoryDropdown from "./EducationHistoryDropdown";
 
 const ProfileScreenHeader = React.forwardRef(
-  ({ children, userData, isVisible, getUserJobHistory, ...props }, ref) => {
+  (
+    {
+      children,
+      userData,
+      isVisible,
+      getUserJobHistory,
+      getUserEducationHistory,
+      ...props
+    },
+    ref
+  ) => {
     const navigation = useNavigation();
     const [showJobHistory, setShowJobHistory] = useState(false);
+    const [showEducationHistory, setShowEducationHistory] = useState(false);
     return (
       <ScrollView ref={ref} {...props}>
         <View>
@@ -169,65 +180,20 @@ const ProfileScreenHeader = React.forwardRef(
                 </Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              onPress={() => setShowJobHistory(!showJobHistory)}
-              style={{ marginVertical: 20 }}
-            >
-              <View
-                style={{
-                  backgroundColor: "rgba(21, 23, 31, 1)",
-                  width: "100%",
-                  height: 48,
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <Ionicons
-                  name={showJobHistory ? "briefcase-outline" : "briefcase"}
-                  size={24}
-                  color={themeStyle.colors.grayscale.lower}
-                  style={{ marginHorizontal: 10 }}
-                />
-                <Text
-                  style={{
-                    fontSize: 16,
-                    color: themeStyle.colors.grayscale.lowest,
-                    fontWeight: "700",
-                  }}
-                >
-                  Work
-                </Text>
-              </View>
-            </TouchableOpacity>
-            {showJobHistory && userData?.userJobHistory?.length <= 5 && (
-              <>
-                <View>
-                  {
-                    // incase for whatever reason we have more than 5 userJobHistory records in userData. Don't want to crash the app :D
-                    userData?.userJobHistory.map((role) => (
-                      <JobHistoryItem key={role._id} jobRole={role} />
-                    ))
-                  }
-                </View>
-              </>
-            )}
-
-            {showJobHistory && userData?.numberOfJobHistoryRecords > 5 ? (
-              <View>
-                <TouchableOpacity onPress={() => getUserJobHistory()}>
-                  <Text
-                    style={{
-                      color: themeStyle.colors.grayscale.lowest,
-                      textAlign: "center",
-                      marginVertical: 10,
-                      fontWeight: "700",
-                    }}
-                  >
-                    View all
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : null}
+            <JobHistoryDropdown
+              showJobHistory={showJobHistory}
+              setShowJobHistory={setShowJobHistory}
+              userJobHistory={userData?.userJobHistory}
+              numberOfJobHistoryRecords={userData?.numberOfJobHistoryRecords}
+              getUserJobHistory={getUserJobHistory}
+            />
+            <EducationHistoryDropdown
+              showEducationHistory={showEducationHistory}
+              setShowEducationHistory={setShowEducationHistory}
+              userEducationHistory={userData?.userEducationHistory}
+              numberOfJobHistoryRecords={userData?.numberOfJobHistoryRecords}
+              getUserEducationHistory={getUserEducationHistory}
+            />
           </View>
         </View>
         {children}

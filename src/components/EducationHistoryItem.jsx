@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Dimensions } from "react-native";
 import themeStyle from "../theme.style";
 import getMonthAndYearDate from "../helpers/getMonthAndYearDate";
-import { Ionicons } from "@expo/vector-icons";
-const JobHistoryItem = ({ jobRole }) => {
+import { FontAwesome } from "@expo/vector-icons";
+const EducationHistoryItem = ({ education }) => {
   const [isCollapsible, setIsCollapsible] = useState(false);
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
 
@@ -13,7 +13,7 @@ const JobHistoryItem = ({ jobRole }) => {
     setIsCollapsible(e.nativeEvent.lines.length >= 3);
   };
 
-  if (!jobRole) return null;
+  if (!education) return null;
   return (
     <View
       style={{
@@ -25,14 +25,14 @@ const JobHistoryItem = ({ jobRole }) => {
         flexDirection: "row",
       }}
     >
-      <Ionicons
+      <FontAwesome
         size={30}
-        name="briefcase-sharp"
+        name="graduation-cap"
         color={themeStyle.colors.grayscale.high}
         style={{ marginHorizontal: 20 }}
       />
       <View>
-        {jobRole.roleName ? (
+        {education.educationName ? (
           <Text
             style={{
               color: themeStyle.colors.grayscale.lowest,
@@ -40,25 +40,25 @@ const JobHistoryItem = ({ jobRole }) => {
               fontWeight: "700",
             }}
           >
-            {jobRole.roleName}
+            {education.educationName}
           </Text>
         ) : null}
-        {jobRole.companyName ? (
+        {education.institutionName ? (
           <Text
             style={{
               color: themeStyle.colors.grayscale.lowest,
               fontWeight: "700",
             }}
           >
-            {jobRole.companyName}
+            {education.institutionName}
           </Text>
         ) : null}
         <Text
           style={{ color: themeStyle.colors.grayscale.lower, fontSize: 12 }}
         >
-          {getMonthAndYearDate(jobRole.dateFrom)} -{" "}
-          {jobRole.dateTo ? (
-            getMonthAndYearDate(jobRole.dateTo)
+          {getMonthAndYearDate(education.dateFrom)} -{" "}
+          {education.dateTo ? (
+            getMonthAndYearDate(education.dateTo)
           ) : (
             <Text
               style={{
@@ -70,7 +70,7 @@ const JobHistoryItem = ({ jobRole }) => {
             </Text>
           )}
         </Text>
-        {jobRole.roleDescription ? (
+        {education.educationDescription ? (
           <View>
             <Text
               onTextLayout={onTextLayout}
@@ -81,7 +81,7 @@ const JobHistoryItem = ({ jobRole }) => {
                 maxWidth: screenWidth - 100,
               }}
             >
-              {jobRole.roleDescription}
+              {education.educationDescription}
             </Text>
             {isCollapsible && !bodyCollapsed ? (
               <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
@@ -103,4 +103,4 @@ const JobHistoryItem = ({ jobRole }) => {
   );
 };
 
-export default JobHistoryItem;
+export default EducationHistoryItem;

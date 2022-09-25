@@ -14,7 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import apiCall from "../../../helpers/apiCall";
 import PostCard from "../../../components/PostCard";
 import themeStyle from "../../../theme.style";
-import ProfileScreenHeader from "../../../components/ProfileScreenHeader";
+import ProfileScreenHeader from "../../../components/ProfileScreenHeader/index";
 import { useScrollToTop } from "@react-navigation/native";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import PostOptionsModal from "../../../components/PostOptionsModal";
@@ -26,11 +26,13 @@ import {
 } from "recyclerlistview";
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 import JobHistoryItem from "../../../components/JobHistoryItem";
+import EducationHistoryItem from "../../../components/EducationHistoryItem";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
   const [userData, setUserData] = useState({});
   const [userJobHistory, setUserJobHistory] = useState(null);
+  const [userEducationHistory, setUserEducationHistory] = useState(null);
   const [loading, setLoading] = useState(false);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -38,6 +40,8 @@ const ProfileScreen = () => {
   const [error, setError] = useState("");
   const [profileVideoVisible, setProfileVideoVisible] = useState(false);
   const [showJobHistoryModal, setShowJobHistoryModal] = useState(false);
+  const [showEducationHistoryModal, setShowEducationHistoryModal] =
+    useState(false);
 
   const nativeGobalUserData = useSelector((state) => state.userData);
 
@@ -105,7 +109,9 @@ const ProfileScreen = () => {
           navigation={navigation}
           isVisible={extendedState.profileVideoVisible}
           setShowJobHistoryModal={setShowJobHistoryModal}
+          setShowEducationHistoryModal={setShowEducationHistoryModal}
           getUserJobHistory={getFullUserJobHistory}
+          getUserEducationHistory={getFullUserEducationHistory}
         />
       );
     }
@@ -148,16 +154,23 @@ const ProfileScreen = () => {
     )
   ).current;
 
-  const jobHistoryRowRenderer = (_, item) => <JobHistoryItem jobRole={item} />;
+  const userHistoryRowRenderer = (_, item) =>
+    showJobHistoryModal ? (
+      <JobHistoryItem jobRole={item} />
+    ) : (
+      <EducationHistoryItem education={item} />
+    );
 
-  let jobHistoryDataProvider = new DataProvider(
+  let userHistoryDataProvider = new DataProvider(
     (r1, r2) => {
       return r1._id !== r2._id;
     }
     // (index) => `${userPosts[index]?._id}`
-  ).cloneWithRows(userJobHistory || []);
+  ).cloneWithRows(
+    (showJobHistoryModal ? userJobHistory : userEducationHistory) || []
+  );
 
-  const jobHistorylayoutProvider = useRef(
+  const userHistorylayoutProvider = useRef(
     new LayoutProvider(
       () => 0,
       (_, dim) => {
@@ -178,15 +191,28 @@ const ProfileScreen = () => {
 
   const getFullUserJobHistory = async () => {
     setShowJobHistoryModal(true);
-    if (!userJobHistory) {
-      const { success, response } = await apiCall(
-        "GET",
-        `/user/job-history/fetch/all`
-      );
-      if (success) {
-        setUserJobHistory(response);
-      }
+    // if (!userJobHistory) {
+    const { success, response } = await apiCall(
+      "GET",
+      `/user/job-history/fetch/all`
+    );
+    if (success) {
+      setUserJobHistory(response);
     }
+    // }
+  };
+
+  const getFullUserEducationHistory = async () => {
+    setShowEducationHistoryModal(true);
+    // if (!userEducationHistory) {
+    const { success, response } = await apiCall(
+      "GET",
+      `/user/education-history/fetch/all`
+    );
+    if (success) {
+      setUserEducationHistory(response);
+    }
+    // }
   };
 
   const reportPost = async (reasonIndex) => {
@@ -299,44 +325,47 @@ const ProfileScreen = () => {
                 padding: 15,
               }}
             >
-              <View
-                style={{
-                  alignSelf: "flex-start",
-                  marginVertical: 10,
-                }}
-              >
-                <TouchableOpacity
-                  onPress={() => setShowJobHistoryModal(false)}
-                  style={{
-                    justifyContent: "center",
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <AntDesign
-                    name="arrowleft"
-                    size={24}
-                    color={themeStyle.colors.grayscale.lowest}
-                  />
-                  <Text
+              {userJobHistory?.length ? (
+                <>
+                  <View
                     style={{
-                      color: themeStyle.colors.grayscale.lowest,
-                      fontSize: 16,
-                      marginHorizontal: 10,
+                      alignSelf: "flex-start",
+                      marginVertical: 10,
                     }}
                   >
-                    Work history
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <RecyclerListView
-                style={{ flex: 1 }}
-                dataProvider={jobHistoryDataProvider}
-                layoutProvider={jobHistorylayoutProvider}
-                rowRenderer={jobHistoryRowRenderer}
-                forceNonDeterministicRendering
-              />
+                    <TouchableOpacity
+                      onPress={() => setShowJobHistoryModal(false)}
+                      style={{
+                        justifyContent: "center",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <AntDesign
+                        name="arrowleft"
+                        size={24}
+                        color={themeStyle.colors.grayscale.lowest}
+                      />
+                      <Text
+                        style={{
+                          color: themeStyle.colors.grayscale.lowest,
+                          fontSize: 16,
+                          marginHorizontal: 10,
+                        }}
+                      >
+                        Work history
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <RecyclerListView
+                    style={{ flex: 1 }}
+                    dataProvider={userHistoryDataProvider}
+                    layoutProvider={userHistorylayoutProvider}
+                    rowRenderer={userHistoryRowRenderer}
+                    forceNonDeterministicRendering
+                  />
+                </>
+              ) : null}
             </View>
           </SafeAreaView>
         </Modal>
