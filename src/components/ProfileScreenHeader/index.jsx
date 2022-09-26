@@ -191,7 +191,9 @@ const ProfileScreenHeader = React.forwardRef(
               showEducationHistory={showEducationHistory}
               setShowEducationHistory={setShowEducationHistory}
               userEducationHistory={userData?.userEducationHistory}
-              numberOfJobHistoryRecords={userData?.numberOfJobHistoryRecords}
+              numberOfEducationHistoryRecords={
+                userData?.numberOfEducationHistoryRecords
+              }
               getUserEducationHistory={getUserEducationHistory}
             />
           </View>

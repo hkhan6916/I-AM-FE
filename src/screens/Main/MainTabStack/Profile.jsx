@@ -304,7 +304,7 @@ const ProfileScreen = () => {
         }}
       >
         <Modal
-          visible={showJobHistoryModal}
+          visible={showJobHistoryModal || showEducationHistoryModal}
           onRequestClose={() => setShowJobHistoryModal(false)}
         >
           <SafeAreaView
@@ -325,7 +325,7 @@ const ProfileScreen = () => {
                 padding: 15,
               }}
             >
-              {userJobHistory?.length ? (
+              {userJobHistory?.length || userEducationHistory?.length ? (
                 <>
                   <View
                     style={{
@@ -334,7 +334,10 @@ const ProfileScreen = () => {
                     }}
                   >
                     <TouchableOpacity
-                      onPress={() => setShowJobHistoryModal(false)}
+                      onPress={() => {
+                        setShowJobHistoryModal(false);
+                        setShowEducationHistoryModal(false);
+                      }}
                       style={{
                         justifyContent: "center",
                         flexDirection: "row",
@@ -353,7 +356,9 @@ const ProfileScreen = () => {
                           marginHorizontal: 10,
                         }}
                       >
-                        Work history
+                        {showJobHistoryModal
+                          ? "Work history"
+                          : "Education history"}
                       </Text>
                     </TouchableOpacity>
                   </View>
