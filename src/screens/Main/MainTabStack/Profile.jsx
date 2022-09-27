@@ -27,6 +27,7 @@ import {
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 import JobHistoryItem from "../../../components/JobHistoryItem";
 import EducationHistoryItem from "../../../components/EducationHistoryItem";
+import ContentLoader, { Rect } from "react-content-loader/native";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -42,6 +43,7 @@ const ProfileScreen = () => {
   const [showJobHistoryModal, setShowJobHistoryModal] = useState(false);
   const [showEducationHistoryModal, setShowEducationHistoryModal] =
     useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const nativeGobalUserData = useSelector((state) => state.userData);
 
@@ -108,8 +110,6 @@ const ProfileScreen = () => {
           userData={extendedState.userData}
           navigation={navigation}
           isVisible={extendedState.profileVideoVisible}
-          setShowJobHistoryModal={setShowJobHistoryModal}
-          setShowEducationHistoryModal={setShowEducationHistoryModal}
           getUserJobHistory={getFullUserJobHistory}
           getUserEducationHistory={getFullUserEducationHistory}
         />
@@ -190,29 +190,33 @@ const ProfileScreen = () => {
   };
 
   const getFullUserJobHistory = async () => {
+    setLoadingHistory(true);
     setShowJobHistoryModal(true);
     // if (!userJobHistory) {
     const { success, response } = await apiCall(
-      "GET",
+      "POST",
       `/user/job-history/fetch/all`
     );
     if (success) {
       setUserJobHistory(response);
     }
     // }
+    setLoadingHistory(false);
   };
 
   const getFullUserEducationHistory = async () => {
+    setLoadingHistory(true);
     setShowEducationHistoryModal(true);
     // if (!userEducationHistory) {
     const { success, response } = await apiCall(
-      "GET",
+      "POST",
       `/user/education-history/fetch/all`
     );
     if (success) {
       setUserEducationHistory(response);
     }
     // }
+    setLoadingHistory(false);
   };
 
   const reportPost = async (reasonIndex) => {
@@ -305,7 +309,10 @@ const ProfileScreen = () => {
       >
         <Modal
           visible={showJobHistoryModal || showEducationHistoryModal}
-          onRequestClose={() => setShowJobHistoryModal(false)}
+          onRequestClose={() => {
+            setShowJobHistoryModal(false);
+            setShowEducationHistoryModal(false);
+          }}
         >
           <SafeAreaView
             style={{
@@ -325,7 +332,84 @@ const ProfileScreen = () => {
                 padding: 15,
               }}
             >
-              {userJobHistory?.length || userEducationHistory?.length ? (
+              {loadingHistory ? (
+                <View
+                  style={{
+                    backgroundColor: themeStyle.colors.grayscale.cards,
+                    marginVertical: 2,
+                    justifyContent: "flex-start",
+                    flex: 1,
+                  }}
+                >
+                  {[...Array(6)].map((_, i) => (
+                    <View
+                      key={i}
+                      style={{
+                        backgroundColor: themeStyle.colors.grayscale.cards,
+                        marginVertical: 2,
+                      }}
+                    >
+                      <ContentLoader
+                        backgroundColor={themeStyle.colors.grayscale.higher}
+                        foregroundColor={themeStyle.colors.grayscale.high}
+                        viewBox={`0 0 ${screenWidth} ${120}`}
+                        width={screenWidth}
+                        height={120}
+                      >
+                        <Rect x="15" y="18" r="25" width="34" height="34" />
+                        <Rect
+                          x="70"
+                          y="18"
+                          rx="2"
+                          ry="2"
+                          width={`${screenWidth / 1.6}`}
+                          height="10"
+                        />
+                        <Rect
+                          x="70"
+                          y="34"
+                          rx="2"
+                          ry="2"
+                          width={`${screenWidth / 1.6}`}
+                          height="10"
+                        />
+                        <Rect
+                          x="70"
+                          y="50"
+                          rx="2"
+                          ry="2"
+                          width={`${screenWidth / 1.6}`}
+                          height="10"
+                        />
+                        <Rect
+                          x="70"
+                          y="66"
+                          rx="2"
+                          ry="2"
+                          width={`${screenWidth / 1.6}`}
+                          height="10"
+                        />
+                        <Rect
+                          x="70"
+                          y="82"
+                          rx="2"
+                          ry="2"
+                          width={`${screenWidth / 1.6}`}
+                          height="10"
+                        />
+                        <Rect
+                          x="70"
+                          y="98"
+                          rx="2"
+                          ry="2"
+                          width={`${screenWidth / 3}`}
+                          height="10"
+                        />
+                      </ContentLoader>
+                    </View>
+                  ))}
+                </View>
+              ) : userJobHistory?.length || userEducationHistory?.length ? (
                 <>
                   <View
                     style={{
@@ -362,13 +446,15 @@ const ProfileScreen = () => {
                       </Text>
                     </TouchableOpacity>
                   </View>
-                  <RecyclerListView
-                    style={{ flex: 1 }}
-                    dataProvider={userHistoryDataProvider}
-                    layoutProvider={userHistorylayoutProvider}
-                    rowRenderer={userHistoryRowRenderer}
-                    forceNonDeterministicRendering
-                  />
+                  <View style={{ flex: 1 }}>
+                    <RecyclerListView
+                      style={{ flex: 1 }}
+                      dataProvider={userHistoryDataProvider}
+                      layoutProvider={userHistorylayoutProvider}
+                      rowRenderer={userHistoryRowRenderer}
+                      forceNonDeterministicRendering
+                    />
+                  </View>
                 </>
               ) : null}
             </View>

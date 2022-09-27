@@ -5,6 +5,9 @@ import {
   SafeAreaView,
   Dimensions,
   Platform,
+  TouchableOpacity,
+  Text,
+  Modal,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
@@ -21,11 +24,17 @@ import {
 } from "recyclerlistview";
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 import themeStyle from "../../../theme.style";
+import { AntDesign } from "@expo/vector-icons";
+import EducationHistoryItem from "../../../components/EducationHistoryItem";
+import JobHistoryItem from "../../../components/JobHistoryItem";
+import ReactContentLoader, { Rect } from "react-content-loader/native";
 
 const UserProfileScreen = (props) => {
   const { userId } = props.route.params;
   const [user, setUser] = useState({});
   const [userPosts, setUserPosts] = useState([]);
+  const [userJobHistory, setUserJobHistory] = useState(null);
+  const [userEducationHistory, setUserEducationHistory] = useState(null);
   const [accepted, setAccepted] = useState(false);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -34,6 +43,10 @@ const UserProfileScreen = (props) => {
   const [showPostOptions, setShowPostOptions] = useState(null);
   const [error, setError] = useState("");
   const [profileVideoVisible, setProfileVideoVisible] = useState(false);
+  const [showJobHistoryModal, setShowJobHistoryModal] = useState(false);
+  const [showEducationHistoryModal, setShowEducationHistoryModal] =
+    useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const nativeUserData = useSelector((state) => state.userData);
 
@@ -225,6 +238,39 @@ const UserProfileScreen = (props) => {
     }
   };
 
+  const getFullUserJobHistory = async () => {
+    setLoadingHistory(true);
+    setShowJobHistoryModal(true);
+    // if (!userJobHistory) {
+    const { success, response } = await apiCall(
+      "POST",
+      `/user/job-history/fetch/all`,
+      { userId }
+    );
+    if (success) {
+      setUserJobHistory(response);
+    }
+    // }
+    setLoadingHistory(false);
+  };
+
+  const getFullUserEducationHistory = async () => {
+    setLoadingHistory(true);
+    setShowEducationHistoryModal(true);
+    // if (!userEducationHistory) {
+    const { success, response, message } = await apiCall(
+      "POST",
+      `/user/education-history/fetch/all`,
+      { userId }
+    );
+    console.log({ response, success, message });
+    if (success) {
+      setUserEducationHistory(response);
+    }
+    // }
+    setLoadingHistory(false);
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
     const { success, response } = await apiCall("GET", `/user/${userId}`, null);
@@ -306,6 +352,8 @@ const UserProfileScreen = (props) => {
                 userData.state?.profileImageUrl
               }
               isVisible={extendedState.profileVideoVisible} // If scrolled to top
+              getUserJobHistory={getFullUserJobHistory}
+              getUserEducationHistory={getFullUserEducationHistory}
             />
           );
         }
@@ -365,6 +413,32 @@ const UserProfileScreen = (props) => {
     )
   ).current;
 
+  const userHistoryRowRenderer = (_, item) =>
+    showJobHistoryModal ? (
+      <JobHistoryItem jobRole={item} />
+    ) : (
+      <EducationHistoryItem education={item} />
+    );
+
+  let userHistoryDataProvider = new DataProvider(
+    (r1, r2) => {
+      return r1._id !== r2._id;
+    }
+    // (index) => `${userPosts[index]?._id}`
+  ).cloneWithRows(
+    (showJobHistoryModal ? userJobHistory : userEducationHistory) || []
+  );
+
+  const userHistorylayoutProvider = useRef(
+    new LayoutProvider(
+      () => 0,
+      (_, dim) => {
+        dim.width = screenWidth;
+        dim.height = 200;
+      }
+    )
+  ).current;
+
   useEffect(() => {
     initializeData.promise.then(async ({ success, response }) => {
       if (success) {
@@ -408,6 +482,157 @@ const UserProfileScreen = (props) => {
           backgroundColor: themeStyle.colors.grayscale.cardsOuter,
         }}
       >
+        <Modal
+          visible={showJobHistoryModal || showEducationHistoryModal}
+          onRequestClose={() => {
+            setShowJobHistoryModal(false);
+            setShowEducationHistoryModal(false);
+          }}
+        >
+          <SafeAreaView
+            style={{
+              backgroundColor: themeStyle.colors.grayscale.highest,
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: themeStyle.colors.grayscale.highest,
+                justifyContent: "center",
+                maxWidth: 900,
+                width: "100%",
+                padding: 15,
+              }}
+            >
+              {loadingHistory ? (
+                <View
+                  style={{
+                    backgroundColor: themeStyle.colors.grayscale.cards,
+                    marginVertical: 2,
+                    justifyContent: "flex-start",
+                    flex: 1,
+                  }}
+                >
+                  {[...Array(6)].map((_, i) => (
+                    <View
+                      key={i}
+                      style={{
+                        backgroundColor: themeStyle.colors.grayscale.cards,
+                        marginVertical: 2,
+                      }}
+                    >
+                      <ReactContentLoader
+                        backgroundColor={themeStyle.colors.grayscale.higher}
+                        foregroundColor={themeStyle.colors.grayscale.high}
+                        viewBox={`0 0 ${screenWidth} ${120}`}
+                        width={screenWidth}
+                        height={120}
+                      >
+                        <Rect x="15" y="18" r="25" width="34" height="34" />
+                        <Rect
+                          x="70"
+                          y="18"
+                          rx="2"
+                          ry="2"
+                          width={`${screenWidth / 1.6}`}
+                          height="10"
+                        />
+                        <Rect
+                          x="70"
+                          y="34"
+                          rx="2"
+                          ry="2"
+                          width={`${screenWidth / 1.6}`}
+                          height="10"
+                        />
+                        <Rect
+                          x="70"
+                          y="50"
+                          rx="2"
+                          ry="2"
+                          width={`${screenWidth / 1.6}`}
+                          height="10"
+                        />
+                        <Rect
+                          x="70"
+                          y="66"
+                          rx="2"
+                          ry="2"
+                          width={`${screenWidth / 1.6}`}
+                          height="10"
+                        />
+                        <Rect
+                          x="70"
+                          y="82"
+                          rx="2"
+                          ry="2"
+                          width={`${screenWidth / 1.6}`}
+                          height="10"
+                        />
+                        <Rect
+                          x="70"
+                          y="98"
+                          rx="2"
+                          ry="2"
+                          width={`${screenWidth / 3}`}
+                          height="10"
+                        />
+                      </ReactContentLoader>
+                    </View>
+                  ))}
+                </View>
+              ) : userJobHistory?.length || userEducationHistory?.length ? (
+                <>
+                  <View
+                    style={{
+                      alignSelf: "flex-start",
+                      marginVertical: 10,
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => {
+                        setShowJobHistoryModal(false);
+                        setShowEducationHistoryModal(false);
+                      }}
+                      style={{
+                        justifyContent: "center",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <AntDesign
+                        name="arrowleft"
+                        size={24}
+                        color={themeStyle.colors.grayscale.lowest}
+                      />
+                      <Text
+                        style={{
+                          color: themeStyle.colors.grayscale.lowest,
+                          fontSize: 16,
+                          marginHorizontal: 10,
+                        }}
+                      >
+                        {showJobHistoryModal
+                          ? "Work history"
+                          : "Education history"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <RecyclerListView
+                    style={{ flex: 1 }}
+                    dataProvider={userHistoryDataProvider}
+                    layoutProvider={userHistorylayoutProvider}
+                    rowRenderer={userHistoryRowRenderer}
+                    forceNonDeterministicRendering
+                  />
+                </>
+              ) : null}
+            </View>
+          </SafeAreaView>
+        </Modal>
         <RecyclerListView
           {...mobileSpecificListProps}
           style={{ minHeight: 1, minWidth: 1 }}

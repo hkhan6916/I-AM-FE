@@ -16,6 +16,7 @@ const EducationHistoryDropdown = ({
       <TouchableOpacity
         onPress={() => setShowEducationHistory(!showEducationHistory)}
         style={{ marginVertical: 10 }}
+        disabled={!userEducationHistory?.length}
       >
         <View
           style={{
@@ -30,7 +31,7 @@ const EducationHistoryDropdown = ({
           }}
         >
           <Ionicons
-            name={showEducationHistory ? "briefcase-outline" : "briefcase"}
+            name={showEducationHistory ? "school-outline" : "school"}
             size={24}
             color={themeStyle.colors.grayscale.lower}
             style={{ marginHorizontal: 10 }}
@@ -48,10 +49,10 @@ const EducationHistoryDropdown = ({
           </Text>
         </View>
       </TouchableOpacity>
-      {showEducationHistory && userEducationHistory?.length <= 5 && (
+      {showEducationHistory && userEducationHistory?.length <= 3 && (
         <View style={{ paddingHorizontal: 10 }}>
           {
-            // incase for whatever reason we have more than 5 userEducationHistory records in userData. Don't want to crash the app :D
+            // incase for whatever reason we have more than 3 userEducationHistory records in userData. Don't want to crash the app :D
             userEducationHistory.map((education) => (
               <EducationHistoryItem key={education._id} education={education} />
             ))
@@ -59,7 +60,7 @@ const EducationHistoryDropdown = ({
         </View>
       )}
 
-      {showEducationHistory && numberOfEducationHistoryRecords > 5 ? (
+      {showEducationHistory && numberOfEducationHistoryRecords > 3 ? (
         <View>
           <TouchableOpacity onPress={() => getUserEducationHistory()}>
             <Text
@@ -68,9 +69,10 @@ const EducationHistoryDropdown = ({
                 textAlign: "center",
                 marginVertical: 10,
                 fontWeight: "700",
+                fontSize: 16,
               }}
             >
-              View all {numberOfEducationHistoryRecords}
+              View all
             </Text>
           </TouchableOpacity>
         </View>

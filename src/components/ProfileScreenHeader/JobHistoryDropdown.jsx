@@ -16,6 +16,7 @@ const JobHistoryDropdown = ({
       <TouchableOpacity
         onPress={() => setShowJobHistory(!showJobHistory)}
         style={{ marginVertical: 10 }}
+        disabled={!userJobHistory?.length}
       >
         <View
           style={{
@@ -46,11 +47,11 @@ const JobHistoryDropdown = ({
           </Text>
         </View>
       </TouchableOpacity>
-      {showJobHistory && userJobHistory?.length <= 5 && (
+      {showJobHistory && userJobHistory?.length <= 3 && (
         <>
           <View style={{ paddingHorizontal: 10 }}>
             {
-              // incase for whatever reason we have more than 5 userJobHistory records in userData. Don't want to crash the app :D
+              // incase for whatever reason we have more than 3 userJobHistory records in userData. Don't want to crash the app :D
               userJobHistory.map((role) => (
                 <JobHistoryItem key={role._id} jobRole={role} />
               ))
@@ -59,7 +60,7 @@ const JobHistoryDropdown = ({
         </>
       )}
 
-      {showJobHistory && numberOfJobHistoryRecords > 5 ? (
+      {showJobHistory && numberOfJobHistoryRecords > 3 ? (
         <View>
           <TouchableOpacity onPress={() => getUserJobHistory()}>
             <Text
@@ -68,9 +69,10 @@ const JobHistoryDropdown = ({
                 textAlign: "center",
                 marginVertical: 10,
                 fontWeight: "700",
+                fontSize: 16,
               }}
             >
-              View all {numberOfJobHistoryRecords}
+              View all
             </Text>
           </TouchableOpacity>
         </View>

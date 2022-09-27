@@ -10,6 +10,8 @@ import { StackActions, useNavigation } from "@react-navigation/native";
 import apiCall from "../helpers/apiCall";
 import UserOptionsModal from "./UserOptionsModal";
 import PreviewProfileImage from "./PreviewProfileImage";
+import JobHistoryDropdown from "./ProfileScreenHeader/JobHistoryDropdown";
+import EducationHistoryDropdown from "./ProfileScreenHeader/EducationHistoryDropdown";
 
 const ProfileInfo = ({
   user,
@@ -22,10 +24,14 @@ const ProfileInfo = ({
   setUserPosts,
   canAdd,
   isVisible,
+  getUserJobHistory,
+  getUserEducationHistory,
 }) => {
   const [showUserOptions, setShowUserOptions] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [modalError, setModalError] = useState("");
+  const [showJobHistory, setShowJobHistory] = useState(false);
+  const [showEducationHistory, setShowEducationHistory] = useState(false);
 
   const navigation = useNavigation();
 
@@ -514,6 +520,20 @@ const ProfileInfo = ({
           </View>
         ) : null}
       </View>
+      <JobHistoryDropdown
+        showJobHistory={showJobHistory}
+        setShowJobHistory={setShowJobHistory}
+        userJobHistory={user?.userJobHistory}
+        numberOfJobHistoryRecords={user?.numberOfJobHistoryRecords}
+        getUserJobHistory={getUserJobHistory}
+      />
+      <EducationHistoryDropdown
+        showEducationHistory={showEducationHistory}
+        setShowEducationHistory={setShowEducationHistory}
+        userEducationHistory={user?.userEducationHistory}
+        numberOfEducationHistoryRecords={user?.numberOfEducationHistoryRecords}
+        getUserEducationHistory={getUserEducationHistory}
+      />
     </View>
   );
 };

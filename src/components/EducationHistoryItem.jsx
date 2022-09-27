@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Dimensions } from "react-native";
 import themeStyle from "../theme.style";
 import getMonthAndYearDate from "../helpers/getMonthAndYearDate";
-import { FontAwesome } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 const EducationHistoryItem = ({ education }) => {
   const [isCollapsible, setIsCollapsible] = useState(false);
   const [bodyCollapsed, setBodyCollapsed] = useState(false);
@@ -25,9 +25,9 @@ const EducationHistoryItem = ({ education }) => {
         flexDirection: "row",
       }}
     >
-      <FontAwesome
+      <Ionicons
         size={30}
-        name="graduation-cap"
+        name="school-sharp"
         color={themeStyle.colors.grayscale.high}
         style={{ marginHorizontal: 20 }}
       />

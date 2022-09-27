@@ -53,9 +53,7 @@ const JobHistoryItem = ({ jobRole }) => {
             {jobRole.companyName}
           </Text>
         ) : null}
-        <Text
-          style={{ color: themeStyle.colors.grayscale.lower, fontSize: 12 }}
-        >
+        <Text style={{ color: themeStyle.colors.grayscale.low, fontSize: 12 }}>
           {getMonthAndYearDate(jobRole.dateFrom)} -{" "}
           {jobRole.dateTo ? (
             getMonthAndYearDate(jobRole.dateTo)
