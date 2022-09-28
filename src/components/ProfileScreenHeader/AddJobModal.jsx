@@ -14,12 +14,12 @@ import {
 } from "react-native";
 import themeStyle from "../../theme.style";
 import InputNoBorder from "../InputNoBorder";
-import DateTimePicker, {
-  DateTimePickerAndroid,
-} from "@react-native-community/datetimepicker";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import getDayMonthYear from "../../helpers/getDayMonthYear";
 
 const AddJobModal = ({ setShowModal, ...rest }) => {
   const [roleName, setRoleName] = useState("");
+  const [error, setError] = useState("");
   const [remote, setRemote] = useState(false);
   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
   const [showToDatePicker, setShowToDatePicker] = useState(false);
@@ -61,6 +61,8 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                   <TouchableOpacity
                     onPress={() => {
                       setShowModal(false);
+                      setFromDate("");
+                      setToDate("");
                     }}
                     style={{
                       justifyContent: "center",
@@ -99,7 +101,7 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                 <View style={{ paddingHorizontal: 10 }}>
                   <InputNoBorder label={"Country"} />
                 </View>
-                <View style={{ paddingHorizontal: 10 }}>
+                <View style={{ paddingHorizontal: 10, marginVertical: 10 }}>
                   <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
                     From
                   </Text>
@@ -109,8 +111,14 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                       testID="from"
                       value={new Date()}
                       onChange={(_, date) => {
-                        setFromDate(date);
                         setShowFromDatePicker(false);
+                        setError("");
+                        if (toDate && date > toDate) {
+                          setError(
+                            "Your start date cannot be later than your end date."
+                          );
+                        }
+                        setFromDate(date);
                       }}
                       mode="date"
                     />
@@ -122,17 +130,18 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                       style={{
                         borderBottomColor: themeStyle.colors.grayscale.lowest,
                         borderBottomWidth: 1,
+                        paddingVertical: 10,
                       }}
                     >
                       <Text
                         style={{ color: themeStyle.colors.grayscale.lowest }}
                       >
-                        {fromDate?.toLocaleString()}
+                        {getDayMonthYear(fromDate)}
                       </Text>
                     </View>
                   </TouchableWithoutFeedback>
                 </View>
-                <View style={{ paddingHorizontal: 10 }}>
+                <View style={{ paddingHorizontal: 10, marginVertical: 10 }}>
                   <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
                     To
                   </Text>
@@ -142,8 +151,14 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                       testID="to"
                       value={new Date()}
                       onChange={(_, date) => {
-                        setToDate(date);
                         setShowToDatePicker(false);
+                        setError("");
+                        if (fromDate && date < fromDate) {
+                          setError(
+                            "Your end date cannot come earlier than your start date."
+                          );
+                        }
+                        setToDate(date);
                       }}
                       mode="date"
                     />
@@ -155,12 +170,13 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                       style={{
                         borderBottomColor: themeStyle.colors.grayscale.lowest,
                         borderBottomWidth: 1,
+                        paddingVertical: 10,
                       }}
                     >
                       <Text
                         style={{ color: themeStyle.colors.grayscale.lowest }}
                       >
-                        {toDate?.toLocaleString() || "Present"}
+                        {getDayMonthYear(toDate) || "Present"}
                       </Text>
                     </View>
                   </TouchableWithoutFeedback>
@@ -193,6 +209,11 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                     </Text>
                   </TouchableOpacity>
                 </View>
+                {error ? (
+                  <Text style={{ color: themeStyle.colors.error.default }}>
+                    {error}
+                  </Text>
+                ) : null}
               </ScrollView>
             </View>
           </KeyboardAvoidingView>
