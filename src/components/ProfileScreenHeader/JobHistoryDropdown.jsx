@@ -7,21 +7,30 @@ import JobHistoryItem from "../JobHistoryItem";
 const JobHistoryDropdown = ({
   showJobHistory,
   setShowJobHistory,
+  setShowEducationHistory,
   userJobHistory,
   numberOfJobHistoryRecords,
   getUserJobHistory,
+  showAdd,
 }) => {
   return (
     <>
       <TouchableOpacity
-        onPress={() => setShowJobHistory(!showJobHistory)}
+        onPress={() => {
+          setShowJobHistory(!showJobHistory);
+          if (!showJobHistory) {
+            setShowEducationHistory(false);
+          }
+        }}
         style={{ marginVertical: 10 }}
         disabled={!userJobHistory?.length}
       >
         <View
           style={{
             borderWidth: 1,
-            borderColor: themeStyle.colors.grayscale.lowest,
+            borderColor: showJobHistory
+              ? themeStyle.colors.primary.default
+              : themeStyle.colors.grayscale.lowest,
             borderRadius: 5,
             width: "100%",
             height: 48,

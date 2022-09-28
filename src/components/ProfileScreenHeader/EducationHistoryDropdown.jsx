@@ -7,6 +7,7 @@ import EducationHistoryItem from "../EducationHistoryItem";
 const EducationHistoryDropdown = ({
   showEducationHistory,
   setShowEducationHistory,
+  setShowJobHistory,
   userEducationHistory,
   numberOfEducationHistoryRecords,
   getUserEducationHistory,
@@ -14,14 +15,21 @@ const EducationHistoryDropdown = ({
   return (
     <>
       <TouchableOpacity
-        onPress={() => setShowEducationHistory(!showEducationHistory)}
+        onPress={() => {
+          setShowEducationHistory(!showEducationHistory);
+          if (!showEducationHistory) {
+            setShowJobHistory(false);
+          }
+        }}
         style={{ marginVertical: 10 }}
         disabled={!userEducationHistory?.length}
       >
         <View
           style={{
             borderWidth: 1,
-            borderColor: themeStyle.colors.grayscale.lowest,
+            borderColor: showEducationHistory
+              ? themeStyle.colors.primary.default
+              : themeStyle.colors.grayscale.lowest,
             borderRadius: 5,
             width: "100%",
             height: 48,

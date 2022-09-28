@@ -28,16 +28,16 @@ const InputNoBorder = ({
   };
   return (
     <View style={styles.textInputContainer}>
-      <Text style={styles.label}>{label}</Text>
+      {label ? <Text style={styles.label}>{label}</Text> : null}
       <View
         style={[
           {
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
-            flex: 1,
             backgroundColor: themeStyle.colors.grayscale.higher,
             paddingRight: 10,
+            width: "100%",
           },
           error && {
             borderColor: themeStyle.colors.error.default,

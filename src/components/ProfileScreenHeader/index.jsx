@@ -7,6 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 import PreviewProfileImage from "../PreviewProfileImage";
 import JobHistoryDropdown from "./JobHistoryDropdown";
 import EducationHistoryDropdown from "./EducationHistoryDropdown";
+import AddJobModal from "./AddJobModal";
 
 const ProfileScreenHeader = React.forwardRef(
   (
@@ -23,9 +24,14 @@ const ProfileScreenHeader = React.forwardRef(
     const navigation = useNavigation();
     const [showJobHistory, setShowJobHistory] = useState(false);
     const [showEducationHistory, setShowEducationHistory] = useState(false);
+    const [showAddJobModal, setShowAddJobModal] = useState(false);
     return (
       <ScrollView ref={ref} {...props}>
         <View>
+          <AddJobModal
+            visible={showAddJobModal}
+            setShowModal={setShowAddJobModal}
+          />
           {userData?.profileVideoUrl ? (
             <PreviewVideo
               uri={userData?.profileVideoUrl}
@@ -182,20 +188,80 @@ const ProfileScreenHeader = React.forwardRef(
             </View>
             <JobHistoryDropdown
               showJobHistory={showJobHistory}
+              setShowEducationHistory={setShowEducationHistory}
               setShowJobHistory={setShowJobHistory}
               userJobHistory={userData?.userJobHistory}
               numberOfJobHistoryRecords={userData?.numberOfJobHistoryRecords}
               getUserJobHistory={getUserJobHistory}
             />
+            <TouchableOpacity
+              style={{
+                margin: 10,
+                padding: 10,
+                borderWidth: 1,
+                borderColor: themeStyle.colors.grayscale.lowest,
+                borderRadius: 5,
+                alignSelf: "center",
+                minWidth: 150,
+              }}
+              onPress={() => {
+                setShowAddJobModal(true);
+              }}
+            >
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.lowest,
+                  fontWeight: "900",
+                }}
+              >
+                <Ionicons
+                  name="add"
+                  size={18}
+                  color={themeStyle.colors.grayscale.lowest}
+                  style={{ alignSelf: "center" }}
+                />{" "}
+                Add Work Role
+              </Text>
+            </TouchableOpacity>
             <EducationHistoryDropdown
               showEducationHistory={showEducationHistory}
               setShowEducationHistory={setShowEducationHistory}
+              setShowJobHistory={setShowJobHistory}
               userEducationHistory={userData?.userEducationHistory}
               numberOfEducationHistoryRecords={
                 userData?.numberOfEducationHistoryRecords
               }
               getUserEducationHistory={getUserEducationHistory}
             />
+            <TouchableOpacity
+              style={{
+                margin: 10,
+                padding: 10,
+                borderWidth: 1,
+                borderColor: themeStyle.colors.grayscale.lowest,
+                borderRadius: 5,
+                alignSelf: "center",
+                minWidth: 150,
+              }}
+              onPress={() => {
+                setShowAddJobModal(true);
+              }}
+            >
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.lowest,
+                  fontWeight: "900",
+                }}
+              >
+                <Ionicons
+                  name="add"
+                  size={18}
+                  color={themeStyle.colors.grayscale.lowest}
+                  style={{ alignSelf: "center" }}
+                />{" "}
+                Add Education
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
         {children}
