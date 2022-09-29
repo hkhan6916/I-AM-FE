@@ -70,7 +70,7 @@ const JobHistoryDropdown = ({
       )}
 
       {showJobHistory && numberOfJobHistoryRecords > 3 ? (
-        <View>
+        <View style={{ marginBottom: 20 }}>
           <TouchableOpacity onPress={() => getUserJobHistory()}>
             <Text
               style={{

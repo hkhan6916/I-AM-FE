@@ -19,6 +19,7 @@ const Input = ({
   isOutlined,
   setValue,
   onClear,
+  borderColor,
   ...rest
 }) => {
   const handleClear = () => {
@@ -40,7 +41,7 @@ const Input = ({
             justifyContent: "space-between",
             paddingRight: 10,
             borderWidth: 2,
-            borderColor: themeStyle.colors.primary.default,
+            borderColor: borderColor || themeStyle.colors.primary.default,
             borderRadius: 5,
             paddingLeft: 10,
           },

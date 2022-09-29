@@ -8,6 +8,7 @@ import PreviewProfileImage from "../PreviewProfileImage";
 import JobHistoryDropdown from "./JobHistoryDropdown";
 import EducationHistoryDropdown from "./EducationHistoryDropdown";
 import AddJobModal from "./AddJobModal";
+import AddEducationModal from "./AddEducationModal";
 
 const ProfileScreenHeader = React.forwardRef(
   (
@@ -25,12 +26,17 @@ const ProfileScreenHeader = React.forwardRef(
     const [showJobHistory, setShowJobHistory] = useState(false);
     const [showEducationHistory, setShowEducationHistory] = useState(false);
     const [showAddJobModal, setShowAddJobModal] = useState(false);
+    const [showAddEducationModal, setShowAddEducationModal] = useState(false);
     return (
       <ScrollView ref={ref} {...props}>
         <View>
           <AddJobModal
             visible={showAddJobModal}
             setShowModal={setShowAddJobModal}
+          />
+          <AddEducationModal
+            visible={showAddEducationModal}
+            setShowModal={setShowAddEducationModal}
           />
           {userData?.profileVideoUrl ? (
             <PreviewVideo
@@ -199,7 +205,7 @@ const ProfileScreenHeader = React.forwardRef(
                 margin: 10,
                 padding: 10,
                 borderWidth: 1,
-                borderColor: themeStyle.colors.grayscale.lowest,
+                borderColor: themeStyle.colors.secondary.default,
                 borderRadius: 5,
                 alignSelf: "center",
                 minWidth: 150,
@@ -238,13 +244,13 @@ const ProfileScreenHeader = React.forwardRef(
                 margin: 10,
                 padding: 10,
                 borderWidth: 1,
-                borderColor: themeStyle.colors.grayscale.lowest,
+                borderColor: themeStyle.colors.secondary.default,
                 borderRadius: 5,
                 alignSelf: "center",
                 minWidth: 150,
               }}
               onPress={() => {
-                setShowAddJobModal(true);
+                setShowAddEducationModal(true);
               }}
             >
               <Text

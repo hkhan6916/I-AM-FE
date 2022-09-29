@@ -11,7 +11,6 @@ import {
   Platform,
   ScrollView,
   TouchableWithoutFeedback,
-  ActivityIndicator,
 } from "react-native";
 import themeStyle from "../../theme.style";
 import Input from "../Input";
@@ -19,49 +18,26 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import getDayMonthYear from "../../helpers/getDayMonthYear";
 import apiCall from "../../helpers/apiCall";
 
-const AddJobModal = ({ setShowModal, ...rest }) => {
+const AddEducationModal = ({ setShowModal, ...rest }) => {
   const [roleName, setRoleName] = useState("");
   const [companyName, setCompanyName] = useState("");
-  const [description, setDescription] = useState("");
-  const [city, setCity] = useState("");
-  const [country, setCountry] = useState("");
   const [roleType, setRoleType] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [showDateFromPicker, setShowDateFromPicker] = useState(false);
   const [showDateToPicker, setShowDateToPicker] = useState(false);
-  const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [submissionError, setSubmissionError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async () => {
-    setSubmitted(true);
-    setLoading(true);
     const { response, success, message } = await apiCall(
       "POST",
-      "/user/job-history/add",
+      "user/job-history/add",
       {
-        roleName,
-        companyName,
-        roleDescription: description,
-        dateFrom,
-        dateTo,
-        city,
-        country,
         roleType,
+        roleName,
       }
     );
-    if (!success) {
-      setSubmissionError(
-        "An error occurred saving your job role. Please try again later."
-      );
-      setLoading(false);
-    }
-
-    if (success) {
-      setLoading(false);
-    }
   };
 
   return (
@@ -120,7 +96,7 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                         marginHorizontal: 10,
                       }}
                     >
-                      Work history
+                      Education History
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -148,17 +124,13 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                       borderColor={themeStyle.colors.grayscale.lowest}
                       label={"Title*"}
                       placeholder={"Title*"}
-                      onChangeText={(value) => setRoleName(value)}
-                      value={roleName}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10 }}>
                     <Input
                       borderColor={themeStyle.colors.grayscale.lowest}
-                      label={"Company Name*"}
-                      placeholder={"Company Name*"}
-                      onChangeText={(value) => setCompanyName(value)}
-                      value={companyName}
+                      label={"Institution Name*"}
+                      placeholder={"Institution Name*"}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10, marginVertical: 10 }}>
@@ -296,10 +268,8 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                   <View style={{ paddingHorizontal: 10 }}>
                     <Input
                       borderColor={themeStyle.colors.grayscale.lowest}
-                      label={"Role Description"}
-                      placeholder={"Role Description"}
-                      onChangeText={(value) => setDescription(value)}
-                      value={description}
+                      label={"Education Description"}
+                      placeholder={"Education Description"}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10 }}>
@@ -307,8 +277,6 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                       borderColor={themeStyle.colors.grayscale.lowest}
                       label={"City"}
                       placeholder={"City"}
-                      onChangeText={(value) => setCity(value)}
-                      value={city}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10 }}>
@@ -316,106 +284,7 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                       borderColor={themeStyle.colors.grayscale.lowest}
                       label={"Country"}
                       placeholder={"Country"}
-                      onChangeText={(value) => setCountry(value)}
-                      value={country}
                     />
-                  </View>
-                  <View style={{ paddingHorizontal: 10, paddingBottom: 10 }}>
-                    <Text
-                      style={{
-                        color: themeStyle.colors.grayscale.lowest,
-                        marginBottom: 10,
-                      }}
-                    >
-                      This role {dateTo ? "was" : "is"}:
-                    </Text>
-                    <View style={{ flexDirection: "row", width: "100%" }}>
-                      <TouchableOpacity
-                        style={{
-                          borderColor:
-                            roleType === "onsite"
-                              ? themeStyle.colors.secondary.default
-                              : themeStyle.colors.grayscale.lowest,
-                          borderWidth: 1,
-                          backgroundColor:
-                            roleType === "onsite"
-                              ? themeStyle.colors.secondary.default
-                              : themeStyle.colors.grayscale.highest,
-                          width: 80,
-                          padding: 5,
-                          borderRadius: 20,
-                        }}
-                        onPress={() => {
-                          setRoleType("onsite");
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: themeStyle.colors.white,
-                            textAlign: "center",
-                          }}
-                        >
-                          On site
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{
-                          borderColor:
-                            roleType === "remote"
-                              ? themeStyle.colors.secondary.default
-                              : themeStyle.colors.grayscale.lowest,
-                          borderWidth: 1,
-                          backgroundColor:
-                            roleType === "remote"
-                              ? themeStyle.colors.secondary.default
-                              : themeStyle.colors.grayscale.highest,
-                          width: 80,
-                          padding: 5,
-                          borderRadius: 20,
-                          marginHorizontal: 10,
-                        }}
-                        onPress={() => {
-                          setRoleType("remote");
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: themeStyle.colors.white,
-                            textAlign: "center",
-                          }}
-                        >
-                          Remote
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{
-                          borderColor:
-                            roleType === "hybrid"
-                              ? themeStyle.colors.secondary.default
-                              : themeStyle.colors.grayscale.lowest,
-                          borderWidth: 1,
-                          backgroundColor:
-                            roleType === "hybrid"
-                              ? themeStyle.colors.secondary.default
-                              : themeStyle.colors.grayscale.highest,
-                          width: 80,
-                          padding: 5,
-                          borderRadius: 20,
-                        }}
-                        onPress={() => {
-                          setRoleType("hybrid");
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: themeStyle.colors.white,
-                            textAlign: "center",
-                          }}
-                        >
-                          Hybrid
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
                   </View>
                 </View>
                 {error ? (
@@ -435,18 +304,8 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                   borderWidth: 1,
                   marginTop: 5,
                 }}
-                onPress={() => handleSubmit()}
               >
-                {loading ? (
-                  <ActivityIndicator
-                    size={"small"}
-                    color={themeStyle.colors.white}
-                  />
-                ) : (
-                  <Text style={{ color: themeStyle.colors.white }}>
-                    Add role
-                  </Text>
-                )}
+                <Text style={{ color: themeStyle.colors.white }}>Add role</Text>
               </TouchableOpacity>
             </View>
           </KeyboardAvoidingView>
@@ -456,4 +315,4 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
   );
 };
 
-export default AddJobModal;
+export default AddEducationModal;

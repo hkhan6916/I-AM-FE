@@ -69,7 +69,7 @@ const EducationHistoryDropdown = ({
       )}
 
       {showEducationHistory && numberOfEducationHistoryRecords > 3 ? (
-        <View>
+        <View style={{ marginBottom: 20 }}>
           <TouchableOpacity onPress={() => getUserEducationHistory()}>
             <Text
               style={{
