@@ -33,7 +33,6 @@ const AddEducationModal = ({
   const [description, setDescription] = useState(null);
   const [city, setCity] = useState(null);
   const [country, setCountry] = useState(null);
-  const [roleType, setRoleType] = useState(null);
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
   const [present, setPresent] = useState(false);
@@ -53,25 +52,25 @@ const AddEducationModal = ({
     setSubmitted(true);
     setLoading(true);
     setSubmissionError("");
-    const { success } = await apiCall(
+    const { success, message } = await apiCall(
       "POST",
       educationToEdit
-        ? `/user/job-history/update/${educationToEdit._id}`
-        : "/user/job-history/add",
+        ? `/user/education-history/update/${educationToEdit._id}`
+        : "/user/education-history/add",
       {
         educationName,
         institutionName,
-        roleDescription: description,
+        educationDescription: description,
         dateFrom,
-        dateTo: present ? "" : dateTo,
+        dateTo,
         city,
         country,
-        roleType,
       }
     );
+    console.log({ message });
     if (!success) {
       setSubmissionError(
-        "An error occurred saving your job role. Please try again later."
+        "There was a problem saving your education history. Please try again later."
       );
       setLoading(false);
     }
@@ -101,7 +100,7 @@ const AddEducationModal = ({
       }, 1000);
     } else {
       setSubmissionError(
-        "There was an error deleting this role. Please try again later."
+        "There was a problem updating your education history. Please try again later."
       );
     }
   };
@@ -207,7 +206,7 @@ const AddEducationModal = ({
                         fontWeight: "700",
                       }}
                     >
-                      Delete this role
+                      Delete this education
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -247,8 +246,8 @@ const AddEducationModal = ({
                   <View style={{ paddingHorizontal: 10 }}>
                     <Input
                       borderColor={themeStyle.colors.grayscale.lowest}
-                      label={"Company Name*"}
-                      placeholder={"Company Name*"}
+                      label={"Institution Name*"}
+                      placeholder={"Institution Name*"}
                       onChangeText={(value) => setInstitutionName(value)}
                       setValue={setInstitutionName}
                       value={
@@ -382,8 +381,15 @@ const AddEducationModal = ({
                     </TouchableWithoutFeedback>
                     <Checkbox
                       checked={present || (!dateTo && !educationToEdit?.dateTo)}
-                      setChecked={setPresent}
-                      label={"I still work here"}
+                      setChecked={(checked) => {
+                        setPresent(checked);
+                        if (!checked) {
+                          setDateTo(new Date());
+                        } else {
+                          setDateTo("");
+                        }
+                      }}
+                      label={"I still study here"}
                     />
                   </View>
                 </View>
@@ -419,8 +425,8 @@ const AddEducationModal = ({
                   <View style={{ paddingHorizontal: 10 }}>
                     <Input
                       borderColor={themeStyle.colors.grayscale.lowest}
-                      label={"Role Description"}
-                      placeholder={"Role Description"}
+                      label={"Education Description"}
+                      placeholder={"Education Description"}
                       onChangeText={(value) => setDescription(value)}
                       setValue={setDescription}
                       multiline
@@ -428,7 +434,7 @@ const AddEducationModal = ({
                       value={
                         description !== null
                           ? description
-                          : educationToEdit?.roleDescription || ""
+                          : educationToEdit?.educationDescription || ""
                       }
                     />
                   </View>
@@ -510,7 +516,7 @@ const AddEducationModal = ({
                         fontWeight: "700",
                       }}
                     >
-                      Role deleted
+                      Education deleted
                     </Text>
                   ) : success ? (
                     <Text
@@ -519,11 +525,13 @@ const AddEducationModal = ({
                         fontWeight: "700",
                       }}
                     >
-                      {educationToEdit ? "Role updated" : "Role added"}
+                      {educationToEdit
+                        ? "Education updated"
+                        : "Education added"}
                     </Text>
                   ) : (
                     <Text style={{ color: themeStyle.colors.white }}>
-                      {educationToEdit ? "Update role" : "Add role"}
+                      {educationToEdit ? "Update Education" : "Add Education"}
                     </Text>
                   )}
                 </TouchableOpacity>
@@ -544,7 +552,8 @@ const AddEducationModal = ({
                       fontWeight: "700",
                     }}
                   >
-                    Are you sure you want to delete this role?
+                    Are you sure you want to delete this from your education
+                    history?
                   </Text>
                   <View
                     style={{

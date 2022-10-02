@@ -12,7 +12,7 @@ const EducationHistoryDropdown = ({
   numberOfEducationHistoryRecords,
   getUserEducationHistory,
   setShowAddEducationModal,
-  showEditButton = true,
+  showEditButton,
 }) => {
   return (
     <>

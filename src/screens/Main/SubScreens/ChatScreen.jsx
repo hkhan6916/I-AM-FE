@@ -44,6 +44,7 @@ import {
   RecyclerListView,
 } from "recyclerlistview";
 import usePersistedWebParams from "../../../helpers/hooks/usePersistedWebParams";
+import convertVideoToMp4 from "../../../helpers/convertVideoToMp4";
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -362,8 +363,12 @@ const ChatScreen = (props) => {
         const mediaType = media.type?.split("/")[0];
 
         if (mediaType === "video") {
+          const convertedToMp4Url =
+            media.uri?.split(".").pop !== "mp4"
+              ? await convertVideoToMp4(media.uri)
+              : media.uri;
           await VideoCompress.compress(
-            media.uri,
+            convertedToMp4Url,
             {
               compressionMethod: "auto",
               minimumFileSizeForCompress: 20,

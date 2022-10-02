@@ -119,7 +119,7 @@ const ProfileInfo = ({
     return <View />;
   }
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <UserOptionsModal
         reportUser={reportUser}
         blockUser={blockUser}

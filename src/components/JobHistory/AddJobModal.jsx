@@ -376,7 +376,14 @@ const AddJobModal = ({
                     </TouchableWithoutFeedback>
                     <Checkbox
                       checked={present || (!dateTo && !jobToEdit?.dateTo)}
-                      setChecked={setPresent}
+                      setChecked={(checked) => {
+                        setPresent(checked);
+                        if (!checked) {
+                          setDateTo(new Date());
+                        } else {
+                          setDateTo("");
+                        }
+                      }}
                       label={"I still work here"}
                     />
                   </View>
