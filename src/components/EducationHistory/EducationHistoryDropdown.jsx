@@ -63,7 +63,7 @@ const EducationHistoryDropdown = ({
           {showEditButton && userEducationHistory?.length ? (
             <TouchableOpacity
               onPress={() => {
-                return null;
+                getUserEducationHistory();
               }}
               style={{
                 height: 48,

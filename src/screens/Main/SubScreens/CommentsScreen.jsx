@@ -47,6 +47,7 @@ const CommentsScreen = (props) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showOptionsForComment, setShowOptionsForComment] = useState(null);
+  const [showDeleteGuard, setShowDeleteGuard] = useState(false);
   const [error, setError] = useState("");
 
   const navigation = useNavigation();
@@ -402,6 +403,8 @@ const CommentsScreen = (props) => {
               comment={showOptionsForComment}
               updateComment={updateComment}
               deleteComment={deleteComment}
+              setShowDeleteGuard={setShowDeleteGuard}
+              showDeleteGuard={showDeleteGuard}
               showOptions={!!showOptionsForComment}
               setShowOptionsForComment={setShowOptionsForComment}
               loading={loading}

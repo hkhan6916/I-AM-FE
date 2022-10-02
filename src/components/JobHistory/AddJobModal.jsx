@@ -20,8 +20,15 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import getDayMonthYear from "../../helpers/getDayMonthYear";
 import apiCall from "../../helpers/apiCall";
 import Checkbox from "../Checkbox";
+import { useEffect } from "react";
 
-const AddJobModal = ({ setShowModal, jobToEdit, ...rest }) => {
+const AddJobModal = ({
+  setShowModal = () => null,
+  setJobToEdit = () => null,
+  setShowJobHistoryModal = () => null,
+  jobToEdit,
+  ...rest
+}) => {
   const [roleName, setRoleName] = useState(null);
   const [companyName, setCompanyName] = useState(null);
   const [description, setDescription] = useState(null);
@@ -75,6 +82,7 @@ const AddJobModal = ({ setShowModal, jobToEdit, ...rest }) => {
       setSuccess(true);
       setTimeout(() => {
         setShowModal(false);
+        setJobToEdit(null);
       }, 1000);
     }
   };
@@ -90,6 +98,7 @@ const AddJobModal = ({ setShowModal, jobToEdit, ...rest }) => {
       setDeleted(true);
       setTimeout(() => {
         setShowModal(false);
+        setJobToEdit(null);
       }, 1000);
     } else {
       setSubmissionError(
@@ -113,6 +122,10 @@ const AddJobModal = ({ setShowModal, jobToEdit, ...rest }) => {
       {...rest}
       onRequestClose={() => {
         setShowModal(false);
+        if (jobToEdit) {
+          setShowJobHistoryModal(true);
+        }
+        setJobToEdit(null);
       }}
     >
       <View
@@ -143,8 +156,10 @@ const AddJobModal = ({ setShowModal, jobToEdit, ...rest }) => {
                   <TouchableOpacity
                     onPress={() => {
                       setShowModal(false);
-                      setDateFrom(null);
-                      setDateTo(null);
+                      if (jobToEdit) {
+                        setShowJobHistoryModal(true);
+                      }
+                      setJobToEdit(null);
                     }}
                     style={{
                       justifyContent: "center",
@@ -164,7 +179,7 @@ const AddJobModal = ({ setShowModal, jobToEdit, ...rest }) => {
                         marginHorizontal: 10,
                       }}
                     >
-                      {jobToEdit ? "Update role" : "Work history"}
+                      {jobToEdit ? "Edit Role" : "Work History"}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -360,7 +375,7 @@ const AddJobModal = ({ setShowModal, jobToEdit, ...rest }) => {
                       </View>
                     </TouchableWithoutFeedback>
                     <Checkbox
-                      checked={present}
+                      checked={present || (!dateTo && !jobToEdit?.dateTo)}
                       setChecked={setPresent}
                       label={"I still work here"}
                     />

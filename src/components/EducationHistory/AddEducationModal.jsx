@@ -12,21 +12,31 @@ import {
   ScrollView,
   TouchableWithoutFeedback,
   ActivityIndicator,
+  Dimensions,
 } from "react-native";
 import themeStyle from "../../theme.style";
 import Input from "../Input";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import getDayMonthYear from "../../helpers/getDayMonthYear";
 import apiCall from "../../helpers/apiCall";
+import Checkbox from "../Checkbox";
 
-const AddJobModal = ({ setShowModal, ...rest }) => {
-  const [educationName, setEducationName] = useState("");
-  const [institutionName, setInstitutionName] = useState("");
-  const [description, setDescription] = useState("");
-  const [city, setCity] = useState("");
-  const [country, setCountry] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+const AddEducationModal = ({
+  setShowModal = () => null,
+  setEducationToEdit = () => null,
+  setShowEducationHistoryModal = () => null,
+  educationToEdit,
+  ...rest
+}) => {
+  const [educationName, setEducationName] = useState(null);
+  const [institutionName, setInstitutionName] = useState(null);
+  const [description, setDescription] = useState(null);
+  const [city, setCity] = useState(null);
+  const [country, setCountry] = useState(null);
+  const [roleType, setRoleType] = useState(null);
+  const [dateFrom, setDateFrom] = useState(null);
+  const [dateTo, setDateTo] = useState(null);
+  const [present, setPresent] = useState(false);
   const [showDateFromPicker, setShowDateFromPicker] = useState(false);
   const [showDateToPicker, setShowDateToPicker] = useState(false);
   const [error, setError] = useState("");
@@ -34,23 +44,34 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
   const [submissionError, setSubmissionError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [deleted, setDeleted] = useState(false);
+  const [showDeleteOptions, setShowDeleteOptions] = useState(false);
+
+  const { width: screenWidth } = Dimensions.get("window");
 
   const handleSubmit = async () => {
     setSubmitted(true);
     setLoading(true);
     setSubmissionError("");
-    const { success } = await apiCall("POST", "/user/education-history/add", {
-      educationName,
-      institutionName,
-      educationDescription: description,
-      dateFrom,
-      dateTo,
-      city,
-      country,
-    });
+    const { success } = await apiCall(
+      "POST",
+      educationToEdit
+        ? `/user/job-history/update/${educationToEdit._id}`
+        : "/user/job-history/add",
+      {
+        educationName,
+        institutionName,
+        roleDescription: description,
+        dateFrom,
+        dateTo: present ? "" : dateTo,
+        city,
+        country,
+        roleType,
+      }
+    );
     if (!success) {
       setSubmissionError(
-        "There was an error whilst saving. Please try again later."
+        "An error occurred saving your job role. Please try again later."
       );
       setLoading(false);
     }
@@ -60,8 +81,44 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
       setSuccess(true);
       setTimeout(() => {
         setShowModal(false);
+        setEducationToEdit(null);
       }, 1000);
     }
+  };
+
+  const handleDelete = async () => {
+    setShowDeleteOptions(false);
+    const { success, message } = await apiCall(
+      "POST",
+      `/user/job-history/remove/${educationToEdit._id}`,
+      {}
+    );
+    if (success) {
+      setDeleted(true);
+      setTimeout(() => {
+        setShowModal(false);
+        setEducationToEdit(null);
+      }, 1000);
+    } else {
+      setSubmissionError(
+        "There was an error deleting this role. Please try again later."
+      );
+    }
+  };
+
+  const infoIsInvalid = () => {
+    if (!educationToEdit) {
+      return (
+        loading ||
+        success ||
+        error ||
+        !institutionName ||
+        !educationName ||
+        !dateFrom
+      );
+    }
+
+    return loading || success || error;
   };
 
   return (
@@ -69,6 +126,10 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
       {...rest}
       onRequestClose={() => {
         setShowModal(false);
+        if (educationToEdit) {
+          setShowEducationHistoryModal(true);
+        }
+        setEducationToEdit(null);
       }}
     >
       <View
@@ -99,8 +160,10 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                   <TouchableOpacity
                     onPress={() => {
                       setShowModal(false);
-                      setDateFrom("");
-                      setDateTo("");
+                      if (educationToEdit) {
+                        setShowEducationHistoryModal(true);
+                      }
+                      setEducationToEdit(null);
                     }}
                     style={{
                       justifyContent: "center",
@@ -120,10 +183,34 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                         marginHorizontal: 10,
                       }}
                     >
-                      Work history
+                      {educationToEdit ? "Edit Education" : "Education History"}
                     </Text>
                   </TouchableOpacity>
                 </View>
+                <TouchableOpacity onPress={() => setShowDeleteOptions(true)}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    <AntDesign
+                      name="delete"
+                      size={16}
+                      color={themeStyle.colors.error.default}
+                    />
+                    <Text
+                      style={{
+                        color: themeStyle.colors.error.default,
+                        marginLeft: 5,
+                        fontWeight: "700",
+                      }}
+                    >
+                      Delete this role
+                    </Text>
+                  </View>
+                </TouchableOpacity>
                 <View
                   style={{
                     borderWidth: 2,
@@ -149,16 +236,26 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                       label={"Title*"}
                       placeholder={"Title*"}
                       onChangeText={(value) => setEducationName(value)}
-                      value={educationName}
+                      setValue={setEducationName}
+                      value={
+                        educationName !== null
+                          ? educationName
+                          : educationToEdit?.educationName || ""
+                      }
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10 }}>
                     <Input
                       borderColor={themeStyle.colors.grayscale.lowest}
-                      label={"Institution Name*"}
-                      placeholder={"Institution Name*"}
+                      label={"Company Name*"}
+                      placeholder={"Company Name*"}
                       onChangeText={(value) => setInstitutionName(value)}
-                      value={institutionName}
+                      setValue={setInstitutionName}
+                      value={
+                        institutionName !== null
+                          ? institutionName
+                          : educationToEdit?.institutionName || ""
+                      }
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10, marginVertical: 10 }}>
@@ -169,7 +266,13 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                       <DateTimePicker
                         maximumDate={new Date()}
                         testID="from"
-                        value={new Date()}
+                        value={
+                          dateFrom !== null
+                            ? dateFrom
+                            : educationToEdit?.dateFrom
+                            ? new Date(educationToEdit?.dateFrom)
+                            : new Date()
+                        }
                         onChange={(_, date) => {
                           setShowDateFromPicker(false);
                           setError("");
@@ -199,7 +302,13 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                         <Text
                           style={{ color: themeStyle.colors.grayscale.lowest }}
                         >
-                          {getDayMonthYear(dateFrom)}
+                          {getDayMonthYear(
+                            dateFrom !== null
+                              ? dateFrom
+                              : educationToEdit?.dateFrom
+                              ? new Date(educationToEdit?.dateFrom)
+                              : new Date()
+                          )}
                         </Text>
                         <Ionicons
                           size={14}
@@ -233,6 +342,7 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                             );
                           }
                           setDateTo(date);
+                          setPresent(false);
                         }}
                         mode="date"
                       />
@@ -253,7 +363,15 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                         <Text
                           style={{ color: themeStyle.colors.grayscale.lowest }}
                         >
-                          {getDayMonthYear(dateTo) || "Present"}
+                          {!present && (dateTo || educationToEdit?.dateTo)
+                            ? getDayMonthYear(
+                                dateTo
+                                  ? dateTo
+                                  : educationToEdit?.dateTo
+                                  ? new Date(educationToEdit?.dateTo)
+                                  : ""
+                              )
+                            : "Present"}
                         </Text>
                         <Ionicons
                           size={14}
@@ -262,6 +380,11 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                         />
                       </View>
                     </TouchableWithoutFeedback>
+                    <Checkbox
+                      checked={present || (!dateTo && !educationToEdit?.dateTo)}
+                      setChecked={setPresent}
+                      label={"I still work here"}
+                    />
                   </View>
                 </View>
                 <View
@@ -296,10 +419,17 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                   <View style={{ paddingHorizontal: 10 }}>
                     <Input
                       borderColor={themeStyle.colors.grayscale.lowest}
-                      label={"Education Description"}
-                      placeholder={"Education Description"}
+                      label={"Role Description"}
+                      placeholder={"Role Description"}
                       onChangeText={(value) => setDescription(value)}
-                      value={description}
+                      setValue={setDescription}
+                      multiline
+                      style={{ height: 80 }}
+                      value={
+                        description !== null
+                          ? description
+                          : educationToEdit?.roleDescription || ""
+                      }
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10 }}>
@@ -308,7 +438,8 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                       label={"City"}
                       placeholder={"City"}
                       onChangeText={(value) => setCity(value)}
-                      value={city}
+                      setValue={setCity}
+                      value={city !== null ? city : educationToEdit?.city || ""}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10 }}>
@@ -317,7 +448,12 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                       label={"Country"}
                       placeholder={"Country"}
                       onChangeText={(value) => setCountry(value)}
-                      value={country}
+                      setValue={setCountry}
+                      value={
+                        country !== null
+                          ? country
+                          : educationToEdit?.country || ""
+                      }
                     />
                   </View>
                 </View>
@@ -343,51 +479,114 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                   {submissionError}
                 </Text>
               ) : null}
-              <TouchableOpacity
-                style={{
-                  borderRadius: 5,
-                  padding: 10,
-                  height: 48,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  backgroundColor: themeStyle.colors.primary.default,
-                  borderWidth: 1,
-                  marginTop: 5,
-                  opacity:
-                    loading ||
-                    success ||
-                    error ||
-                    !institutionName ||
-                    !educationName ||
-                    !dateFrom
-                      ? 0.5
-                      : 1,
-                }}
-                onPress={() => handleSubmit()}
-                disabled={
-                  loading ||
-                  success ||
-                  error ||
-                  !institutionName ||
-                  !educationName ||
-                  !dateFrom
-                }
-              >
-                {loading ? (
-                  <ActivityIndicator
-                    size={"small"}
-                    color={themeStyle.colors.white}
-                  />
-                ) : success ? (
-                  <Text style={{ color: themeStyle.colors.white }}>
-                    Education added
+              {!showDeleteOptions ? (
+                <TouchableOpacity
+                  style={{
+                    borderRadius: 5,
+                    padding: 10,
+                    height: 48,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor:
+                      deleted || success
+                        ? themeStyle.colors.grayscale.highest
+                        : themeStyle.colors.primary.default,
+                    borderWidth: 1,
+                    marginTop: 5,
+                    opacity: infoIsInvalid() ? 0.5 : 1,
+                  }}
+                  onPress={() => handleSubmit()}
+                  disabled={infoIsInvalid()}
+                >
+                  {loading ? (
+                    <ActivityIndicator
+                      size={"small"}
+                      color={themeStyle.colors.white}
+                    />
+                  ) : deleted ? (
+                    <Text
+                      style={{
+                        color: themeStyle.colors.white,
+                        fontWeight: "700",
+                      }}
+                    >
+                      Role deleted
+                    </Text>
+                  ) : success ? (
+                    <Text
+                      style={{
+                        color: themeStyle.colors.white,
+                        fontWeight: "700",
+                      }}
+                    >
+                      {educationToEdit ? "Role updated" : "Role added"}
+                    </Text>
+                  ) : (
+                    <Text style={{ color: themeStyle.colors.white }}>
+                      {educationToEdit ? "Update role" : "Add role"}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              ) : (
+                <View
+                  style={{
+                    backgroundColor: "rgba(140, 140, 140, 0.3)",
+                    width: screenWidth,
+                    alignSelf: "center",
+                    paddingVertical: 10,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: themeStyle.colors.grayscale.lowest,
+                      marginBottom: 20,
+                      marginLeft: 20,
+                      fontWeight: "700",
+                    }}
+                  >
+                    Are you sure you want to delete this role?
                   </Text>
-                ) : (
-                  <Text style={{ color: themeStyle.colors.white }}>
-                    Add education
-                  </Text>
-                )}
-              </TouchableOpacity>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={async () => {
+                        await handleDelete();
+                      }}
+                      style={{ height: 48, justifyContent: "center" }}
+                    >
+                      <Text
+                        style={{
+                          color: themeStyle.colors.error.default,
+                          paddingHorizontal: 20,
+                          fontWeight: "700",
+                        }}
+                      >
+                        Delete
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => setShowDeleteOptions(false)}
+                      style={{ height: 48, justifyContent: "center" }}
+                    >
+                      <Text
+                        style={{
+                          color: themeStyle.colors.grayscale.lowest,
+                          textAlign: "center",
+                          paddingHorizontal: 40,
+                          fontWeight: "700",
+                        }}
+                      >
+                        Cancel
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
             </View>
           </KeyboardAvoidingView>
         </SafeAreaView>
@@ -396,4 +595,4 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
   );
 };
 
-export default AddJobModal;
+export default AddEducationModal;

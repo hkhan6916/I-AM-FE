@@ -616,8 +616,8 @@ const UserProfileScreen = (props) => {
                         }}
                       >
                         {showJobHistoryModal
-                          ? "Work history"
-                          : "Education history"}
+                          ? "Work History"
+                          : "Education History"}
                       </Text>
                     </TouchableOpacity>
                   </View>

@@ -226,7 +226,7 @@ const ProfileScreenHeader = React.forwardRef(
                   color={themeStyle.colors.grayscale.lowest}
                   style={{ alignSelf: "center" }}
                 />{" "}
-                Add Work Role
+                Add Job Role
               </Text>
             </TouchableOpacity>
             <EducationHistoryDropdown

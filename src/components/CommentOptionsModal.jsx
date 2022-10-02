@@ -24,6 +24,8 @@ const CommentOptionsModal = ({
   loading: parentLoading,
   error,
   reportComment,
+  setShowDeleteGuard,
+  showDeleteGuard,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [commentBody, setCommentBody] = useState(comment.body);
@@ -140,7 +142,61 @@ const CommentOptionsModal = ({
                         ))}
                       </View>
                     ) : null}
-                    {comment.belongsToUser && !isEditing ? (
+                    {showDeleteGuard ? (
+                      <View style={{ width: "100%" }}>
+                        <Text
+                          style={{
+                            color: themeStyle.colors.grayscale.lowest,
+                            marginBottom: 20,
+                            marginTop: 20,
+                            marginLeft: 20,
+                            fontWeight: "700",
+                          }}
+                        >
+                          Are you sure?
+                        </Text>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <TouchableOpacity
+                            onPress={async () => {
+                              await deleteComment();
+                              setShowDeleteGuard(false);
+                            }}
+                            style={{ height: 48, justifyContent: "center" }}
+                          >
+                            <Text
+                              style={{
+                                color: themeStyle.colors.error.default,
+                                paddingHorizontal: 20,
+                                fontWeight: "700",
+                              }}
+                            >
+                              Delete
+                            </Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            onPress={() => setShowDeleteGuard(false)}
+                            style={{ height: 48, justifyContent: "center" }}
+                          >
+                            <Text
+                              style={{
+                                color: themeStyle.colors.grayscale.lowest,
+                                textAlign: "center",
+                                paddingHorizontal: 40,
+                                fontWeight: "700",
+                              }}
+                            >
+                              Cancel
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    ) : comment.belongsToUser && !isEditing ? (
                       <View style={{ width: "100%" }}>
                         <View
                           style={{
@@ -170,7 +226,7 @@ const CommentOptionsModal = ({
                         </View>
                         <View>
                           <TouchableOpacity
-                            onPress={() => deleteComment()}
+                            onPress={() => setShowDeleteGuard(true)}
                             style={{
                               width: "100%",
                               height: 48,

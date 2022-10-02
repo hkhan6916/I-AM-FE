@@ -141,6 +141,7 @@ const PostOptionsModal = ({
                       color: themeStyle.colors.grayscale.lowest,
                       marginBottom: 20,
                       marginLeft: 20,
+                      fontWeight: "700",
                     }}
                   >
                     Are you sure?

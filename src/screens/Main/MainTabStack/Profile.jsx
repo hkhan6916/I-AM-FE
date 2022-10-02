@@ -29,6 +29,7 @@ import JobHistoryItem from "../../../components/JobHistory/JobHistoryItem";
 import EducationHistoryItem from "../../../components/EducationHistory/EducationHistoryItem";
 import ContentLoader, { Rect } from "react-content-loader/native";
 import AddJobModal from "../../../components/JobHistory/AddJobModal";
+import AddEducationModal from "../../../components/EducationHistory/AddEducationModal";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -45,6 +46,7 @@ const ProfileScreen = () => {
   const [showEducationHistoryModal, setShowEducationHistoryModal] =
     useState(false);
   const [jobToEdit, setJobToEdit] = useState(null);
+  const [educationToEdit, setEducationToEdit] = useState(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
   const nativeGobalUserData = useSelector((state) => state.userData);
@@ -165,7 +167,12 @@ const ProfileScreen = () => {
         showEditButton={true}
       />
     ) : (
-      <EducationHistoryItem education={item} />
+      <EducationHistoryItem
+        education={item}
+        setEducationToEdit={setEducationToEdit}
+        setShowEducationHistoryModal={setShowEducationHistoryModal}
+        showEditButton={true}
+      />
     );
 
   let userHistoryDataProvider = new DataProvider(
@@ -317,9 +324,16 @@ const ProfileScreen = () => {
         {jobToEdit ? (
           <AddJobModal
             visible
-            setShowModal={setJobToEdit}
             jobToEdit={jobToEdit}
-            onRequestClose={() => {}}
+            setJobToEdit={setJobToEdit}
+            setShowJobHistoryModal={setShowJobHistoryModal}
+          />
+        ) : educationToEdit ? (
+          <AddEducationModal
+            visible
+            educationToEdit={educationToEdit}
+            setEducationToEdit={setEducationToEdit}
+            setShowEducationHistoryModal={setShowEducationHistoryModal}
           />
         ) : null}
         <Modal
@@ -456,8 +470,8 @@ const ProfileScreen = () => {
                         }}
                       >
                         {showJobHistoryModal
-                          ? "Work history"
-                          : "Education history"}
+                          ? "Work History"
+                          : "Education History"}
                       </Text>
                     </TouchableOpacity>
                   </View>

@@ -44,6 +44,7 @@ const CommentRepliesScreen = (props) => {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showOptionsForComment, setShowOptionsForComment] = useState(null);
+  const [showDeleteGuard, setShowDeleteGuard] = useState(false);
   const [error, setError] = useState("");
   const navigation = useNavigation();
   const textInputRef = useRef();
@@ -387,6 +388,8 @@ const CommentRepliesScreen = (props) => {
             loading={loading}
             error={error}
             reportComment={reportComment}
+            setShowDeleteGuard={setShowDeleteGuard}
+            showDeleteGuard={showDeleteGuard}
           />
         ) : null}
         <View
