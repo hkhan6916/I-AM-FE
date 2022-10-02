@@ -5,10 +5,10 @@ import PreviewVideo from "../PreviewVideo";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import PreviewProfileImage from "../PreviewProfileImage";
-import JobHistoryDropdown from "./JobHistoryDropdown";
-import EducationHistoryDropdown from "./EducationHistoryDropdown";
-import AddJobModal from "./AddJobModal";
-import AddEducationModal from "./AddEducationModal";
+import JobHistoryDropdown from "../JobHistory/JobHistoryDropdown";
+import EducationHistoryDropdown from "../EducationHistory/EducationHistoryDropdown";
+import AddJobModal from "../JobHistory/AddJobModal";
+import AddEducationModal from "../EducationHistory/AddEducationModal";
 
 const ProfileScreenHeader = React.forwardRef(
   (
@@ -30,10 +30,9 @@ const ProfileScreenHeader = React.forwardRef(
     return (
       <ScrollView ref={ref} {...props}>
         <View>
-          <AddJobModal
-            visible={showAddJobModal}
-            setShowModal={setShowAddJobModal}
-          />
+          {showAddJobModal ? (
+            <AddJobModal visible setShowModal={setShowAddJobModal} />
+          ) : null}
           <AddEducationModal
             visible={showAddEducationModal}
             setShowModal={setShowAddEducationModal}
@@ -199,6 +198,7 @@ const ProfileScreenHeader = React.forwardRef(
               userJobHistory={userData?.userJobHistory}
               numberOfJobHistoryRecords={userData?.numberOfJobHistoryRecords}
               getUserJobHistory={getUserJobHistory}
+              showEditButton={true}
             />
             <TouchableOpacity
               style={{
@@ -238,6 +238,7 @@ const ProfileScreenHeader = React.forwardRef(
                 userData?.numberOfEducationHistoryRecords
               }
               getUserEducationHistory={getUserEducationHistory}
+              setShowAddEducationModal={setShowAddEducationModal}
             />
             <TouchableOpacity
               style={{

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Dimensions } from "react-native";
-import themeStyle from "../theme.style";
-import getMonthAndYearDate from "../helpers/getMonthAndYearDate";
+import themeStyle from "../../theme.style";
+import getMonthAndYearDate from "../../helpers/getMonthAndYearDate";
 import { Ionicons } from "@expo/vector-icons";
 const EducationHistoryItem = ({ education }) => {
   const [isCollapsible, setIsCollapsible] = useState(false);

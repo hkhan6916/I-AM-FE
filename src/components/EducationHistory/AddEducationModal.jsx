@@ -20,12 +20,11 @@ import getDayMonthYear from "../../helpers/getDayMonthYear";
 import apiCall from "../../helpers/apiCall";
 
 const AddJobModal = ({ setShowModal, ...rest }) => {
-  const [roleName, setRoleName] = useState("");
-  const [companyName, setCompanyName] = useState("");
+  const [educationName, setEducationName] = useState("");
+  const [institutionName, setInstitutionName] = useState("");
   const [description, setDescription] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
-  const [roleType, setRoleType] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [showDateFromPicker, setShowDateFromPicker] = useState(false);
@@ -34,33 +33,34 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
   const [submitted, setSubmitted] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async () => {
     setSubmitted(true);
     setLoading(true);
-    const { response, success, message } = await apiCall(
-      "POST",
-      "/user/job-history/add",
-      {
-        roleName,
-        companyName,
-        roleDescription: description,
-        dateFrom,
-        dateTo,
-        city,
-        country,
-        roleType,
-      }
-    );
+    setSubmissionError("");
+    const { success } = await apiCall("POST", "/user/education-history/add", {
+      educationName,
+      institutionName,
+      educationDescription: description,
+      dateFrom,
+      dateTo,
+      city,
+      country,
+    });
     if (!success) {
       setSubmissionError(
-        "An error occurred saving your job role. Please try again later."
+        "There was an error whilst saving. Please try again later."
       );
       setLoading(false);
     }
 
     if (success) {
       setLoading(false);
+      setSuccess(true);
+      setTimeout(() => {
+        setShowModal(false);
+      }, 1000);
     }
   };
 
@@ -141,24 +141,24 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                       marginBottom: 10,
                     }}
                   >
-                    Required fields
+                    Required information
                   </Text>
                   <View style={{ paddingHorizontal: 10 }}>
                     <Input
                       borderColor={themeStyle.colors.grayscale.lowest}
                       label={"Title*"}
                       placeholder={"Title*"}
-                      onChangeText={(value) => setRoleName(value)}
-                      value={roleName}
+                      onChangeText={(value) => setEducationName(value)}
+                      value={educationName}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10 }}>
                     <Input
                       borderColor={themeStyle.colors.grayscale.lowest}
-                      label={"Company Name*"}
-                      placeholder={"Company Name*"}
-                      onChangeText={(value) => setCompanyName(value)}
-                      value={companyName}
+                      label={"Institution Name*"}
+                      placeholder={"Institution Name*"}
+                      onChangeText={(value) => setInstitutionName(value)}
+                      value={institutionName}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10, marginVertical: 10 }}>
@@ -296,8 +296,8 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                   <View style={{ paddingHorizontal: 10 }}>
                     <Input
                       borderColor={themeStyle.colors.grayscale.lowest}
-                      label={"Role Description"}
-                      placeholder={"Role Description"}
+                      label={"Education Description"}
+                      placeholder={"Education Description"}
                       onChangeText={(value) => setDescription(value)}
                       value={description}
                     />
@@ -320,110 +320,29 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                       value={country}
                     />
                   </View>
-                  <View style={{ paddingHorizontal: 10, paddingBottom: 10 }}>
-                    <Text
-                      style={{
-                        color: themeStyle.colors.grayscale.lowest,
-                        marginBottom: 10,
-                      }}
-                    >
-                      This role {dateTo ? "was" : "is"}:
-                    </Text>
-                    <View style={{ flexDirection: "row", width: "100%" }}>
-                      <TouchableOpacity
-                        style={{
-                          borderColor:
-                            roleType === "onsite"
-                              ? themeStyle.colors.secondary.default
-                              : themeStyle.colors.grayscale.lowest,
-                          borderWidth: 1,
-                          backgroundColor:
-                            roleType === "onsite"
-                              ? themeStyle.colors.secondary.default
-                              : themeStyle.colors.grayscale.highest,
-                          width: 80,
-                          padding: 5,
-                          borderRadius: 20,
-                        }}
-                        onPress={() => {
-                          setRoleType("onsite");
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: themeStyle.colors.white,
-                            textAlign: "center",
-                          }}
-                        >
-                          On site
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{
-                          borderColor:
-                            roleType === "remote"
-                              ? themeStyle.colors.secondary.default
-                              : themeStyle.colors.grayscale.lowest,
-                          borderWidth: 1,
-                          backgroundColor:
-                            roleType === "remote"
-                              ? themeStyle.colors.secondary.default
-                              : themeStyle.colors.grayscale.highest,
-                          width: 80,
-                          padding: 5,
-                          borderRadius: 20,
-                          marginHorizontal: 10,
-                        }}
-                        onPress={() => {
-                          setRoleType("remote");
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: themeStyle.colors.white,
-                            textAlign: "center",
-                          }}
-                        >
-                          Remote
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{
-                          borderColor:
-                            roleType === "hybrid"
-                              ? themeStyle.colors.secondary.default
-                              : themeStyle.colors.grayscale.lowest,
-                          borderWidth: 1,
-                          backgroundColor:
-                            roleType === "hybrid"
-                              ? themeStyle.colors.secondary.default
-                              : themeStyle.colors.grayscale.highest,
-                          width: 80,
-                          padding: 5,
-                          borderRadius: 20,
-                        }}
-                        onPress={() => {
-                          setRoleType("hybrid");
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: themeStyle.colors.white,
-                            textAlign: "center",
-                          }}
-                        >
-                          Hybrid
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
                 </View>
-                {error ? (
-                  <Text style={{ color: themeStyle.colors.error.default }}>
-                    {error}
-                  </Text>
-                ) : null}
               </ScrollView>
+              {error ? (
+                <Text
+                  style={{
+                    color: themeStyle.colors.error.default,
+                    textAlign: "center",
+                    marginVertical: 10,
+                  }}
+                >
+                  {error}
+                </Text>
+              ) : submissionError ? (
+                <Text
+                  style={{
+                    color: themeStyle.colors.error.default,
+                    textAlign: "center",
+                    marginVertical: 10,
+                  }}
+                >
+                  {submissionError}
+                </Text>
+              ) : null}
               <TouchableOpacity
                 style={{
                   borderRadius: 5,
@@ -434,17 +353,38 @@ const AddJobModal = ({ setShowModal, ...rest }) => {
                   backgroundColor: themeStyle.colors.primary.default,
                   borderWidth: 1,
                   marginTop: 5,
+                  opacity:
+                    loading ||
+                    success ||
+                    error ||
+                    !institutionName ||
+                    !educationName ||
+                    !dateFrom
+                      ? 0.5
+                      : 1,
                 }}
                 onPress={() => handleSubmit()}
+                disabled={
+                  loading ||
+                  success ||
+                  error ||
+                  !institutionName ||
+                  !educationName ||
+                  !dateFrom
+                }
               >
                 {loading ? (
                   <ActivityIndicator
                     size={"small"}
                     color={themeStyle.colors.white}
                   />
+                ) : success ? (
+                  <Text style={{ color: themeStyle.colors.white }}>
+                    Education added
+                  </Text>
                 ) : (
                   <Text style={{ color: themeStyle.colors.white }}>
-                    Add role
+                    Add education
                   </Text>
                 )}
               </TouchableOpacity>

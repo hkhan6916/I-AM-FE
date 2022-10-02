@@ -25,8 +25,8 @@ import {
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 import themeStyle from "../../../theme.style";
 import { AntDesign } from "@expo/vector-icons";
-import EducationHistoryItem from "../../../components/EducationHistoryItem";
-import JobHistoryItem from "../../../components/JobHistoryItem";
+import EducationHistoryItem from "../../../components/EducationHistory/EducationHistoryItem";
+import JobHistoryItem from "../../../components/JobHistory/JobHistoryItem";
 import ReactContentLoader, { Rect } from "react-content-loader/native";
 
 const UserProfileScreen = (props) => {

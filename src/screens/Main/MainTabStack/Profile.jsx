@@ -25,9 +25,10 @@ import {
   LayoutProvider,
 } from "recyclerlistview";
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
-import JobHistoryItem from "../../../components/JobHistoryItem";
-import EducationHistoryItem from "../../../components/EducationHistoryItem";
+import JobHistoryItem from "../../../components/JobHistory/JobHistoryItem";
+import EducationHistoryItem from "../../../components/EducationHistory/EducationHistoryItem";
 import ContentLoader, { Rect } from "react-content-loader/native";
+import AddJobModal from "../../../components/JobHistory/AddJobModal";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -43,6 +44,7 @@ const ProfileScreen = () => {
   const [showJobHistoryModal, setShowJobHistoryModal] = useState(false);
   const [showEducationHistoryModal, setShowEducationHistoryModal] =
     useState(false);
+  const [jobToEdit, setJobToEdit] = useState(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
   const nativeGobalUserData = useSelector((state) => state.userData);
@@ -156,7 +158,12 @@ const ProfileScreen = () => {
 
   const userHistoryRowRenderer = (_, item) =>
     showJobHistoryModal ? (
-      <JobHistoryItem jobRole={item} />
+      <JobHistoryItem
+        setJobToEdit={setJobToEdit}
+        setShowJobHistoryModal={setShowJobHistoryModal}
+        jobRole={item}
+        showEditButton={true}
+      />
     ) : (
       <EducationHistoryItem education={item} />
     );
@@ -307,6 +314,14 @@ const ProfileScreen = () => {
           borderBottomWidth: 1,
         }}
       >
+        {jobToEdit ? (
+          <AddJobModal
+            visible
+            setShowModal={setJobToEdit}
+            jobToEdit={jobToEdit}
+            onRequestClose={() => {}}
+          />
+        ) : null}
         <Modal
           visible={showJobHistoryModal || showEducationHistoryModal}
           onRequestClose={() => {

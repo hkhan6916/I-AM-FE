@@ -20,6 +20,7 @@ const Input = ({
   setValue,
   onClear,
   borderColor,
+  style,
   ...rest
 }) => {
   const handleClear = () => {
@@ -31,7 +32,7 @@ const Input = ({
     }
   };
   return (
-    <View style={styles.textInputContainer}>
+    <View style={[styles.textInputContainer]}>
       <Text style={styles.label}>{label}</Text>
       <View
         style={[
@@ -60,7 +61,7 @@ const Input = ({
         ]}
       >
         <TextInput
-          style={[styles.textInput]}
+          style={[styles.textInput, style]}
           placeholderTextColor={themeStyle.colors.grayscale.low}
           placeholder={placeholder || ""}
           value={value}

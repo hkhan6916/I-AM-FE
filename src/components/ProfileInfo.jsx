@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { AntDesign, Entypo } from "@expo/vector-icons";
-import VideoPlayer from "./VideoPlayer";
 import themeStyle from "../theme.style";
-import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { View, Text, TouchableOpacity } from "react-native";
 import PreviewVideo from "./PreviewVideo";
@@ -10,8 +8,8 @@ import { StackActions, useNavigation } from "@react-navigation/native";
 import apiCall from "../helpers/apiCall";
 import UserOptionsModal from "./UserOptionsModal";
 import PreviewProfileImage from "./PreviewProfileImage";
-import JobHistoryDropdown from "./ProfileScreenHeader/JobHistoryDropdown";
-import EducationHistoryDropdown from "./ProfileScreenHeader/EducationHistoryDropdown";
+import JobHistoryDropdown from "./JobHistory/JobHistoryDropdown";
+import EducationHistoryDropdown from "./EducationHistory/EducationHistoryDropdown";
 
 const ProfileInfo = ({
   user,
