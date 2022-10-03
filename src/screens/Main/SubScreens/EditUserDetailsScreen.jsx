@@ -18,13 +18,7 @@ import {
 import Constants from "expo-constants";
 import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera";
-import {
-  Ionicons,
-  FontAwesome5,
-  AntDesign,
-  Entypo,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
+import { Ionicons, FontAwesome5, AntDesign, Entypo } from "@expo/vector-icons";
 import { getItemAsync } from "expo-secure-store";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";

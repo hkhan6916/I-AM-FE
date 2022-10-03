@@ -30,6 +30,8 @@ const ProfileInfo = ({
   const [modalError, setModalError] = useState("");
   const [showJobHistory, setShowJobHistory] = useState(false);
   const [showEducationHistory, setShowEducationHistory] = useState(false);
+  const [bioIsCollapsible, setBioIsCollapsible] = useState(false);
+  const [bioCollapsed, setBioCollapsed] = useState(false);
 
   const navigation = useNavigation();
 
@@ -69,6 +71,10 @@ const ProfileInfo = ({
         "There was an issue reporting this user. Please try again later."
       );
     }
+  };
+
+  const onBioTextLayout = (e) => {
+    setBioIsCollapsible(e.nativeEvent.lines.length >= 3);
   };
 
   const blockUser = async () => {
@@ -357,6 +363,32 @@ const ProfileInfo = ({
               {user.numberOfFriends} contacts
             </Text>
           )}
+        </View>
+
+        <View style={{ marginBottom: 10 }}>
+          <Text style={{ color: themeStyle.colors.grayscale.low }}>Bio</Text>
+          <Text
+            style={{
+              color: themeStyle.colors.grayscale.lowest,
+            }}
+            onTextLayout={onBioTextLayout}
+            numberOfLines={!bioCollapsed ? 3 : null}
+          >
+            {user?.bio}
+          </Text>
+          {bioIsCollapsible && !bioCollapsed ? (
+            <TouchableOpacity onPress={() => setBioCollapsed(true)}>
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.low,
+                  marginBottom: 10,
+                  marginTop: 5,
+                }}
+              >
+                Read more
+              </Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
 
         {user.blockedByUser ? (

@@ -2,13 +2,19 @@ import React, { useState } from "react";
 import themeStyle from "../../theme.style";
 import { TouchableOpacity, View, Text, ScrollView } from "react-native";
 import PreviewVideo from "../PreviewVideo";
-import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Feather,
+  Ionicons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import PreviewProfileImage from "../PreviewProfileImage";
 import JobHistoryDropdown from "../JobHistory/JobHistoryDropdown";
 import EducationHistoryDropdown from "../EducationHistory/EducationHistoryDropdown";
 import AddJobModal from "../JobHistory/AddJobModal";
 import AddEducationModal from "../EducationHistory/AddEducationModal";
+import UserBioModal from "../UserBioModal";
 
 const ProfileScreenHeader = React.forwardRef(
   (
@@ -27,16 +33,26 @@ const ProfileScreenHeader = React.forwardRef(
     const [showEducationHistory, setShowEducationHistory] = useState(false);
     const [showAddJobModal, setShowAddJobModal] = useState(false);
     const [showAddEducationModal, setShowAddEducationModal] = useState(false);
+    const [showAddBioModal, setShowAddBioModal] = useState(false);
+
     return (
       <ScrollView ref={ref} {...props}>
         <View>
           {showAddJobModal ? (
             <AddJobModal visible setShowModal={setShowAddJobModal} />
           ) : null}
-          <AddEducationModal
-            visible={showAddEducationModal}
-            setShowModal={setShowAddEducationModal}
-          />
+          {showAddBioModal ? (
+            <UserBioModal
+              bio={userData?.bio}
+              setShowUserBioModal={setShowAddBioModal}
+            />
+          ) : null}
+          {showAddEducationModal ? (
+            <AddEducationModal
+              visible
+              setShowModal={setShowAddEducationModal}
+            />
+          ) : null}
           {userData?.profileVideoUrl ? (
             <PreviewVideo
               uri={userData?.profileVideoUrl}
@@ -191,6 +207,125 @@ const ProfileScreenHeader = React.forwardRef(
                 </Text>
               </TouchableOpacity>
             </View>
+            {!userData?.bio ? (
+              <View style={{ alignItems: "center", justifyContent: "center" }}>
+                <TouchableOpacity
+                  style={{
+                    margin: 10,
+                    padding: 10,
+                    borderRadius: 5,
+                    alignSelf: "center",
+                    minWidth: 150,
+                  }}
+                  onPress={() => {
+                    setShowAddEducationModal(false);
+                    setShowAddJobModal(false);
+                    setShowAddBioModal(true);
+                  }}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <View
+                      style={{
+                        backgroundColor: "rgba(140,140,140,0.3)",
+                        height: 30,
+                        width: 30,
+                        borderRadius: 15,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginRight: 5,
+                      }}
+                    >
+                      <Ionicons
+                        name="add"
+                        size={20}
+                        color={themeStyle.colors.grayscale.lowest}
+                        style={{
+                          alignSelf: "center",
+                        }}
+                      />
+                    </View>
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.lowest,
+                        fontWeight: "900",
+                      }}
+                    >
+                      Add Bio
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={{ marginVertical: 10 }}>
+                <Text style={{ color: themeStyle.colors.grayscale.low }}>
+                  Bio
+                </Text>
+                <Text
+                  style={{
+                    color: themeStyle.colors.grayscale.lowest,
+                  }}
+                >
+                  {userData?.bio}
+                </Text>
+                <TouchableOpacity
+                  style={{
+                    margin: 10,
+                    padding: 10,
+                    borderRadius: 5,
+                    alignSelf: "center",
+                    minWidth: 150,
+                  }}
+                  onPress={() => {
+                    setShowAddEducationModal(false);
+                    setShowAddJobModal(false);
+                    setShowAddBioModal(true);
+                  }}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <View
+                      style={{
+                        backgroundColor: "rgba(140,140,140,0.3)",
+                        height: 30,
+                        width: 30,
+                        borderRadius: 15,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginRight: 5,
+                      }}
+                    >
+                      <Feather
+                        name="edit-2"
+                        size={14}
+                        color={themeStyle.colors.grayscale.lowest}
+                        style={{
+                          alignSelf: "center",
+                        }}
+                      />
+                    </View>
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.lowest,
+                        fontWeight: "900",
+                      }}
+                    >
+                      Edit Bio
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            )}
             <JobHistoryDropdown
               showJobHistory={showJobHistory}
               setShowEducationHistory={setShowEducationHistory}
@@ -204,8 +339,6 @@ const ProfileScreenHeader = React.forwardRef(
               style={{
                 margin: 10,
                 padding: 10,
-                borderWidth: 1,
-                borderColor: themeStyle.colors.secondary.default,
                 borderRadius: 5,
                 alignSelf: "center",
                 minWidth: 150,
@@ -214,20 +347,42 @@ const ProfileScreenHeader = React.forwardRef(
                 setShowAddJobModal(true);
               }}
             >
-              <Text
+              <View
                 style={{
-                  color: themeStyle.colors.grayscale.lowest,
-                  fontWeight: "900",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                <Ionicons
-                  name="add"
-                  size={18}
-                  color={themeStyle.colors.grayscale.lowest}
-                  style={{ alignSelf: "center" }}
-                />{" "}
-                Add Job Role
-              </Text>
+                <View
+                  style={{
+                    backgroundColor: "rgba(140,140,140,0.3)",
+                    height: 30,
+                    width: 30,
+                    borderRadius: 15,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginRight: 5,
+                  }}
+                >
+                  <Ionicons
+                    name="add"
+                    size={20}
+                    color={themeStyle.colors.grayscale.lowest}
+                    style={{
+                      alignSelf: "center",
+                    }}
+                  />
+                </View>
+                <Text
+                  style={{
+                    color: themeStyle.colors.grayscale.lowest,
+                    fontWeight: "900",
+                  }}
+                >
+                  Add Job Role
+                </Text>
+              </View>
             </TouchableOpacity>
             <EducationHistoryDropdown
               showEducationHistory={showEducationHistory}
@@ -244,9 +399,6 @@ const ProfileScreenHeader = React.forwardRef(
               style={{
                 margin: 10,
                 padding: 10,
-                borderWidth: 1,
-                borderColor: themeStyle.colors.secondary.default,
-                borderRadius: 5,
                 alignSelf: "center",
                 minWidth: 150,
               }}
@@ -254,20 +406,42 @@ const ProfileScreenHeader = React.forwardRef(
                 setShowAddEducationModal(true);
               }}
             >
-              <Text
+              <View
                 style={{
-                  color: themeStyle.colors.grayscale.lowest,
-                  fontWeight: "900",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                <Ionicons
-                  name="add"
-                  size={18}
-                  color={themeStyle.colors.grayscale.lowest}
-                  style={{ alignSelf: "center" }}
-                />{" "}
-                Add Education
-              </Text>
+                <View
+                  style={{
+                    backgroundColor: "rgba(140,140,140,0.3)",
+                    height: 30,
+                    width: 30,
+                    borderRadius: 15,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginRight: 5,
+                  }}
+                >
+                  <Ionicons
+                    name="add"
+                    size={20}
+                    color={themeStyle.colors.grayscale.lowest}
+                    style={{
+                      alignSelf: "center",
+                    }}
+                  />
+                </View>
+                <Text
+                  style={{
+                    color: themeStyle.colors.grayscale.lowest,
+                    fontWeight: "900",
+                  }}
+                >
+                  Add Education
+                </Text>
+              </View>
             </TouchableOpacity>
           </View>
         </View>
