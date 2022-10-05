@@ -33,6 +33,9 @@ const UserBioModal = ({ bio, setShowUserBioModal = () => null, ...rest }) => {
 
     if (success) {
       setSuccess(true);
+      setTimeout(() => {
+        setSuccess(false);
+      }, 2000);
     } else {
       setSubmissionError(
         "There was a problem saving your bio. Please try again later."
@@ -87,6 +90,14 @@ const UserBioModal = ({ bio, setShowUserBioModal = () => null, ...rest }) => {
                   </Text>
                 </TouchableOpacity>
               </View>
+              <Text
+                style={{
+                  color: themeStyle.colors.success.default,
+                  alignSelf: "flex-end",
+                }}
+              >
+                {success ? (bio ? "Bio updated" : "Bio added") : ""}
+              </Text>
               <View
                 style={{
                   borderWidth: 1,
@@ -102,6 +113,7 @@ const UserBioModal = ({ bio, setShowUserBioModal = () => null, ...rest }) => {
                     multiline
                     value={value}
                     onChangeText={(v) => setValue(v)}
+                    maxLength={500}
                     onContentSizeChange={(event) => {
                       setHeight(
                         event.nativeEvent.contentSize.height < 300
@@ -127,10 +139,7 @@ const UserBioModal = ({ bio, setShowUserBioModal = () => null, ...rest }) => {
                 height: 48,
                 justifyContent: "center",
                 alignItems: "center",
-                backgroundColor: success
-                  ? themeStyle.colors.grayscale.highest
-                  : themeStyle.colors.primary.default,
-                borderWidth: 1,
+                backgroundColor: themeStyle.colors.primary.default,
                 marginTop: 5,
               }}
               onPress={() => handleSubmit()}
@@ -140,15 +149,6 @@ const UserBioModal = ({ bio, setShowUserBioModal = () => null, ...rest }) => {
                   size={"small"}
                   color={themeStyle.colors.white}
                 />
-              ) : success ? (
-                <Text
-                  style={{
-                    color: themeStyle.colors.white,
-                    fontWeight: "700",
-                  }}
-                >
-                  {bio ? "Bio updated" : "Bio added"}
-                </Text>
               ) : (
                 <Text style={{ color: themeStyle.colors.white }}>
                   {bio ? "Update Bio" : "Add Bio"}

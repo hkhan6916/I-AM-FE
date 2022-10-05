@@ -43,7 +43,7 @@ const JobHistoryItem = ({
         <Ionicons
           size={30}
           name="briefcase-sharp"
-          color={themeStyle.colors.grayscale.high}
+          color={themeStyle.colors.grayscale.low}
           style={{ marginHorizontal: 20 }}
         />
         <View>

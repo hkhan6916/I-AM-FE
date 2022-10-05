@@ -44,7 +44,7 @@ const EducationHistoryItem = ({
         <Ionicons
           size={30}
           name="school-sharp"
-          color={themeStyle.colors.grayscale.high}
+          color={themeStyle.colors.grayscale.low}
           style={{ marginHorizontal: 20 }}
         />
         <View>

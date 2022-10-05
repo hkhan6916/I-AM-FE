@@ -550,22 +550,26 @@ const ProfileInfo = ({
           </View>
         ) : null}
       </View>
-      <JobHistoryDropdown
-        showJobHistory={showJobHistory}
-        setShowEducationHistory={setShowEducationHistory}
-        setShowJobHistory={setShowJobHistory}
-        userJobHistory={user?.userJobHistory}
-        numberOfJobHistoryRecords={user?.numberOfJobHistoryRecords}
-        getUserJobHistory={getUserJobHistory}
-      />
-      <EducationHistoryDropdown
-        showEducationHistory={showEducationHistory}
-        setShowEducationHistory={setShowEducationHistory}
-        setShowJobHistory={setShowJobHistory}
-        userEducationHistory={user?.userEducationHistory}
-        numberOfEducationHistoryRecords={user?.numberOfEducationHistoryRecords}
-        getUserEducationHistory={getUserEducationHistory}
-      />
+      <View style={{ paddingHorizontal: 5 }}>
+        <JobHistoryDropdown
+          showJobHistory={showJobHistory}
+          setShowEducationHistory={setShowEducationHistory}
+          setShowJobHistory={setShowJobHistory}
+          userJobHistory={user?.userJobHistory}
+          numberOfJobHistoryRecords={user?.numberOfJobHistoryRecords}
+          getUserJobHistory={getUserJobHistory}
+        />
+        <EducationHistoryDropdown
+          showEducationHistory={showEducationHistory}
+          setShowEducationHistory={setShowEducationHistory}
+          setShowJobHistory={setShowJobHistory}
+          userEducationHistory={user?.userEducationHistory}
+          numberOfEducationHistoryRecords={
+            user?.numberOfEducationHistoryRecords
+          }
+          getUserEducationHistory={getUserEducationHistory}
+        />
+      </View>
     </View>
   );
 };

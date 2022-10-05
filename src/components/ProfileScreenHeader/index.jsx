@@ -233,9 +233,9 @@ const ProfileScreenHeader = React.forwardRef(
                     <View
                       style={{
                         backgroundColor: "rgba(140,140,140,0.3)",
-                        height: 30,
-                        width: 30,
-                        borderRadius: 15,
+                        height: 35,
+                        width: 35,
+                        borderRadius: 20,
                         justifyContent: "center",
                         alignItems: "center",
                         marginRight: 5,
@@ -297,9 +297,9 @@ const ProfileScreenHeader = React.forwardRef(
                     <View
                       style={{
                         backgroundColor: "rgba(140,140,140,0.3)",
-                        height: 30,
-                        width: 30,
-                        borderRadius: 15,
+                        height: 35,
+                        width: 35,
+                        borderRadius: 20,
                         justifyContent: "center",
                         alignItems: "center",
                         marginRight: 5,
@@ -357,9 +357,9 @@ const ProfileScreenHeader = React.forwardRef(
                 <View
                   style={{
                     backgroundColor: "rgba(140,140,140,0.3)",
-                    height: 30,
-                    width: 30,
-                    borderRadius: 15,
+                    height: 35,
+                    width: 35,
+                    borderRadius: 20,
                     justifyContent: "center",
                     alignItems: "center",
                     marginRight: 5,
@@ -394,6 +394,7 @@ const ProfileScreenHeader = React.forwardRef(
               }
               getUserEducationHistory={getUserEducationHistory}
               setShowAddEducationModal={setShowAddEducationModal}
+              showEditButton
             />
             <TouchableOpacity
               style={{
@@ -416,9 +417,9 @@ const ProfileScreenHeader = React.forwardRef(
                 <View
                   style={{
                     backgroundColor: "rgba(140,140,140,0.3)",
-                    height: 30,
-                    width: 30,
-                    borderRadius: 15,
+                    height: 35,
+                    width: 35,
+                    borderRadius: 20,
                     justifyContent: "center",
                     alignItems: "center",
                     marginRight: 5,

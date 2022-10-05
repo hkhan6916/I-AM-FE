@@ -20,7 +20,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import getDayMonthYear from "../../helpers/getDayMonthYear";
 import apiCall from "../../helpers/apiCall";
 import Checkbox from "../Checkbox";
-import { useEffect } from "react";
+import TextArea from "../TextArea";
 
 const AddJobModal = ({
   setShowModal = () => null,
@@ -216,16 +216,6 @@ const AddJobModal = ({
                     borderRadius: 10,
                   }}
                 >
-                  <Text
-                    style={{
-                      color: themeStyle.colors.grayscale.lowest,
-                      fontSize: 18,
-                      marginLeft: 10,
-                      marginBottom: 10,
-                    }}
-                  >
-                    Required information
-                  </Text>
                   <View style={{ paddingHorizontal: 10 }}>
                     <Input
                       borderColor={themeStyle.colors.grayscale.lowest}
@@ -236,6 +226,7 @@ const AddJobModal = ({
                       value={
                         roleName !== null ? roleName : jobToEdit?.roleName || ""
                       }
+                      maxLength={40}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10 }}>
@@ -250,10 +241,17 @@ const AddJobModal = ({
                           ? companyName
                           : jobToEdit?.companyName || ""
                       }
+                      maxLength={40}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10, marginVertical: 10 }}>
-                    <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.lowest,
+                        fontWeight: "400",
+                        fontSize: 12,
+                      }}
+                    >
                       From*
                     </Text>
                     {showDateFromPicker ? (
@@ -319,7 +317,13 @@ const AddJobModal = ({
                       marginBottom: 25,
                     }}
                   >
-                    <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.lowest,
+                        fontWeight: "400",
+                        fontSize: 12,
+                      }}
+                    >
                       To
                     </Text>
                     {showDateToPicker ? (
@@ -418,19 +422,17 @@ const AddJobModal = ({
                     (Filling these out look good on your profile.)
                   </Text>
                   <View style={{ paddingHorizontal: 10 }}>
-                    <Input
+                    <TextArea
                       borderColor={themeStyle.colors.grayscale.lowest}
                       label={"Role Description"}
                       placeholder={"Role Description"}
                       onChangeText={(value) => setDescription(value)}
-                      setValue={setDescription}
-                      multiline
-                      style={{ height: 80 }}
                       value={
                         description !== null
                           ? description
                           : jobToEdit?.roleDescription || ""
                       }
+                      maxLength={2000}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10 }}>
@@ -441,6 +443,7 @@ const AddJobModal = ({
                       onChangeText={(value) => setCity(value)}
                       setValue={setCity}
                       value={city !== null ? city : jobToEdit?.city || ""}
+                      maxLength={40}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10 }}>
@@ -453,6 +456,7 @@ const AddJobModal = ({
                       value={
                         country !== null ? country : jobToEdit?.country || ""
                       }
+                      maxLength={40}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10, paddingBottom: 10 }}>
@@ -492,7 +496,10 @@ const AddJobModal = ({
                       >
                         <Text
                           style={{
-                            color: themeStyle.colors.white,
+                            color:
+                              roleType === "onsite"
+                                ? themeStyle.colors.white
+                                : themeStyle.colors.grayscale.lowest,
                             textAlign: "center",
                           }}
                         >
@@ -521,7 +528,10 @@ const AddJobModal = ({
                       >
                         <Text
                           style={{
-                            color: themeStyle.colors.white,
+                            color:
+                              roleType === "remote"
+                                ? themeStyle.colors.white
+                                : themeStyle.colors.grayscale.lowest,
                             textAlign: "center",
                           }}
                         >
@@ -549,7 +559,10 @@ const AddJobModal = ({
                       >
                         <Text
                           style={{
-                            color: themeStyle.colors.white,
+                            color:
+                              roleType === "hybrid"
+                                ? themeStyle.colors.white
+                                : themeStyle.colors.grayscale.lowest,
                             textAlign: "center",
                           }}
                         >
@@ -559,138 +572,138 @@ const AddJobModal = ({
                     </View>
                   </View>
                 </View>
+                {error ? (
+                  <Text
+                    style={{
+                      color: themeStyle.colors.error.default,
+                      textAlign: "center",
+                      marginVertical: 10,
+                    }}
+                  >
+                    {error}
+                  </Text>
+                ) : submissionError ? (
+                  <Text
+                    style={{
+                      color: themeStyle.colors.error.default,
+                      textAlign: "center",
+                      marginVertical: 10,
+                    }}
+                  >
+                    {submissionError}
+                  </Text>
+                ) : null}
+                {!showDeleteOptions ? (
+                  <TouchableOpacity
+                    style={{
+                      borderRadius: 5,
+                      padding: 10,
+                      height: 48,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      backgroundColor:
+                        deleted || success
+                          ? themeStyle.colors.grayscale.highest
+                          : themeStyle.colors.primary.default,
+                      marginTop: 5,
+                      opacity: infoIsInvalid() ? 0.5 : 1,
+                    }}
+                    onPress={() => handleSubmit()}
+                    disabled={infoIsInvalid()}
+                  >
+                    {loading ? (
+                      <ActivityIndicator
+                        size={"small"}
+                        color={themeStyle.colors.white}
+                      />
+                    ) : deleted ? (
+                      <Text
+                        style={{
+                          color: themeStyle.colors.white,
+                          fontWeight: "700",
+                        }}
+                      >
+                        Role deleted
+                      </Text>
+                    ) : success ? (
+                      <Text
+                        style={{
+                          color: themeStyle.colors.white,
+                          fontWeight: "700",
+                        }}
+                      >
+                        {jobToEdit ? "Role updated" : "Role added"}
+                      </Text>
+                    ) : (
+                      <Text style={{ color: themeStyle.colors.white }}>
+                        {jobToEdit ? "Update role" : "Add role"}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                ) : null}
               </ScrollView>
-              {error ? (
-                <Text
-                  style={{
-                    color: themeStyle.colors.error.default,
-                    textAlign: "center",
-                    marginVertical: 10,
-                  }}
-                >
-                  {error}
-                </Text>
-              ) : submissionError ? (
-                <Text
-                  style={{
-                    color: themeStyle.colors.error.default,
-                    textAlign: "center",
-                    marginVertical: 10,
-                  }}
-                >
-                  {submissionError}
-                </Text>
-              ) : null}
-              {!showDeleteOptions ? (
+            </View>
+          </KeyboardAvoidingView>
+          {showDeleteOptions ? (
+            <View
+              style={{
+                backgroundColor: "rgba(140, 140, 140, 0.3)",
+                width: screenWidth,
+                alignSelf: "center",
+                paddingVertical: 10,
+              }}
+            >
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.lowest,
+                  marginBottom: 20,
+                  marginLeft: 20,
+                  fontWeight: "700",
+                }}
+              >
+                Are you sure you want to delete this role?
+              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
                 <TouchableOpacity
-                  style={{
-                    borderRadius: 5,
-                    padding: 10,
-                    height: 48,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor:
-                      deleted || success
-                        ? themeStyle.colors.grayscale.highest
-                        : themeStyle.colors.primary.default,
-                    borderWidth: 1,
-                    marginTop: 5,
-                    opacity: infoIsInvalid() ? 0.5 : 1,
+                  onPress={async () => {
+                    await handleDelete();
                   }}
-                  onPress={() => handleSubmit()}
-                  disabled={infoIsInvalid()}
+                  style={{ height: 48, justifyContent: "center" }}
                 >
-                  {loading ? (
-                    <ActivityIndicator
-                      size={"small"}
-                      color={themeStyle.colors.white}
-                    />
-                  ) : deleted ? (
-                    <Text
-                      style={{
-                        color: themeStyle.colors.white,
-                        fontWeight: "700",
-                      }}
-                    >
-                      Role deleted
-                    </Text>
-                  ) : success ? (
-                    <Text
-                      style={{
-                        color: themeStyle.colors.white,
-                        fontWeight: "700",
-                      }}
-                    >
-                      {jobToEdit ? "Role updated" : "Role added"}
-                    </Text>
-                  ) : (
-                    <Text style={{ color: themeStyle.colors.white }}>
-                      {jobToEdit ? "Update role" : "Add role"}
-                    </Text>
-                  )}
+                  <Text
+                    style={{
+                      color: themeStyle.colors.error.default,
+                      paddingHorizontal: 20,
+                      fontWeight: "700",
+                    }}
+                  >
+                    Delete
+                  </Text>
                 </TouchableOpacity>
-              ) : (
-                <View
-                  style={{
-                    backgroundColor: "rgba(140, 140, 140, 0.3)",
-                    width: screenWidth,
-                    alignSelf: "center",
-                    paddingVertical: 10,
-                  }}
+                <TouchableOpacity
+                  onPress={() => setShowDeleteOptions(false)}
+                  style={{ height: 48, justifyContent: "center" }}
                 >
                   <Text
                     style={{
                       color: themeStyle.colors.grayscale.lowest,
-                      marginBottom: 20,
-                      marginLeft: 20,
+                      textAlign: "center",
+                      paddingHorizontal: 40,
                       fontWeight: "700",
                     }}
                   >
-                    Are you sure you want to delete this role?
+                    Cancel
                   </Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <TouchableOpacity
-                      onPress={async () => {
-                        await handleDelete();
-                      }}
-                      style={{ height: 48, justifyContent: "center" }}
-                    >
-                      <Text
-                        style={{
-                          color: themeStyle.colors.error.default,
-                          paddingHorizontal: 20,
-                          fontWeight: "700",
-                        }}
-                      >
-                        Delete
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => setShowDeleteOptions(false)}
-                      style={{ height: 48, justifyContent: "center" }}
-                    >
-                      <Text
-                        style={{
-                          color: themeStyle.colors.grayscale.lowest,
-                          textAlign: "center",
-                          paddingHorizontal: 40,
-                          fontWeight: "700",
-                        }}
-                      >
-                        Cancel
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
+                </TouchableOpacity>
+              </View>
             </View>
-          </KeyboardAvoidingView>
+          ) : null}
         </SafeAreaView>
       </View>
     </Modal>

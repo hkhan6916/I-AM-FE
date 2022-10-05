@@ -20,6 +20,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import getDayMonthYear from "../../helpers/getDayMonthYear";
 import apiCall from "../../helpers/apiCall";
 import Checkbox from "../Checkbox";
+import TextArea from "../TextArea";
 
 const AddEducationModal = ({
   setShowModal = () => null,
@@ -219,16 +220,6 @@ const AddEducationModal = ({
                     borderRadius: 10,
                   }}
                 >
-                  <Text
-                    style={{
-                      color: themeStyle.colors.grayscale.lowest,
-                      fontSize: 18,
-                      marginLeft: 10,
-                      marginBottom: 10,
-                    }}
-                  >
-                    Required information
-                  </Text>
                   <View style={{ paddingHorizontal: 10 }}>
                     <Input
                       borderColor={themeStyle.colors.grayscale.lowest}
@@ -241,6 +232,7 @@ const AddEducationModal = ({
                           ? educationName
                           : educationToEdit?.educationName || ""
                       }
+                      maxLength={40}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10 }}>
@@ -255,10 +247,17 @@ const AddEducationModal = ({
                           ? institutionName
                           : educationToEdit?.institutionName || ""
                       }
+                      maxLength={40}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10, marginVertical: 10 }}>
-                    <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.lowest,
+                        fontWeight: "400",
+                        fontSize: 12,
+                      }}
+                    >
                       From*
                     </Text>
                     {showDateFromPicker ? (
@@ -324,7 +323,13 @@ const AddEducationModal = ({
                       marginBottom: 25,
                     }}
                   >
-                    <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.lowest,
+                        fontWeight: "400",
+                        fontSize: 12,
+                      }}
+                    >
                       To
                     </Text>
                     {showDateToPicker ? (
@@ -423,19 +428,17 @@ const AddEducationModal = ({
                     (Filling these out look good on your profile.)
                   </Text>
                   <View style={{ paddingHorizontal: 10 }}>
-                    <Input
+                    <TextArea
                       borderColor={themeStyle.colors.grayscale.lowest}
                       label={"Education Description"}
                       placeholder={"Education Description"}
                       onChangeText={(value) => setDescription(value)}
-                      setValue={setDescription}
-                      multiline
-                      style={{ height: 80 }}
                       value={
                         description !== null
                           ? description
                           : educationToEdit?.educationDescription || ""
                       }
+                      maxLength={2000}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10 }}>
@@ -446,6 +449,7 @@ const AddEducationModal = ({
                       onChangeText={(value) => setCity(value)}
                       setValue={setCity}
                       value={city !== null ? city : educationToEdit?.city || ""}
+                      maxLength={40}
                     />
                   </View>
                   <View style={{ paddingHorizontal: 10 }}>
@@ -460,82 +464,83 @@ const AddEducationModal = ({
                           ? country
                           : educationToEdit?.country || ""
                       }
+                      maxLength={40}
                     />
                   </View>
                 </View>
+                {error ? (
+                  <Text
+                    style={{
+                      color: themeStyle.colors.error.default,
+                      textAlign: "center",
+                      marginVertical: 10,
+                    }}
+                  >
+                    {error}
+                  </Text>
+                ) : submissionError ? (
+                  <Text
+                    style={{
+                      color: themeStyle.colors.error.default,
+                      textAlign: "center",
+                      marginVertical: 10,
+                    }}
+                  >
+                    {submissionError}
+                  </Text>
+                ) : null}
+                {!showDeleteOptions ? (
+                  <TouchableOpacity
+                    style={{
+                      borderRadius: 5,
+                      padding: 10,
+                      height: 48,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      backgroundColor:
+                        deleted || success
+                          ? themeStyle.colors.grayscale.highest
+                          : themeStyle.colors.primary.default,
+                      marginTop: 5,
+                      opacity: infoIsInvalid() ? 0.5 : 1,
+                    }}
+                    onPress={() => handleSubmit()}
+                    disabled={infoIsInvalid()}
+                  >
+                    {loading ? (
+                      <ActivityIndicator
+                        size={"small"}
+                        color={themeStyle.colors.white}
+                      />
+                    ) : deleted ? (
+                      <Text
+                        style={{
+                          color: themeStyle.colors.grayscale.lowest,
+                          fontWeight: "700",
+                        }}
+                      >
+                        Education deleted
+                      </Text>
+                    ) : success ? (
+                      <Text
+                        style={{
+                          color: themeStyle.colors.grayscale.lowest,
+                          fontWeight: "700",
+                        }}
+                      >
+                        {educationToEdit
+                          ? "Education updated"
+                          : "Education added"}
+                      </Text>
+                    ) : (
+                      <Text style={{ color: themeStyle.colors.white }}>
+                        {educationToEdit ? "Update Education" : "Add Education"}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                ) : null}
               </ScrollView>
-              {error ? (
-                <Text
-                  style={{
-                    color: themeStyle.colors.error.default,
-                    textAlign: "center",
-                    marginVertical: 10,
-                  }}
-                >
-                  {error}
-                </Text>
-              ) : submissionError ? (
-                <Text
-                  style={{
-                    color: themeStyle.colors.error.default,
-                    textAlign: "center",
-                    marginVertical: 10,
-                  }}
-                >
-                  {submissionError}
-                </Text>
-              ) : null}
-              {!showDeleteOptions ? (
-                <TouchableOpacity
-                  style={{
-                    borderRadius: 5,
-                    padding: 10,
-                    height: 48,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor:
-                      deleted || success
-                        ? themeStyle.colors.grayscale.highest
-                        : themeStyle.colors.primary.default,
-                    borderWidth: 1,
-                    marginTop: 5,
-                    opacity: infoIsInvalid() ? 0.5 : 1,
-                  }}
-                  onPress={() => handleSubmit()}
-                  disabled={infoIsInvalid()}
-                >
-                  {loading ? (
-                    <ActivityIndicator
-                      size={"small"}
-                      color={themeStyle.colors.white}
-                    />
-                  ) : deleted ? (
-                    <Text
-                      style={{
-                        color: themeStyle.colors.white,
-                        fontWeight: "700",
-                      }}
-                    >
-                      Education deleted
-                    </Text>
-                  ) : success ? (
-                    <Text
-                      style={{
-                        color: themeStyle.colors.white,
-                        fontWeight: "700",
-                      }}
-                    >
-                      {educationToEdit
-                        ? "Education updated"
-                        : "Education added"}
-                    </Text>
-                  ) : (
-                    <Text style={{ color: themeStyle.colors.white }}>
-                      {educationToEdit ? "Update Education" : "Add Education"}
-                    </Text>
-                  )}
-                </TouchableOpacity>
-              ) : (
+              {showDeleteOptions ? (
                 <View
                   style={{
                     backgroundColor: "rgba(140, 140, 140, 0.3)",
@@ -595,7 +600,7 @@ const AddEducationModal = ({
                     </TouchableOpacity>
                   </View>
                 </View>
-              )}
+              ) : null}
             </View>
           </KeyboardAvoidingView>
         </SafeAreaView>

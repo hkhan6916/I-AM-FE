@@ -1206,47 +1206,47 @@ const EditUserDetailsScreen = () => {
                 <Text style={styles.updateError}>{updateError}</Text>
               ) : null}
             </View>
-          </ScrollView>
-          <View
-            style={[
-              styles.submitButtonContainer,
-              (((profileVideo || profileImage) && !faceDetected) ||
-                Object.keys(validationErrors).length ||
-                detectingFaces ||
-                loadingVideo) && { opacity: 0.3 },
-            ]}
-          >
-            <TouchableOpacity
-              style={[styles.submitButton]}
-              onPress={() => updateProfile()}
-              disabled={
-                ((profileVideo || profileImage) && !faceDetected) ||
-                Object.keys(validationErrors).length ||
-                detectingFaces ||
-                loadingVideo
-              }
+            <View
+              style={[
+                styles.submitButtonContainer,
+                (((profileVideo || profileImage) && !faceDetected) ||
+                  Object.keys(validationErrors).length ||
+                  detectingFaces ||
+                  loadingVideo) && { opacity: 0.3 },
+              ]}
             >
-              {isUpdating && (profileVideo || profileImage) ? (
-                <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                  Updating...
-                </Text>
-              ) : isUpdating ? (
-                <ActivityIndicator
-                  size="small"
-                  color={themeStyle.colors.white}
-                />
-              ) : (
-                <Text
-                  style={{
-                    color: themeStyle.colors.white,
-                    fontWeight: "700",
-                  }}
-                >
-                  Update details
-                </Text>
-              )}
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity
+                style={[styles.submitButton]}
+                onPress={() => updateProfile()}
+                disabled={
+                  ((profileVideo || profileImage) && !faceDetected) ||
+                  Object.keys(validationErrors).length ||
+                  detectingFaces ||
+                  loadingVideo
+                }
+              >
+                {isUpdating && (profileVideo || profileImage) ? (
+                  <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                    Updating...
+                  </Text>
+                ) : isUpdating ? (
+                  <ActivityIndicator
+                    size="small"
+                    color={themeStyle.colors.white}
+                  />
+                ) : (
+                  <Text
+                    style={{
+                      color: themeStyle.colors.white,
+                      fontWeight: "700",
+                    }}
+                  >
+                    Update details
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
