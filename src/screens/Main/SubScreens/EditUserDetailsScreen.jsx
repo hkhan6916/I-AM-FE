@@ -1359,7 +1359,7 @@ const styles = StyleSheet.create({
     color: themeStyle.colors.error.default,
   },
   visibleTextInputs: {
-    fontSize: 15,
+    fontSize: 14,
     height: 45,
     paddingHorizontal: 10,
     backgroundColor: themeStyle.colors.grayscale.lower,

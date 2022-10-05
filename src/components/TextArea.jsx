@@ -47,6 +47,7 @@ const TextArea = ({
           ]}
           value={value}
           onChangeText={(v) => setValue(v)}
+          placeholderTextColor={themeStyle.colors.grayscale.low}
           onContentSizeChange={(event) => {
             setHeight(
               event.nativeEvent.contentSize.height < maxHeight

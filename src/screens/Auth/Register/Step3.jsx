@@ -1045,7 +1045,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   visibleTextInputs: {
-    fontSize: 15,
+    fontSize: 14,
     height: 45,
     borderRadius: 5,
     paddingHorizontal: 10,
@@ -1058,7 +1058,7 @@ const styles = StyleSheet.create({
   },
   passwordInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 14,
     color: themeStyle.colors.grayscale.lowest,
   },
   passwordInputContainer: {

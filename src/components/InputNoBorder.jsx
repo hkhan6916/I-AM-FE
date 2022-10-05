@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   visibleTextInputs: {
-    fontSize: 15,
+    fontSize: 14,
     height: 45,
     paddingHorizontal: 10,
     backgroundColor: themeStyle.colors.grayscale.higher,

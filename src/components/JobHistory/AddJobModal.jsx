@@ -183,30 +183,32 @@ const AddJobModal = ({
                     </Text>
                   </TouchableOpacity>
                 </View>
-                <TouchableOpacity onPress={() => setShowDeleteOptions(true)}>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "flex-end",
-                    }}
-                  >
-                    <AntDesign
-                      name="delete"
-                      size={16}
-                      color={themeStyle.colors.error.default}
-                    />
-                    <Text
+                {jobToEdit ? (
+                  <TouchableOpacity onPress={() => setShowDeleteOptions(true)}>
+                    <View
                       style={{
-                        color: themeStyle.colors.error.default,
-                        marginLeft: 5,
-                        fontWeight: "700",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "flex-end",
                       }}
                     >
-                      Delete this role
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+                      <AntDesign
+                        name="delete"
+                        size={16}
+                        color={themeStyle.colors.error.default}
+                      />
+                      <Text
+                        style={{
+                          color: themeStyle.colors.error.default,
+                          marginLeft: 5,
+                          fontWeight: "700",
+                        }}
+                      >
+                        Delete this role
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ) : null}
                 <View
                   style={{
                     borderWidth: 2,
@@ -421,7 +423,7 @@ const AddJobModal = ({
                   >
                     (Filling these out look good on your profile.)
                   </Text>
-                  <View style={{ paddingHorizontal: 10 }}>
+                  <View style={{ paddingHorizontal: 10, marginBottom: 20 }}>
                     <TextArea
                       borderColor={themeStyle.colors.grayscale.lowest}
                       label={"Role Description"}

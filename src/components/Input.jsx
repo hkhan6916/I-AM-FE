@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     color: themeStyle.colors.grayscale.lowest,
   },
   textInput: {
-    fontSize: 15,
+    fontSize: 14,
     height: 45,
     flex: 1,
     color: themeStyle.colors.grayscale.lowest,

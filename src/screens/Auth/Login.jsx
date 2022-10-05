@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   },
   registerButton: {},
   usernameInput: {
-    fontSize: 15,
+    fontSize: 14,
     height: 45,
     borderRadius: 5,
     alignSelf: "stretch",
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   },
   passwordInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 14,
     color: themeStyle.colors.grayscale.lowest,
   },
   passwordInputContainer: {
