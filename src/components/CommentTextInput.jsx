@@ -204,8 +204,8 @@ const styles = StyleSheet.create({
     backgroundColor: themeStyle.colors.grayscale.higher,
     marginHorizontal: 2,
     marginBottom: 5,
-    borderWidth: 0.5,
-    borderColor: themeStyle.colors.grayscale.low,
+    borderWidth: 1,
+    borderColor: themeStyle.colors.grayscale.lowest,
     borderRadius: 5,
   },
   postTrigger: {

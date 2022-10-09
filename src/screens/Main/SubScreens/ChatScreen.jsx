@@ -166,7 +166,7 @@ const ChatScreen = (props) => {
   ) => {
     const filePath = compressedUrl
       ? Platform.OS == "android"
-        ? compressedUrl?.replace("file://", "/")
+        ? compressedUrl?.replace("file://", "")
         : compressedUrl
       : Platform.OS == "android"
       ? media?.uri.replace("file://", "")
@@ -190,6 +190,7 @@ const ChatScreen = (props) => {
     await backgroundUpload({
       filePath,
       url: signedResponse.signedUrl,
+      failureRoute: `/chat/message/fail/${messageId}`,
       disableLogs: true,
     });
 
@@ -207,7 +208,6 @@ const ChatScreen = (props) => {
       ...message,
       ...extraFields,
     });
-
     return success;
   };
 
@@ -364,7 +364,7 @@ const ChatScreen = (props) => {
 
         if (mediaType === "video") {
           const convertedToMp4Url =
-            media.uri?.split(".").pop !== "mp4"
+            media.uri?.split(".").pop() !== "mp4"
               ? await convertVideoToMp4(media.uri)
               : media.uri;
           await VideoCompress.compress(

@@ -83,7 +83,7 @@ const JobHistoryItem = ({
           {jobRole.city || jobRole.country ? (
             <Text
               style={{
-                color: themeStyle.colors.grayscale.lowest,
+                color: themeStyle.colors.grayscale.lower,
                 fontSize: 12,
                 fontWeight: "700",
               }}
@@ -117,7 +117,7 @@ const JobHistoryItem = ({
                 numberOfLines={!bodyCollapsed ? 3 : null}
                 style={{
                   textAlign: "left",
-                  color: themeStyle.colors.grayscale.lower,
+                  color: themeStyle.colors.grayscale.lowest,
                   maxWidth: screenWidth - 100,
                 }}
               >

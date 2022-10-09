@@ -93,7 +93,7 @@ const EducationHistoryItem = ({
                 numberOfLines={!bodyCollapsed ? 3 : null}
                 style={{
                   textAlign: "left",
-                  color: themeStyle.colors.grayscale.lower,
+                  color: themeStyle.colors.grayscale.lowest,
                   maxWidth: screenWidth - 100,
                 }}
               >
