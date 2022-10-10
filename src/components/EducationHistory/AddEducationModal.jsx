@@ -53,7 +53,7 @@ const AddEducationModal = ({
     setSubmitted(true);
     setLoading(true);
     setSubmissionError("");
-    const { success, message } = await apiCall(
+    const { success } = await apiCall(
       "POST",
       educationToEdit
         ? `/user/education-history/update/${educationToEdit._id}`
@@ -68,7 +68,6 @@ const AddEducationModal = ({
         country,
       }
     );
-    console.log({ message });
     if (!success) {
       setSubmissionError(
         "There was a problem saving your education history. Please try again later."
@@ -88,7 +87,7 @@ const AddEducationModal = ({
 
   const handleDelete = async () => {
     setShowDeleteOptions(false);
-    const { success, message } = await apiCall(
+    const { success } = await apiCall(
       "POST",
       `/user/job-history/remove/${educationToEdit._id}`,
       {}
@@ -136,7 +135,6 @@ const AddEducationModal = ({
         style={{
           flex: 1,
           backgroundColor: themeStyle.colors.grayscale.highest,
-          padding: 15,
         }}
       >
         <SafeAreaView
@@ -150,43 +148,47 @@ const AddEducationModal = ({
             style={{ flex: 1 }}
           >
             <View style={{ height: "100%" }}>
-              <ScrollView keyboardShouldPersistTaps="handled">
-                <View
+              <View
+                style={{
+                  alignSelf: "flex-start",
+                  marginVertical: 10,
+                  marginHorizontal: 15,
+                }}
+              >
+                <TouchableOpacity
+                  onPress={() => {
+                    setShowModal(false);
+                    if (educationToEdit) {
+                      setShowEducationHistoryModal(true);
+                    }
+                    setEducationToEdit(null);
+                  }}
                   style={{
-                    alignSelf: "flex-start",
-                    marginVertical: 10,
+                    justifyContent: "center",
+                    flexDirection: "row",
+                    alignItems: "center",
                   }}
                 >
-                  <TouchableOpacity
-                    onPress={() => {
-                      setShowModal(false);
-                      if (educationToEdit) {
-                        setShowEducationHistoryModal(true);
-                      }
-                      setEducationToEdit(null);
-                    }}
+                  <AntDesign
+                    name="arrowleft"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                  <Text
                     style={{
-                      justifyContent: "center",
-                      flexDirection: "row",
-                      alignItems: "center",
+                      color: themeStyle.colors.grayscale.lowest,
+                      fontSize: 16,
+                      marginHorizontal: 10,
                     }}
                   >
-                    <AntDesign
-                      name="arrowleft"
-                      size={24}
-                      color={themeStyle.colors.grayscale.lowest}
-                    />
-                    <Text
-                      style={{
-                        color: themeStyle.colors.grayscale.lowest,
-                        fontSize: 16,
-                        marginHorizontal: 10,
-                      }}
-                    >
-                      {educationToEdit ? "Edit Education" : "Education History"}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                    {educationToEdit ? "Edit Education" : "Education History"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                style={{ paddingHorizontal: 15 }}
+              >
                 {educationToEdit ? (
                   <TouchableOpacity onPress={() => setShowDeleteOptions(true)}>
                     <View

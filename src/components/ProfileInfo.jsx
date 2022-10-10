@@ -366,7 +366,9 @@ const ProfileInfo = ({
         </View>
 
         <View style={{ marginBottom: 10 }}>
-          <Text style={{ color: themeStyle.colors.grayscale.low }}>Bio</Text>
+          {user?.bio ? (
+            <Text style={{ color: themeStyle.colors.grayscale.low }}>Bio</Text>
+          ) : null}
           <Text
             style={{
               color: themeStyle.colors.grayscale.lowest,

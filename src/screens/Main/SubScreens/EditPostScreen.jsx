@@ -142,7 +142,11 @@ const EditPostScreen = (props) => {
           ) : null}
           {success ? (
             <Text
-              style={{ color: themeStyle.colors.success.default, margin: 10 }}
+              style={{
+                color: themeStyle.colors.success.default,
+                marginVertical: 10,
+                fontSize: 16,
+              }}
             >
               Post updated
             </Text>

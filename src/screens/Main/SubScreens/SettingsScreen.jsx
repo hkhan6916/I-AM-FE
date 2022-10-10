@@ -5,13 +5,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   View,
+  Share,
   Platform,
 } from "react-native";
-import { setItemAsync } from "expo-secure-store";
 import { useDispatch } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../../../theme.style";
 import { Ionicons } from "@expo/vector-icons";
+import Constants from "expo-constants";
 
 const SettingScreen = () => {
   const dispatch = useDispatch();
@@ -19,6 +20,19 @@ const SettingScreen = () => {
 
   const logout = async () => {
     dispatch({ type: "SET_USER_LOGGED_IN", payload: false });
+  };
+
+  const onShare = async () => {
+    try {
+      await Share.share({
+        message:
+          Platform.OS === "ios"
+            ? `Checkout Magnet. Build a real network, https://apps.apple.com/gb/app/magnet-connect-socialise/${Constants.manifest.extra.appStoreId}`
+            : `Checkout Magnet. Build a real network, https://play.google.com/store/apps/details?id=${Constants.manifest.extra.packageName}`,
+      });
+    } catch (error) {
+      console.warn(error.message);
+    }
   };
   return (
     <SafeAreaView style={styles.container}>
@@ -51,7 +65,45 @@ const SettingScreen = () => {
             </View>
           </TouchableOpacity>
         </View>
-        {Platform.OS !== "web" ? (
+        <View style={{ marginTop: 20 }}>
+          <Text
+            style={{
+              color: themeStyle.colors.grayscale.lowest,
+              fontWeight: "700",
+              margin: 5,
+              fontSize: 14,
+            }}
+          >
+            Support us
+          </Text>
+          <View style={styles.option}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("FeedbackScreen")}
+            >
+              <View style={styles.optionContent}>
+                <Ionicons
+                  name="bulb-outline"
+                  size={14}
+                  color={themeStyle.colors.grayscale.lowest}
+                />
+                <Text style={styles.basicOptionsText}>Ideas and Feedback</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.option}>
+            <TouchableOpacity onPress={() => onShare()}>
+              <View style={styles.optionContent}>
+                <Ionicons
+                  name="bulb-outline"
+                  size={14}
+                  color={themeStyle.colors.grayscale.lowest}
+                />
+                <Text style={styles.basicOptionsText}>Share The App</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+        {/* {Platform.OS !== "web" ? (
           <>
             <View style={styles.option}>
               <TouchableOpacity
@@ -82,7 +134,7 @@ const SettingScreen = () => {
               </TouchableOpacity>
             </View>
           </>
-        ) : null}
+        ) : null} */}
       </View>
       <View style={styles.signoutContainer}>
         <TouchableOpacity onPress={() => logout()}>

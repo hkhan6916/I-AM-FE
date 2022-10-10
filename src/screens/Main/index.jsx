@@ -21,6 +21,7 @@ import AccountScreen from "./SubScreens/AccountScreen";
 import FollowersModeScreen from "./SubScreens/FollowersModeScreen";
 import AccountVisibilityScreen from "./SubScreens/AccountVisibilityScreen";
 import EmailVerificationScreen from "./SubScreens/EmailVerificationScreen";
+import FeedbackScreen from "./SubScreens/FeedbackScreen";
 import { Dimensions } from "react-native";
 
 const Stack = createNativeStackNavigator();
@@ -356,6 +357,21 @@ const MainStack = () => {
         }}
         name="EmailVerificationScreen"
         component={EmailVerificationScreen}
+      />
+      <Stack.Screen
+        options={{
+          title: "Feedback",
+          headerShown: true,
+          headerTintColor: themeStyle.colors.primary.default,
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
+          headerStyle: {
+            backgroundColor: themeStyle.colors.grayscale.highest,
+          },
+        }}
+        name="FeedbackScreen"
+        component={FeedbackScreen}
       />
     </Stack.Navigator>
   );

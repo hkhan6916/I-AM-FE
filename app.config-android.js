@@ -100,6 +100,7 @@ export default {
       packageName: process.env.PACKAGE_NAME,
       appStoreId: process.env.APP_STORE_ID,
       eas: {
+        // We need this for production builds
         projectId: "c8d33980-51de-472d-977a-dc62d80d2683",
       },
     },

@@ -33,9 +33,6 @@ const UserBioModal = ({ bio, setShowUserBioModal = () => null, ...rest }) => {
 
     if (success) {
       setSuccess(true);
-      setTimeout(() => {
-        setSuccess(false);
-      }, 2000);
     } else {
       setSubmissionError(
         "There was a problem saving your bio. Please try again later."
@@ -46,7 +43,12 @@ const UserBioModal = ({ bio, setShowUserBioModal = () => null, ...rest }) => {
 
   return (
     <Modal onRequestClose={() => setShowUserBioModal(false)} visible {...rest}>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          backgroundColor: themeStyle.colors.grayscale.highest,
+        }}
+      >
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" && "padding"}
           keyboardVerticalOffset={0}
@@ -90,14 +92,6 @@ const UserBioModal = ({ bio, setShowUserBioModal = () => null, ...rest }) => {
                   </Text>
                 </TouchableOpacity>
               </View>
-              <Text
-                style={{
-                  color: themeStyle.colors.success.default,
-                  alignSelf: "flex-end",
-                }}
-              >
-                {success ? (bio ? "Bio updated" : "Bio added") : ""}
-              </Text>
               <View
                 style={{
                   borderWidth: 1,
@@ -131,6 +125,16 @@ const UserBioModal = ({ bio, setShowUserBioModal = () => null, ...rest }) => {
                   />
                 </ScrollView>
               </View>
+              <Text
+                style={{
+                  color: themeStyle.colors.success.default,
+                  alignSelf: "flex-start",
+                  marginTop: 10,
+                  fontSize: 16,
+                }}
+              >
+                {success ? (bio ? "Bio updated" : "Bio added") : ""}
+              </Text>
             </ScrollView>
             <TouchableOpacity
               style={{
@@ -141,6 +145,7 @@ const UserBioModal = ({ bio, setShowUserBioModal = () => null, ...rest }) => {
                 alignItems: "center",
                 backgroundColor: themeStyle.colors.primary.default,
                 marginTop: 5,
+                marginBottom: 10,
               }}
               onPress={() => handleSubmit()}
             >

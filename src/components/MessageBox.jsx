@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Modal,
   Platform,
+  SafeAreaView,
 } from "react-native";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import ImageWithCache from "./ImageWithCache";
@@ -34,41 +35,51 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
           onRequestClose={() => setMediaFullScreen(false)}
           visible={mediaFullScreen}
         >
-          <View
+          <SafeAreaView
             style={{
+              backgroundColor: themeStyle.colors.black,
               flex: 1,
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: themeStyle.colors.grayscale.highest,
             }}
           >
             <View
               style={{
-                position: "absolute",
-                top: 10,
-                right: 10,
-                zIndex: 10,
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: themeStyle.colors.grayscale.highest,
               }}
             >
-              <TouchableOpacity onPress={() => setMediaFullScreen(false)}>
-                <AntDesign
-                  name="close"
-                  size={24}
-                  color={themeStyle.colors.white}
-                  style={{
-                    color: themeStyle.colors.white,
-                    textShadowOffset: {
-                      width: 1,
-                      height: 1,
-                    },
-                    textShadowRadius: 8,
-                    textShadowColor: themeStyle.colors.black,
-                  }}
-                />
-              </TouchableOpacity>
+              <View
+                style={{
+                  position: "absolute",
+                  top: 10,
+                  right: 10,
+                  zIndex: 10,
+                }}
+              >
+                <TouchableOpacity
+                  onPress={() => setMediaFullScreen(false)}
+                  style={{ height: 48, width: 48, alignItems: "flex-end" }}
+                >
+                  <AntDesign
+                    name="close"
+                    size={24}
+                    color={themeStyle.colors.white}
+                    style={{
+                      color: themeStyle.colors.white,
+                      textShadowOffset: {
+                        width: 1,
+                        height: 1,
+                      },
+                      textShadowRadius: 8,
+                      textShadowColor: themeStyle.colors.black,
+                    }}
+                  />
+                </TouchableOpacity>
+              </View>
+              <ExpoVideoPlayer uri={mediaUrl} />
             </View>
-            <ExpoVideoPlayer uri={mediaUrl} />
-          </View>
+          </SafeAreaView>
         </Modal>
       ) : null}
       <View

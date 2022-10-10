@@ -132,7 +132,6 @@ const AddJobModal = ({
         style={{
           flex: 1,
           backgroundColor: themeStyle.colors.grayscale.highest,
-          padding: 15,
         }}
       >
         <SafeAreaView
@@ -146,43 +145,47 @@ const AddJobModal = ({
             style={{ flex: 1 }}
           >
             <View style={{ height: "100%" }}>
-              <ScrollView keyboardShouldPersistTaps="handled">
-                <View
+              <View
+                style={{
+                  alignSelf: "flex-start",
+                  marginVertical: 10,
+                  marginHorizontal: 15,
+                }}
+              >
+                <TouchableOpacity
+                  onPress={() => {
+                    setShowModal(false);
+                    if (jobToEdit) {
+                      setShowJobHistoryModal(true);
+                    }
+                    setJobToEdit(null);
+                  }}
                   style={{
-                    alignSelf: "flex-start",
-                    marginVertical: 10,
+                    justifyContent: "center",
+                    flexDirection: "row",
+                    alignItems: "center",
                   }}
                 >
-                  <TouchableOpacity
-                    onPress={() => {
-                      setShowModal(false);
-                      if (jobToEdit) {
-                        setShowJobHistoryModal(true);
-                      }
-                      setJobToEdit(null);
-                    }}
+                  <AntDesign
+                    name="arrowleft"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                  <Text
                     style={{
-                      justifyContent: "center",
-                      flexDirection: "row",
-                      alignItems: "center",
+                      color: themeStyle.colors.grayscale.lowest,
+                      fontSize: 16,
+                      marginHorizontal: 10,
                     }}
                   >
-                    <AntDesign
-                      name="arrowleft"
-                      size={24}
-                      color={themeStyle.colors.grayscale.lowest}
-                    />
-                    <Text
-                      style={{
-                        color: themeStyle.colors.grayscale.lowest,
-                        fontSize: 16,
-                        marginHorizontal: 10,
-                      }}
-                    >
-                      {jobToEdit ? "Edit Role" : "Work History"}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                    {jobToEdit ? "Edit Role" : "Work History"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                style={{ paddingHorizontal: 15 }}
+              >
                 {jobToEdit ? (
                   <TouchableOpacity onPress={() => setShowDeleteOptions(true)}>
                     <View

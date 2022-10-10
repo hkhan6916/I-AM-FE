@@ -81,7 +81,10 @@ const ImageWithCache = ({
               zIndex: 10,
             }}
           >
-            <TouchableOpacity onPress={() => toggleFullScreen(false)}>
+            <TouchableOpacity
+              onPress={() => toggleFullScreen(false)}
+              style={{ height: 48, width: 48, alignItems: "flex-end" }}
+            >
               <AntDesign
                 name="close"
                 size={24}

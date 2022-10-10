@@ -1141,12 +1141,4 @@ const ChatScreen = (props) => {
   );
 };
 
-const styles = StyleSheet.create({
-  horizontalLines: {
-    flex: 1,
-    height: 1,
-    backgroundColor: themeStyle.colors.grayscale.low,
-  },
-});
-
 export default gestureHandlerRootHOC(ChatScreen);

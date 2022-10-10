@@ -7,7 +7,7 @@ export default {
   expo: {
     name: "Magnet",
     slug: "Magnet",
-    version: "1.1.3",
+    version: "1.1.4",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "automatic",
@@ -43,7 +43,7 @@ export default {
       useNextNotificationsApi: true,
       googleServicesFile: "./google-services.json",
       package: "com.magnetapp.magnet",
-      versionCode: 9,
+      versionCode: 10,
     },
     web: {
       favicon: "./assets/favicon.png",
@@ -64,6 +64,10 @@ export default {
       experienceId: process.env.EXPERIENCE_ID,
       packageName: process.env.PACKAGE_NAME,
       appStoreId: process.env.APP_STORE_ID,
+      eas: {
+        // We need this for production builds
+        projectId: "c8d33980-51de-472d-977a-dc62d80d2683",
+      },
     },
   },
 };

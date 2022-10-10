@@ -52,15 +52,21 @@ const CameraStandard = ({
   disableVideo,
   defaultCameraPosition = "back",
 }) => {
-  const screenOrientation = useScreenOrientation(true);
-  const orientation = useOrientation(recording);
-
-  const iosSpecificProps = Platform.OS === "ios" ? { orientation } : {};
-
-  const camera = useRef(null);
   const [isCameraInitialized, setIsCameraInitialized] = useState(false);
   const [hasMicrophonePermission, setHasMicrophonePermission] = useState(null);
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
+  const [cameraPosition, setCameraPosition] = useState(defaultCameraPosition);
+  const [flash, setFlash] = useState("off");
+  const [enableNightMode, setEnableNightMode] = useState(false);
+
+  const screenOrientation = useScreenOrientation(true);
+  const orientation = useOrientation(recording);
+
+  const iosSpecificOrientationProp =
+    Platform.OS === "ios" && cameraPosition !== "front" ? { orientation } : {};
+
+  const camera = useRef(null);
+
   const zoom = useSharedValue(0);
   const isPressingButton = useSharedValue(false);
 
@@ -69,9 +75,6 @@ const CameraStandard = ({
   const isForeground = useIsForeground();
   const isActive = isFocussed && isForeground;
 
-  const [cameraPosition, setCameraPosition] = useState(defaultCameraPosition);
-  const [flash, setFlash] = useState("off");
-  const [enableNightMode, setEnableNightMode] = useState(false);
   const dispatch = useDispatch();
   // camera format settings
   const devices = useCameraDevices();
@@ -92,11 +95,11 @@ const CameraStandard = ({
       return 30;
     }
 
-    const supportsHdrAt60Fps = formats.some(
-      (f) =>
-        f.supportsVideoHDR &&
-        f.frameRateRanges.some((r) => frameRateIncluded(r, 60))
-    );
+    // const supportsHdrAt60Fps = formats.some(
+    //   (f) =>
+    //     f.supportsVideoHDR &&
+    //     f.frameRateRanges.some((r) => frameRateIncluded(r, 60))
+    // );
 
     const supports60Fps = formats.some((f) =>
       f.frameRateRanges.some((r) => frameRateIncluded(r, 60))
@@ -423,7 +426,7 @@ const CameraStandard = ({
                 video={true}
                 zoom={0}
                 audio={hasMicrophonePermission}
-                {...iosSpecificProps}
+                {...iosSpecificOrientationProp}
               />
             </TapGestureHandler>
           </Reanimated.View>

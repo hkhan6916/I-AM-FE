@@ -200,6 +200,7 @@ const ProfileScreenHeader = React.forwardRef(
                   style={{
                     marginHorizontal: 10,
                     color: themeStyle.colors.primary.default,
+                    fontWeight: "700",
                   }}
                 >
                   {userData?.numberOfFriends}{" "}
