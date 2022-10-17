@@ -87,6 +87,10 @@ export default {
                 "lib/armeabi-v7a/libc++_shared.so",
                 "lib/x86/libc++_shared.so",
                 "lib/x86_64/libc++_shared.so",
+                "lib/armeabi-v7a/libfolly_runtime.so",
+                "lib/x86/libfolly_runtime.so",
+                "lib/arm64-v8a/libfolly_runtime.so",
+                "lib/x86_64/libfolly_runtime.so",
               ],
             },
           },
@@ -94,8 +98,14 @@ export default {
       ],
     ],
     extra: {
-      apiUrl: process.env.API_URL,
-      apiWebSocketUrl: process.env.API_WEBSOCKET_URL,
+      apiUrl:
+        process.env.TESTING === "yes"
+          ? process.env.TEST_API_URL
+          : process.env.API_URL,
+      apiWebSocketUrl:
+        process.env.TESTING === "yes"
+          ? process.env.TEST_API_WEBSOCKET_URL
+          : process.env.API_WEBSOCKET_URL,
       experienceId: process.env.EXPERIENCE_ID,
       packageName: process.env.PACKAGE_NAME,
       appStoreId: process.env.APP_STORE_ID,

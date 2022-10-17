@@ -90,7 +90,7 @@ const LoginScreen = ({ route }) => {
       }
       setLoginError(
         error === "CONNECTION_FAILED"
-          ? "Cannot connect to server. Please try again later."
+          ? "Cannot connect to the server. Please try again later."
           : "Unable to sign in. Please check your login details and try again."
       );
     }

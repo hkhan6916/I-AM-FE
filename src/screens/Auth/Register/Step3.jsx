@@ -821,7 +821,13 @@ const Step1Screen = () => {
               </Modal>
               <View style={{ marginTop: 20 }}>
                 <TouchableOpacity
-                  style={[styles.takeVideoButton]}
+                  style={[
+                    styles.takeVideoButton,
+                    skipProfileVideo && {
+                      opacity: 0.1,
+                    },
+                  ]}
+                  disabled={skipProfileVideo}
                   onPress={() => {
                     setShowProfileImageOptions(true);
                   }}
@@ -836,7 +842,13 @@ const Step1Screen = () => {
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.takeVideoButton]}
+                  style={[
+                    styles.takeVideoButton,
+                    skipProfileVideo && {
+                      opacity: 0.1,
+                    },
+                  ]}
+                  disabled={skipProfileVideo}
                   onPress={() => {
                     setShowProfileVideoOptions(true);
                   }}

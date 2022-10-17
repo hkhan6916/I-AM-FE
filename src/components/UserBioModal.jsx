@@ -5,7 +5,6 @@ import {
   View,
   TouchableOpacity,
   Modal,
-  Dimensions,
   ActivityIndicator,
   TextInput,
   ScrollView,

@@ -5,7 +5,7 @@ import themeStyle from "../theme.style";
 const TextArea = ({
   maxHeight = 150,
   borderColor,
-  setValue,
+  setValue = () => null,
   value,
   label,
   ...rest
@@ -43,6 +43,7 @@ const TextArea = ({
               paddingVertical: 10,
               height: Math.max(48, height),
               color: themeStyle.colors.grayscale.lowest,
+              width: "100%",
             },
           ]}
           value={value}

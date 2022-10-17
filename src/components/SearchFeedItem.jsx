@@ -92,6 +92,7 @@ const SearchFeedItem = ({ post }) => {
                   post.postAuthor.profileGifUrl ||
                   post.postAuthor.profileImageUrl
                 }
+                preventClicks
                 hasBorder={!!post.postAuthor.profileGifUrl}
                 profileGifHeaders={post.postAuthor.profileGifHeaders}
                 profileImageHeaders={post.postAuthor.profileImageHeaders}
