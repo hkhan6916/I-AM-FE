@@ -41,7 +41,6 @@ const AddJobModal = ({
   const [showDateFromPicker, setShowDateFromPicker] = useState(false);
   const [showDateToPicker, setShowDateToPicker] = useState(false);
   const [error, setError] = useState("");
-  const [submitted, setSubmitted] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -51,7 +50,6 @@ const AddJobModal = ({
   const { width: screenWidth } = Dimensions.get("window");
 
   const handleSubmit = async () => {
-    setSubmitted(true);
     setLoading(true);
     setSubmissionError("");
     const { success } = await apiCall(
@@ -472,7 +470,7 @@ const AddJobModal = ({
                       }}
                     >
                       This role{" "}
-                      {dateTo !== null
+                      {dateTo !== null && !present
                         ? "was"
                         : jobToEdit?.dateTo
                         ? "was"

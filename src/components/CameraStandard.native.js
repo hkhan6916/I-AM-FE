@@ -26,7 +26,6 @@ import Reanimated, {
 } from "react-native-reanimated";
 import { useEffect } from "react";
 import { useIsForeground } from "../helpers/hooks/useIsForeground";
-import IonIcon from "react-native-vector-icons/Ionicons";
 import { useIsFocused } from "@react-navigation/native";
 import { CaptureButton } from "./CaptureButton";
 import { useDispatch } from "react-redux";
@@ -296,7 +295,7 @@ const CameraStandard = ({
       >
         <View
           style={{
-            borderColor: themeStyle.colors.primary.default,
+            borderColor: themeStyle.colors.grayscale.lowest,
             borderWidth: 3,
             padding: 20,
             width: 150,
@@ -309,14 +308,15 @@ const CameraStandard = ({
           <EvilIcons
             name="camera"
             size={104}
-            color={themeStyle.colors.primary.default}
+            color={themeStyle.colors.grayscale.lowest}
           />
         </View>
         <Text
           style={{
             margin: 20,
             textAlign: "center",
-            color: themeStyle.colors.primary.default,
+            color: themeStyle.colors.grayscale.lowest,
+            fontWeight: "700",
           }}
         >
           Please grant{" "}
@@ -327,7 +327,7 @@ const CameraStandard = ({
             : !hasCameraPermission
             ? "camera permissions"
             : null}{" "}
-          in device settings. That way you can share cool photos and videos!
+          in device settings to capture photos and videos.
         </Text>
         <View style={{ display: "flex", flexDirection: "row" }}>
           <TouchableOpacity
@@ -503,7 +503,7 @@ const CameraStandard = ({
             onPress={onFlipCameraPressed}
             disabledOpacity={0.4}
           >
-            <IonIcon name="camera-reverse" color="white" size={24} />
+            <Ionicons name="camera-reverse" color="white" size={24} />
           </TouchableOpacity>
         )}
         {supportsFlash && (
@@ -512,7 +512,7 @@ const CameraStandard = ({
             onPress={onFlashPressed}
             disabledOpacity={0.4}
           >
-            <IonIcon
+            <Ionicons
               name={flash === "on" ? "flash" : "flash-off"}
               color="white"
               size={24}
@@ -537,7 +537,7 @@ const CameraStandard = ({
             onPress={() => setEnableNightMode(!enableNightMode)}
             disabledOpacity={0.4}
           >
-            <IonIcon
+            <Ionicons
               name={enableNightMode ? "moon" : "moon-outline"}
               color="white"
               size={24}

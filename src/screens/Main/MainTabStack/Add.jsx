@@ -521,7 +521,7 @@ const AddScreen = () => {
                 >
                   <AntDesign
                     name="close"
-                    size={24}
+                    size={30}
                     color={themeStyle.colors.grayscale.lowest}
                     style={{}}
                   />
@@ -620,7 +620,7 @@ const AddScreen = () => {
                 >
                   <AntDesign
                     name="close"
-                    size={24}
+                    size={30}
                     color={themeStyle.colors.grayscale.lowest}
                     style={{}}
                   />

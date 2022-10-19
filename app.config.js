@@ -7,7 +7,7 @@ export default {
   expo: {
     name: "Magnet",
     slug: "Magnet",
-    version: "1.1.9",
+    version: "1.2.0",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "automatic",
@@ -17,8 +17,12 @@ export default {
       resizeMode: "contain",
       backgroundColor: "#000000",
     },
+    runtimeVersion: {
+      policy: "sdkVersion",
+    },
     updates: {
       fallbackToCacheTimeout: 0,
+      url: "https://u.expo.dev/c8d33980-51de-472d-977a-dc62d80d2683",
     },
     assetBundlePatterns: ["**/*"],
     ios: {
@@ -71,7 +75,7 @@ export default {
       packageName: process.env.PACKAGE_NAME,
       appStoreId: process.env.APP_STORE_ID,
       eas: {
-        // We need this for production builds
+        // We need this for production builds. Need to store in .env and in expo.dev secrets
         projectId: "c8d33980-51de-472d-977a-dc62d80d2683",
       },
     },

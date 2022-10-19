@@ -63,7 +63,7 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
                 >
                   <AntDesign
                     name="close"
-                    size={24}
+                    size={30}
                     color={themeStyle.colors.white}
                     style={{
                       color: themeStyle.colors.white,

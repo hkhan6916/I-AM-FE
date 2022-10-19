@@ -797,10 +797,15 @@ const EditUserDetailsScreen = () => {
                               setShowProfileImageOptions(false);
                               setShowProfileVideoOptions(false);
                             }}
+                            style={{
+                              height: 48,
+                              width: 48,
+                              alignItems: "flex-end",
+                            }}
                           >
                             <AntDesign
                               name="close"
-                              size={24}
+                              size={30}
                               color={themeStyle.colors.white}
                               style={{
                                 color: themeStyle.colors.white,

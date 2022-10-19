@@ -161,6 +161,35 @@ const ProfileVideoCamera = ({
           in device settings to create a profile video.
         </Text>
         <View style={{ display: "flex", flexDirection: "row" }}>
+          <TouchableOpacity
+            onPress={() => {
+              setCameraActivated(false);
+            }}
+          >
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                margin: 10,
+                padding: 5,
+                borderRadius: 5,
+                borderWidth: 2,
+                borderColor: themeStyle.colors.primary.default,
+              }}
+            >
+              <Text
+                style={{
+                  textAlign: "center",
+                  color: themeStyle.colors.grayscale.lowest,
+                  fontWeight: "700",
+                  width: 70,
+                }}
+              >
+                Back{" "}
+              </Text>
+            </View>
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => openAppSettings()}>
             <View
               style={{
@@ -171,7 +200,7 @@ const ProfileVideoCamera = ({
                 padding: 5,
                 borderRadius: 5,
                 borderWidth: 2,
-                borderColor: themeStyle.colors.grayscale.lowest,
+                backgroundColor: themeStyle.colors.secondary.default,
               }}
             >
               <Text
@@ -181,7 +210,7 @@ const ProfileVideoCamera = ({
                   fontWeight: "700",
                 }}
               >
-                Go to Settings{" "}
+                Settings{" "}
               </Text>
             </View>
           </TouchableOpacity>

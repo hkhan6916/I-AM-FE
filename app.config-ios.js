@@ -7,7 +7,7 @@ export default {
   expo: {
     name: "Magnet",
     slug: "Magnet",
-    version: "1.1.8",
+    version: "1.2.0",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "automatic",

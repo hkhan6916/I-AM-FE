@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Checkbox from "../../../components/Checkbox";
 import TextArea from "../../../components/TextArea";
 import themeStyle from "../../../theme.style";
 
@@ -18,6 +19,7 @@ const FeedbackScreen = () => {
   const [success, setSuccess] = useState(false);
   const [generalFeedback, setGeneralFeedback] = useState("");
   const [ideas, setIdeas] = useState("");
+  const [type, setType] = useState("feedback");
 
   return (
     <SafeAreaView
@@ -54,9 +56,16 @@ const FeedbackScreen = () => {
                   fontSize: 14,
                 }}
               >
-                We like to review the feedback and ideas that you feel would
-                make Magnet better and more useful. If your idea is great and
-                fits into Magnet, we&apos;ll add it!
+                We like to review your feedback and ideas.
+              </Text>
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.lowest,
+                  fontSize: 14,
+                  marginTop: 10,
+                }}
+              >
+                If your idea is great and fits into Magnet, we&apos;ll add it!
               </Text>
               <View
                 style={{
@@ -64,25 +73,40 @@ const FeedbackScreen = () => {
                   marginTop: 20,
                 }}
               >
-                <View style={{ marginVertical: 10 }}>
-                  <TextArea
-                    maxHeight={300}
-                    label={"General feedback"}
-                    placeholder="Any App related feedback or issues."
-                    value={generalFeedback}
-                    setValue={setGeneralFeedback}
-                  />
-                </View>
-
-                <View style={{ marginVertical: 10 }}>
-                  <TextArea
-                    maxHeight={300}
-                    label={"Ideas"}
-                    placeholder="Ideas that could improve Magnet."
-                    value={ideas}
-                    setValue={setIdeas}
-                  />
-                </View>
+                <Checkbox
+                  checked={type === "idea"}
+                  setChecked={(checked) => {
+                    if (!checked) {
+                      setType("feedback");
+                    } else {
+                      setType("idea");
+                    }
+                  }}
+                  label={"This is an idea for Magnet."}
+                />
+                {type !== "idea" ? (
+                  <View style={{ marginVertical: 10 }}>
+                    <TextArea
+                      minHeight={90}
+                      maxHeight={300}
+                      label={"General feedback"}
+                      placeholder="Any App related feedback or issues"
+                      value={generalFeedback}
+                      setValue={setGeneralFeedback}
+                    />
+                  </View>
+                ) : (
+                  <View style={{ marginVertical: 10 }}>
+                    <TextArea
+                      minHeight={90}
+                      maxHeight={300}
+                      label={"Ideas"}
+                      placeholder="Ideas that could improve Magnet"
+                      value={ideas}
+                      setValue={setIdeas}
+                    />
+                  </View>
+                )}
               </View>
             </View>
             <TouchableOpacity

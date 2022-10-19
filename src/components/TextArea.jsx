@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { TextInput, ScrollView, View, Text } from "react-native";
+import { TextInput, View, Text, Keyboard } from "react-native";
 import themeStyle from "../theme.style";
 
 const TextArea = ({
   maxHeight = 150,
+  minHeight = 48,
   borderColor,
   setValue = () => null,
   value,
@@ -11,9 +12,27 @@ const TextArea = ({
   ...rest
 }) => {
   const [height, setHeight] = useState(0);
+  const [isScrollEnabled, setIsScrollEnabled] = React.useState(true);
 
+  const onKeyboardWillShow = () => {
+    setIsScrollEnabled(false);
+  };
+
+  const onKeyboardDidShow = () => {
+    setIsScrollEnabled(true);
+  };
+
+  React.useEffect(() => {
+    const subKWS = Keyboard.addListener("keyboardWillShow", onKeyboardWillShow);
+    const subKDS = Keyboard.addListener("keyboardDidShow", onKeyboardDidShow);
+
+    return () => {
+      subKWS.remove();
+      subKDS.remove();
+    };
+  }, []);
   return (
-    <ScrollView>
+    <View>
       <Text
         style={{
           fontWeight: "400",
@@ -41,7 +60,7 @@ const TextArea = ({
           style={[
             {
               paddingVertical: 10,
-              height: Math.max(48, height),
+              height: Math.max(minHeight, height),
               color: themeStyle.colors.grayscale.lowest,
               width: "100%",
             },
@@ -49,6 +68,7 @@ const TextArea = ({
           value={value}
           onChangeText={(v) => setValue(v)}
           placeholderTextColor={themeStyle.colors.grayscale.low}
+          scrollEnabled={isScrollEnabled}
           onContentSizeChange={(event) => {
             setHeight(
               event.nativeEvent.contentSize.height < maxHeight
@@ -59,7 +79,7 @@ const TextArea = ({
           {...rest}
         />
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
