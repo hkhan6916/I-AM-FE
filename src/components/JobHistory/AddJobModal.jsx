@@ -1,5 +1,5 @@
 import { AntDesign, Ionicons } from "@expo/vector-icons";
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import {
   View,
@@ -37,10 +37,15 @@ const AddJobModal = ({
   const [roleType, setRoleType] = useState(null);
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
+  const [dateToLiveSelection, setDateToLiveSelection] = useState(null);
+  const [dateFromLiveSelection, setDateFromLiveSelection] = useState(null);
   const [present, setPresent] = useState(false);
   const [showDateFromPicker, setShowDateFromPicker] = useState(false);
   const [showDateToPicker, setShowDateToPicker] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState({
+    dateTo: "",
+    dateFrom: "",
+  });
   const [submissionError, setSubmissionError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -48,6 +53,8 @@ const AddJobModal = ({
   const [showDeleteOptions, setShowDeleteOptions] = useState(false);
 
   const { width: screenWidth } = Dimensions.get("window");
+
+  const currentDate = new Date();
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -87,7 +94,7 @@ const AddJobModal = ({
 
   const handleDelete = async () => {
     setShowDeleteOptions(false);
-    const { success, message } = await apiCall(
+    const { success } = await apiCall(
       "POST",
       `/user/job-history/remove/${jobToEdit._id}`,
       {}
@@ -114,6 +121,41 @@ const AddJobModal = ({
 
     return loading || success || error;
   };
+
+  useEffect(() => {
+    if (jobToEdit) {
+      setDateFrom(jobToEdit.dateFrom);
+      setDateTo(jobToEdit.dateTo);
+    } else {
+      setDateTo(currentDate);
+      setDateFrom(currentDate);
+      setPresent(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const _dateFrom = dateFrom || currentDate;
+    const _dateTo = dateTo || currentDate;
+    let errorObj = error;
+    if (present && currentDate < _dateFrom) {
+      errorObj = {
+        ...errorObj,
+        dateFrom:
+          "Your start date cannot be in the future if you're still in this role.",
+      };
+    } else {
+      errorObj = { ...errorObj, dateFrom: "" };
+    }
+    if (_dateTo < _dateFrom && !present) {
+      errorObj = {
+        ...errorObj,
+        dateTo: "Your end date cannot come earlier than your start date.",
+      };
+    } else if (error.dateTo) {
+      errorObj = { ...errorObj, dateTo: "" };
+    }
+    setError(errorObj);
+  }, [present, dateTo, dateFrom]);
 
   return (
     <Modal
@@ -258,28 +300,99 @@ const AddJobModal = ({
                       From*
                     </Text>
                     {showDateFromPicker ? (
-                      <DateTimePicker
-                        maximumDate={new Date()}
-                        testID="from"
-                        value={
-                          dateFrom !== null
-                            ? dateFrom
-                            : jobToEdit?.dateFrom
-                            ? new Date(jobToEdit?.dateFrom)
-                            : new Date()
-                        }
-                        onChange={(_, date) => {
-                          setShowDateFromPicker(false);
-                          setError("");
-                          if (dateTo && date > dateTo) {
-                            setError(
-                              "Your start date cannot be later than your end date."
-                            );
-                          }
-                          setDateFrom(date);
-                        }}
-                        mode="date"
-                      />
+                      <Modal transparent>
+                        <TouchableWithoutFeedback
+                          onPress={() => {
+                            setShowDateFromPicker(false);
+                          }}
+                        >
+                          <SafeAreaView
+                            style={{
+                              flex: 1,
+                              justifyContent: "flex-end",
+                            }}
+                          >
+                            <View
+                              style={{
+                                backgroundColor:
+                                  themeStyle.colors.grayscale.highest,
+                              }}
+                            >
+                              <DateTimePicker
+                                testID="from"
+                                value={
+                                  dateFromLiveSelection ||
+                                  dateFrom ||
+                                  (jobToEdit?.dateFrom &&
+                                    new Date(jobToEdit?.dateFrom)) ||
+                                  currentDate
+                                }
+                                onChange={(e, date) => {
+                                  // setShowDateToPicker(false);
+                                  setDateFromLiveSelection(date);
+                                }}
+                                mode="date"
+                                display="spinner"
+                              />
+                              <View
+                                style={{
+                                  width: "100%",
+                                  justifyContent: "space-between",
+                                  flexDirection: "row",
+                                  marginTop: 20,
+                                  paddingHorizontal: 20,
+                                }}
+                              >
+                                <TouchableOpacity
+                                  onPress={() => {
+                                    setShowDateFromPicker(false);
+                                    setDateFromLiveSelection(dateTo);
+                                  }}
+                                  style={{
+                                    height: 48,
+                                    width: 60,
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <Text
+                                    style={{
+                                      color: themeStyle.colors.error.default,
+                                      fontWeight: "700",
+                                    }}
+                                  >
+                                    Close
+                                  </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                  onPress={() => {
+                                    setDateFrom(
+                                      dateFromLiveSelection || currentDate
+                                    );
+                                    setShowDateFromPicker(false);
+                                  }}
+                                  style={{
+                                    height: 48,
+                                    width: 60,
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <Text
+                                    style={{
+                                      color:
+                                        themeStyle.colors.secondary.default,
+                                      fontWeight: "700",
+                                    }}
+                                  >
+                                    Done
+                                  </Text>
+                                </TouchableOpacity>
+                              </View>
+                            </View>
+                          </SafeAreaView>
+                        </TouchableWithoutFeedback>
+                      </Modal>
                     ) : null}
                     <TouchableWithoutFeedback
                       onPress={() => setShowDateFromPicker(true)}
@@ -302,7 +415,7 @@ const AddJobModal = ({
                               ? dateFrom
                               : jobToEdit?.dateFrom
                               ? new Date(jobToEdit?.dateFrom)
-                              : new Date()
+                              : currentDate
                           )}
                         </Text>
                         <Ionicons
@@ -312,6 +425,17 @@ const AddJobModal = ({
                         />
                       </View>
                     </TouchableWithoutFeedback>
+                    {error.dateFrom ? (
+                      <Text
+                        style={{
+                          paddingHorizontal: 5,
+                          color: themeStyle.colors.error.default,
+                          marginVertical: 10,
+                        }}
+                      >
+                        {error.dateFrom}
+                      </Text>
+                    ) : null}
                   </View>
                   <View
                     style={{
@@ -330,30 +454,101 @@ const AddJobModal = ({
                       To
                     </Text>
                     {showDateToPicker ? (
-                      <DateTimePicker
-                        maximumDate={new Date()}
-                        testID="to"
-                        value={new Date()}
-                        onChange={(_, date) => {
-                          setShowDateToPicker(false);
-                          setError("");
-                          if (dateFrom && date < dateFrom) {
-                            setError(
-                              "Your end date cannot come earlier than your start date."
-                            );
-                          }
-                          setDateTo(date);
-                          setPresent(false);
-                        }}
-                        mode="date"
-                      />
+                      <Modal transparent>
+                        <SafeAreaView
+                          style={{
+                            flex: 1,
+                            justifyContent: "flex-end",
+                          }}
+                        >
+                          <View
+                            style={{
+                              backgroundColor:
+                                themeStyle.colors.grayscale.highest,
+                            }}
+                          >
+                            <DateTimePicker
+                              testID="to"
+                              value={
+                                dateToLiveSelection || dateTo || currentDate
+                              }
+                              onChange={(e, date) => {
+                                setDateToLiveSelection(date);
+                                setPresent(false);
+                              }}
+                              mode="date"
+                              display="spinner"
+                            />
+                            <View
+                              style={{
+                                width: "100%",
+                                justifyContent: "space-between",
+                                flexDirection: "row",
+                                marginTop: 20,
+                                paddingHorizontal: 20,
+                              }}
+                            >
+                              <TouchableOpacity
+                                onPress={() => {
+                                  setShowDateToPicker(false);
+                                  setDateToLiveSelection(dateTo);
+                                }}
+                                style={{
+                                  height: 48,
+                                  width: 60,
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Text
+                                  style={{
+                                    color: themeStyle.colors.error.default,
+                                    fontWeight: "700",
+                                  }}
+                                >
+                                  Close
+                                </Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                onPress={() => {
+                                  setDateTo(dateToLiveSelection || currentDate);
+                                  setShowDateToPicker(false);
+                                  console.log({
+                                    dateFrom,
+                                    dateToLiveSelection,
+                                  });
+                                }}
+                                style={{
+                                  height: 48,
+                                  width: 60,
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Text
+                                  style={{
+                                    color: themeStyle.colors.secondary.default,
+                                    fontWeight: "700",
+                                  }}
+                                >
+                                  Done
+                                </Text>
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                        </SafeAreaView>
+                      </Modal>
                     ) : null}
                     <TouchableWithoutFeedback
                       onPress={() => setShowDateToPicker(true)}
+                      style={{ height: 48 }}
                     >
                       <View
                         style={{
-                          borderBottomColor: themeStyle.colors.grayscale.lowest,
+                          borderBottomColor:
+                            !present && dateTo < dateFrom
+                              ? themeStyle.colors.error.default
+                              : themeStyle.colors.grayscale.lowest,
                           borderBottomWidth: 1,
                           paddingVertical: 10,
                           flexDirection: "row",
@@ -362,7 +557,12 @@ const AddJobModal = ({
                         }}
                       >
                         <Text
-                          style={{ color: themeStyle.colors.grayscale.lowest }}
+                          style={{
+                            color:
+                              !present && dateTo < dateFrom
+                                ? themeStyle.colors.error.default
+                                : themeStyle.colors.grayscale.lowest,
+                          }}
                         >
                           {!present && (dateTo || jobToEdit?.dateTo)
                             ? getDayMonthYear(
@@ -377,22 +577,39 @@ const AddJobModal = ({
                         <Ionicons
                           size={14}
                           name="calendar"
-                          color={themeStyle.colors.grayscale.lowest}
+                          color={
+                            !present && dateTo < dateFrom
+                              ? themeStyle.colors.error.default
+                              : themeStyle.colors.grayscale.lowest
+                          }
                         />
                       </View>
                     </TouchableWithoutFeedback>
-                    <Checkbox
-                      checked={present || (!dateTo && !jobToEdit?.dateTo)}
-                      setChecked={(checked) => {
-                        setPresent(checked);
-                        if (!checked) {
-                          setDateTo(new Date());
-                        } else {
-                          setDateTo("");
-                        }
-                      }}
-                      label={"I still work here"}
-                    />
+                    {error.dateTo ? (
+                      <Text
+                        style={{
+                          paddingHorizontal: 5,
+                          color: themeStyle.colors.error.default,
+                          marginVertical: 10,
+                        }}
+                      >
+                        {error.dateTo}
+                      </Text>
+                    ) : null}
+                    <View style={{ marginTop: 25 }}>
+                      <Checkbox
+                        checked={present || (!dateTo && !jobToEdit?.dateTo)}
+                        setChecked={(checked) => {
+                          setPresent(checked);
+                          if (!checked) {
+                            setDateTo(currentDate);
+                          } else {
+                            setDateTo("");
+                          }
+                        }}
+                        label={"I still work here"}
+                      />
+                    </View>
                   </View>
                 </View>
                 <View
@@ -575,22 +792,12 @@ const AddJobModal = ({
                     </View>
                   </View>
                 </View>
-                {error ? (
+                {submissionError ? (
                   <Text
                     style={{
                       color: themeStyle.colors.error.default,
-                      textAlign: "center",
                       marginVertical: 10,
-                    }}
-                  >
-                    {error}
-                  </Text>
-                ) : submissionError ? (
-                  <Text
-                    style={{
-                      color: themeStyle.colors.error.default,
-                      textAlign: "center",
-                      marginVertical: 10,
+                      paddingHorizontal: 5,
                     }}
                   >
                     {submissionError}
