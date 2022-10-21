@@ -21,6 +21,7 @@ import getDayMonthYear from "../../helpers/getDayMonthYear";
 import apiCall from "../../helpers/apiCall";
 import Checkbox from "../Checkbox";
 import TextArea from "../TextArea";
+import resetHoursOnDate from "../../helpers/resetHoursOnDate";
 
 const AddEducationModal = ({
   setShowModal = () => null,
@@ -41,7 +42,7 @@ const AddEducationModal = ({
   const [present, setPresent] = useState(false);
   const [showDateFromPicker, setShowDateFromPicker] = useState(false);
   const [showDateToPicker, setShowDateToPicker] = useState(false);
-  const [error, setError] = useState({
+  const [errors, setErrors] = useState({
     dateTo: "",
     dateFrom: "",
   });
@@ -54,7 +55,7 @@ const AddEducationModal = ({
 
   const { width: screenWidth } = Dimensions.get("window");
 
-  const currentDate = new Date();
+  const currentDate = resetHoursOnDate(new Date());
 
   const handleSubmit = async () => {
     setSubmitted(true);
@@ -113,18 +114,20 @@ const AddEducationModal = ({
   };
 
   const infoIsInvalid = () => {
+    const noErrors = Object.values(errors).every((x) => x == null || x === "");
+
     if (!educationToEdit) {
       return (
         loading ||
         success ||
-        error ||
+        !noErrors ||
         !institutionName ||
         !educationName ||
         !dateFrom
       );
     }
 
-    return loading || success || error;
+    return loading || success || !noErrors;
   };
 
   useEffect(() => {
@@ -140,10 +143,10 @@ const AddEducationModal = ({
   }, []);
 
   useEffect(() => {
-    const _dateFrom = dateFrom || currentDate;
-    const _dateTo = dateTo || currentDate;
-    let errorObj = error;
-    if (present && currentDate < _dateFrom && !error.dateFrom) {
+    const _dateFrom = resetHoursOnDate(dateFrom || currentDate);
+    const _dateTo = resetHoursOnDate(dateTo || currentDate);
+    let errorObj = errors;
+    if (present && currentDate < _dateFrom && !errors.dateFrom) {
       errorObj = {
         ...errorObj,
         dateFrom:
@@ -157,10 +160,10 @@ const AddEducationModal = ({
         ...errorObj,
         dateTo: "Your end date cannot come earlier than your start date.",
       };
-    } else if (error.dateTo) {
+    } else if (errors.dateTo) {
       errorObj = { ...errorObj, dateTo: "" };
     }
-    setError(errorObj);
+    setErrors(errorObj);
   }, [present, dateTo, dateFrom]);
 
   return (
@@ -233,30 +236,40 @@ const AddEducationModal = ({
                 style={{ paddingHorizontal: 15 }}
               >
                 {educationToEdit ? (
-                  <TouchableOpacity onPress={() => setShowDeleteOptions(true)}>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "flex-end",
-                      }}
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => setShowDeleteOptions(true)}
                     >
-                      <AntDesign
-                        name="delete"
-                        size={16}
-                        color={themeStyle.colors.error.default}
-                      />
-                      <Text
+                      <View
                         style={{
-                          color: themeStyle.colors.error.default,
-                          marginLeft: 5,
-                          fontWeight: "700",
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "flex-end",
                         }}
                       >
-                        Delete this education
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
+                        <AntDesign
+                          name="delete"
+                          size={16}
+                          color={themeStyle.colors.error.default}
+                        />
+                        <Text
+                          style={{
+                            color: themeStyle.colors.error.default,
+                            marginLeft: 5,
+                            fontWeight: "700",
+                          }}
+                        >
+                          Delete this education
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
                 ) : null}
                 <View
                   style={{
@@ -328,75 +341,87 @@ const AddEducationModal = ({
                             >
                               <DateTimePicker
                                 testID="from"
+                                maximumDate={currentDate}
                                 value={
-                                  dateFromLiveSelection ||
-                                  dateFrom ||
-                                  (educationToEdit?.dateFrom &&
-                                    new Date(educationToEdit?.dateFrom)) ||
-                                  currentDate
+                                  new Date(
+                                    dateFromLiveSelection ||
+                                      dateFrom ||
+                                      educationToEdit?.dateFrom ||
+                                      currentDate
+                                  )
                                 }
                                 onChange={(e, date) => {
+                                  if (Platform.OS === "android") {
+                                    if (e.type === "dismissed") {
+                                      setShowDateFromPicker(false);
+                                    } else if (e.type === "set") {
+                                      setDateFrom(date);
+                                      setShowDateFromPicker(false);
+                                    }
+                                  }
                                   // setShowDateToPicker(false);
                                   setDateFromLiveSelection(date);
                                 }}
                                 mode="date"
                                 display="spinner"
                               />
-                              <View
-                                style={{
-                                  width: "100%",
-                                  justifyContent: "space-between",
-                                  flexDirection: "row",
-                                  marginTop: 20,
-                                  paddingHorizontal: 20,
-                                }}
-                              >
-                                <TouchableOpacity
-                                  onPress={() => {
-                                    setShowDateFromPicker(false);
-                                    setDateFromLiveSelection(dateTo);
-                                  }}
+                              {Platform.OS === "ios" ? (
+                                <View
                                   style={{
-                                    height: 48,
-                                    width: 60,
-                                    justifyContent: "center",
-                                    alignItems: "center",
+                                    width: "100%",
+                                    justifyContent: "space-between",
+                                    flexDirection: "row",
+                                    marginTop: 20,
+                                    paddingHorizontal: 20,
                                   }}
                                 >
-                                  <Text
+                                  <TouchableOpacity
+                                    onPress={() => {
+                                      setShowDateFromPicker(false);
+                                      setDateFromLiveSelection(dateTo);
+                                    }}
                                     style={{
-                                      color: themeStyle.colors.error.default,
-                                      fontWeight: "700",
+                                      height: 48,
+                                      width: 60,
+                                      justifyContent: "center",
+                                      alignItems: "center",
                                     }}
                                   >
-                                    Close
-                                  </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                  onPress={() => {
-                                    setDateFrom(
-                                      dateFromLiveSelection || currentDate
-                                    );
-                                    setShowDateFromPicker(false);
-                                  }}
-                                  style={{
-                                    height: 48,
-                                    width: 60,
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <Text
+                                    <Text
+                                      style={{
+                                        color: themeStyle.colors.error.default,
+                                        fontWeight: "700",
+                                      }}
+                                    >
+                                      Close
+                                    </Text>
+                                  </TouchableOpacity>
+                                  <TouchableOpacity
+                                    onPress={() => {
+                                      setDateFrom(
+                                        dateFromLiveSelection || currentDate
+                                      );
+                                      setShowDateFromPicker(false);
+                                    }}
                                     style={{
-                                      color:
-                                        themeStyle.colors.secondary.default,
-                                      fontWeight: "700",
+                                      height: 48,
+                                      width: 60,
+                                      justifyContent: "center",
+                                      alignItems: "center",
                                     }}
                                   >
-                                    Done
-                                  </Text>
-                                </TouchableOpacity>
-                              </View>
+                                    <Text
+                                      style={{
+                                        color:
+                                          themeStyle.colors.secondary.default,
+                                        fontWeight: "700",
+                                      }}
+                                    >
+                                      Done
+                                    </Text>
+                                  </TouchableOpacity>
+                                </View>
+                              ) : null}
                             </View>
                           </SafeAreaView>
                         </TouchableWithoutFeedback>
@@ -424,9 +449,7 @@ const AddEducationModal = ({
                           }}
                         >
                           {getDayMonthYear(
-                            dateFrom !== null
-                              ? dateFrom
-                              : educationToEdit?.dateFrom || currentDate
+                            dateFrom || educationToEdit?.dateFrom || currentDate
                           )}
                         </Text>
                         <Ionicons
@@ -436,7 +459,7 @@ const AddEducationModal = ({
                         />
                       </View>
                     </TouchableWithoutFeedback>
-                    {error.dateFrom ? (
+                    {errors.dateFrom ? (
                       <Text
                         style={{
                           paddingHorizontal: 5,
@@ -444,7 +467,7 @@ const AddEducationModal = ({
                           marginVertical: 10,
                         }}
                       >
-                        {error.dateFrom}
+                        {errors.dateFrom}
                       </Text>
                     ) : null}
                   </View>
@@ -485,72 +508,84 @@ const AddEducationModal = ({
                             >
                               <DateTimePicker
                                 testID="to"
+                                maximumDate={currentDate}
                                 value={
-                                  dateToLiveSelection || dateTo || currentDate
+                                  new Date(
+                                    dateToLiveSelection || dateTo || currentDate
+                                  )
                                 }
                                 onChange={(e, date) => {
-                                  // setShowDateToPicker(false);
+                                  if (Platform.OS === "android") {
+                                    if (e.type === "dismissed") {
+                                      setShowDateToPicker(false);
+                                    } else if (e.type === "set") {
+                                      setDateTo(date);
+                                      setShowDateToPicker(false);
+                                    }
+                                  }
                                   setDateToLiveSelection(date);
                                   setPresent(false);
                                 }}
                                 mode="date"
                                 display="spinner"
                               />
-                              <View
-                                style={{
-                                  width: "100%",
-                                  justifyContent: "space-between",
-                                  flexDirection: "row",
-                                  marginTop: 20,
-                                  paddingHorizontal: 20,
-                                }}
-                              >
-                                <TouchableOpacity
-                                  onPress={() => {
-                                    setShowDateToPicker(false);
-                                    setDateToLiveSelection(dateTo);
-                                  }}
+                              {Platform.OS === "ios" ? (
+                                <View
                                   style={{
-                                    height: 48,
-                                    width: 60,
-                                    justifyContent: "center",
-                                    alignItems: "center",
+                                    width: "100%",
+                                    justifyContent: "space-between",
+                                    flexDirection: "row",
+                                    marginTop: 20,
+                                    paddingHorizontal: 20,
                                   }}
                                 >
-                                  <Text
+                                  <TouchableOpacity
+                                    onPress={() => {
+                                      setShowDateToPicker(false);
+                                      setDateToLiveSelection(dateTo);
+                                    }}
                                     style={{
-                                      color: themeStyle.colors.error.default,
-                                      fontWeight: "700",
+                                      height: 48,
+                                      width: 60,
+                                      justifyContent: "center",
+                                      alignItems: "center",
                                     }}
                                   >
-                                    Cancel
-                                  </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                  onPress={() => {
-                                    setDateTo(
-                                      dateToLiveSelection || currentDate
-                                    );
-                                    setShowDateToPicker(false);
-                                  }}
-                                  style={{
-                                    height: 48,
-                                    width: 60,
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <Text
+                                    <Text
+                                      style={{
+                                        color: themeStyle.colors.error.default,
+                                        fontWeight: "700",
+                                      }}
+                                    >
+                                      Cancel
+                                    </Text>
+                                  </TouchableOpacity>
+                                  <TouchableOpacity
+                                    onPress={() => {
+                                      setDateTo(
+                                        dateToLiveSelection || currentDate
+                                      );
+                                      setShowDateToPicker(false);
+                                    }}
                                     style={{
-                                      color:
-                                        themeStyle.colors.secondary.default,
-                                      fontWeight: "700",
+                                      height: 48,
+                                      width: 60,
+                                      justifyContent: "center",
+                                      alignItems: "center",
                                     }}
                                   >
-                                    Done
-                                  </Text>
-                                </TouchableOpacity>
-                              </View>
+                                    <Text
+                                      style={{
+                                        color:
+                                          themeStyle.colors.secondary.default,
+                                        fontWeight: "700",
+                                      }}
+                                    >
+                                      Done
+                                    </Text>
+                                  </TouchableOpacity>
+                                </View>
+                              ) : null}
                             </View>
                           </SafeAreaView>
                         </TouchableWithoutFeedback>
@@ -566,7 +601,9 @@ const AddEducationModal = ({
                       <View
                         style={{
                           borderBottomColor:
-                            !present && dateTo < dateFrom
+                            !present &&
+                            resetHoursOnDate(dateTo) <
+                              resetHoursOnDate(dateFrom)
                               ? themeStyle.colors.error.default
                               : themeStyle.colors.grayscale.lowest,
                           borderBottomWidth: 1,
@@ -579,7 +616,9 @@ const AddEducationModal = ({
                         <Text
                           style={{
                             color:
-                              !present && dateTo < dateFrom
+                              !present &&
+                              resetHoursOnDate(dateTo) <
+                                resetHoursOnDate(dateFrom)
                                 ? themeStyle.colors.error.default
                                 : themeStyle.colors.grayscale.lowest,
                           }}
@@ -592,14 +631,16 @@ const AddEducationModal = ({
                           size={14}
                           name="calendar"
                           color={
-                            !present && dateTo < dateFrom
+                            !present &&
+                            resetHoursOnDate(dateTo) <
+                              resetHoursOnDate(dateFrom)
                               ? themeStyle.colors.error.default
                               : themeStyle.colors.grayscale.lowest
                           }
                         />
                       </View>
                     </TouchableWithoutFeedback>
-                    {error.dateTo ? (
+                    {errors.dateTo ? (
                       <Text
                         style={{
                           paddingHorizontal: 5,
@@ -607,7 +648,7 @@ const AddEducationModal = ({
                           marginVertical: 10,
                         }}
                       >
-                        {error.dateTo}
+                        {errors.dateTo}
                       </Text>
                     ) : null}
                     <View style={{ marginTop: 25 }}>

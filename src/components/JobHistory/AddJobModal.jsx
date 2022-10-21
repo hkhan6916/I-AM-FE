@@ -21,6 +21,7 @@ import getDayMonthYear from "../../helpers/getDayMonthYear";
 import apiCall from "../../helpers/apiCall";
 import Checkbox from "../Checkbox";
 import TextArea from "../TextArea";
+import resetHoursOnDate from "../../helpers/resetHoursOnDate";
 
 const AddJobModal = ({
   setShowModal = () => null,
@@ -42,7 +43,7 @@ const AddJobModal = ({
   const [present, setPresent] = useState(false);
   const [showDateFromPicker, setShowDateFromPicker] = useState(false);
   const [showDateToPicker, setShowDateToPicker] = useState(false);
-  const [error, setError] = useState({
+  const [errors, setErrors] = useState({
     dateTo: "",
     dateFrom: "",
   });
@@ -54,7 +55,7 @@ const AddJobModal = ({
 
   const { width: screenWidth } = Dimensions.get("window");
 
-  const currentDate = new Date();
+  const currentDate = resetHoursOnDate(new Date());
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -113,13 +114,20 @@ const AddJobModal = ({
   };
 
   const infoIsInvalid = () => {
+    const noErrors = Object.values(errors).every((x) => x == null || x === "");
+
     if (!jobToEdit) {
       return (
-        loading || success || error || !companyName || !roleName || !dateFrom
+        loading ||
+        success ||
+        !noErrors ||
+        !companyName ||
+        !roleName ||
+        !dateFrom
       );
     }
 
-    return loading || success || error;
+    return loading || success || !noErrors;
   };
 
   useEffect(() => {
@@ -128,15 +136,14 @@ const AddJobModal = ({
       setDateTo(jobToEdit.dateTo);
     } else {
       setDateTo(currentDate);
-      setDateFrom(currentDate);
-      setPresent(true);
+      setDateFrom(jobToEdit?.dateFrom);
     }
   }, []);
 
   useEffect(() => {
-    const _dateFrom = dateFrom || currentDate;
-    const _dateTo = dateTo || currentDate;
-    let errorObj = error;
+    const _dateFrom = resetHoursOnDate(dateFrom || currentDate);
+    const _dateTo = resetHoursOnDate(dateTo || currentDate);
+    let errorObj = errors;
     if (present && currentDate < _dateFrom) {
       errorObj = {
         ...errorObj,
@@ -151,10 +158,10 @@ const AddJobModal = ({
         ...errorObj,
         dateTo: "Your end date cannot come earlier than your start date.",
       };
-    } else if (error.dateTo) {
+    } else if (errors.dateTo) {
       errorObj = { ...errorObj, dateTo: "" };
     }
-    setError(errorObj);
+    setErrors(errorObj);
   }, [present, dateTo, dateFrom]);
 
   return (
@@ -227,30 +234,40 @@ const AddJobModal = ({
                 style={{ paddingHorizontal: 15 }}
               >
                 {jobToEdit ? (
-                  <TouchableOpacity onPress={() => setShowDeleteOptions(true)}>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "flex-end",
-                      }}
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => setShowDeleteOptions(true)}
                     >
-                      <AntDesign
-                        name="delete"
-                        size={16}
-                        color={themeStyle.colors.error.default}
-                      />
-                      <Text
+                      <View
                         style={{
-                          color: themeStyle.colors.error.default,
-                          marginLeft: 5,
-                          fontWeight: "700",
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "flex-end",
                         }}
                       >
-                        Delete this role
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
+                        <AntDesign
+                          name="delete"
+                          size={16}
+                          color={themeStyle.colors.error.default}
+                        />
+                        <Text
+                          style={{
+                            color: themeStyle.colors.error.default,
+                            marginLeft: 5,
+                            fontWeight: "700",
+                          }}
+                        >
+                          Delete this role
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
                 ) : null}
                 <View
                   style={{
@@ -319,76 +336,88 @@ const AddJobModal = ({
                               }}
                             >
                               <DateTimePicker
+                                maximumDate={currentDate}
                                 testID="from"
                                 value={
-                                  dateFromLiveSelection ||
-                                  dateFrom ||
-                                  (jobToEdit?.dateFrom &&
-                                    new Date(jobToEdit?.dateFrom)) ||
-                                  currentDate
+                                  new Date(
+                                    dateFromLiveSelection ||
+                                      dateFrom ||
+                                      jobToEdit?.dateFrom ||
+                                      currentDate
+                                  )
                                 }
                                 onChange={(e, date) => {
+                                  if (Platform.OS === "android") {
+                                    if (e.type === "dismissed") {
+                                      setShowDateFromPicker(false);
+                                    } else if (e.type === "set") {
+                                      setDateFrom(date);
+                                      setShowDateFromPicker(false);
+                                    }
+                                  }
                                   // setShowDateToPicker(false);
                                   setDateFromLiveSelection(date);
                                 }}
                                 mode="date"
                                 display="spinner"
                               />
-                              <View
-                                style={{
-                                  width: "100%",
-                                  justifyContent: "space-between",
-                                  flexDirection: "row",
-                                  marginTop: 20,
-                                  paddingHorizontal: 20,
-                                }}
-                              >
-                                <TouchableOpacity
-                                  onPress={() => {
-                                    setShowDateFromPicker(false);
-                                    setDateFromLiveSelection(dateTo);
-                                  }}
+                              {Platform.OS === "ios" ? (
+                                <View
                                   style={{
-                                    height: 48,
-                                    width: 60,
-                                    justifyContent: "center",
-                                    alignItems: "center",
+                                    width: "100%",
+                                    justifyContent: "space-between",
+                                    flexDirection: "row",
+                                    marginTop: 20,
+                                    paddingHorizontal: 20,
                                   }}
                                 >
-                                  <Text
+                                  <TouchableOpacity
+                                    onPress={() => {
+                                      setShowDateFromPicker(false);
+                                      setDateFromLiveSelection(dateTo);
+                                    }}
                                     style={{
-                                      color: themeStyle.colors.error.default,
-                                      fontWeight: "700",
+                                      height: 48,
+                                      width: 60,
+                                      justifyContent: "center",
+                                      alignItems: "center",
                                     }}
                                   >
-                                    Close
-                                  </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                  onPress={() => {
-                                    setDateFrom(
-                                      dateFromLiveSelection || currentDate
-                                    );
-                                    setShowDateFromPicker(false);
-                                  }}
-                                  style={{
-                                    height: 48,
-                                    width: 60,
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <Text
+                                    <Text
+                                      style={{
+                                        color: themeStyle.colors.error.default,
+                                        fontWeight: "700",
+                                      }}
+                                    >
+                                      Close
+                                    </Text>
+                                  </TouchableOpacity>
+                                  <TouchableOpacity
+                                    onPress={() => {
+                                      setDateFrom(
+                                        dateFromLiveSelection || currentDate
+                                      );
+                                      setShowDateFromPicker(false);
+                                    }}
                                     style={{
-                                      color:
-                                        themeStyle.colors.secondary.default,
-                                      fontWeight: "700",
+                                      height: 48,
+                                      width: 60,
+                                      justifyContent: "center",
+                                      alignItems: "center",
                                     }}
                                   >
-                                    Done
-                                  </Text>
-                                </TouchableOpacity>
-                              </View>
+                                    <Text
+                                      style={{
+                                        color:
+                                          themeStyle.colors.secondary.default,
+                                        fontWeight: "700",
+                                      }}
+                                    >
+                                      Done
+                                    </Text>
+                                  </TouchableOpacity>
+                                </View>
+                              ) : null}
                             </View>
                           </SafeAreaView>
                         </TouchableWithoutFeedback>
@@ -411,11 +440,9 @@ const AddJobModal = ({
                           style={{ color: themeStyle.colors.grayscale.lowest }}
                         >
                           {getDayMonthYear(
-                            dateFrom !== null
-                              ? dateFrom
-                              : jobToEdit?.dateFrom
-                              ? new Date(jobToEdit?.dateFrom)
-                              : currentDate
+                            new Date(
+                              dateFrom || jobToEdit?.dateFrom || currentDate
+                            )
                           )}
                         </Text>
                         <Ionicons
@@ -425,7 +452,7 @@ const AddJobModal = ({
                         />
                       </View>
                     </TouchableWithoutFeedback>
-                    {error.dateFrom ? (
+                    {errors.dateFrom ? (
                       <Text
                         style={{
                           paddingHorizontal: 5,
@@ -433,7 +460,7 @@ const AddJobModal = ({
                           marginVertical: 10,
                         }}
                       >
-                        {error.dateFrom}
+                        {errors.dateFrom}
                       </Text>
                     ) : null}
                   </View>
@@ -455,88 +482,106 @@ const AddJobModal = ({
                     </Text>
                     {showDateToPicker ? (
                       <Modal transparent>
-                        <SafeAreaView
-                          style={{
-                            flex: 1,
-                            justifyContent: "flex-end",
+                        <TouchableWithoutFeedback
+                          onPress={() => {
+                            setShowDateToPicker(false);
                           }}
                         >
-                          <View
+                          <SafeAreaView
                             style={{
-                              backgroundColor:
-                                themeStyle.colors.grayscale.highest,
+                              flex: 1,
+                              justifyContent: "flex-end",
                             }}
                           >
-                            <DateTimePicker
-                              testID="to"
-                              value={
-                                dateToLiveSelection || dateTo || currentDate
-                              }
-                              onChange={(e, date) => {
-                                setDateToLiveSelection(date);
-                                setPresent(false);
-                              }}
-                              mode="date"
-                              display="spinner"
-                            />
                             <View
                               style={{
-                                width: "100%",
-                                justifyContent: "space-between",
-                                flexDirection: "row",
-                                marginTop: 20,
-                                paddingHorizontal: 20,
+                                backgroundColor:
+                                  themeStyle.colors.grayscale.highest,
                               }}
                             >
-                              <TouchableOpacity
-                                onPress={() => {
-                                  setShowDateToPicker(false);
-                                  setDateToLiveSelection(dateTo);
+                              <DateTimePicker
+                                testID="to"
+                                maximumDate={currentDate}
+                                value={
+                                  new Date(
+                                    dateToLiveSelection || dateTo || currentDate
+                                  )
+                                }
+                                onChange={(e, date) => {
+                                  if (Platform.OS === "android") {
+                                    if (e.type === "dismissed") {
+                                      setShowDateToPicker(false);
+                                    } else if (e.type === "set") {
+                                      setDateTo(date);
+                                      setShowDateToPicker(false);
+                                    }
+                                  }
+                                  setDateToLiveSelection(date);
+                                  setPresent(false);
                                 }}
-                                style={{
-                                  height: 48,
-                                  width: 60,
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <Text
+                                mode="date"
+                                display="spinner"
+                              />
+                              {Platform.OS === "ios" ? (
+                                <View
                                   style={{
-                                    color: themeStyle.colors.error.default,
-                                    fontWeight: "700",
+                                    width: "100%",
+                                    justifyContent: "space-between",
+                                    flexDirection: "row",
+                                    marginTop: 20,
+                                    paddingHorizontal: 20,
                                   }}
                                 >
-                                  Close
-                                </Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                onPress={() => {
-                                  setDateTo(dateToLiveSelection || currentDate);
-                                  setShowDateToPicker(false);
-                                  console.log({
-                                    dateFrom,
-                                    dateToLiveSelection,
-                                  });
-                                }}
-                                style={{
-                                  height: 48,
-                                  width: 60,
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <Text
-                                  style={{
-                                    color: themeStyle.colors.secondary.default,
-                                    fontWeight: "700",
-                                  }}
-                                >
-                                  Done
-                                </Text>
-                              </TouchableOpacity>
+                                  <TouchableOpacity
+                                    onPress={() => {
+                                      setShowDateToPicker(false);
+                                      setDateToLiveSelection(dateTo);
+                                    }}
+                                    style={{
+                                      height: 48,
+                                      width: 60,
+                                      justifyContent: "center",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <Text
+                                      style={{
+                                        color: themeStyle.colors.error.default,
+                                        fontWeight: "700",
+                                      }}
+                                    >
+                                      Close
+                                    </Text>
+                                  </TouchableOpacity>
+                                  <TouchableOpacity
+                                    onPress={() => {
+                                      setDateTo(
+                                        dateToLiveSelection || currentDate
+                                      );
+                                      setShowDateToPicker(false);
+                                    }}
+                                    style={{
+                                      height: 48,
+                                      width: 60,
+                                      justifyContent: "center",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <Text
+                                      style={{
+                                        color:
+                                          themeStyle.colors.secondary.default,
+                                        fontWeight: "700",
+                                      }}
+                                    >
+                                      Done
+                                    </Text>
+                                  </TouchableOpacity>
+                                </View>
+                              ) : null}
                             </View>
-                          </View>
-                        </SafeAreaView>
+                          </SafeAreaView>
+                        </TouchableWithoutFeedback>
                       </Modal>
                     ) : null}
                     <TouchableWithoutFeedback
@@ -546,7 +591,9 @@ const AddJobModal = ({
                       <View
                         style={{
                           borderBottomColor:
-                            !present && dateTo < dateFrom
+                            !present &&
+                            resetHoursOnDate(dateTo) <
+                              resetHoursOnDate(dateFrom)
                               ? themeStyle.colors.error.default
                               : themeStyle.colors.grayscale.lowest,
                           borderBottomWidth: 1,
@@ -559,7 +606,9 @@ const AddJobModal = ({
                         <Text
                           style={{
                             color:
-                              !present && dateTo < dateFrom
+                              !present &&
+                              resetHoursOnDate(dateTo) <
+                                resetHoursOnDate(dateFrom)
                                 ? themeStyle.colors.error.default
                                 : themeStyle.colors.grayscale.lowest,
                           }}
@@ -578,14 +627,16 @@ const AddJobModal = ({
                           size={14}
                           name="calendar"
                           color={
-                            !present && dateTo < dateFrom
+                            !present &&
+                            resetHoursOnDate(dateTo) <
+                              resetHoursOnDate(dateFrom)
                               ? themeStyle.colors.error.default
                               : themeStyle.colors.grayscale.lowest
                           }
                         />
                       </View>
                     </TouchableWithoutFeedback>
-                    {error.dateTo ? (
+                    {errors.dateTo ? (
                       <Text
                         style={{
                           paddingHorizontal: 5,
@@ -593,7 +644,7 @@ const AddJobModal = ({
                           marginVertical: 10,
                         }}
                       >
-                        {error.dateTo}
+                        {errors.dateTo}
                       </Text>
                     ) : null}
                     <View style={{ marginTop: 25 }}>
