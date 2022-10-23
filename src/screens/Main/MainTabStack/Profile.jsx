@@ -331,25 +331,30 @@ const ProfileScreen = () => {
           onRequestClose={() => {
             setShowJobHistoryModal(false);
             setShowEducationHistoryModal(false);
+            setJobToEdit(null);
+            setEducationToEdit(null);
           }}
           animationType={"slide"}
         >
-          {jobToEdit && !(showJobHistoryModal || showEducationHistoryModal) ? (
-            <AddJobModal
-              visible
-              jobToEdit={jobToEdit}
-              setJobToEdit={setJobToEdit}
-              setShowJobHistoryModal={setShowJobHistoryModal}
-            />
-          ) : educationToEdit &&
+          <>
+            {jobToEdit &&
             !(showJobHistoryModal || showEducationHistoryModal) ? (
-            <AddEducationModal
-              visible
-              educationToEdit={educationToEdit}
-              setEducationToEdit={setEducationToEdit}
-              setShowEducationHistoryModal={setShowEducationHistoryModal}
-            />
-          ) : null}
+              <AddJobModal
+                visible={!!jobToEdit}
+                jobToEdit={jobToEdit}
+                setJobToEdit={setJobToEdit}
+                setShowJobHistoryModal={setShowJobHistoryModal}
+              />
+            ) : educationToEdit &&
+              !(showJobHistoryModal || showEducationHistoryModal) ? (
+              <AddEducationModal
+                visible
+                educationToEdit={educationToEdit}
+                setEducationToEdit={setEducationToEdit}
+                setShowEducationHistoryModal={setShowEducationHistoryModal}
+              />
+            ) : null}
+          </>
           <SafeAreaView
             style={{
               backgroundColor: themeStyle.colors.grayscale.highest,

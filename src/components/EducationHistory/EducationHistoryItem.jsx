@@ -119,8 +119,8 @@ const EducationHistoryItem = ({
       {showEditButton ? (
         <TouchableOpacity
           onPress={() => {
-            setEducationToEdit(education);
             setShowEducationHistoryModal(false);
+            setEducationToEdit(education);
           }}
         >
           <View

@@ -505,6 +505,7 @@ const Step1Screen = () => {
           <Modal
             visible={showHelpModal}
             onRequestClose={() => setShowHelpModal(false)}
+            animationType={"slide"}
           >
             <SafeAreaView
               style={{

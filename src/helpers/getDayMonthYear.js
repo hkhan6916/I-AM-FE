@@ -1,5 +1,8 @@
-const getDayMonthYear = (dateObj) => {
-  if (!dateObj) return "";
+const getDayMonthYear = (date) => {
+  if (!date) return "";
+
+  const dateObj = new Date(date);
+
   const yyyy = dateObj.getFullYear();
   let mm = dateObj.getMonth() + 1; // Months start at 0!
   let dd = dateObj.getDate();
