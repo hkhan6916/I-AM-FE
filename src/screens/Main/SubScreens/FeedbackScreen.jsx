@@ -13,13 +13,65 @@ import {
 import Checkbox from "../../../components/Checkbox";
 import TextArea from "../../../components/TextArea";
 import themeStyle from "../../../theme.style";
+import apiCall from "../../../helpers/apiCall";
 
 const FeedbackScreen = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [generalFeedback, setGeneralFeedback] = useState("");
+  const [submittedGeneralFeedback, setSubmittedGeneralFeedback] = useState("");
   const [ideas, setIdeas] = useState("");
-  const [type, setType] = useState("feedback");
+  const [submittedIdeas, setSubmittedIdeas] = useState("");
+  const [type, setType] = useState("general");
+  const [error, setError] = useState("");
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError("");
+    setSuccess(false);
+    if (
+      (type === "general" && !generalFeedback) ||
+      (type === "idea" && !ideas)
+    ) {
+      setError(
+        type === "general"
+          ? "Please provide some feedback before submitting."
+          : "Please list out any ideas before submitting."
+      );
+    }
+    const { success } = await apiCall("POST", "/user/feedback/create", {
+      type,
+      description: type === "general" ? generalFeedback : ideas,
+    });
+
+    if (success) {
+      setSuccess(true);
+      if (type === "general") {
+        setSubmittedGeneralFeedback(generalFeedback);
+      } else {
+        setSubmittedIdeas(ideas);
+      }
+      setTimeout(() => setSuccess(false), 3000);
+    } else {
+      setError(
+        "There was an error submitting your feedback. Please try again later."
+      );
+    }
+    setLoading(false);
+  };
+
+  const infoIsInvalid = () => {
+    const feedbackIsUnchanged =
+      (type === "general" && submittedGeneralFeedback === generalFeedback) ||
+      (type === "idea" && submittedIdeas === ideas);
+    return (
+      (type === "general" && !generalFeedback) ||
+      (type === "idea" && !ideas) ||
+      loading ||
+      success ||
+      feedbackIsUnchanged
+    );
+  };
 
   return (
     <SafeAreaView
@@ -77,7 +129,7 @@ const FeedbackScreen = () => {
                   checked={type === "idea"}
                   setChecked={(checked) => {
                     if (!checked) {
-                      setType("feedback");
+                      setType("general");
                     } else {
                       setType("idea");
                     }
@@ -109,7 +161,20 @@ const FeedbackScreen = () => {
                 )}
               </View>
             </View>
+            <View style={{ width: "100%", paddingHorizontal: 5 }}>
+              {error ? (
+                <Text style={{ color: themeStyle.colors.error.default }}>
+                  {error}
+                </Text>
+              ) : success ? (
+                <Text style={{ color: themeStyle.colors.success.default }}>
+                  Feedback submitted
+                </Text>
+              ) : null}
+            </View>
             <TouchableOpacity
+              onPress={() => handleSubmit()}
+              disabled={infoIsInvalid()}
               style={{
                 borderRadius: 5,
                 padding: 10,
@@ -119,6 +184,7 @@ const FeedbackScreen = () => {
                 backgroundColor: themeStyle.colors.primary.default,
                 marginTop: 5,
                 marginBottom: 10,
+                opacity: infoIsInvalid() ? 0.5 : 1,
               }}
               //   onPress={() => handleSubmit()}
             >
@@ -128,9 +194,7 @@ const FeedbackScreen = () => {
                   color={themeStyle.colors.white}
                 />
               ) : (
-                <Text style={{ color: themeStyle.colors.white }}>
-                  {success ? "Submitted" : "Submit"}
-                </Text>
+                <Text style={{ color: themeStyle.colors.white }}>Submit</Text>
               )}
             </TouchableOpacity>
           </ScrollView>
