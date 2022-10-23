@@ -87,7 +87,7 @@ const FeedbackScreen = () => {
                 {type !== "idea" ? (
                   <View style={{ marginVertical: 10 }}>
                     <TextArea
-                      minHeight={90}
+                      minHeight={48}
                       maxHeight={300}
                       label={"General feedback"}
                       placeholder="Any App related feedback or issues"
@@ -98,7 +98,7 @@ const FeedbackScreen = () => {
                 ) : (
                   <View style={{ marginVertical: 10 }}>
                     <TextArea
-                      minHeight={90}
+                      minHeight={48}
                       maxHeight={300}
                       label={"Ideas"}
                       placeholder="Ideas that could improve Magnet"

@@ -769,6 +769,7 @@ const EditUserDetailsScreen = () => {
                       setShowProfileImageOptions(false);
                       setShowProfileVideoOptions(false);
                     }}
+                    animationType={"slide"}
                   >
                     <SafeAreaView
                       style={{

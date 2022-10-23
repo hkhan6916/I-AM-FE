@@ -88,6 +88,9 @@ const AddEducationModal = ({
       setSuccess(true);
       setTimeout(() => {
         setShowModal(false);
+        if (educationToEdit) {
+          setShowEducationHistoryModal(true);
+        }
         setEducationToEdit(null);
       }, 1000);
     }
@@ -134,11 +137,14 @@ const AddEducationModal = ({
     if (educationToEdit) {
       setDateFrom(educationToEdit.dateFrom);
       setDateFromLiveSelection(educationToEdit.dateFrom);
+      setDateToLiveSelection(educationToEdit.dateTo);
       setDateTo(educationToEdit.dateTo);
+      setPresent(!educationToEdit?.dateTo);
     } else {
       setDateTo(currentDate);
       setDateFrom(currentDate);
       setDateFromLiveSelection(currentDate);
+      setDateToLiveSelection(currentDate);
     }
   }, []);
 
@@ -176,6 +182,7 @@ const AddEducationModal = ({
         }
         setEducationToEdit(null);
       }}
+      animationType={"slide"}
     >
       <View
         style={{
@@ -342,6 +349,7 @@ const AddEducationModal = ({
                               <DateTimePicker
                                 testID="from"
                                 maximumDate={currentDate}
+                                textColor={themeStyle.colors.secondary.default}
                                 value={
                                   new Date(
                                     dateFromLiveSelection ||
@@ -357,6 +365,7 @@ const AddEducationModal = ({
                                     } else if (e.type === "set") {
                                       setDateFrom(date);
                                       setShowDateFromPicker(false);
+                                      setPresent(false);
                                     }
                                   }
                                   // setShowDateToPicker(false);
@@ -402,6 +411,7 @@ const AddEducationModal = ({
                                         dateFromLiveSelection || currentDate
                                       );
                                       setShowDateFromPicker(false);
+                                      setPresent(false);
                                     }}
                                     style={{
                                       height: 48,
@@ -509,6 +519,7 @@ const AddEducationModal = ({
                               <DateTimePicker
                                 testID="to"
                                 maximumDate={currentDate}
+                                textColor={themeStyle.colors.secondary.default}
                                 value={
                                   new Date(
                                     dateToLiveSelection || dateTo || currentDate
@@ -521,10 +532,10 @@ const AddEducationModal = ({
                                     } else if (e.type === "set") {
                                       setDateTo(date);
                                       setShowDateToPicker(false);
+                                      setPresent(false);
                                     }
                                   }
                                   setDateToLiveSelection(date);
-                                  setPresent(false);
                                 }}
                                 mode="date"
                                 display="spinner"
@@ -566,6 +577,7 @@ const AddEducationModal = ({
                                         dateToLiveSelection || currentDate
                                       );
                                       setShowDateToPicker(false);
+                                      setPresent(false);
                                     }}
                                     style={{
                                       height: 48,

@@ -88,6 +88,9 @@ const AddJobModal = ({
       setSuccess(true);
       setTimeout(() => {
         setShowModal(false);
+        if (jobToEdit) {
+          setShowJobHistoryModal(true);
+        }
         setJobToEdit(null);
       }, 1000);
     }
@@ -134,11 +137,16 @@ const AddJobModal = ({
     if (jobToEdit) {
       setDateFrom(jobToEdit.dateFrom);
       setDateTo(jobToEdit.dateTo);
+      setDateFromLiveSelection(jobToEdit.dateFrom);
+      setDateToLiveSelection(jobToEdit.dateTo);
+      setPresent(!jobToEdit?.dateTo);
     } else {
       setDateTo(currentDate);
       setDateFrom(jobToEdit?.dateFrom);
+      setDateToLiveSelection(currentDate);
+      setDateFromLiveSelection(currentDate);
     }
-  }, []);
+  }, [jobToEdit]);
 
   useEffect(() => {
     const _dateFrom = resetHoursOnDate(dateFrom || currentDate);
@@ -174,6 +182,7 @@ const AddJobModal = ({
         }
         setJobToEdit(null);
       }}
+      animationType={"slide"}
     >
       <View
         style={{
@@ -336,8 +345,9 @@ const AddJobModal = ({
                               }}
                             >
                               <DateTimePicker
-                                maximumDate={currentDate}
                                 testID="from"
+                                maximumDate={currentDate}
+                                textColor={themeStyle.colors.secondary.default}
                                 value={
                                   new Date(
                                     dateFromLiveSelection ||
@@ -353,6 +363,7 @@ const AddJobModal = ({
                                     } else if (e.type === "set") {
                                       setDateFrom(date);
                                       setShowDateFromPicker(false);
+                                      setPresent(false);
                                     }
                                   }
                                   // setShowDateToPicker(false);
@@ -398,6 +409,7 @@ const AddJobModal = ({
                                         dateFromLiveSelection || currentDate
                                       );
                                       setShowDateFromPicker(false);
+                                      setPresent(false);
                                     }}
                                     style={{
                                       height: 48,
@@ -502,6 +514,7 @@ const AddJobModal = ({
                               <DateTimePicker
                                 testID="to"
                                 maximumDate={currentDate}
+                                textColor={themeStyle.colors.secondary.default}
                                 value={
                                   new Date(
                                     dateToLiveSelection || dateTo || currentDate
@@ -514,10 +527,10 @@ const AddJobModal = ({
                                     } else if (e.type === "set") {
                                       setDateTo(date);
                                       setShowDateToPicker(false);
+                                      setPresent(false);
                                     }
                                   }
                                   setDateToLiveSelection(date);
-                                  setPresent(false);
                                 }}
                                 mode="date"
                                 display="spinner"
@@ -559,6 +572,7 @@ const AddJobModal = ({
                                         dateToLiveSelection || currentDate
                                       );
                                       setShowDateToPicker(false);
+                                      setPresent(false);
                                     }}
                                     style={{
                                       height: 48,

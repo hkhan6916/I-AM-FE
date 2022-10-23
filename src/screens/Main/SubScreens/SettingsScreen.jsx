@@ -74,7 +74,7 @@ const SettingScreen = () => {
               fontSize: 14,
             }}
           >
-            Support us
+            Support Us
           </Text>
           <View style={styles.option}>
             <TouchableOpacity

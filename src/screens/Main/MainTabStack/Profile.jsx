@@ -321,28 +321,35 @@ const ProfileScreen = () => {
           borderBottomWidth: 1,
         }}
       >
-        {jobToEdit ? (
-          <AddJobModal
-            visible
-            jobToEdit={jobToEdit}
-            setJobToEdit={setJobToEdit}
-            setShowJobHistoryModal={setShowJobHistoryModal}
-          />
-        ) : educationToEdit ? (
-          <AddEducationModal
-            visible
-            educationToEdit={educationToEdit}
-            setEducationToEdit={setEducationToEdit}
-            setShowEducationHistoryModal={setShowEducationHistoryModal}
-          />
-        ) : null}
         <Modal
-          visible={showJobHistoryModal || showEducationHistoryModal}
+          visible={
+            showJobHistoryModal ||
+            showEducationHistoryModal ||
+            !!jobToEdit ||
+            !!educationToEdit
+          }
           onRequestClose={() => {
             setShowJobHistoryModal(false);
             setShowEducationHistoryModal(false);
           }}
+          animationType={"slide"}
         >
+          {jobToEdit && !(showJobHistoryModal || showEducationHistoryModal) ? (
+            <AddJobModal
+              visible
+              jobToEdit={jobToEdit}
+              setJobToEdit={setJobToEdit}
+              setShowJobHistoryModal={setShowJobHistoryModal}
+            />
+          ) : educationToEdit &&
+            !(showJobHistoryModal || showEducationHistoryModal) ? (
+            <AddEducationModal
+              visible
+              educationToEdit={educationToEdit}
+              setEducationToEdit={setEducationToEdit}
+              setShowEducationHistoryModal={setShowEducationHistoryModal}
+            />
+          ) : null}
           <SafeAreaView
             style={{
               backgroundColor: themeStyle.colors.grayscale.highest,
