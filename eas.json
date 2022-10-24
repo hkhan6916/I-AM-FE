@@ -13,14 +13,12 @@
     },
     "preview": {
       "distribution": "internal",
-      "channel": "staging",
       "ios": {
         "simulator": true
       },
       "env": { "ANDROID_SDK_ROOT": "/Users/haroonkhan/Library/Android/sdk" }
     },
     "production": {
-      "channel": "production",
       "env": { "ANDROID_SDK_ROOT": "/Users/haroonkhan/Library/Android/sdk" }
     }
   },

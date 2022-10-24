@@ -17,12 +17,8 @@ export default {
       resizeMode: "contain",
       backgroundColor: "#000000",
     },
-    runtimeVersion: {
-      policy: "sdkVersion",
-    },
     updates: {
       fallbackToCacheTimeout: 0,
-      url: "https://u.expo.dev/c8d33980-51de-472d-977a-dc62d80d2683",
     },
     assetBundlePatterns: ["**/*"],
     ios: {
