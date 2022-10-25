@@ -102,10 +102,7 @@ const AddScreen = () => {
 
         await backgroundUpload({
           // TODO: try axios here
-          filePath:
-            Platform.OS == "android"
-              ? thumbnailUri.replace("file://", "")
-              : thumbnailUri,
+          filePath: thumbnailUri,
           url: response.signedUrl,
         });
       } else {
@@ -145,7 +142,7 @@ const AddScreen = () => {
         postData.mediaIsSelfie = isSelfie || false;
         await backgroundUpload({
           // TODO: try axios here
-          filePath: Platform.OS == "android" ? uri.replace("file://", "") : uri,
+          filePath: uri,
           url: response.signedUrl,
         });
       }
@@ -167,110 +164,46 @@ const AddScreen = () => {
   };
 
   const handlePostCreation = async () => {
+    setError("");
     setLoading(true);
     const postData = await createPostData();
 
-    if (!postData) return null;
-    const { success, response, message } = await apiCall(
-      "POST",
-      "/posts/new",
-      postData
-    );
+    if (!postData) return;
+    const { success, response } = await apiCall("POST", "/posts/new", postData);
     setLoading(false);
     if (success) {
       setThumbnail("");
       setGif("");
-      return response.post;
+      if (!response.post) return;
+      setPostBody("");
+      if (file.type?.split("/")[0] === "video") {
+        dispatch({
+          type: "SET_POST_CREATED",
+          payload: { posted: true, type: "created" },
+        });
+        navigation.navigate("Home");
+        await handleVideoCompressionAndUpload(response.post);
+      } else {
+        dispatch({
+          type: "SET_POST_CREATED",
+          payload: { posted: true, type: "created" },
+        });
+        navigation.navigate("Home");
+      }
     } else {
       setLoading(false);
       setError(
         "An error occurred creating your post. Please try again, or check your connection."
       );
-      return;
     }
   };
 
-  const handleVideoUpload = async (compressedUrl, post) => {
-    const { response: signedData, success } = await apiCall(
-      "POST",
-      "/files/signed-upload-url",
-      { filename: `media.${compressedUrl.split(".").pop()}` }
-    );
-    if (!success) {
-      setError(
-        "Sorry, we could not upload the selected media. Please try again later."
-      );
-      return;
-    }
-    const filePath = compressedUrl
-      ? Platform.OS == "android"
-        ? compressedUrl?.replace("file://", "/")
-        : compressedUrl
-      : Platform.OS == "android"
-      ? file?.uri.replace("file://", "")
-      : file?.uri;
-
-    // await uploadAsync(signedData.signedUrl, filePath, {
-    //   httpMethod: "PUT",
-    //   fieldName: "file",
-    //   // Below are options only supported on Android
-    // })
-    //   .then(async () => {
-    //     const { response, success } = await apiCall("POST", "/posts/new", {
-    //       postId: post?._id,
-    //       mediaType: "video",
-    //       mediaKey: signedData.fileKey,
-    //     });
-    //     if (!success) {
-    //       setError(
-    //         "Sorry, we could not upload the selected media. Please try again later."
-    //       );
-    //     }
-    //   })
-    //   .catch((err) => console.error(err));
-
-    const headers = {};
-
-    await compressorUpload(signedData.signedUrl, filePath, {
-      httpMethod: "PUT",
-      headers,
-    }).then(async () => {
-      const { success } = await apiCall("POST", "/posts/new", {
-        postId: post?._id,
-        mediaType: "video",
-        mediaKey: signedData.fileKey,
-      });
-      if (!success) {
-        setError(
-          "Sorry, we could not upload the selected media. Please try again later."
-        );
-      }
-    });
-
-    // await backgroundUpload({
-    //   filePath,
-    //   url: signedData.signedUrl,
-    //   failureRoute: `/posts/fail/${post?._id}`,
-    //   onComplete: async () => {
-    //     const { response, success } = await apiCall("POST", "/posts/new", {
-    //       postId: post?._id,
-    //       mediaType: "video",
-    //       mediaKey: signedData.fileKey,
-    //     });
-    //     if (!success) {
-    //       setError(
-    //         "Sorry, we could not upload the selected media. Please try again later."
-    //       );
-    //     }
-    //   },
-    // });
-  };
-
-  const handleLargeFileCompression = async (post) => {
+  const handleVideoCompressionAndUpload = async (post) => {
     const convertedToMp4Url =
-      file.uri?.split(".").pop !== "mp4"
+      file.uri?.split(".").pop() !== "mp4"
         ? await convertVideoToMp4(file.uri)
         : file.uri;
+
     await VideoCompress.compress(
       convertedToMp4Url,
       {
@@ -282,35 +215,50 @@ const AddScreen = () => {
       }
     )
       .then(async (compressedUrl) => {
-        await handleVideoUpload(compressedUrl, post);
+        const { response: signedData, success } = await apiCall(
+          "POST",
+          "/files/signed-upload-url",
+          { filename: `media.${compressedUrl.split(".").pop()}` }
+        );
+        if (!success) {
+          setError(
+            "Sorry, we could not upload the selected media. Please try again later."
+          );
+          return;
+        }
+
+        const filePath = compressedUrl
+          ? Platform.OS == "android"
+            ? compressedUrl?.replace("file://", "")
+            : compressedUrl
+          : Platform.OS == "android"
+          ? file?.uri.replace("file://", "")
+          : file?.uri;
+
+        const headers = {};
+
+        // Not sure why we use thi instead of the background helper but could be a good reason here.
+        await compressorUpload(signedData.signedUrl, filePath, {
+          httpMethod: "PUT",
+          headers,
+        }).then(async () => {
+          const { success } = await apiCall("POST", "/posts/new", {
+            postId: post?._id,
+            mediaType: "video",
+            mediaKey: signedData.fileKey,
+          });
+          if (!success) {
+            setError(
+              "Sorry, we could not upload the selected media. Please try again later."
+            );
+          }
+        });
       })
       .catch(async (e) => {
         // await apiCall("GET", `/posts/fail/${post?._id}`);
 
         console.log(e);
       }); // TODO:maybe show notification here?
-  };
-
-  const createPost = async () => {
-    setError("");
-    await handlePostCreation().then(async (post) => {
-      if (!post) return;
-      setPostBody("");
-      if (file.type?.split("/")[0] === "video") {
-        dispatch({
-          type: "SET_POST_CREATED",
-          payload: { posted: true, type: "created" },
-        });
-        navigation.navigate("Home");
-        await handleLargeFileCompression(post);
-      } else {
-        dispatch({
-          type: "SET_POST_CREATED",
-          payload: { posted: true, type: "created" },
-        });
-        navigation.navigate("Home");
-      }
-    });
   };
 
   const pickMedia = async () => {
@@ -454,7 +402,7 @@ const AddScreen = () => {
                   loading ||
                   showMediaSizeError
                 }
-                onPress={() => createPost()}
+                onPress={() => handlePostCreation()}
               >
                 {loading ? (
                   <ActivityIndicator
