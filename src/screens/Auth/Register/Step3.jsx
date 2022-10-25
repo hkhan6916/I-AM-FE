@@ -115,7 +115,10 @@ const Step1Screen = () => {
             ...existingInfo.state,
             notificationToken,
             flipProfileVideo:
-              Platform.OS === "android" && !pickedFromCameraRoll,
+              Platform.OS === "android" &&
+              !profileImage &&
+              profileVideo &&
+              !pickedFromCameraRoll,
             profileVideoKey: signedData.profileVideoKey,
             profileGifKey: signedData.profileGifKey,
             profileImageKey: signedData.profileImageKey,
@@ -180,7 +183,10 @@ const Step1Screen = () => {
           ? profileImage.replace(/^.*[\\/]/, "")
           : "",
         flipProfileVideo: (
-          Platform.OS === "android" && !pickedFromCameraRoll
+          Platform.OS === "android" &&
+          !profileImage &&
+          profileVideo &&
+          !pickedFromCameraRoll
         ).toString(), //TODO check if we still need to convert to string
       }
     );
@@ -236,7 +242,11 @@ const Step1Screen = () => {
         {
           ...existingInfo.state,
           notificationToken,
-          flipProfileVideo: Platform.OS === "android" && !pickedFromCameraRoll,
+          flipProfileVideo:
+            Platform.OS === "android" &&
+            !profileImage &&
+            profileVideo &&
+            !pickedFromCameraRoll,
         }
       );
       setVerifying(false);

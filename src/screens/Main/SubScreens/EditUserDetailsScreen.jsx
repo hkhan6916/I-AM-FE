@@ -300,7 +300,10 @@ const EditUserDetailsScreen = () => {
             "/user/update/details",
             {
               flipProfileVideo:
-                Platform.OS === "android" && !pickedFromCameraRoll,
+                Platform.OS === "android" &&
+                !profileImage &&
+                profileVideo &&
+                !pickedFromCameraRoll,
               profileVideoKey: signedData?.profileVideoKey,
               profileImageKey: signedData?.profileImageKey,
               profileGifKey: signedData?.profileGifKey,
