@@ -8,7 +8,7 @@ import { Video as VideoCompress } from "react-native-compressor";
  * */
 const convertVideoToMp4 = async (uri) => {
   if (!uri) return null;
-  const videoUri = await VideoCompress.compress(
+  let videoUri = await VideoCompress.compress(
     uri,
     {
       compressionMethod: "auto",
@@ -18,6 +18,11 @@ const convertVideoToMp4 = async (uri) => {
       console.log({ compression: progress });
     }
   );
+
+  if (!videoUri) return;
+
+  videoUri =
+    Platform.OS == "android" ? videoUri?.replace("file://", "") : videoUri;
 
   const filename = videoUri.replace(/^.*[\\\/]/, "");
   const baseDir = videoUri.split(filename)[0];
