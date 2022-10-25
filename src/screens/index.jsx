@@ -171,9 +171,10 @@ const Screens = () => {
       if (Platform.OS === "android") {
         const ram = await getTotalMemory();
         if (!ram) return;
-        // if android phone has less than 6gb ram, don't play feed videos
+        // if android phone has less than 6gb ram, don't play feed videos and mark as low end device
         if (ram / 1000000 < 6000) {
           dispatch({ type: "SET_CAN_PLAY_FEED_VIDEOS", payload: false });
+          dispatch({ type: "SET_IS_LOW_END_DEVICE", payload: true });
         }
       }
     })();
