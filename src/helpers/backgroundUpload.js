@@ -1,6 +1,7 @@
 // import Upload from "react-native-background-upload";
 import apiCall from "./apiCall";
 import { uploadAsync, FileSystemUploadType } from "expo-file-system";
+import { Platform } from "react-native";
 const backgroundUpload = async ({
   filePath,
   url,
@@ -11,7 +12,7 @@ const backgroundUpload = async ({
 }) => {
   const options = {
     url,
-    path: filePath, // path to file
+    path: Platform.OS == "android" ? filePath.replace("file://", "") : filePath,
     method: "PUT",
     type: "raw",
     maxRetries: 2, // set retry count (Android only). Default 2
