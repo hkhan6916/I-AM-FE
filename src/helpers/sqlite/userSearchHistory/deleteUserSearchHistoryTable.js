@@ -1,5 +1,5 @@
 const deleteUserSearchHistoryTable = async (db) => {
-  db.transaction(
+  db?.transaction?.(
     (tx) => {
       tx.executeSql(`DROP TABLE user_search_history `);
     },

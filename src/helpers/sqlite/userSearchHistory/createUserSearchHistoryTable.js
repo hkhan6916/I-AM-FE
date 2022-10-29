@@ -1,5 +1,5 @@
 const createUserSearchHistoryTable = async (db) => {
-  db.transaction(
+  db?.transaction?.(
     (tx) => {
       tx.executeSql(`
           CREATE TABLE IF NOT EXISTS user_search_history (
