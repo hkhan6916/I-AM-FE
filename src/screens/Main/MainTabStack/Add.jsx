@@ -12,6 +12,7 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Alert,
+  Image,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
@@ -35,8 +36,10 @@ import GifModal from "../../../components/GifModal";
 import openAppSettings from "../../../helpers/openAppSettings";
 import backgroundUpload from "../../../helpers/backgroundUpload";
 import { gestureHandlerRootHOC } from "react-native-gesture-handler";
-import { Image } from "react-native";
-import convertVideoToMp4 from "../../../helpers/convertVideoToMp4";
+import convertAndEncodeVideo from "../../../helpers/convertAndEncodeVideo";
+import { useSelector } from "react-redux";
+import getVideoCodecName from "../../../helpers/getVideoCodecName";
+import { FFmpegKit } from "ffmpeg-kit-react-native";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -52,7 +55,11 @@ const AddScreen = () => {
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
   const [thumbnail, setThumbnail] = useState("");
-
+  const [compressionProgress, setCompressionProgress] = useState(0);
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [processedVideoUri, setProcessedVideoUri] = useState("");
+  const [processingFile, setProcessingFile] = useState(false);
+  const [selectedMediaType, setSelectedMediaType] = useState(false);
   const navigation = useNavigation();
 
   const videoRef = useRef(null);
@@ -60,6 +67,9 @@ const AddScreen = () => {
   const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
   const dispatch = useDispatch();
+
+  const isLowendDevice = useSelector((state) => state.isLowendDevice)?.state;
+
   const createPostData = async () => {
     let postData = {};
     if (postBody) {
@@ -73,7 +83,7 @@ const AddScreen = () => {
     }
     if (file.uri) {
       // if there's a file, determine if compression is required
-      const { type, name, uri, isSelfie } = file;
+      const { type, uri, isSelfie } = file;
       if (type.split("/")[0] === "video") {
         ///here, need to upload figure out how to upload thumbnails
 
@@ -120,7 +130,7 @@ const AddScreen = () => {
             console.log({ compression: progress });
           }
         );
-        if (mediaSizeInMb >= 100) {
+        if (mediaSizeInMb > (isLowendDevice ? 50 : 100)) {
           return null;
         }
         const { response, success } = await apiCall(
@@ -181,8 +191,10 @@ const AddScreen = () => {
           type: "SET_POST_CREATED",
           payload: { posted: true, type: "created" },
         });
-        navigation.navigate("Home");
         await handleVideoCompressionAndUpload(response.post);
+        if (Platform.OS === "android") {
+          navigation.navigate("Home");
+        }
       } else {
         dispatch({
           type: "SET_POST_CREATED",
@@ -199,66 +211,53 @@ const AddScreen = () => {
   };
 
   const handleVideoCompressionAndUpload = async (post) => {
-    const convertedToMp4Url =
-      file.uri?.split(".").pop() !== "mp4"
-        ? await convertVideoToMp4(file.uri)
-        : file.uri;
-
-    await VideoCompress.compress(
-      convertedToMp4Url,
-      {
-        compressionMethod: "auto",
-        minimumFileSizeForCompress: 10,
-      },
-      (progress) => {
-        console.log({ compression: progress });
-      }
-    )
-      .then(async (compressedUrl) => {
-        const { response: signedData, success } = await apiCall(
-          "POST",
-          "/files/signed-upload-url",
-          { filename: `media.${compressedUrl.split(".").pop()}` }
-        );
-        if (!success) {
-          setError(
-            "Sorry, we could not upload the selected media. Please try again later."
-          );
-          return;
-        }
-
-        const filePath = compressedUrl
-          ? Platform.OS == "android"
-            ? compressedUrl?.replace("file://", "")
-            : compressedUrl
-          : Platform.OS == "android"
-          ? file?.uri.replace("file://", "")
-          : file?.uri;
-
-        const headers = {};
-
-        // Not sure why we use thi instead of the background helper but could be a good reason here.
-        await compressorUpload(signedData.signedUrl, filePath, {
-          httpMethod: "PUT",
-          headers,
-        }).then(async () => {
-          const { success } = await apiCall("POST", "/posts/new", {
-            postId: post?._id,
-            mediaType: "video",
-            mediaKey: signedData.fileKey,
+    const convertedCodecAndCompressedUrl =
+      Platform.OS === "ios"
+        ? processedVideoUri
+        : await convertAndEncodeVideo({
+            uri: file.uri,
+            setProgress: setCompressionProgress,
+            videoDuration,
           });
-          if (!success) {
-            setError(
-              "Sorry, we could not upload the selected media. Please try again later."
-            );
-          }
-        });
-      })
-      .catch(async (e) => {
-        // await apiCall("GET", `/posts/fail/${post?._id}`);
 
-        console.log(e);
-      }); // TODO:maybe show notification here?
+    const { response: signedData, success } = await apiCall(
+      "POST",
+      "/files/signed-upload-url",
+      { filename: `media.${convertedCodecAndCompressedUrl.split(".").pop()}` }
+    );
+    if (!success) {
+      setError(
+        "Sorry, we could not upload the selected media. Please try again later."
+      );
+      return;
+    }
+
+    const filePath = convertedCodecAndCompressedUrl
+      ? Platform.OS == "android"
+        ? convertedCodecAndCompressedUrl?.replace("file://", "")
+        : convertedCodecAndCompressedUrl
+      : Platform.OS == "android"
+      ? file?.uri.replace("file://", "")
+      : file?.uri;
+
+    const headers = {};
+
+    // Not sure why we use thi instead of the background helper but could be a good reason here.
+    await compressorUpload(signedData.signedUrl, filePath, {
+      httpMethod: "PUT",
+      headers,
+    }).then(async () => {
+      const { success } = await apiCall("POST", "/posts/new", {
+        postId: post?._id,
+        mediaType: "video",
+        mediaKey: signedData.fileKey,
+      });
+      if (!success) {
+        setError(
+          "Sorry, we could not upload the selected media. Please try again later."
+        );
+      }
+    });
   };
 
   const pickMedia = async () => {
@@ -284,31 +283,76 @@ const AddScreen = () => {
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         quality: 0.3,
         allowsMultipleSelection: false,
+        selectionLimit: 1,
       });
-      setGif("");
-      setThumbnail("");
       if (!result.cancelled) {
+        FFmpegKit.cancel();
+        setGif("");
+        setThumbnail("");
+        setCompressionProgress(0);
+        setProcessingFile(false);
+        setSelectedMediaType("");
         const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
-        if (mediaSizeInMb > 100) {
+
+        if (mediaSizeInMb > (isLowendDevice ? 50 : 100)) {
           setShowMediaSizeError(true);
           setFile({ uri: "none" });
           setLoading(false);
           return;
         }
-        if (result.type.split("/")[0] === "video") {
+        const encoding = await getVideoCodecName(result.uri);
+        if (
+          encoding &&
+          (encoding === "hevc" || encoding === "h265") &&
+          Platform.OS === "android"
+        ) {
+          Alert.alert(
+            "Sorry, this video is unsupported.",
+            "Please choose another video or image.",
+            [
+              {
+                text: "Cancel",
+              },
+              {
+                text: "Open files",
+                onPress: () => pickMedia(),
+              },
+            ]
+          );
+          return;
+        }
+        const mediaType = result.type.split("/")[0];
+        setSelectedMediaType(mediaType);
+        setFile({ ...result, ...mediaInfo });
+        if (mediaType === "video") {
           const thumbnailUri = await generateThumbnail(result.uri);
           setThumbnail(thumbnailUri);
+          setVideoDuration(result.duration);
+          if (Platform.OS === "ios") {
+            setProcessingFile(true);
+            const convertedCodecAndCompressedUrl = await convertAndEncodeVideo({
+              uri: result.uri,
+              setProgress: setCompressionProgress,
+              videoDuration: result.duration,
+            });
+            setProcessedVideoUri(convertedCodecAndCompressedUrl);
+            setProcessingFile(false);
+          }
         }
+
         setShowMediaSizeError(false);
-        setFile({ ...result, ...mediaInfo });
       }
     }
   };
 
   const handleGifSelect = (gifUrl) => {
+    FFmpegKit.cancel();
+    setSelectedMediaType("");
+    setCompressionProgress(0);
     setShowMediaSizeError(false);
     setFile({});
+    setVideoDuration(0);
     setGif(gifUrl);
   };
 
@@ -392,7 +436,12 @@ const AddScreen = () => {
               style={{
                 justifyContent: "center",
                 flexDirection: "row",
-                opacity: !file?.uri && !postBody && !gif ? 0.7 : 1,
+                opacity:
+                  (!file?.uri && !postBody && !gif) ||
+                  showMediaSizeError ||
+                  processingFile
+                    ? 0.7
+                    : 1,
                 marginHorizontal: 10,
               }}
             >
@@ -400,7 +449,8 @@ const AddScreen = () => {
                 disabled={
                   (!file.uri && !postBody && !gif) ||
                   loading ||
-                  showMediaSizeError
+                  showMediaSizeError ||
+                  processingFile
                 }
                 onPress={() => handlePostCreation()}
               >
@@ -443,6 +493,27 @@ const AddScreen = () => {
               maxLength={2000}
               onChangeText={(v) => setPostBody(v)}
             />
+            {compressionProgress && selectedMediaType === "video" ? (
+              <View>
+                <Text
+                  style={{
+                    color: themeStyle.colors.grayscale.lowest,
+                    textAlign: "center",
+                    marginBottom: 5,
+                  }}
+                >
+                  Processing - {compressionProgress}%
+                </Text>
+                <View
+                  style={{
+                    width: `${compressionProgress || 0}%`,
+                    height: 5,
+                    backgroundColor: themeStyle.colors.secondary.default,
+                    borderRadius: 20,
+                  }}
+                />
+              </View>
+            ) : null}
             {file.uri ? (
               <View
                 style={{
@@ -463,8 +534,11 @@ const AddScreen = () => {
                   onPress={async () => {
                     await videoRef?.current?.pauseAsync(); // fixes audio issues if using music for example
                     await videoRef?.current?.unloadAsync(); // remove from memory
+                    FFmpegKit.cancel();
                     setFile({}); // make sure video is no longer in state
+                    setVideoDuration(0);
                     setShowMediaSizeError(false);
+                    setSelectedMediaType("");
                   }}
                 >
                   <AntDesign
@@ -482,7 +556,8 @@ const AddScreen = () => {
                       marginHorizontal: 5,
                     }}
                   >
-                    Choose a file smaller than 100MB
+                    Choose a file smaller than{" "}
+                    {isLowendDevice ? "50MB" : "100MB"}
                   </Text>
                 ) : thumbnail ? (
                   <View
@@ -519,7 +594,7 @@ const AddScreen = () => {
                       style={{ height: 300 }}
                     />
                   </View>
-                ) : file.type?.split("/")[0] === "image" ? (
+                ) : selectedMediaType ? (
                   <View
                     style={{
                       height: screenWidth - 40,
@@ -562,8 +637,10 @@ const AddScreen = () => {
                   }}
                   onPress={() => {
                     setFile({});
+                    setVideoDuration(0);
                     setShowMediaSizeError(false);
                     setGif("");
+                    setSelectedMediaType("");
                   }}
                 >
                   <AntDesign

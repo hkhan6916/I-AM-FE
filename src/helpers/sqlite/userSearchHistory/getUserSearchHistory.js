@@ -1,6 +1,6 @@
 const getUserSearchHistory = async (db) => {
   return new Promise((resolve, reject) => {
-    db?.transaction((tx) => {
+    db?.transaction?.((tx) => {
       tx.executeSql(
         "select * from user_search_history order by date DESC LIMIT 10",
         [],

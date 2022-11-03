@@ -1,6 +1,7 @@
 import { FFprobeKit } from "ffmpeg-kit-react-native";
 
 const getVideoCodecName = async (uri) => {
+  if (!uri) return;
   try {
     const codec = await FFprobeKit.getMediaInformationFromCommand(
       "-v quiet -hide_banner -print_format json -show_format -show_entries stream=index,codec_name,channels:stream_tags=language -show_chapters -i " +

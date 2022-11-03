@@ -211,7 +211,7 @@ const Step2Screen = () => {
                   - Must container an uppercase character
                 </Text>
                 <Text style={styles.errorText}>
-                  - Must container an lowercase character
+                  - Must container a lowercase character
                 </Text>
                 <Text style={styles.errorText}>- Must container a number</Text>
               </View>

@@ -54,7 +54,7 @@ const SearchScreen = () => {
         }
       : {};
 
-  const db = SQLite.openDatabase("localdb");
+  const db = Platform.OS == "web" ? {} : SQLite.openDatabase("localdb");
 
   const onUserSearch = async (searchQuery) => {
     setLastSuccessfullSearchQuery(searchQuery);
