@@ -302,11 +302,9 @@ const AddScreen = () => {
           return;
         }
         const encoding = await getVideoCodecName(result.uri);
-        if (
-          encoding &&
-          (encoding === "hevc" || encoding === "h265") &&
-          Platform.OS === "android"
-        ) {
+        const unsupportedCodec =
+          encoding === "hevc" || encoding === "h265" || !encoding;
+        if (unsupportedCodec && Platform.OS === "android") {
           Alert.alert(
             "Sorry, this video is unsupported.",
             "Please choose another video or image.",
