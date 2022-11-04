@@ -127,7 +127,7 @@ const AddScreen = () => {
             minimumFileSizeForCompress: 3,
           },
           (progress) => {
-            console.log({ compression: progress });
+            console.log({ image_compression: progress });
           }
         );
         if (mediaSizeInMb > (isLowendDevice ? 50 : 100)) {
@@ -286,7 +286,9 @@ const AddScreen = () => {
         selectionLimit: 1,
       });
       if (!result.cancelled) {
-        FFmpegKit.cancel();
+        if (selectedMediaType === "video") {
+          FFmpegKit.cancel();
+        }
         setGif("");
         setThumbnail("");
         setCompressionProgress(0);
@@ -578,7 +580,7 @@ const AddScreen = () => {
                       fullscreen
                       mediaIsSelfie
                       videoProps={{
-                        shouldPlay: true,
+                        shouldPlay: false,
                         resizeMode: "contain",
                         source: {
                           uri: file.uri,

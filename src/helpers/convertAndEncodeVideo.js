@@ -62,7 +62,7 @@ const convertAndEncodeVideo = async ({
       await FFmpegKit.execute(
         `-y -i ${
           Platform.OS == "android" ? uri?.replace("file://", "") : uri
-        } -c:v libx264 -r 5 -tune fastdecode -threads 2 -preset ultrafast -vf format=yuv420p -c:a copy ${videoUri}`
+        } -c:v libx264 -crf 28 -preset ultrafast -vf format=yuv420p -c:a copy ${videoUri}`
       );
     } catch (e) {
       console.error("Failed to convert the video");

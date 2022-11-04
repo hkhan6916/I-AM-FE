@@ -142,7 +142,7 @@ const AddEducationModal = ({
       setPresent(!educationToEdit?.dateTo);
     } else {
       setDateTo(currentDate);
-      setDateFrom(currentDate);
+      setDateFrom(new Date().setDate(currentDate.getDate() - 1));
       setDateFromLiveSelection(currentDate);
       setDateToLiveSelection(currentDate);
     }
@@ -773,7 +773,7 @@ const AddEducationModal = ({
                       alignItems: "center",
                       backgroundColor:
                         deleted || success
-                          ? themeStyle.colors.grayscale.highest
+                          ? themeStyle.colors.grayscale.low
                           : themeStyle.colors.primary.default,
                       marginTop: 5,
                       opacity: infoIsInvalid() ? 0.5 : 1,

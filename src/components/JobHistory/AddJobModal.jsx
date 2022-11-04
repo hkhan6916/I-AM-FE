@@ -142,7 +142,7 @@ const AddJobModal = ({
       setPresent(!jobToEdit?.dateTo);
     } else {
       setDateTo(currentDate);
-      setDateFrom(jobToEdit?.dateFrom);
+      setDateFrom(new Date().setDate(currentDate.getDate() - 1));
       setDateToLiveSelection(currentDate);
       setDateFromLiveSelection(currentDate);
     }
@@ -854,6 +854,22 @@ const AddJobModal = ({
                           Hybrid
                         </Text>
                       </TouchableOpacity>
+                      {roleType ? (
+                        <TouchableOpacity
+                          style={{
+                            justifyContent: "center",
+                            flex: 1,
+                            alignItems: "center",
+                          }}
+                          onPress={() => setRoleType("")}
+                        >
+                          <AntDesign
+                            name="closecircle"
+                            size={16}
+                            color={themeStyle.colors.grayscale.high}
+                          />
+                        </TouchableOpacity>
+                      ) : null}
                     </View>
                   </View>
                 </View>
@@ -878,7 +894,7 @@ const AddJobModal = ({
                       alignItems: "center",
                       backgroundColor:
                         deleted || success
-                          ? themeStyle.colors.grayscale.highest
+                          ? themeStyle.colors.grayscale.low
                           : themeStyle.colors.primary.default,
                       marginTop: 5,
                       opacity: infoIsInvalid() ? 0.5 : 1,
