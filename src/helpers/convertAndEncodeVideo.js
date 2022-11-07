@@ -26,7 +26,7 @@ const convertAndEncodeVideo = async ({
         minimumFileSizeForCompress: 0,
       },
       (progress) => {
-        console.log({ pre_conversion_compression: progress });
+        console.log({ android_compression: progress });
       }
     ).catch((err) => {
       console.log(err);

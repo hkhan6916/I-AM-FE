@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   TextInput,
   SafeAreaView,
-  StyleSheet,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -44,7 +43,10 @@ import {
   RecyclerListView,
 } from "recyclerlistview";
 import usePersistedWebParams from "../../../helpers/hooks/usePersistedWebParams";
-import convertVideoToMp4 from "../../../helpers/convertVideoToMp4";
+import convertAndEncodeVideo from "../../../helpers/convertAndEncodeVideo";
+import { FFmpegKit } from "ffmpeg-kit-react-native";
+import { useSelector } from "react-redux";
+import getVideoCodecName from "../../../helpers/getVideoCodecName";
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -71,7 +73,15 @@ const ChatScreen = (props) => {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [thumbnail, setThumbnail] = useState("");
+  const [compressionProgress, setCompressionProgress] = useState(0);
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [processedVideoUri, setProcessedVideoUri] = useState("");
+  const [processingFile, setProcessingFile] = useState(false);
+  const [selectedMediaType, setSelectedMediaType] = useState(false);
   const [port, setPort] = useState("5000");
+
+  const isLowendDevice = useSelector((state) => state.isLowendDevice)?.state;
 
   const routeParamsObj = props.route.params;
   const persistedParams = usePersistedWebParams(routeParamsObj);
@@ -147,9 +157,9 @@ const ChatScreen = (props) => {
     setSocket(connection);
   };
 
-  const generateThumbnail = async () => {
+  const generateThumbnail = async (videoUri) => {
     try {
-      const { uri } = await getThumbnailAsync(media?.uri, {
+      const { uri } = await getThumbnailAsync(videoUri, {
         time: 0,
       });
       return uri;
@@ -253,7 +263,7 @@ const ChatScreen = (props) => {
             compressionMethod: "auto",
           },
           (progress) => {
-            // console.log({ compression: progress });
+            console.log({ compression: progress });
           }
         ).then(async (compressedUrl) => {
           const tempId = nanoid();
@@ -271,7 +281,7 @@ const ChatScreen = (props) => {
                 senderId: authInfo?.senderId,
                 user: "sender",
                 mediaUrl: media.uri,
-                mediaHeaders: {}, // recieved as null if media is video
+                mediaHeaders: {}, // received as null if media is video
                 mediaType,
                 stringTime: get12HourTime(new Date()),
                 stringDate: getNameDate(new Date()),
@@ -293,16 +303,12 @@ const ChatScreen = (props) => {
       setSendingMessage(true);
 
       let postData = {};
-      const thumbnailUrl =
-        media.type?.split("/")[0] === "video"
-          ? await generateThumbnail()
-          : null;
 
-      if (thumbnailUrl) {
+      if (thumbnail) {
         const { response, success } = await apiCall(
           "POST",
           "/files/signed-upload-url",
-          { filename: `mediaThumbnail.${thumbnailUrl.split(".").pop()}` }
+          { filename: `mediaThumbnail.${thumbnail.split(".").pop()}` }
         );
         if (!success) {
           setShowError(true);
@@ -312,8 +318,8 @@ const ChatScreen = (props) => {
         await backgroundUpload({
           filePath:
             Platform.OS == "android"
-              ? thumbnailUrl.replace("file://", "")
-              : thumbnailUrl,
+              ? thumbnail.replace("file://", "")
+              : thumbnail,
           url: response.signedUrl,
           disableLogs: true,
         });
@@ -348,7 +354,7 @@ const ChatScreen = (props) => {
           mediaHeaders: {}, // recieved as null if media is video
           mediaType: media.type?.split("/")[0],
           thumbnailUrl:
-            media.type?.split("/")[0] === "video" ? thumbnailUrl : null,
+            media.type?.split("/")[0] === "video" ? thumbnail : null,
           stringTime: get12HourTime(new Date()),
           stringDate: getNameDate(new Date()),
           createdAt: new Date(),
@@ -363,53 +369,46 @@ const ChatScreen = (props) => {
         const mediaType = media.type?.split("/")[0];
 
         if (mediaType === "video") {
-          const convertedToMp4Url =
-            media.uri?.split(".").pop() !== "mp4"
-              ? await convertVideoToMp4(media.uri)
-              : media.uri;
-          await VideoCompress.compress(
-            convertedToMp4Url,
-            {
-              compressionMethod: "auto",
-              minimumFileSizeForCompress: 20,
-              // getCancellationId: (cancellationId) =>
-              //   (cancelId = cancellationId),
-            },
-            (progress) => {
-              console.log({ videocompression: progress });
-            }
-          ).then(async (compressedUrl) => {
-            await handleBackgroundUpload(
-              compressedUrl,
-              message,
-              response._id,
-              mediaType
-            ).then((success) => {
-              if (!success) {
-                setShowError(true);
-              }
-              if (socket) {
-                const newMessages = createUpdatedMessagesArray({
-                  body: messageBody,
-                  chatId,
-                  senderId: authInfo?.senderId,
-                  user: "sender",
-                  mediaUrl: media.uri,
-                  thumbnailUrl,
-                  mediaHeaders: response.mediaHeaders,
-                  mediaType,
-                  stringTime: get12HourTime(new Date()),
-                  stringDate: getNameDate(new Date()),
-                  createdAt: new Date(),
-                  _id: response._id,
+          const convertedCodecAndCompressedUrl =
+            Platform.OS === "ios"
+              ? processedVideoUri
+              : await convertAndEncodeVideo({
+                  uri: media.uri,
+                  setProgress: setCompressionProgress,
+                  videoDuration,
                 });
+          // convertAndEncodeVideo will also compress
+          const compressedUrl = convertedCodecAndCompressedUrl;
+          await handleBackgroundUpload(
+            compressedUrl,
+            message,
+            response._id,
+            mediaType
+          ).then((success) => {
+            if (!success) {
+              setShowError(true);
+            }
+            if (socket) {
+              const newMessages = createUpdatedMessagesArray({
+                body: messageBody,
+                chatId,
+                senderId: authInfo?.senderId,
+                user: "sender",
+                mediaUrl: media.uri,
+                thumbnailUrl: thumbnail,
+                mediaHeaders: response.mediaHeaders,
+                mediaType,
+                stringTime: get12HourTime(new Date()),
+                stringDate: getNameDate(new Date()),
+                createdAt: new Date(),
+                _id: response._id,
+              });
 
-                setMessages(newMessages);
-                setMessageBody("");
-                setHeight(0);
-                setMedia({});
-              }
-            });
+              setMessages(newMessages);
+              setMessageBody("");
+              setHeight(0);
+              setMedia({});
+            }
           });
           return;
         }
@@ -447,7 +446,7 @@ const ChatScreen = (props) => {
   };
 
   const cancelUpload = async (messageId) => {
-    const { success, response, message } = await apiCall(
+    const { success } = await apiCall(
       "GET",
       `/chat/message/cancel/${messageId}`
     );
@@ -463,7 +462,7 @@ const ChatScreen = (props) => {
     }
   };
 
-  const pickImage = async () => {
+  const pickMedia = async () => {
     setShowMediaSizeError(false);
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -489,18 +488,65 @@ const ChatScreen = (props) => {
       });
 
       if (!result.cancelled) {
+        if (selectedMediaType === "video") {
+          FFmpegKit.cancel();
+        }
+        setThumbnail("");
+        setCompressionProgress(0);
+        setProcessingFile(false);
+        setSelectedMediaType("");
         const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
         setShowActions(false);
-        if (mediaSizeInMb > 50) {
+        if (mediaSizeInMb > (isLowendDevice ? 50 : 50)) {
           setShowMediaSizeError(true);
           setMedia(result);
+          return;
         } else {
           if (showMediaSizeError) {
             setShowMediaSizeError(false);
           }
           setMedia(result);
         }
+        const encoding = await getVideoCodecName(result.uri);
+        const unsupportedCodec =
+          encoding === "hevc" || encoding === "h265" || !encoding;
+        if (unsupportedCodec && Platform.OS === "android") {
+          Alert.alert(
+            "Sorry, this video is unsupported.",
+            "Please choose another video or image.",
+            [
+              {
+                text: "Cancel",
+              },
+              {
+                text: "Open files",
+                onPress: () => pickMedia(),
+              },
+            ]
+          );
+          return;
+        }
+        const mediaType = result.type.split("/")[0];
+        setSelectedMediaType(mediaType);
+        setMedia({ ...result, ...mediaInfo });
+        if (mediaType === "video") {
+          const thumbnailUri = await generateThumbnail(result.uri);
+          setThumbnail(thumbnailUri);
+          setVideoDuration(result.duration);
+          if (Platform.OS === "ios") {
+            setProcessingFile(true);
+            const convertedCodecAndCompressedUrl = await convertAndEncodeVideo({
+              uri: result.uri,
+              setProgress: setCompressionProgress,
+              videoDuration: result.duration,
+            });
+            setProcessedVideoUri(convertedCodecAndCompressedUrl);
+            setProcessingFile(false);
+          }
+        }
+
+        setShowMediaSizeError(false);
       }
     }
   };
@@ -923,13 +969,13 @@ const ChatScreen = (props) => {
                     height: 48,
                     justifyContent: "center",
                     alignItems: "center",
-                    backgroundColor: "rgba(140, 140, 140, 0.8)",
+                    backgroundColor: "rgba(140, 140, 140, 0.9)",
                     borderRadius: 50,
                     marginBottom: 5,
                   },
                   !showActions && { display: "none" },
                 ]}
-                onPress={() => pickImage()}
+                onPress={() => pickMedia()}
               >
                 <FontAwesome
                   name="photo"
@@ -946,7 +992,7 @@ const ChatScreen = (props) => {
                     height: 48,
                     justifyContent: "center",
                     alignItems: "center",
-                    backgroundColor: "rgba(140, 140, 140, 0.8)",
+                    backgroundColor: "rgba(140, 140, 140, 0.9)",
                     borderRadius: 50,
                     marginBottom: 5,
                   },
@@ -1058,7 +1104,8 @@ const ChatScreen = (props) => {
                 opacity:
                   ((!media?.uri || !media.type) && !messageBody) ||
                   userIsBlocked ||
-                  showMediaSizeError
+                  showMediaSizeError ||
+                  processingFile
                     ? 0.5
                     : 1,
               }}
@@ -1066,7 +1113,8 @@ const ChatScreen = (props) => {
                 ((!media?.uri || !media.type) && !messageBody) ||
                 userIsBlocked ||
                 creatingChat ||
-                sendingMessage | showMediaSizeError
+                sendingMessage | showMediaSizeError ||
+                processingFile
               }
               onPress={() => handleMessage()}
             >
@@ -1108,6 +1156,27 @@ const ChatScreen = (props) => {
             </View>
           ) : media?.type?.includes("video") ? (
             <View style={{ width: 200, height: 200 }}>
+              {compressionProgress && selectedMediaType === "video" ? (
+                <View style={{ width: "95%", alignSelf: "center" }}>
+                  <Text
+                    style={{
+                      color: themeStyle.colors.grayscale.lowest,
+                      textAlign: "center",
+                      marginBottom: 5,
+                    }}
+                  >
+                    Processing - {compressionProgress}%
+                  </Text>
+                  <View
+                    style={{
+                      width: `${compressionProgress || 100}%`,
+                      height: 5,
+                      backgroundColor: themeStyle.colors.secondary.default,
+                      borderRadius: 5,
+                    }}
+                  />
+                </View>
+              ) : null}
               <Video
                 useNativeControls
                 source={{ uri: media.uri }}
