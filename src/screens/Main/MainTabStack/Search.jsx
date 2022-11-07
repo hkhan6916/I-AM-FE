@@ -9,7 +9,6 @@ import {
   StyleSheet,
   SafeAreaView,
   Platform,
-  FlatList,
   Keyboard,
   Text,
   View,
@@ -33,7 +32,6 @@ import {
   DataProvider,
   LayoutProvider,
 } from "recyclerlistview";
-import { useNavigation } from "@react-navigation/native";
 
 const SearchScreen = () => {
   const [results, setResults] = useState([]);
@@ -94,7 +92,7 @@ const SearchScreen = () => {
   };
 
   const rowRenderer = useCallback(
-    (type, item, index) => {
+    (_, item) => {
       //We have only one view type so not checks are needed here
       return <SearchFeedItem post={item} />;
       // return <FastImage source={{uri:item.mediaUrl}}/>

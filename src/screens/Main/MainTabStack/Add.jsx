@@ -192,9 +192,6 @@ const AddScreen = () => {
           payload: { posted: true, type: "created" },
         });
         await handleVideoCompressionAndUpload(response.post);
-        if (Platform.OS === "android") {
-          navigation.navigate("Home");
-        }
       } else {
         dispatch({
           type: "SET_POST_CREATED",
@@ -211,6 +208,8 @@ const AddScreen = () => {
   };
 
   const handleVideoCompressionAndUpload = async (post) => {
+    navigation.navigate("Home");
+
     const convertedCodecAndCompressedUrl =
       Platform.OS === "ios"
         ? processedVideoUri
@@ -241,7 +240,12 @@ const AddScreen = () => {
       : file?.uri;
 
     const headers = {};
-
+    setFile({});
+    setGif("");
+    setThumbnail("");
+    setCompressionProgress(0);
+    setProcessingFile(false);
+    setSelectedMediaType("");
     // Not sure why we use thi instead of the background helper but could be a good reason here.
     await compressorUpload(signedData.signedUrl, filePath, {
       httpMethod: "PUT",
@@ -292,7 +296,7 @@ const AddScreen = () => {
         setGif("");
         setThumbnail("");
         setCompressionProgress(0);
-        setProcessingFile(false);
+        setProcessingFile(Platform.OS === "ios");
         setSelectedMediaType("");
         const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
@@ -330,7 +334,6 @@ const AddScreen = () => {
           setThumbnail(thumbnailUri);
           setVideoDuration(result.duration);
           if (Platform.OS === "ios") {
-            setProcessingFile(true);
             const convertedCodecAndCompressedUrl = await convertAndEncodeVideo({
               uri: result.uri,
               setProgress: setCompressionProgress,
@@ -494,7 +497,7 @@ const AddScreen = () => {
               onChangeText={(v) => setPostBody(v)}
             />
             {compressionProgress && selectedMediaType === "video" ? (
-              <View>
+              <View style={{ width: "95%", alignSelf: "center" }}>
                 <Text
                   style={{
                     color: themeStyle.colors.grayscale.lowest,
@@ -506,10 +509,10 @@ const AddScreen = () => {
                 </Text>
                 <View
                   style={{
-                    width: `${compressionProgress || 0}%`,
+                    width: `${compressionProgress || 100}%`,
                     height: 5,
                     backgroundColor: themeStyle.colors.secondary.default,
-                    borderRadius: 20,
+                    borderRadius: 5,
                   }}
                 />
               </View>
