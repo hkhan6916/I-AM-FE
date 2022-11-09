@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -8,13 +8,13 @@ import {
 } from "react-native";
 import { Video } from "expo-av";
 import themeStyle from "../theme.style";
-import { Feather } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Feather } from "@expo/vector-icons";
 import CardImage from "./CardImage";
 import { useSelector } from "react-redux";
 const VideoPlayer = ({
   url,
   shouldPlay,
+  shouldLoad,
   showToggle,
   thumbnailUrl,
   thumbnailHeaders,
@@ -40,8 +40,11 @@ const VideoPlayer = ({
 
   const video = useRef(null);
   const [videoStatus, setVideoStatus] = useState({});
-  // const [videoDimensions, setVideoDimensions] = useState({});
   const [readyForDisplay, setReadyForDisplay] = useState(false);
+  const [play, setPlay] = useState(false);
+  const [load, setLoad] = useState(false);
+
+  const videoLoadDebounceTimeout = useRef(null);
 
   // const navigation = useNavigation();
   const handleVideoDuration = (duration) => {
@@ -59,8 +62,43 @@ const VideoPlayer = ({
     return `${hours > 0 ? `${hours}:` : ""}${minutes}:${seconds}`;
   };
 
+  useEffect(() => {
+    if (!shouldLoad && !shouldPlay && load) {
+      videoLoadDebounceTimeout.current = setTimeout(() => {
+        setLoad(false);
+      }, 2000);
+    }
+
+    if ((shouldLoad || shouldPlay) && videoLoadDebounceTimeout.current) {
+      clearTimeout(videoLoadDebounceTimeout.current);
+      videoLoadDebounceTimeout.current = null;
+    }
+
+    if (!play && shouldPlay) {
+      setPlay(true);
+      if (videoLoadDebounceTimeout.current) {
+        clearTimeout(videoLoadDebounceTimeout.current);
+      }
+      videoLoadDebounceTimeout.current = null;
+    }
+
+    if (!shouldPlay) {
+      setPlay(false);
+    }
+
+    if ((shouldLoad || shouldPlay) && !load) {
+      if (videoLoadDebounceTimeout.current) {
+        clearTimeout(videoLoadDebounceTimeout.current);
+      }
+      videoLoadDebounceTimeout.current = null;
+      setLoad(true);
+    }
+  }, [shouldPlay, shouldLoad]);
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <Text style={{ color: "red" }}>{play ? "visible" : ""}</Text>
+      <Text style={{ color: "red" }}>{load ? "nearly visible" : ""}</Text>
       <View
         style={[
           {
@@ -96,7 +134,11 @@ const VideoPlayer = ({
           </Text>
         ) : null}
         <View style={{ backgroundColor: themeStyle.colors.black }}>
-          {isUploading || isCancelled || preventPlay || disableVideo ? (
+          {/* {isUploading ||
+          isCancelled ||
+          preventPlay ||
+          disableVideo ||
+          !play ? (
             <CardImage
               mediaHeaders={thumbnailHeaders}
               mediaUrl={thumbnailUrl}
@@ -105,28 +147,32 @@ const VideoPlayer = ({
               height={height}
               width={width}
             />
-          ) : null}
-          {!isUploading && !isCancelled && !preventPlay && !disableVideo ? (
+          ) : null} */}
+          {!isUploading &&
+          !isCancelled &&
+          !preventPlay &&
+          !disableVideo &&
+          load ? (
             <Video
               onReadyForDisplay={() => setReadyForDisplay(true)}
               isLooping={true}
-              shouldPlay={shouldPlay}
-              usePoster
+              shouldPlay={play}
+              // usePoster
               isMuted={!globalUnMuteVideos}
               ref={video}
-              posterSource={{ uri: thumbnailUrl, headers: thumbnailHeaders }}
-              posterStyle={[
-                {
-                  width: screenWidth,
-                  height: decidedHeight,
-                  backgroundColor: themeStyle.colors.black,
-                },
-                (!height || !width) && {
-                  width: screenWidth,
-                  height: screenWidth,
-                  aspectRatio: 1 / 1,
-                },
-              ]}
+              // posterSource={{ uri: thumbnailUrl, headers: thumbnailHeaders }}
+              // posterStyle={[
+              //   {
+              //     width: screenWidth,
+              //     height: decidedHeight,
+              //     backgroundColor: themeStyle.colors.black,
+              //   },
+              //   (!height || !width) && {
+              //     width: screenWidth,
+              //     height: screenWidth,
+              //     aspectRatio: 1 / 1,
+              //   },
+              // ]}
               // playInBackground={false}
               style={[
                 {
@@ -165,33 +211,20 @@ const VideoPlayer = ({
                 justifyContent: "center",
               }}
             >
-              <View
+              <Feather
+                name={shouldPlay && readyForDisplay ? "play" : "play"}
+                size={48}
+                color={themeStyle.colors.white}
                 style={{
-                  padding: 10,
-                  paddingLeft: 14,
-                  paddingRight: 6,
-                  borderWidth: 3,
-                  borderColor: themeStyle.colors.white,
-                  borderRadius: 50,
-                  alignItems: "center",
-                  justifyContent: "center",
+                  color: themeStyle.colors.white,
+                  textShadowOffset: {
+                    width: 1,
+                    height: 1,
+                  },
+                  textShadowRadius: 20,
+                  textShadowColor: themeStyle.colors.black,
                 }}
-              >
-                <Feather
-                  name={shouldPlay && readyForDisplay ? "pause" : "play"}
-                  size={48}
-                  color={themeStyle.colors.white}
-                  style={{
-                    color: themeStyle.colors.white,
-                    textShadowOffset: {
-                      width: 1,
-                      height: 1,
-                    },
-                    textShadowRadius: 20,
-                    textShadowColor: themeStyle.colors.black,
-                  }}
-                />
-              </View>
+              />
             </View>
           ) : null}
 
@@ -290,5 +323,6 @@ export default React.memo(
   (prevProps, nextProps) =>
     prevProps.url === nextProps.url &&
     prevProps.shouldPlay === nextProps.shouldPlay &&
+    prevProps.shouldLoad === nextProps.shouldLoad &&
     prevProps.unMute === nextProps.unMute
 );

@@ -22,6 +22,7 @@ const PostCard = ({
   post,
   isPreview = false,
   isVisible,
+  isNearlyVisible,
   setShowPostOptions,
   // adsManager,
   screenWidth,
@@ -166,6 +167,7 @@ const PostCard = ({
                     <VideoPlayer
                       disableVideo={disableVideo || Platform.OS === "web"}
                       shouldPlay={isVisible}
+                      shouldLoad={isNearlyVisible}
                       mediaIsSelfie={post.mediaIsSelfie}
                       url={post.mediaUrl}
                       thumbnailUrl={post.thumbnailUrl}
@@ -298,6 +300,7 @@ export default React.memo(
   PostCard,
   (prevProps, nextProps) =>
     prevProps.isVisible === nextProps.isVisible &&
+    prevProps.isNearlyVisible === nextProps.isNearlyVisible &&
     prevProps.post === nextProps.post &&
     prevProps.deleted === nextProps.deleted
 );

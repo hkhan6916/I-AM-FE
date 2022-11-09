@@ -52,6 +52,7 @@ const HomeScreen = () => {
   const [error, setError] = useState("");
   const [feedError, setFeedError] = useState("");
   const [currentVisible, setCurrentVisible] = useState(0);
+  const [nextVisible, setNextVisible] = useState(0);
   const [prevVisible, setPrevVisible] = useState(0);
   const navigation = useNavigation();
   const listRef = useRef(null);
@@ -61,6 +62,8 @@ const HomeScreen = () => {
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
   const maxWidth = Math.min(screenWidth, 900);
+
+  const isLowendDevice = useSelector((state) => state.isLowendDevice)?.state;
 
   const mobileSpecificListProps =
     Platform.OS !== "web"
@@ -287,6 +290,16 @@ const HomeScreen = () => {
             !extendedState.scrolling &&
             isFocussed
           }
+          isNearlyVisible={
+            extendedState.nextVisible === index &&
+            !extendedState.scrolling &&
+            isFocussed
+          }
+          // }
+          // isNearlyVisible={
+          //   Math.abs(extendedState.currentVisible - (index || 0)) <= 1
+          // }
+          disableVideo={isLowendDevice}
           setUnMuteVideos={handleUnMute}
           currentVisible={extendedState.currentVisible}
           index={index}
@@ -418,6 +431,7 @@ const HomeScreen = () => {
             // initialRenderIndex={currentVisible + 1}
             extendedState={{
               currentVisible: canPlayFeedVideos ? currentVisible : null,
+              nextVisible: canPlayFeedVideos ? nextVisible : null,
               scrolling: canPlayFeedVideos ? scrolling : null,
             }}
             rowRenderer={rowRenderer}
@@ -437,9 +451,13 @@ const HomeScreen = () => {
               }
             }}
             onVisibleIndicesChanged={async (items) => {
-              if (typeof items[0] === "number" && items[0] !== currentVisible) {
-                setCurrentVisible(items[0]);
-              }
+              // if (
+              //   (typeof items[0] === "number" && items[0] !== currentVisible) ||
+              //   (typeof items[1] === "number" && items[1] !== nextVisible)
+              // ) {
+              setCurrentVisible(items[0]);
+              setNextVisible(items[1] || items[0]);
+              // }
             }}
             scrollViewProps={{
               contentContainerStyle: {
