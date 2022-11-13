@@ -15,7 +15,7 @@ import { useColorScheme } from "react-native";
 import { deleteUserSearchHistoryTable } from "../helpers/sqlite/userSearchHistory";
 import { openDatabase } from "expo-sqlite";
 import NetInfo from "@react-native-community/netinfo";
-import { getTotalMemory } from "react-native-device-info";
+import { totalMemory } from "expo-device";
 
 const Screens = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -169,10 +169,9 @@ const Screens = () => {
   useEffect(() => {
     (async () => {
       if (Platform.OS === "android") {
-        const ram = await getTotalMemory();
-        if (!ram) return;
-        // if android phone has less than 6gb ram, don't play feed videos and mark as low end device
-        if (ram / 1000000 < 6000) {
+        const ram = totalMemory;
+        // if android phone has less than 5gb ram or ram is undefined, don't play feed videos and mark as low end device.
+        if (!ram || ram / 1000000000 < 5) {
           dispatch({ type: "SET_CAN_PLAY_FEED_VIDEOS", payload: false });
           dispatch({ type: "SET_IS_LOW_END_DEVICE", payload: true });
         }

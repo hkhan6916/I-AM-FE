@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import themeStyle from "../theme.style";
 import { Image } from "react-native";
 
@@ -12,6 +12,7 @@ const CardImage = ({
   isFull = false,
   style,
 }) => {
+  const [load, setLoad] = useState(false);
   const calculatedImage =
     height && width && (Number(height) / Number(width)) * screenWidth;
 
@@ -19,6 +20,7 @@ const CardImage = ({
     calculatedImage < screenHeight / 1.4 ? calculatedImage : screenHeight / 1.4;
   return (
     <Image
+      onLoad={() => setLoad(true)}
       source={{
         uri: mediaUrl,
         headers: mediaHeaders,
@@ -28,7 +30,9 @@ const CardImage = ({
         {
           width: screenWidth,
           height: isFull ? screenHeight / 1.2 : decidedHeight,
-          backgroundColor: themeStyle.colors.black,
+          backgroundColor: load
+            ? themeStyle.colors.black
+            : themeStyle.colors.mediaLoad,
         },
         (!height || !width) && {
           width: screenWidth,

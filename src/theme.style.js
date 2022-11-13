@@ -34,6 +34,7 @@ const themeStyle =
           },
           black: "#000000",
           white: "#FFFFFF",
+          mediaLoad: "rgba(50,50,50,1)",
         },
       }
     : {
@@ -68,6 +69,7 @@ const themeStyle =
           },
           black: "#000000",
           white: "#FFFFFF",
+          mediaLoad: "rgba(168,168,168,1)",
         },
       };
 export default themeStyle;

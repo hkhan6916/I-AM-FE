@@ -81,7 +81,7 @@ const ChatScreen = (props) => {
   const [selectedMediaType, setSelectedMediaType] = useState(false);
   const [port, setPort] = useState("5000");
 
-  const isLowendDevice = useSelector((state) => state.isLowendDevice)?.state;
+  const isLowendDevice = useSelector((state) => state.isLowEndDevice)?.state;
 
   const routeParamsObj = props.route.params;
   const persistedParams = usePersistedWebParams(routeParamsObj);

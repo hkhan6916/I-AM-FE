@@ -77,7 +77,7 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
                   />
                 </TouchableOpacity>
               </View>
-              <ExpoVideoPlayer uri={mediaUrl} />
+              <ExpoVideoPlayer uri={mediaUrl} enableIOSNativeControls />
             </View>
           </SafeAreaView>
         </Modal>

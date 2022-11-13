@@ -39,7 +39,7 @@ import { getInfoAsync } from "expo-file-system";
 import webPersistUserData from "../../../helpers/webPersistUserData";
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 import CameraStandard from "../../../components/CameraStandard";
-import convertVideoToMp4 from "../../../helpers/convertVideoToMp4";
+import convertAndEncodeVideo from "../../../helpers/convertAndEncodeVideo";
 import generateGif from "../../../helpers/generateGif";
 import { FileSystemUploadType, uploadAsync } from "expo-file-system";
 
@@ -91,7 +91,6 @@ const EditUserDetailsScreen = () => {
 
   const [showUpdatedPill, setShowUpdatedPill] = useState(false);
   const [pickedFromCameraRoll, setPickedFromCameraRoll] = useState(false);
-  const [gif, setGif] = useState("");
 
   const [typingStatus, setTypingStatus] = useState({
     name: "",
@@ -100,6 +99,7 @@ const EditUserDetailsScreen = () => {
   });
 
   const existingNativeUserData = useSelector((state) => state.userData);
+  const isLowendDevice = useSelector((state) => state.isLowEndDevice)?.state;
 
   const userdata =
     Platform.OS === "web"
@@ -143,11 +143,13 @@ const EditUserDetailsScreen = () => {
         setShowProfileVideoOptions(false);
         const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
-        if (mediaSizeInMb > 50) {
+        if (mediaSizeInMb > (isLowendDevice ? 30 : 50)) {
           setShowVideoSizeError(true);
           Alert.alert(
             `Unable to process this ${type}`,
-            `This ${type} is too large. Please choose a ${type} that is 50MB or smaller in size.`,
+            `This ${type} is too large. Please choose a ${type} that is ${
+              isLowendDevice ? "30" : "50"
+            }MB or smaller in size.`,
             [
               {
                 text: "Cancel",
@@ -167,6 +169,7 @@ const EditUserDetailsScreen = () => {
         setShowVideoSizeError(false);
         if (type === "video") {
           setProfileVideo(result.uri);
+          setProfileImage("");
         } else {
           setProfileImage(result.uri);
           await handleFaceDetection(0, result.uri);
@@ -279,12 +282,29 @@ const EditUserDetailsScreen = () => {
     return validationResult;
   };
 
+  const dataHasChanged = () => {
+    const existingUserData = initialProfileData;
+    if (
+      profileImage ||
+      profileVideo ||
+      (username && username !== existingUserData?.username) ||
+      (firstName && firstName !== existingUserData?.firstName) ||
+      (lastName && lastName !== existingUserData?.lastName) ||
+      (jobTitle && jobTitle !== existingUserData?.jobTitle) ||
+      (email && email !== existingUserData?.email) ||
+      password
+    )
+      return true;
+    return false;
+  };
+
   const handleSignedUploads = async (
     options,
     signedData,
     ignoreUpdateCall = false
   ) => {
     try {
+      if (!profileImage && !profileVideo) return;
       const response = await uploadAsync(options.url, options.path, {
         fieldName: "file",
         httpMethod: options.method,
@@ -402,11 +422,15 @@ const EditUserDetailsScreen = () => {
         }
       }
 
+      // need to make sure we don't just check extension but the actual encoding using ffprobe
       const validVideoTypes = ["mp4", "webm"];
       const profileVideoUri = !validVideoTypes.includes(
         profileVideo?.split(".")[1]
       )
-        ? await convertVideoToMp4(profileVideo)
+        ? await convertAndEncodeVideo({
+            uri: profileVideo,
+            isProfileVideo: true,
+          })
         : profileVideo;
 
       const gifUri = profileVideo ? await generateGif(profileVideoUri) : null;
@@ -651,11 +675,15 @@ const EditUserDetailsScreen = () => {
                     initialProfileData.profileImageUrl) ? (
                     <View>
                       <Image
-                        source={{
-                          uri:
-                            profileImage || initialProfileData?.profileImageUrl,
-                          headers: initialProfileData?.profileImageHeaders,
-                        }}
+                        source={
+                          profileImage
+                            ? { uri: profileImage }
+                            : {
+                                uri: initialProfileData?.profileImageUrl,
+                                headers:
+                                  initialProfileData?.profileImageHeaders,
+                              }
+                        }
                         style={{
                           height: screenWidth,
                           width: screenWidth,
@@ -990,7 +1018,7 @@ const EditUserDetailsScreen = () => {
                         size={14}
                         color={themeStyle.colors.grayscale.lowest}
                       />{" "}
-                      Add profile photo
+                      Add profile image
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -1203,7 +1231,7 @@ const EditUserDetailsScreen = () => {
                       - Must container an uppercase character
                     </Text>
                     <Text style={styles.errorText}>
-                      - Must container an lowercase character
+                      - Must contain a lowercase character
                     </Text>
                     <Text style={styles.errorText}>
                       - Must container a number
@@ -1221,7 +1249,8 @@ const EditUserDetailsScreen = () => {
                 (((profileVideo || profileImage) && !faceDetected) ||
                   Object.keys(validationErrors).length ||
                   detectingFaces ||
-                  loadingVideo) && { opacity: 0.3 },
+                  loadingVideo ||
+                  !dataHasChanged()) && { opacity: 0.3 },
               ]}
             >
               <TouchableOpacity
@@ -1231,7 +1260,8 @@ const EditUserDetailsScreen = () => {
                   ((profileVideo || profileImage) && !faceDetected) ||
                   Object.keys(validationErrors).length ||
                   detectingFaces ||
-                  loadingVideo
+                  loadingVideo ||
+                  !dataHasChanged()
                 }
               >
                 {isUpdating && (profileVideo || profileImage) ? (

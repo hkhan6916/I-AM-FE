@@ -1,10 +1,11 @@
 import React from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+import { View, TouchableOpacity, Text, Platform } from "react-native";
 import themeStyle from "../theme.style";
 import Avatar from "./Avatar";
 import { Feather } from "@expo/vector-icons";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import Image from "./Image";
+import FastImage from "react-native-fast-image";
 
 const SearchFeedItem = ({ post }) => {
   const navigation = useNavigation();
@@ -33,23 +34,39 @@ const SearchFeedItem = ({ post }) => {
             opacity: 1,
           }}
         >
-          <Image
-            source={{
-              uri: post.thumbnailUrl || post.mediaUrl,
-              headers: post.thumbnailHeaders || post.mediaHeaders,
-            }}
-            style={{
-              width: 146,
-              height: 146,
-              opacity: 1,
-              backgroundColor: themeStyle.colors.grayscale.high,
-            }}
-            webProps={{
-              style: {
-                objectFit: "cover",
-              },
-            }}
-          />
+          {Platform.OS === "ios" ? ( // bug with ios where scrolling causes images to switch and glitch, so using fast image until issue can be fixed.
+            <FastImage
+              source={{
+                uri: post.thumbnailUrl || post.mediaUrl,
+                headers: post.thumbnailHeaders || post.mediaHeaders,
+                cache: "web",
+              }}
+              style={{
+                width: 146,
+                height: 146,
+                opacity: 1,
+                backgroundColor: themeStyle.colors.grayscale.high,
+              }}
+            />
+          ) : (
+            <Image
+              source={{
+                uri: post.thumbnailUrl || post.mediaUrl,
+                headers: post.thumbnailHeaders || post.mediaHeaders,
+              }}
+              style={{
+                width: 146,
+                height: 146,
+                opacity: 1,
+                backgroundColor: themeStyle.colors.grayscale.high,
+              }}
+              webProps={{
+                style: {
+                  objectFit: "cover",
+                },
+              }}
+            />
+          )}
           <View style={{ flexDirection: "row", flex: 1 }}>
             <Text
               style={{

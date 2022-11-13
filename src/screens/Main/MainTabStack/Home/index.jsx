@@ -35,7 +35,9 @@ const { statusBarHeight } = Constants;
 const HomeScreen = () => {
   const dispatch = useDispatch();
   const newPostCreated = useSelector((state) => state.postCreated);
-  const canPlayFeedVideos = useSelector((state) => state.canPlayFeedVideos);
+  const canPlayFeedVideos = useSelector(
+    (state) => state.canPlayFeedVideos
+  )?.state;
 
   const [isFocussed, setFocussed] = useState(false);
   const [feed, setFeed] = useState(null);
@@ -63,7 +65,7 @@ const HomeScreen = () => {
 
   const maxWidth = Math.min(screenWidth, 900);
 
-  const isLowendDevice = useSelector((state) => state.isLowendDevice)?.state;
+  const isLowendDevice = useSelector((state) => state.isLowEndDevice)?.state;
 
   const mobileSpecificListProps =
     Platform.OS !== "web"

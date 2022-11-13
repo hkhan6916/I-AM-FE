@@ -23,7 +23,6 @@ import ImageWithCache from "../../../components/ImageWithCache";
 import * as ImagePicker from "expo-image-picker";
 import { getInfoAsync } from "expo-file-system";
 import {
-  Video as VideoCompress,
   Image as ImageCompress,
   backgroundUpload as compressorUpload,
 } from "react-native-compressor";
@@ -68,8 +67,7 @@ const AddScreen = () => {
 
   const dispatch = useDispatch();
 
-  const isLowendDevice = useSelector((state) => state.isLowendDevice)?.state;
-
+  const isLowendDevice = useSelector((state) => state.isLowEndDevice)?.state;
   const createPostData = async () => {
     let postData = {};
     if (postBody) {
@@ -88,7 +86,7 @@ const AddScreen = () => {
         ///here, need to upload figure out how to upload thumbnails
 
         // just adds thumbnail for videos. We add the rest of the media later.
-        const thumbnailUri = await generateThumbnail(uri);
+        const thumbnailUri = thumbnail || (await generateThumbnail(uri));
         const thumbnailFormat = thumbnailUri.split(".").pop();
 
         // get signed url for uploading thumbnail
@@ -161,10 +159,10 @@ const AddScreen = () => {
     return postData;
   };
 
-  const generateThumbnail = async (path) => {
+  const generateThumbnail = async (path, duration) => {
     try {
       const { uri } = await getThumbnailAsync(path || file.uri, {
-        time: 0,
+        time: (duration || 0) / 2,
         quality: 0.5,
       });
       return uri;
@@ -288,6 +286,7 @@ const AddScreen = () => {
         quality: 0.3,
         allowsMultipleSelection: false,
         selectionLimit: 1,
+        videoQuality: ImagePicker.UIImagePickerControllerQualityType.Medium,
       });
       if (!result.cancelled) {
         if (selectedMediaType === "video") {
@@ -330,7 +329,10 @@ const AddScreen = () => {
         setSelectedMediaType(mediaType);
         setFile({ ...result, ...mediaInfo });
         if (mediaType === "video") {
-          const thumbnailUri = await generateThumbnail(result.uri);
+          const thumbnailUri = await generateThumbnail(
+            result.uri,
+            result.duration
+          );
           setThumbnail(thumbnailUri);
           setVideoDuration(result.duration);
           if (Platform.OS === "ios") {

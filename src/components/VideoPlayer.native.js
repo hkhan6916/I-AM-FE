@@ -93,6 +93,11 @@ const VideoPlayer = ({
       videoLoadDebounceTimeout.current = null;
       setLoad(true);
     }
+    return () => {
+      if (videoLoadDebounceTimeout.current) {
+        clearTimeout(videoLoadDebounceTimeout.current);
+      }
+    };
   }, [shouldPlay, shouldLoad]);
 
   return (
@@ -107,8 +112,8 @@ const VideoPlayer = ({
             width: Math.min(screenWidth, screenHeight), // math.min needed for when user switches back from landscape
           },
           (!height || !width) && {
-            width: screenWidth,
-            height: "100%",
+            width: Math.min(screenWidth, screenHeight),
+            height: Math.min(screenWidth, screenHeight),
             aspectRatio: 1 / 1,
           },
         ]}
@@ -134,11 +139,11 @@ const VideoPlayer = ({
           </Text>
         ) : null}
         <View style={{ backgroundColor: themeStyle.colors.black }}>
-          {/* {isUploading ||
+          {isUploading ||
           isCancelled ||
           preventPlay ||
           disableVideo ||
-          !play ? (
+          !load ? (
             <CardImage
               mediaHeaders={thumbnailHeaders}
               mediaUrl={thumbnailUrl}
@@ -146,8 +151,9 @@ const VideoPlayer = ({
               screenHeight={screenHeight}
               height={height}
               width={width}
+              style={{ backgroundColor: themeStyle.colors.black }}
             />
-          ) : null} */}
+          ) : null}
           {!isUploading &&
           !isCancelled &&
           !preventPlay &&
@@ -157,30 +163,33 @@ const VideoPlayer = ({
               onReadyForDisplay={() => setReadyForDisplay(true)}
               isLooping={true}
               shouldPlay={play}
-              // usePoster
+              usePoster
               isMuted={!globalUnMuteVideos}
               ref={video}
-              // posterSource={{ uri: thumbnailUrl, headers: thumbnailHeaders }}
-              // posterStyle={[
-              //   {
-              //     width: screenWidth,
-              //     height: decidedHeight,
-              //     backgroundColor: themeStyle.colors.black,
-              //   },
-              //   (!height || !width) && {
-              //     width: screenWidth,
-              //     height: screenWidth,
-              //     aspectRatio: 1 / 1,
-              //   },
-              // ]}
-              // playInBackground={false}
+              posterSource={{ uri: thumbnailUrl, headers: thumbnailHeaders }}
+              posterStyle={[
+                {
+                  width: Math.min(screenWidth, screenHeight),
+                  height: decidedHeight,
+                  backgroundColor: themeStyle.colors.black,
+                },
+                (!height || !width) && {
+                  width: Math.min(screenWidth, screenHeight),
+                  height: Math.min(screenWidth, screenHeight),
+                  aspectRatio: 1 / 1,
+                },
+              ]}
+              playInBackground={false}
               style={[
                 {
                   height: decidedHeight,
-                  width: Math.min(screenWidth, screenHeight), // math.min needed for when user switches back from landscape
+                  width: Math.min(
+                    Math.min(screenWidth, screenHeight),
+                    screenHeight
+                  ), // math.min needed for when user switches back from landscape
                 },
                 (!height || !width) && {
-                  width: screenWidth,
+                  width: Math.min(screenWidth, screenHeight),
                   height: "100%",
                   aspectRatio: 1 / 1,
                 },
