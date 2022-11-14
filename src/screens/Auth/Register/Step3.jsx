@@ -35,9 +35,12 @@ import webPersistUserData from "../../../helpers/webPersistUserData";
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 import CameraStandard from "../../../components/CameraStandard";
 import generateGif from "../../../helpers/generateGif";
-import convertVideoToMp4 from "../../../helpers/convertVideoToMp4";
+import convertAndEncodeVideo from "../../../helpers/convertAndEncodeVideo";
 import { FileSystemUploadType, uploadAsync } from "expo-file-system";
 import PreviewProfileImage from "../../../components/PreviewProfileImage";
+import { FFmpegKit } from "ffmpeg-kit-react-native";
+import getVideoCodecName from "../../../helpers/getVideoCodecName";
+
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -52,6 +55,8 @@ const Step1Screen = () => {
     useState(false);
   const [profileImageCameraActivated, setProfileImageCameraActivated] =
     useState(false);
+
+  const isLowendDevice = useSelector((state) => state.isLowEndDevice)?.state;
 
   const [showVideoSizeError, setShowVideoSizeError] = useState(false);
   const [tooShort, setTooShort] = useState(false);
@@ -86,11 +91,8 @@ const Step1Screen = () => {
       : existingNativeUserData;
 
   const profileMediaIsValid = () => {
-    if (profileImage && !profileVideo && faceDetected) return true;
+    if ((profileImage || profileVideo) && faceDetected) return true;
     if (tooShort || tooLong) return false;
-    if (profileVideo && faceDetected) {
-      return true;
-    }
     if (skipProfileVideo) {
       return true;
     }
@@ -164,9 +166,12 @@ const Step1Screen = () => {
     }
   };
 
-  const sendUserData = async (notificationToken) => {
+  const uploadMediaAndSendUserData = async (notificationToken) => {
     setLoading(true);
-    const profileVideoUri = await convertVideoToMp4(profileVideo);
+    const profileVideoUri = await convertAndEncodeVideo({
+      uri: profileVideo,
+      isProfileVideo: true,
+    });
     const gifUri = profileVideo ? await generateGif(profileVideoUri) : null;
 
     const { response, success } = await apiCall(
@@ -233,7 +238,7 @@ const Step1Screen = () => {
 
     setRegistrationError("");
     if ((profileVideo || profileImage) && !skipProfileVideo) {
-      await sendUserData(apiUrl, notificationToken);
+      await uploadMediaAndSendUserData(apiUrl, notificationToken);
     } else {
       setVerifying(true);
       const { response, success, message } = await apiCall(
@@ -293,7 +298,7 @@ const Step1Screen = () => {
     setDetectingFaces(true);
     if (profileImageUri) {
       const { faces } = await detectFacesAsync(profileImageUri);
-
+      console.log({ faces });
       if (faces?.length) {
         setFaceDetected(true);
       } else {
@@ -351,16 +356,20 @@ const Step1Screen = () => {
         videoMaxDuration: 30,
         allowsEditing: false,
       });
+
       if (!result.cancelled) {
+        FFmpegKit.cancel();
         setShowProfileImageOptions(false);
         setShowProfileVideoOptions(false);
         const mediaInfo = await getInfoAsync(result.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
-        if (mediaSizeInMb > 50) {
+        if (mediaSizeInMb > (isLowendDevice ? 30 : 50)) {
           setShowVideoSizeError(true);
           Alert.alert(
             `Unable to process this ${type}`,
-            `This ${type} is too large. Please choose a ${type} that is 50MB or smaller in size.`,
+            `This ${type} is too large. Please choose a ${type} that is ${
+              isLowendDevice ? "30" : "50"
+            }MB or smaller in size.`,
             [
               {
                 text: "Cancel",
@@ -380,6 +389,7 @@ const Step1Screen = () => {
         setShowVideoSizeError(false);
         if (type === "video") {
           setProfileVideo(result.uri);
+          setProfileImage("");
         } else {
           setProfileImage(result.uri);
           await handleFaceDetection(0, result.uri);
@@ -456,7 +466,7 @@ const Step1Screen = () => {
     return (
       <ProfileVideoCamera
         setRecording={setRecording}
-        setProfileVideo={(video) => {
+        setProfileVideo={async (video) => {
           setPickedFromCameraRoll(false);
           setProfileVideo(video);
           setProfileImage("");
@@ -859,7 +869,7 @@ const Step1Screen = () => {
                       size={14}
                       color={themeStyle.colors.grayscale.lowest}
                     />{" "}
-                    Add profile photo
+                    Add profile image
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -934,7 +944,9 @@ const Step1Screen = () => {
               styles.registrationButton,
               {
                 opacity:
-                  !profileMediaIsValid() || (profileVideo && loadingVideo)
+                  !profileMediaIsValid() ||
+                  (profileVideo && loadingVideo) ||
+                  verifying
                     ? 0.5
                     : 1,
                 minWidth: 100,

@@ -36,7 +36,7 @@ const RegisterStack = () => (
     <Stack.Screen
       options={{
         headerShown: true,
-        title: "Profile Video",
+        title: "Add a face",
         headerTintColor: themeStyle.colors.primary.default,
       }}
       name="Step3"

@@ -5,8 +5,9 @@ import { Video as VideoCompress } from "react-native-compressor";
 const generateGif = async (uri) => {
   if (!uri) return null;
 
+  // We need to call this as we don't use aggressive compression on profile videos. We only call this if file size is larger than 5mb.
   let videoUri = await VideoCompress.compress(
-    uri,
+    Platform.OS == "android" ? uri?.replace("file://", "") : uri,
     {
       compressionMethod: "auto",
       minimumFileSizeForCompress: 5,
@@ -17,7 +18,6 @@ const generateGif = async (uri) => {
   );
 
   if (!videoUri) return;
-
   videoUri =
     Platform.OS == "android" ? videoUri?.replace("file://", "") : videoUri;
 

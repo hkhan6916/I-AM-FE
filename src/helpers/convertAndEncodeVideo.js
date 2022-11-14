@@ -1,6 +1,8 @@
 import { FFmpegKit, FFmpegKitConfig } from "ffmpeg-kit-react-native";
-import { Platform } from "react-native";
+import { Alert, Platform } from "react-native";
 import { Video as VideoCompress } from "react-native-compressor";
+import { getInfoAsync } from "expo-file-system";
+import getVideoCodecName from "./getVideoCodecName";
 
 /**
  * FLAG: -pix_fmt yuv420p
@@ -12,27 +14,71 @@ const convertAndEncodeVideo = async ({
   setProgress,
   videoDuration,
 }) => {
-  if (!uri) return null;
+  if (!uri) {
+    console.log("No URI provided.");
+    return null;
+  }
+  const mediaInfo = await getInfoAsync(uri);
+  const mediaSizeInMb = mediaInfo.size / 1000000;
+  if (mediaSizeInMb >= 200) {
+    Alert.alert(
+      `Unable to process this video`,
+      `This video is too large. Please choose or record another video.`,
+      [
+        {
+          text: "Close",
+        },
+      ]
+    );
+    return;
+  }
   /**
    * Android
    *
-   * We simply compress as we will not be allowing hevc/h265 encoded video since it's rare and ffmpeg is does not run correctly in the background on android.
+   * We simply compress. We will not be allowing hevc/h265 encoded video since it's rarely stored on android phones. We run ffmpeg for larger files as it's faster but standard compressor for smaller files for improved quality and background running on android.
    */
   if (Platform.OS === "android") {
-    const videoUri = await VideoCompress.compress(
-      uri,
-      {
-        compressionMethod: isProfileVideo ? "manual" : "auto",
-        minimumFileSizeForCompress: 0,
-      },
-      (progress) => {
-        console.log({ android_compression: progress });
+    const encoding = await getVideoCodecName(uri);
+
+    // Checks if encoding is unsupported by standard compressor
+    const requiresFFMPEG = ["aac"].includes(encoding);
+
+    // if small profile video, use standard compression
+    if (!requiresFFMPEG && mediaSizeInMb <= 25) {
+      const videoUri = await VideoCompress.compress(
+        uri,
+        {
+          compressionMethod: isProfileVideo ? "manual" : "auto",
+          minimumFileSizeForCompress: 0,
+        },
+        (progress) => {
+          console.log({ android_compression: progress });
+        }
+      ).catch((err) => {
+        console.log(err);
+        // TODO:maybe show notification here?
+      });
+      const exists = await getInfoAsync(videoUri);
+      if (!exists) {
+        return null;
       }
-    ).catch((err) => {
-      console.log(err);
-      // TODO:maybe show notification here?
-    });
-    return videoUri;
+
+      return videoUri;
+    }
+
+    // if small profile video, use ffmpeg compression
+    const oldFilename = uri.replace(/^.*[\\\/]/, "");
+    const oldBaseDir = uri.split(oldFilename)[0];
+    const oldNewFileName = `processed${oldFilename}`;
+    let resizedUri = oldBaseDir + oldNewFileName;
+
+    await FFmpegKit.execute(
+      `-y -i ${
+        Platform.OS == "android" ? uri?.replace("file://", "") : uri
+      } -vf "scale=trunc(iw/5)*2:trunc(ih/5)*2" -c:a copy ${resizedUri}`
+    );
+
+    return resizedUri;
   }
 
   /**
@@ -62,7 +108,9 @@ const convertAndEncodeVideo = async ({
       await FFmpegKit.execute(
         `-y -i ${
           Platform.OS == "android" ? uri?.replace("file://", "") : uri
-        } -c:v libx264 -crf 28 -preset ultrafast -vf format=yuv420p -c:a copy ${videoUri}`
+        } -c:v libx264 -crf ${
+          isProfileVideo ? "28" : "36"
+        } -preset ultrafast -vf format=yuv420p -c:a copy ${videoUri}`
       );
     } catch (e) {
       console.error("Failed to convert the video");
