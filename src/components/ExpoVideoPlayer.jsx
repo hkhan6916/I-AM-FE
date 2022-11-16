@@ -4,6 +4,7 @@ import VideoPlayer from "expo-video-player";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
 import { useNavigation } from "@react-navigation/native";
 import { Video } from "expo-av";
+import * as ScreenOrientation from "expo-screen-orientation";
 
 const ExpoVideoPlayer = ({
   uri,

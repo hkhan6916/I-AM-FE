@@ -12,6 +12,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import AnimatedLottieView from "lottie-react-native";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
+import { BlurView } from "expo-blur";
 
 const PreviewVideo = ({
   uri,
@@ -186,7 +187,7 @@ const PreviewVideo = ({
             resizeMode="cover"
           />
           {!videoStatus.isPlaying ? (
-            <View
+            <BlurView
               style={{
                 position: "absolute",
                 alignItems: "center",
@@ -196,9 +197,9 @@ const PreviewVideo = ({
                 borderColor: themeStyle.colors.primary.default,
                 borderRadius: isFullWidth ? 0 : 10,
                 backgroundColor: themeStyle.colors.grayscale.lowest,
-                opacity: 0.7,
                 padding: 2,
               }}
+              intensity={250}
             >
               {ready ? (
                 <Text
@@ -208,20 +209,20 @@ const PreviewVideo = ({
                     fontSize: 20,
                     textAlign: "center",
                     width: screenWidth,
-                    color: themeStyle.colors.secondary.default,
-                    opacity: 0.7,
+                    color: themeStyle.colors.primary.default,
+                    opacity: 1,
                     textShadowOffset: {
                       width: 1,
                       height: 1,
                     },
                     textShadowRadius: 9,
-                    textShadowColor: themeStyle.colors.secondary.bright,
+                    textShadowColor: "rgba(0,0,0,0.2)",
                   }}
                 >
                   {previewText || "Tap to preview"}
                 </Text>
               ) : null}
-            </View>
+            </BlurView>
           ) : null}
           {!ready && Platform.OS !== "web" ? (
             <AnimatedLottieView

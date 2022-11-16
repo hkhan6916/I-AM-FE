@@ -404,7 +404,15 @@ const CameraStandard = ({
           name="chevron-back"
           size={30}
           color={themeStyle.colors.grayscale.low}
-          style={styles.iconShadow}
+          style={{
+            color: themeStyle.colors.white,
+            textShadowOffset: {
+              width: 1,
+              height: 1,
+            },
+            textShadowRadius: 8,
+            textShadowColor: themeStyle.colors.black,
+          }}
         />
       </TouchableOpacity>
       {device != null && (

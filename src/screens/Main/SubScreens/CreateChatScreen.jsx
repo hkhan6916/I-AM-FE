@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Keyboard,
   Dimensions,
-  RefreshControl,
   ActivityIndicator,
   Platform,
 } from "react-native";
@@ -35,7 +34,8 @@ const CreateChatScreen = () => {
   const [error, setError] = useState(false);
   const [searchedContacts, setSearchedContacts] = useState([]);
   const [offsets, setOffsets] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loadingScreen, setLoadingScreen] = useState(false);
+  const [loadingContacts, setLoadingContacts] = useState(false);
 
   const onEndReachedCalledDuringMomentum = useRef(false);
 
@@ -56,6 +56,7 @@ const CreateChatScreen = () => {
   };
 
   const getUserContacts = async () => {
+    setLoadingContacts(true);
     const { success, response } = await apiCall(
       "POST",
       `/user/friend/fetch/all`,
@@ -68,6 +69,7 @@ const CreateChatScreen = () => {
     } else {
       setError(true);
     }
+    setLoadingContacts(false);
   };
 
   const handleChatNavigation = async (chatUserId, chatUserFirstName) => {
@@ -115,13 +117,17 @@ const CreateChatScreen = () => {
     [contacts]
   );
 
+  const renderFooter = useCallback(
+    () => <ActivityIndicator size={"small"} animating={loadingContacts} />,
+    [loadingContacts]
+  );
   useEffect(() => {
     isMounted.current = true;
     (async () => {
       if (userData?.profileVideoUrl || userData?.profileImageUrl) {
-        setLoading(true);
+        setLoadingScreen(true);
         await getUserContacts();
-        setLoading(false);
+        setLoadingScreen(false);
       }
     })();
     return () => {
@@ -129,7 +135,7 @@ const CreateChatScreen = () => {
     };
   }, []);
 
-  if (loading) {
+  if (loadingScreen) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator
@@ -173,6 +179,7 @@ const CreateChatScreen = () => {
               onEndReachedCalledDuringMomentum.current = true;
             }
           }}
+          renderFooter={renderFooter}
           layoutProvider={layoutProvider}
           onEndReachedThreshold={0.5}
           scrollViewProps={{

@@ -194,7 +194,7 @@ const EditUserDetailsScreen = () => {
 
       return;
     }
-    if (Number(duration) > 30000 && !profileImageUri) {
+    if (Number(duration) > 32000 && !profileImageUri) {
       setDetectingFaces(false);
       setLoadingVideo(false);
       setTooLong(true);

@@ -39,7 +39,6 @@ import convertAndEncodeVideo from "../../../helpers/convertAndEncodeVideo";
 import { FileSystemUploadType, uploadAsync } from "expo-file-system";
 import PreviewProfileImage from "../../../components/PreviewProfileImage";
 import { FFmpegKit } from "ffmpeg-kit-react-native";
-import getVideoCodecName from "../../../helpers/getVideoCodecName";
 
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
@@ -289,7 +288,7 @@ const Step1Screen = () => {
       setTooShort(true);
       return;
     }
-    if (Number(duration) > 30000 && !profileImageUri) {
+    if (Number(duration) > 32000 && !profileImageUri) {
       setDetectingFaces(false);
       setLoadingVideo(false);
       setTooLong(true);
@@ -445,8 +444,10 @@ const Step1Screen = () => {
           {profileImage || profileVideo ? (
             <Text style={{ fontSize: 12 }}>
               {profileImage
-                ? "(This should takes less than 5 seconds.)"
-                : "(This usually takes less than 15 seconds.)"}
+                ? "(This usually takes less than 5 seconds.)"
+                : profileVideo
+                ? "(Processing your profile video.)"
+                : ""}
             </Text>
           ) : null}
         </Text>
@@ -557,11 +558,14 @@ const Step1Screen = () => {
                     fontWeight: "700",
                     fontSize: 16,
                     alignSelf: "flex-start",
-                    marginBottom: 10,
+                    marginBottom: 20,
                     color: themeStyle.colors.grayscale.lowest,
                   }}
                 >
-                  Some things you could mention about yourself:
+                  Having trouble making a profile video?
+                </Text>
+                <Text style={[styles.helpModalListItem, { marginBottom: 10 }]}>
+                  Below are some things you can talk about:
                 </Text>
                 <Text style={styles.helpModalListItem}>
                   - Your job title and role
@@ -848,6 +852,25 @@ const Step1Screen = () => {
                       </>
                     )}
                   </View>
+                  <TouchableOpacity
+                    style={{
+                      marginHorizontal: 20,
+                      marginBottom: 30,
+                      width: "100%",
+                      opacity: skipProfileVideo ? 0.1 : 1,
+                    }}
+                    onPress={() => setShowHelpModal(true)}
+                    disabled={skipProfileVideo}
+                  >
+                    <Text
+                      style={{
+                        color: themeStyle.colors.secondary.default,
+                        fontWeight: "700",
+                      }}
+                    >
+                      Need ideas?
+                    </Text>
+                  </TouchableOpacity>
                 </SafeAreaView>
               </Modal>
               <View style={{ marginTop: 20 }}>
@@ -988,24 +1011,6 @@ const Step1Screen = () => {
               </Text>
             </TouchableOpacity>
           ) : null}
-          <TouchableOpacity
-            style={{
-              marginVertical: 20,
-              width: "100%",
-              opacity: skipProfileVideo ? 0.1 : 1,
-            }}
-            onPress={() => setShowHelpModal(true)}
-            disabled={skipProfileVideo}
-          >
-            <Text
-              style={{
-                color: themeStyle.colors.secondary.default,
-                fontWeight: "700",
-              }}
-            >
-              Need ideas?
-            </Text>
-          </TouchableOpacity>
           {registrationError ? (
             <Text style={styles.registrationError}>{registrationError}</Text>
           ) : null}
@@ -1133,6 +1138,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 14,
     color: themeStyle.colors.grayscale.lowest,
+    marginBottom: 10,
   },
 });
 export default React.memo(Step1Screen);

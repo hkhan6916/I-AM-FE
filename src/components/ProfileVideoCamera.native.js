@@ -12,7 +12,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { Camera, useCameraDevices } from "react-native-vision-camera";
-import { EvilIcons } from "@expo/vector-icons";
+import { EvilIcons, Ionicons } from "@expo/vector-icons";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import Constants from "expo-constants";
 import themeStyle from "../theme.style";
@@ -230,26 +230,64 @@ const ProfileVideoCamera = ({
       <StatusBar hidden />
       <View
         style={{
-          backgroundColor: themeStyle.colors.grayscale.high,
-          alignSelf: "flex-end",
-          margin: 10,
-          paddingVertical: 2,
-          paddingHorizontal: 10,
-          borderRadius: 50,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          width: "100%",
           zIndex: 9999,
         }}
       >
-        <Text
+        <TouchableOpacity
+          onPress={() => {
+            setRecording(false);
+            setCameraActivated(false);
+          }}
           style={{
-            color:
-              recording && recordingLength <= 5
-                ? themeStyle.colors.error.default
-                : themeStyle.colors.white,
-            fontSize: 14,
+            height: 48,
+            width: 48,
+            margin: 10,
+            zIndex: 9999,
+            alignSelf: "flex-start",
+            justifyContent: "center",
           }}
         >
-          {recording ? `${recordingLength} seconds` : "Ready to record"}
-        </Text>
+          <Ionicons
+            name="chevron-back"
+            size={30}
+            color={themeStyle.colors.grayscale.low}
+            style={{
+              color: themeStyle.colors.white,
+              textShadowOffset: {
+                width: 1,
+                height: 1,
+              },
+              textShadowRadius: 8,
+              textShadowColor: themeStyle.colors.black,
+            }}
+          />
+        </TouchableOpacity>
+        <View
+          style={{
+            backgroundColor: themeStyle.colors.grayscale.high,
+            justifyContent: "center",
+            margin: 10,
+            paddingVertical: 2,
+            paddingHorizontal: 10,
+            borderRadius: 50,
+          }}
+        >
+          <Text
+            style={{
+              color:
+                recording && recordingLength <= 5
+                  ? themeStyle.colors.error.default
+                  : themeStyle.colors.white,
+              fontSize: 14,
+            }}
+          >
+            {recording ? `${recordingLength} seconds` : "Ready to record"}
+          </Text>
+        </View>
       </View>
       <View
         style={{

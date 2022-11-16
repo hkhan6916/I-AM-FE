@@ -38,12 +38,12 @@ const UserThumbnail = ({
     <View
       style={{
         height: height || 80,
-        paddingHorizontal: 10,
+        paddingHorizontal: 20,
       }}
     >
       <View
         style={{
-          borderBottomWidth: showSeparator ? 1 : 0,
+          borderBottomWidth: showSeparator ? 0.5 : 0,
           height: "100%",
           justifyContent: "center",
           borderColor: themeStyle.colors.grayscale.high,

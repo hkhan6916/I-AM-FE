@@ -7,6 +7,7 @@ import {
   RefreshControl,
   Dimensions,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Entypo } from "@expo/vector-icons";
@@ -28,6 +29,8 @@ const ChatListScreen = () => {
   const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [allLoaded, setAllLoaded] = useState(false);
+  const [loadingChats, setLoadingChats] = useState(false);
 
   const navigation = useNavigation();
   const nativeUserData = useSelector((state) => state.userData);
@@ -39,12 +42,18 @@ const ChatListScreen = () => {
   const { width: screenWidth } = Dimensions.get("window");
 
   const getUserChats = async () => {
+    setLoadingChats(true);
     const { response, success } = await apiCall(
       "GET",
       `/user/chats/${chats.length}`
     );
     setError(false);
+    setLoadingChats(false);
     if (success) {
+      if (!response.length) {
+        setAllLoaded(true);
+        return;
+      }
       setChats([...chats, ...response]);
     }
   };
@@ -80,6 +89,11 @@ const ChatListScreen = () => {
       />
     ),
     [chats.length]
+  );
+
+  const renderFooter = useCallback(
+    () => <ActivityIndicator size={"small"} animating={loadingChats} />,
+    [loadingChats]
   );
 
   useEffect(() => {
@@ -159,9 +173,14 @@ const ChatListScreen = () => {
           style={{ minHeight: 1, minWidth: 1 }}
           rowRenderer={rowRenderer}
           dataProvider={dataProvider}
-          onEndReached={() => getUserChats()}
+          onEndReached={() => {
+            if (!allLoaded) {
+              getUserChats();
+            }
+          }}
           layoutProvider={layoutProvider}
           onEndReachedThreshold={0.5}
+          renderFooter={renderFooter}
           scrollViewProps={{
             refreshControl: (
               <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
@@ -179,6 +198,7 @@ const ChatListScreen = () => {
           borderRadius: 100,
           borderWidth: 2,
           borderColor: themeStyle.colors.primary.default,
+          backgroundColor: themeStyle.colors.grayscale.highest,
         }}
       >
         <TouchableOpacity
