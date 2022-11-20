@@ -13,6 +13,7 @@ import {
   KeyboardAvoidingView,
   Alert,
   Image,
+  Keyboard,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
@@ -30,7 +31,9 @@ import VideoPlayer from "expo-video-player";
 import {
   AntDesign,
   Entypo,
+  Feather,
   FontAwesome5,
+  MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
@@ -206,6 +209,7 @@ const AddScreen = () => {
           type: "SET_POST_CREATED",
           payload: { posted: true, type: "created" },
         });
+        Keyboard.dismiss();
         navigation.navigate("Home");
       }
     } else {
@@ -217,6 +221,7 @@ const AddScreen = () => {
   };
 
   const handleVideoCompressionAndUpload = async (post) => {
+    Keyboard.dismiss();
     navigation.navigate("Home");
 
     const convertedCodecAndCompressedUrl =
@@ -298,7 +303,7 @@ const AddScreen = () => {
         allowsMultipleSelection: false,
         selectionLimit: 1,
         allowsEditing:
-          (Platform.OS === "ios" && type === "image") ||
+          (Platform.OS === "ios" && type === "video") ||
           Platform.OS === "android",
         mediaTypes:
           type === "image"
@@ -404,17 +409,43 @@ const AddScreen = () => {
         recording={recording}
         setCameraActive={setCameraActive}
         setFile={async (file) => {
-          setThumbnail("");
-          if (file.type?.split("/")[0] === "video") {
-            const { uri } = await getThumbnailAsync(file.uri, {
-              time: 0,
-              quality: 0.5,
-            });
-            setThumbnail(uri);
-          }
-          setFile(file);
           setGif("");
-          setLoading(false);
+          setThumbnail("");
+          setCompressionProgress(0);
+          setSelectedMediaType("");
+          const mediaInfo = await getInfoAsync(file.uri);
+          const mediaSizeInMb = mediaInfo.size / 1000000;
+          if (mediaSizeInMb > (isLowendDevice ? 50 : 100)) {
+            setShowMediaSizeError(true);
+            setFile({ uri: "none" });
+            setLoading(false);
+            return;
+          }
+          const mediaType = file.type?.split("/")[0];
+          setSelectedMediaType(mediaType);
+          setFile({ ...file, ...mediaInfo });
+
+          if (mediaType === "video") {
+            setProcessingFile(Platform.OS === "ios" && mediaType === "video");
+
+            const thumbnailUri = await generateThumbnail(
+              file.uri,
+              file.media.duration
+            );
+            setThumbnail(thumbnailUri);
+            setVideoDuration(file.media.duration);
+            if (Platform.OS === "ios") {
+              const convertedCodecAndCompressedUrl =
+                await convertAndEncodeVideo({
+                  uri: file.uri,
+                  setProgress: setCompressionProgress,
+                  videoDuration: file.media.duration,
+                });
+              setProcessedVideoUri(convertedCodecAndCompressedUrl);
+              setProcessingFile(false);
+            }
+            setProcessingFile(false);
+          }
         }}
         setRecording={setRecording}
       />
@@ -469,38 +500,42 @@ const AddScreen = () => {
               }
               onPress={() => handlePostCreation()}
             >
-              {loading ? (
-                <ActivityIndicator
-                  animating
-                  color={themeStyle.colors.secondary.default}
-                  size={"small"}
-                />
-              ) : (
-                <View
-                  style={{
-                    backgroundColor: themeStyle.colors.primary.default,
-                    paddingHorizontal: 10,
-                    paddingVertical: 5,
-                    borderRadius: 20,
-                    opacity:
-                      (!file?.uri && !postBody && !gif) ||
-                      showMediaSizeError ||
-                      loadingVideo ||
-                      processingFile
-                        ? 0.5
-                        : 1,
-                  }}
-                >
+              <View
+                style={{
+                  backgroundColor: themeStyle.colors.primary.default,
+                  paddingHorizontal: 10,
+                  paddingVertical: 5,
+                  borderRadius: 20,
+                  width: 75,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: 36,
+                  opacity:
+                    (!file?.uri && !postBody && !gif) ||
+                    showMediaSizeError ||
+                    loadingVideo ||
+                    processingFile
+                      ? 0.5
+                      : 1,
+                }}
+              >
+                {loading ? (
+                  <ActivityIndicator
+                    animating
+                    color={themeStyle.colors.white}
+                    size={"small"}
+                  />
+                ) : (
                   <Text
                     style={{
-                      fontSize: 18,
+                      fontSize: 16,
                       color: themeStyle.colors.white,
                     }}
                   >
                     Create
                   </Text>
-                </View>
-              )}
+                )}
+              </View>
             </TouchableOpacity>
           </View>
           {postBody.length >= 2000 - 25 ? (
@@ -510,7 +545,6 @@ const AddScreen = () => {
           ) : null}
           <ScrollView contentContainerStyle={{ padding: 10 }}>
             <TextInput
-              autoFocus
               style={{
                 minHeight: Platform.OS === "web" ? screenHeight / 2 : 100,
                 textAlignVertical: "top",
@@ -725,8 +759,6 @@ const AddScreen = () => {
               flexDirection: "row",
               alignItems: "center",
               padding: 10,
-              backgroundColor: themeStyle.colors.grayscale.highest,
-              justifyContent: "flex-end",
             }}
           >
             <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
@@ -751,11 +783,25 @@ const AddScreen = () => {
                         onPress={() => pickMedia("image")}
                         style={{ alignItems: "center", flexDirection: "row" }}
                       >
-                        <Entypo
-                          name="image-inverted"
-                          size={24}
-                          color={themeStyle.colors.grayscale.lowest}
-                        />
+                        <View
+                          style={{
+                            borderColor: themeStyle.colors.primary.default,
+                            borderWidth: 2,
+                            backgroundColor:
+                              themeStyle.colors.grayscale.transparentHighest50,
+                            height: 48,
+                            width: 48,
+                            borderRadius: 26,
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <FontAwesome
+                            name="image"
+                            size={24}
+                            color={themeStyle.colors.grayscale.lowest}
+                          />
+                        </View>
                         <Text
                           style={{
                             color: themeStyle.colors.grayscale.lowest,
@@ -779,11 +825,33 @@ const AddScreen = () => {
                         onPress={() => pickMedia("video")}
                         style={{ alignItems: "center", flexDirection: "row" }}
                       >
-                        <Entypo
-                          name="video"
-                          size={24}
-                          color={themeStyle.colors.grayscale.lowest}
-                        />
+                        <View
+                          style={{
+                            borderColor: themeStyle.colors.primary.default,
+                            borderWidth: 2,
+                            backgroundColor:
+                              themeStyle.colors.grayscale.transparentHighest50,
+                            height: 48,
+                            width: 48,
+                            borderRadius: 26,
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <View
+                            style={{
+                              borderColor: themeStyle.colors.grayscale.highest,
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            <MaterialCommunityIcons
+                              name="movie-open-play-outline"
+                              size={26}
+                              color={themeStyle.colors.grayscale.lowest}
+                            />
+                          </View>
+                        </View>
                         <Text
                           style={{
                             color: themeStyle.colors.grayscale.lowest,
@@ -814,18 +882,36 @@ const AddScreen = () => {
                           >
                             <View
                               style={{
-                                flexDirection: "row",
-                                alignItems: "center",
+                                borderColor: themeStyle.colors.primary.default,
+                                borderWidth: 2,
                                 backgroundColor:
-                                  themeStyle.colors.grayscale.lowest,
-                                borderRadius: 5,
+                                  themeStyle.colors.grayscale
+                                    .transparentHighest50,
+                                height: 48,
+                                width: 48,
+                                borderRadius: 26,
+                                justifyContent: "center",
+                                alignItems: "center",
                               }}
                             >
-                              <MaterialIcons
-                                name="gif"
-                                size={24}
-                                color={themeStyle.colors.grayscale.highest}
-                              />
+                              <View
+                                style={{
+                                  borderColor:
+                                    themeStyle.colors.grayscale.lowest,
+                                  borderWidth: 2,
+                                  height: 27,
+                                  width: 27,
+                                  borderRadius: 5,
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <MaterialIcons
+                                  name="gif"
+                                  size={24}
+                                  color={themeStyle.colors.grayscale.lowest}
+                                />
+                              </View>
                             </View>
                             <Text
                               style={{
@@ -853,11 +939,26 @@ const AddScreen = () => {
                               flexDirection: "row",
                             }}
                           >
-                            <FontAwesome
-                              name="camera"
-                              size={24}
-                              color={themeStyle.colors.grayscale.lowest}
-                            />
+                            <View
+                              style={{
+                                borderColor: themeStyle.colors.primary.default,
+                                borderWidth: 2,
+                                backgroundColor:
+                                  themeStyle.colors.grayscale
+                                    .transparentHighest50,
+                                height: 48,
+                                width: 48,
+                                borderRadius: 26,
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Feather
+                                name="camera"
+                                size={26}
+                                color={themeStyle.colors.grayscale.lowest}
+                              />
+                            </View>
                             <Text
                               style={{
                                 color: themeStyle.colors.grayscale.lowest,
@@ -900,56 +1001,20 @@ const AddScreen = () => {
             >
               <View
                 style={{
-                  flexDirection: "row",
+                  borderColor: themeStyle.colors.grayscale.lowest,
+                  borderWidth: 2,
+                  height: 36,
+                  width: 36,
+                  borderRadius: 5,
+                  justifyContent: "center",
                   alignItems: "center",
                 }}
               >
-                <View
-                  style={{
-                    borderColor: themeStyle.colors.grayscale.lowest,
-                    borderWidth: 2,
-                    height: 36,
-                    width: 36,
-                    borderRadius: 5,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <FontAwesome
-                    name="camera"
-                    size={16}
-                    color={themeStyle.colors.grayscale.lowest}
-                  />
-                </View>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setShowGifsModal(true)}
-              style={{ marginHorizontal: 5 }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <View
-                  style={{
-                    borderColor: themeStyle.colors.grayscale.lowest,
-                    borderWidth: 2,
-                    height: 36,
-                    width: 36,
-                    borderRadius: 5,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <MaterialIcons
-                    name="gif"
-                    size={24}
-                    color={themeStyle.colors.grayscale.lowest}
-                  />
-                </View>
+                <FontAwesome
+                  name="camera"
+                  size={16}
+                  color={themeStyle.colors.primary.text}
+                />
               </View>
             </TouchableOpacity>
             <TouchableOpacity
@@ -961,27 +1026,42 @@ const AddScreen = () => {
             >
               <View
                 style={{
-                  flexDirection: "row",
+                  borderColor: themeStyle.colors.grayscale.lowest,
+                  borderWidth: 2,
+                  height: 36,
+                  width: 36,
+                  borderRadius: 5,
+                  justifyContent: "center",
                   alignItems: "center",
                 }}
               >
-                <View
-                  style={{
-                    borderColor: themeStyle.colors.grayscale.lowest,
-                    borderWidth: 2,
-                    height: 36,
-                    width: 36,
-                    borderRadius: 5,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <FontAwesome5
-                    name="photo-video"
-                    size={16}
-                    color={themeStyle.colors.grayscale.lowest}
-                  />
-                </View>
+                <FontAwesome5
+                  name="photo-video"
+                  size={16}
+                  color={themeStyle.colors.primary.text}
+                />
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setShowGifsModal(true)}
+              style={{ marginHorizontal: 5 }}
+            >
+              <View
+                style={{
+                  borderColor: themeStyle.colors.grayscale.lowest,
+                  borderWidth: 2,
+                  height: 36,
+                  width: 36,
+                  borderRadius: 5,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <MaterialIcons
+                  name="gif"
+                  size={26}
+                  color={themeStyle.colors.primary.text}
+                />
               </View>
             </TouchableOpacity>
             <TouchableOpacity
@@ -993,27 +1073,20 @@ const AddScreen = () => {
             >
               <View
                 style={{
-                  flexDirection: "row",
+                  borderColor: themeStyle.colors.grayscale.lowest,
+                  borderWidth: 2,
+                  height: 36,
+                  width: 36,
+                  borderRadius: 5,
+                  justifyContent: "center",
                   alignItems: "center",
                 }}
               >
-                <View
-                  style={{
-                    borderColor: themeStyle.colors.grayscale.lowest,
-                    borderWidth: 2,
-                    height: 36,
-                    width: 36,
-                    borderRadius: 5,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Entypo
-                    name="dots-three-horizontal"
-                    size={24}
-                    color={themeStyle.colors.grayscale.lowest}
-                  />
-                </View>
+                <Entypo
+                  name="dots-three-horizontal"
+                  size={24}
+                  color={themeStyle.colors.primary.text}
+                />
               </View>
             </TouchableOpacity>
           </View>
