@@ -40,7 +40,6 @@ export default {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#FFFFFF",
       },
-      useNextNotificationsApi: true,
       googleServicesFile: "./google-services.json",
       package: "com.magnetapp.magnet",
       versionCode: 10,
@@ -57,6 +56,15 @@ export default {
           package: "min-gpl",
         },
       ],
+      [
+        "expo-build-properties",
+        {
+          ios: {
+            deploymentTarget: "14.0",
+          },
+        },
+      ],
+      "expo-tracking-transparency",
     ],
     extra: {
       apiUrl:

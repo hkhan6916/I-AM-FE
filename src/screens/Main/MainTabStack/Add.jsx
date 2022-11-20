@@ -27,7 +27,12 @@ import {
   backgroundUpload as compressorUpload,
 } from "react-native-compressor";
 import VideoPlayer from "expo-video-player";
-import { AntDesign, MaterialIcons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Entypo,
+  FontAwesome5,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { getThumbnailAsync } from "expo-video-thumbnails";
 import { StatusBar } from "expo-status-bar";
@@ -35,10 +40,12 @@ import GifModal from "../../../components/GifModal";
 import openAppSettings from "../../../helpers/openAppSettings";
 import backgroundUpload from "../../../helpers/backgroundUpload";
 import { gestureHandlerRootHOC } from "react-native-gesture-handler";
-import convertAndEncodeVideo from "../../../helpers/convertAndEncodeVideo";
+import { convertAndEncodeVideo } from "../../../helpers/convertAndEncodeVideo";
 import { useSelector } from "react-redux";
 import getVideoCodecName from "../../../helpers/getVideoCodecName";
 import { FFmpegKit } from "ffmpeg-kit-react-native";
+import { launchImageLibraryAsync } from "expo-image-picker";
+import ActionSheet from "react-native-actions-sheet";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -59,9 +66,13 @@ const AddScreen = () => {
   const [processedVideoUri, setProcessedVideoUri] = useState("");
   const [processingFile, setProcessingFile] = useState(false);
   const [selectedMediaType, setSelectedMediaType] = useState(false);
+  const [loadingVideo, setLoadingVideo] = useState(false);
+  const [showImageOrVideoOption, setShowImageOrVideoOption] = useState(false);
+
   const navigation = useNavigation();
 
   const videoRef = useRef(null);
+  const actionSheetRef = useRef(null);
 
   const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -262,7 +273,7 @@ const AddScreen = () => {
     });
   };
 
-  const pickMedia = async () => {
+  const pickMedia = async (type = "image") => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
@@ -281,72 +292,83 @@ const AddScreen = () => {
     }
 
     if (status === "granted") {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
+      setLoadingVideo(true);
+      const result = await launchImageLibraryAsync({
         quality: 0.3,
         allowsMultipleSelection: false,
         selectionLimit: 1,
+        allowsEditing:
+          (Platform.OS === "ios" && type === "image") ||
+          Platform.OS === "android",
+        mediaTypes:
+          type === "image"
+            ? ImagePicker.MediaTypeOptions.Images
+            : ImagePicker.MediaTypeOptions.Videos,
         videoQuality: ImagePicker.UIImagePickerControllerQualityType.Medium,
       });
-      if (!result.cancelled) {
+      if (result.canceled) {
+        setLoadingVideo(false);
+      }
+      if (!result.canceled) {
+        const mediaType = result.assets[0].type.split("/")[0];
+        setShowMediaSizeError(false);
+
+        setLoadingVideo(false);
         if (selectedMediaType === "video") {
           FFmpegKit.cancel();
         }
+        setProcessingFile(Platform.OS === "ios" && mediaType === "video");
         setGif("");
         setThumbnail("");
         setCompressionProgress(0);
-        setProcessingFile(Platform.OS === "ios");
         setSelectedMediaType("");
-        const mediaInfo = await getInfoAsync(result.uri);
+        const mediaInfo = await getInfoAsync(result.assets[0].uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
-
         if (mediaSizeInMb > (isLowendDevice ? 50 : 100)) {
           setShowMediaSizeError(true);
           setFile({ uri: "none" });
           setLoading(false);
           return;
         }
-        const encoding = await getVideoCodecName(result.uri);
+        const encoding = await getVideoCodecName(mediaInfo.uri);
         const unsupportedCodec =
           encoding === "hevc" || encoding === "h265" || !encoding;
         if (unsupportedCodec && Platform.OS === "android") {
           Alert.alert(
             "Sorry, this video is unsupported.",
-            "Please choose another video or image.",
+            `Please choose another ${type}.`,
             [
               {
                 text: "Cancel",
               },
               {
                 text: "Open files",
-                onPress: () => pickMedia(),
+                onPress: () => pickMedia(type),
               },
             ]
           );
           return;
         }
-        const mediaType = result.type.split("/")[0];
         setSelectedMediaType(mediaType);
-        setFile({ ...result, ...mediaInfo });
+        setFile({ ...result.assets[0], ...mediaInfo });
+
         if (mediaType === "video") {
           const thumbnailUri = await generateThumbnail(
-            result.uri,
-            result.duration
+            result.assets[0].uri,
+            result.assets[0].duration
           );
           setThumbnail(thumbnailUri);
-          setVideoDuration(result.duration);
+          setVideoDuration(result.assets[0].duration);
           if (Platform.OS === "ios") {
             const convertedCodecAndCompressedUrl = await convertAndEncodeVideo({
-              uri: result.uri,
+              uri: result.assets[0].uri,
               setProgress: setCompressionProgress,
-              videoDuration: result.duration,
+              videoDuration: result.assets[0].duration,
             });
             setProcessedVideoUri(convertedCodecAndCompressedUrl);
             setProcessingFile(false);
           }
         }
-
-        setShowMediaSizeError(false);
       }
     }
   };
@@ -437,46 +459,49 @@ const AddScreen = () => {
             >
               New Post
             </Text>
-            <View
-              style={{
-                justifyContent: "center",
-                flexDirection: "row",
-                opacity:
-                  (!file?.uri && !postBody && !gif) ||
-                  showMediaSizeError ||
-                  processingFile
-                    ? 0.7
-                    : 1,
-                marginHorizontal: 10,
-              }}
+            <TouchableOpacity
+              disabled={
+                (!file.uri && !postBody && !gif) ||
+                loading ||
+                showMediaSizeError ||
+                loadingVideo ||
+                processingFile
+              }
+              onPress={() => handlePostCreation()}
             >
-              <TouchableOpacity
-                disabled={
-                  (!file.uri && !postBody && !gif) ||
-                  loading ||
-                  showMediaSizeError ||
-                  processingFile
-                }
-                onPress={() => handlePostCreation()}
-              >
-                {loading ? (
-                  <ActivityIndicator
-                    animating
-                    color={themeStyle.colors.secondary.default}
-                    size={"small"}
-                  />
-                ) : (
+              {loading ? (
+                <ActivityIndicator
+                  animating
+                  color={themeStyle.colors.secondary.default}
+                  size={"small"}
+                />
+              ) : (
+                <View
+                  style={{
+                    backgroundColor: themeStyle.colors.primary.default,
+                    paddingHorizontal: 10,
+                    paddingVertical: 5,
+                    borderRadius: 20,
+                    opacity:
+                      (!file?.uri && !postBody && !gif) ||
+                      showMediaSizeError ||
+                      loadingVideo ||
+                      processingFile
+                        ? 0.5
+                        : 1,
+                  }}
+                >
                   <Text
                     style={{
                       fontSize: 18,
-                      color: themeStyle.colors.secondary.default,
+                      color: themeStyle.colors.white,
                     }}
                   >
                     Create
                   </Text>
-                )}
-              </TouchableOpacity>
-            </View>
+                </View>
+              )}
+            </TouchableOpacity>
           </View>
           {postBody.length >= 2000 - 25 ? (
             <Text style={styles.postLimitMessage}>
@@ -485,6 +510,7 @@ const AddScreen = () => {
           ) : null}
           <ScrollView contentContainerStyle={{ padding: 10 }}>
             <TextInput
+              autoFocus
               style={{
                 minHeight: Platform.OS === "web" ? screenHeight / 2 : 100,
                 textAlignVertical: "top",
@@ -498,7 +524,9 @@ const AddScreen = () => {
               maxLength={2000}
               onChangeText={(v) => setPostBody(v)}
             />
-            {compressionProgress && selectedMediaType === "video" ? (
+            {compressionProgress &&
+            selectedMediaType === "video" &&
+            !loadingVideo ? (
               <View style={{ width: "95%", alignSelf: "center" }}>
                 <Text
                   style={{
@@ -519,7 +547,7 @@ const AddScreen = () => {
                 />
               </View>
             ) : null}
-            {file.uri ? (
+            {file.uri || loadingVideo ? (
               <View
                 style={{
                   borderWidth: showMediaSizeError ? 2 : 0,
@@ -564,40 +592,60 @@ const AddScreen = () => {
                     Choose a file smaller than{" "}
                     {isLowendDevice ? "50MB" : "100MB"}
                   </Text>
-                ) : thumbnail ? (
+                ) : thumbnail || loadingVideo ? (
                   <View
                     style={{
                       alignItems: "center",
                       padding: 5,
+                      justifyContent: "center",
                     }}
                   >
-                    <ImageWithCache
-                      onLoad={(e) => {
-                        setHeight(e?.nativeEvent?.source?.height);
-                        setWidth(e?.nativeEvent?.source?.width);
-                      }}
-                      style={{ height: 1, width: 1, opacity: 0 }} // so onload gets called we set height and width to 1. Doesn't when set to 0
-                      mediaUrl={thumbnail}
-                    />
+                    {loadingVideo ? (
+                      <View
+                        style={{
+                          height: 300,
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <ActivityIndicator
+                          animating={loadingVideo}
+                          style={{ position: "absolute", zIndex: 99 }}
+                          color={themeStyle.colors.secondary.default}
+                          size="large"
+                        />
+                      </View>
+                    ) : (
+                      <>
+                        <ImageWithCache
+                          onLoad={(e) => {
+                            setHeight(e?.nativeEvent?.source?.height);
+                            setWidth(e?.nativeEvent?.source?.width);
+                          }}
+                          style={{ height: 1, width: 1, opacity: 0 }} // so onload gets called we set height and width to 1. Doesn't when set to 0
+                          mediaUrl={thumbnail}
+                        />
 
-                    <VideoPlayer
-                      autoHidePlayer={false}
-                      fullscreen
-                      mediaIsSelfie
-                      videoProps={{
-                        shouldPlay: false,
-                        resizeMode: "contain",
-                        source: {
-                          uri: file.uri,
-                        },
-                        ref: videoRef,
-                        style: {
-                          transform: [{ scaleX: file.isSelfie ? -1 : 1 }],
-                          height: "100%",
-                        },
-                      }}
-                      style={{ height: 300 }}
-                    />
+                        <VideoPlayer
+                          autoHidePlayer={false}
+                          fullscreen
+                          mediaIsSelfie
+                          videoProps={{
+                            shouldPlay: false,
+                            resizeMode: "contain",
+                            source: {
+                              uri: file.uri,
+                            },
+                            ref: videoRef,
+                            style: {
+                              transform: [{ scaleX: file.isSelfie ? -1 : 1 }],
+                              height: "100%",
+                            },
+                          }}
+                          style={{ height: 300 }}
+                        />
+                      </>
+                    )}
                   </View>
                 ) : selectedMediaType ? (
                   <View
@@ -675,66 +723,299 @@ const AddScreen = () => {
           <View
             style={{
               flexDirection: "row",
-              justifyContent: "space-between",
               alignItems: "center",
               padding: 10,
               backgroundColor: themeStyle.colors.grayscale.highest,
+              justifyContent: "flex-end",
             }}
           >
             <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
-              {Platform.OS !== "web" ? (
-                <>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      marginHorizontal: 10,
-                    }}
-                  >
-                    <TouchableOpacity onPress={() => setCameraActive(true)}>
-                      <FontAwesome
-                        name="camera"
-                        size={24}
-                        color={themeStyle.colors.grayscale.lowest}
-                      />
-                    </TouchableOpacity>
+              {Platform.OS !== "web" && !showGifsModal ? (
+                <ActionSheet
+                  ref={actionSheetRef}
+                  gestureEnabled={true}
+                  containerStyle={{
+                    backgroundColor: themeStyle.colors.grayscale.higher,
+                  }}
+                >
+                  <View style={{ marginVertical: 20, paddingHorizontal: 10 }}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        marginHorizontal: 10,
+                        marginBottom: 30,
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => pickMedia("image")}
+                        style={{ alignItems: "center", flexDirection: "row" }}
+                      >
+                        <Entypo
+                          name="image-inverted"
+                          size={24}
+                          color={themeStyle.colors.grayscale.lowest}
+                        />
+                        <Text
+                          style={{
+                            color: themeStyle.colors.grayscale.lowest,
+                            fontWeight: "700",
+                            marginLeft: 10,
+                          }}
+                        >
+                          Add Image
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        marginHorizontal: 10,
+                        marginBottom: 30,
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => pickMedia("video")}
+                        style={{ alignItems: "center", flexDirection: "row" }}
+                      >
+                        <Entypo
+                          name="video"
+                          size={24}
+                          color={themeStyle.colors.grayscale.lowest}
+                        />
+                        <Text
+                          style={{
+                            color: themeStyle.colors.grayscale.lowest,
+                            fontWeight: "700",
+                            marginLeft: 10,
+                          }}
+                        >
+                          Add Video
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                    {!showImageOrVideoOption ? (
+                      <>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            marginHorizontal: 10,
+                            marginBottom: 30,
+                          }}
+                        >
+                          <TouchableOpacity
+                            onPress={() => setShowGifsModal(true)}
+                            style={{
+                              alignItems: "center",
+                              flexDirection: "row",
+                            }}
+                          >
+                            <View
+                              style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                backgroundColor:
+                                  themeStyle.colors.grayscale.lowest,
+                                borderRadius: 5,
+                              }}
+                            >
+                              <MaterialIcons
+                                name="gif"
+                                size={24}
+                                color={themeStyle.colors.grayscale.highest}
+                              />
+                            </View>
+                            <Text
+                              style={{
+                                color: themeStyle.colors.grayscale.lowest,
+                                fontWeight: "700",
+                                marginLeft: 10,
+                              }}
+                            >
+                              Add Gif
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            marginHorizontal: 10,
+                            marginBottom: 30,
+                          }}
+                        >
+                          <TouchableOpacity
+                            onPress={() => setCameraActive(true)}
+                            style={{
+                              alignItems: "center",
+                              flexDirection: "row",
+                            }}
+                          >
+                            <FontAwesome
+                              name="camera"
+                              size={24}
+                              color={themeStyle.colors.grayscale.lowest}
+                            />
+                            <Text
+                              style={{
+                                color: themeStyle.colors.grayscale.lowest,
+                                fontWeight: "700",
+                                marginLeft: 10,
+                              }}
+                            >
+                              Use Camera
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </>
+                    ) : null}
                   </View>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      marginHorizontal: 10,
-                    }}
-                  >
-                    <TouchableOpacity onPress={() => pickMedia()}>
-                      <FontAwesome
-                        name="image"
-                        size={24}
-                        color={themeStyle.colors.grayscale.lowest}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </>
-              ) : null}
+                </ActionSheet>
+              ) : (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    marginHorizontal: 10,
+                    borderWidth: 1,
+                    borderColor: themeStyle.colors.grayscale.lowest,
+                    borderRadius: 5,
+                  }}
+                >
+                  <TouchableOpacity onPress={() => setShowGifsModal(true)}>
+                    <MaterialIcons
+                      name="gif"
+                      size={24}
+                      color={themeStyle.colors.grayscale.lowest}
+                    />
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+            <TouchableOpacity
+              onPress={() => setCameraActive(true)}
+              style={{ marginHorizontal: 5 }}
+            >
               <View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  marginHorizontal: 10,
-                  borderWidth: 1,
-                  borderColor: themeStyle.colors.grayscale.lowest,
-                  borderRadius: 5,
                 }}
               >
-                <TouchableOpacity onPress={() => setShowGifsModal(true)}>
+                <View
+                  style={{
+                    borderColor: themeStyle.colors.grayscale.lowest,
+                    borderWidth: 2,
+                    height: 36,
+                    width: 36,
+                    borderRadius: 5,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <FontAwesome
+                    name="camera"
+                    size={16}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </View>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setShowGifsModal(true)}
+              style={{ marginHorizontal: 5 }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <View
+                  style={{
+                    borderColor: themeStyle.colors.grayscale.lowest,
+                    borderWidth: 2,
+                    height: 36,
+                    width: 36,
+                    borderRadius: 5,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
                   <MaterialIcons
                     name="gif"
                     size={24}
                     color={themeStyle.colors.grayscale.lowest}
                   />
-                </TouchableOpacity>
+                </View>
               </View>
-            </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setShowImageOrVideoOption(true);
+                actionSheetRef.current?.show();
+              }}
+              style={{ marginHorizontal: 5 }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <View
+                  style={{
+                    borderColor: themeStyle.colors.grayscale.lowest,
+                    borderWidth: 2,
+                    height: 36,
+                    width: 36,
+                    borderRadius: 5,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <FontAwesome5
+                    name="photo-video"
+                    size={16}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </View>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setShowImageOrVideoOption(false);
+                actionSheetRef.current?.show();
+              }}
+              style={{ marginHorizontal: 5 }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <View
+                  style={{
+                    borderColor: themeStyle.colors.grayscale.lowest,
+                    borderWidth: 2,
+                    height: 36,
+                    width: 36,
+                    borderRadius: 5,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Entypo
+                    name="dots-three-horizontal"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </View>
+              </View>
+            </TouchableOpacity>
           </View>
           {error ? (
             <View>
