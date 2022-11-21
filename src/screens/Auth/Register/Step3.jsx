@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,7 +11,6 @@ import {
   SafeAreaView,
   Platform,
   Alert,
-  Image,
   Linking,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -26,8 +25,12 @@ import PreviewVideo from "../../../components/PreviewVideo";
 import { detectFacesAsync } from "expo-face-detector";
 import { getThumbnailAsync } from "expo-video-thumbnails";
 import AnimatedLottieView from "lottie-react-native";
-// import Upload from "react-native-background-upload";
-import * as ImagePicker from "expo-image-picker";
+import {
+  launchImageLibraryAsync,
+  MediaTypeOptions,
+  requestMediaLibraryPermissionsAsync,
+  UIImagePickerControllerQualityType,
+} from "expo-image-picker";
 import openAppSettings from "../../../helpers/openAppSettings";
 import { getInfoAsync } from "expo-file-system";
 import Constants from "expo-constants";
@@ -35,10 +38,11 @@ import webPersistUserData from "../../../helpers/webPersistUserData";
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 import CameraStandard from "../../../components/CameraStandard";
 import generateGif from "../../../helpers/generateGif";
-import convertAndEncodeVideo from "../../../helpers/convertAndEncodeVideo";
+import { convertAndEncodeVideo } from "../../../helpers/convertAndEncodeVideo";
 import { FileSystemUploadType, uploadAsync } from "expo-file-system";
 import PreviewProfileImage from "../../../components/PreviewProfileImage";
 import { FFmpegKit } from "ffmpeg-kit-react-native";
+import getVideoCodecName from "../../../helpers/getVideoCodecName";
 
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
@@ -77,6 +81,7 @@ const Step1Screen = () => {
   const [skipProfileVideo, setSkipProfileVideo] = useState(false);
 
   const [pickedFromCameraRoll, setPickedFromCameraRoll] = useState(false);
+  const [loadingMedia, setLoadingMedia] = useState(false);
 
   const [registrationError, setRegistrationError] = useState("");
   const navigation = useNavigation();
@@ -92,7 +97,7 @@ const Step1Screen = () => {
   const profileMediaIsValid = () => {
     if ((profileImage || profileVideo) && faceDetected) return true;
     if (tooShort || tooLong) return false;
-    if (skipProfileVideo) {
+    if (skipProfileVideo || showVideoSizeError) {
       return true;
     }
     return false;
@@ -167,11 +172,26 @@ const Step1Screen = () => {
 
   const uploadMediaAndSendUserData = async (notificationToken) => {
     setLoading(true);
-    const profileVideoUri = await convertAndEncodeVideo({
+    let profileVideoUri = await convertAndEncodeVideo({
       uri: profileVideo,
       isProfileVideo: true,
     });
-    const gifUri = profileVideo ? await generateGif(profileVideoUri) : null;
+    const gifResponse = profileVideo
+      ? await generateGif(profileVideoUri, profileVideo)
+      : null;
+
+    // Check if generateGif has provided a compressed video url and if so, replace profileVideoUri with it
+    // This usually happens when something goes wrong with convertAndEncodeVideo and generateGif has to fall back to ffmpeg
+    const gifUri =
+      typeof gifResponse === "string"
+        ? gifResponse
+        : typeof gifResponse === "object"
+        ? gifResponse?.gif
+        : null;
+
+    if (typeof gifResponse === "object") {
+      profileVideoUri = gifResponse.compressedUri;
+    }
 
     const { response, success } = await apiCall(
       "POST",
@@ -327,7 +347,7 @@ const Step1Screen = () => {
   };
 
   const pickProfileMedia = async (type = "video") => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const { status } = await requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
         "Unable access camera roll",
@@ -345,22 +365,42 @@ const Step1Screen = () => {
     }
 
     if (status === "granted") {
-      const result = await ImagePicker.launchImageLibraryAsync({
+      setLoadingMedia(true);
+      const result = await launchImageLibraryAsync({
         mediaTypes:
-          type === "video"
-            ? ImagePicker.MediaTypeOptions.Videos
-            : ImagePicker.MediaTypeOptions.Images,
+          type === "video" ? MediaTypeOptions.Videos : MediaTypeOptions.Images,
         quality: 0.3,
-        allowsMultipleSelection: false,
-        videoMaxDuration: 30,
-        allowsEditing: false,
+        selectionLimit: 1,
+        allowsEditing: true,
+        videoQuality: UIImagePickerControllerQualityType.Medium,
       });
-
-      if (!result.cancelled) {
+      setLoadingMedia(false);
+      if (type === "video") {
+        const encoding = await getVideoCodecName(result.assets[0]?.uri);
+        const unsupportedCodec =
+          encoding === "hevc" || encoding === "h265" || !encoding;
+        if (unsupportedCodec && Platform.OS === "android") {
+          Alert.alert(
+            "Sorry, this video is unsupportedn.",
+            "Please choose another video.",
+            [
+              {
+                text: "Cancel",
+              },
+              {
+                text: "Open files",
+                onPress: () => pickProfileMedia(type),
+              },
+            ]
+          );
+          return;
+        }
+      }
+      if (!result.didCancel) {
         FFmpegKit.cancel();
         setShowProfileImageOptions(false);
         setShowProfileVideoOptions(false);
-        const mediaInfo = await getInfoAsync(result.uri);
+        const mediaInfo = await getInfoAsync(result.assets[0]?.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
         if (mediaSizeInMb > (isLowendDevice ? 30 : 50)) {
           setShowVideoSizeError(true);
@@ -380,6 +420,7 @@ const Step1Screen = () => {
             ]
           );
           setLoading(false);
+
           return;
         }
         setFaceDetected(false);
@@ -387,11 +428,12 @@ const Step1Screen = () => {
         setPickedFromCameraRoll(true);
         setShowVideoSizeError(false);
         if (type === "video") {
-          setProfileVideo(result.uri);
+          setProfileVideo("");
+          setProfileVideo(result.assets[0]?.uri);
           setProfileImage("");
         } else {
-          setProfileImage(result.uri);
-          await handleFaceDetection(0, result.uri);
+          setProfileImage(result.assets[0]?.uri);
+          await handleFaceDetection(0, result.assets[0]?.uri);
           setProfileVideo("");
         }
       }
