@@ -183,6 +183,7 @@ const CameraStandard = ({
           cameraPosition === "front" &&
           type !== "photo" &&
           Platform.OS === "android",
+        media,
       });
       console.log(
         cameraPosition === "front" &&

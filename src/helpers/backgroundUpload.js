@@ -2,6 +2,7 @@
 import apiCall from "./apiCall";
 import { uploadAsync, FileSystemUploadType } from "expo-file-system";
 import { Platform } from "react-native";
+import { getRealPath } from "react-native-compressor";
 const backgroundUpload = async ({
   filePath,
   url,
@@ -10,9 +11,13 @@ const backgroundUpload = async ({
   onComplete,
   disableLogs,
 }) => {
+  const realFilePath = await getRealPath(filePath);
   const options = {
     url,
-    path: Platform.OS == "android" ? filePath.replace("file://", "") : filePath,
+    path:
+      Platform.OS == "android"
+        ? realFilePath.replace("file://", "")
+        : realFilePath,
     method: "PUT",
     type: "raw",
     maxRetries: 2, // set retry count (Android only). Default 2

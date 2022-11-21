@@ -127,6 +127,7 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
         setShowModal(false);
       }}
       visible={active}
+      animationType="slide"
     >
       <SafeAreaView
         style={{

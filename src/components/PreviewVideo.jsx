@@ -12,7 +12,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import AnimatedLottieView from "lottie-react-native";
 import useScreenOrientation from "../helpers/hooks/useScreenOrientation";
-import { BlurView } from "expo-blur";
 
 const PreviewVideo = ({
   uri,
@@ -63,7 +62,7 @@ const PreviewVideo = ({
   useEffect(() => {
     const unsubscribe = navigation.addListener("blur", async () => {
       if (profileVideoRef && !disableBlurListener) {
-        await profileVideoRef.current?.pauseAsync();
+        await profileVideoRef.current?.unloadAsync();
       }
     });
 
@@ -187,7 +186,7 @@ const PreviewVideo = ({
             resizeMode="cover"
           />
           {!videoStatus.isPlaying ? (
-            <BlurView
+            <View
               style={{
                 position: "absolute",
                 alignItems: "center",
@@ -197,9 +196,9 @@ const PreviewVideo = ({
                 borderColor: themeStyle.colors.primary.default,
                 borderRadius: isFullWidth ? 0 : 10,
                 backgroundColor: themeStyle.colors.grayscale.lowest,
+                opacity: 0.7,
                 padding: 2,
               }}
-              intensity={250}
             >
               {ready ? (
                 <Text
@@ -209,20 +208,20 @@ const PreviewVideo = ({
                     fontSize: 20,
                     textAlign: "center",
                     width: screenWidth,
-                    color: themeStyle.colors.primary.default,
+                    color: themeStyle.colors.black,
                     opacity: 1,
                     textShadowOffset: {
                       width: 1,
                       height: 1,
                     },
                     textShadowRadius: 9,
-                    textShadowColor: "rgba(0,0,0,0.2)",
+                    textShadowColor: "rgba(0,0,0,0.3)",
                   }}
                 >
                   {previewText || "Tap to preview"}
                 </Text>
               ) : null}
-            </BlurView>
+            </View>
           ) : null}
           {!ready && Platform.OS !== "web" ? (
             <AnimatedLottieView
