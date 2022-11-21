@@ -7,6 +7,7 @@ const themeStyle =
           primary: {
             default: "#138294",
             light: "#00cddb",
+            text: "#00cddb",
           },
           secondary: {
             default: "#0085FF",
@@ -31,6 +32,8 @@ const themeStyle =
             lowest: "#FFFFFF",
             cards: "#15171F",
             cardsOuter: "#020511",
+            transparentHighest50: "rgba(0,0,0,0.5)",
+            transparentLowest50: "rgba(207,207,207,0.5)",
           },
           black: "#000000",
           white: "#FFFFFF",
@@ -42,6 +45,7 @@ const themeStyle =
           primary: {
             default: "#138294",
             light: "#00cddb",
+            text: "#138294",
           },
           secondary: {
             default: "#0085FF",
@@ -66,6 +70,8 @@ const themeStyle =
             highest: "#FFFFFF",
             cards: "#FFFFFF",
             cardsOuter: "#F1F1F1",
+            transparentLowest50: "rgba(0,0,0,0.5)",
+            transparentHighest50: "rgba(207,207,207,0.5)",
           },
           black: "#000000",
           white: "#FFFFFF",
