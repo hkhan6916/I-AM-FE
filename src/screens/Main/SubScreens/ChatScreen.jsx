@@ -20,7 +20,7 @@ import * as ImagePicker from "expo-image-picker";
 import { Video } from "expo-av";
 import { getInfoAsync } from "expo-file-system";
 import { useNavigation } from "@react-navigation/native";
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { nanoid } from "nanoid/non-secure";
 import apiCall from "../../../helpers/apiCall";
 import get12HourTime from "../../../helpers/get12HourTime";
@@ -29,10 +29,7 @@ import themeStyle from "../../../theme.style";
 import CameraStandard from "../../../components/CameraStandard";
 import MessageContainer from "../../../components/MessageContainer";
 import Constants from "expo-constants";
-import {
-  Video as VideoCompress,
-  Image as ImageCompress,
-} from "react-native-compressor";
+import { Image as ImageCompress } from "react-native-compressor";
 import { getThumbnailAsync } from "expo-video-thumbnails";
 import openAppSettings from "../../../helpers/openAppSettings";
 import backgroundUpload from "../../../helpers/backgroundUpload";
@@ -43,7 +40,7 @@ import {
   RecyclerListView,
 } from "recyclerlistview";
 import usePersistedWebParams from "../../../helpers/hooks/usePersistedWebParams";
-import convertAndEncodeVideo from "../../../helpers/convertAndEncodeVideo";
+import { convertAndEncodeVideo } from "../../../helpers/convertAndEncodeVideo";
 import { FFmpegKit } from "ffmpeg-kit-react-native";
 import { useSelector } from "react-redux";
 import getVideoCodecName from "../../../helpers/getVideoCodecName";
@@ -1000,8 +997,8 @@ const ChatScreen = (props) => {
                 ]}
                 onPress={() => handleActivateCamera(true)}
               >
-                <Ionicons
-                  name="camera-outline"
+                <Feather
+                  name="camera"
                   size={26}
                   color={themeStyle.colors.white}
                 />

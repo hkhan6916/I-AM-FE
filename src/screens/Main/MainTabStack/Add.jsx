@@ -785,8 +785,6 @@ const AddScreen = () => {
                       >
                         <View
                           style={{
-                            borderColor: themeStyle.colors.primary.default,
-                            borderWidth: 2,
                             backgroundColor:
                               themeStyle.colors.grayscale.transparentHighest50,
                             height: 48,
@@ -827,8 +825,6 @@ const AddScreen = () => {
                       >
                         <View
                           style={{
-                            borderColor: themeStyle.colors.primary.default,
-                            borderWidth: 2,
                             backgroundColor:
                               themeStyle.colors.grayscale.transparentHighest50,
                             height: 48,
@@ -882,8 +878,6 @@ const AddScreen = () => {
                           >
                             <View
                               style={{
-                                borderColor: themeStyle.colors.primary.default,
-                                borderWidth: 2,
                                 backgroundColor:
                                   themeStyle.colors.grayscale
                                     .transparentHighest50,
@@ -941,8 +935,6 @@ const AddScreen = () => {
                           >
                             <View
                               style={{
-                                borderColor: themeStyle.colors.primary.default,
-                                borderWidth: 2,
                                 backgroundColor:
                                   themeStyle.colors.grayscale
                                     .transparentHighest50,
@@ -1013,7 +1005,7 @@ const AddScreen = () => {
                 <FontAwesome
                   name="camera"
                   size={16}
-                  color={themeStyle.colors.primary.text}
+                  color={themeStyle.colors.grayscale.lowest}
                 />
               </View>
             </TouchableOpacity>
@@ -1038,7 +1030,7 @@ const AddScreen = () => {
                 <FontAwesome5
                   name="photo-video"
                   size={16}
-                  color={themeStyle.colors.primary.text}
+                  color={themeStyle.colors.grayscale.lowest}
                 />
               </View>
             </TouchableOpacity>
@@ -1060,7 +1052,7 @@ const AddScreen = () => {
                 <MaterialIcons
                   name="gif"
                   size={26}
-                  color={themeStyle.colors.primary.text}
+                  color={themeStyle.colors.grayscale.lowest}
                 />
               </View>
             </TouchableOpacity>
@@ -1085,7 +1077,7 @@ const AddScreen = () => {
                 <Entypo
                   name="dots-three-horizontal"
                   size={24}
-                  color={themeStyle.colors.primary.text}
+                  color={themeStyle.colors.grayscale.lowest}
                 />
               </View>
             </TouchableOpacity>

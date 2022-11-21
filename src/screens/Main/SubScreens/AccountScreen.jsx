@@ -66,20 +66,6 @@ const AccountScreen = () => {
           >
             Are you sure you want to delete your account?
           </Text>
-          <Text
-            style={{
-              color: themeStyle.colors.grayscale.lowest,
-              marginBottom: 20,
-              fontSize: 18,
-            }}
-          >
-            This will be a sad day...{" "}
-            <FontAwesome5
-              name="sad-tear"
-              size={20}
-              color={themeStyle.colors.grayscale.lowest}
-            />
-          </Text>
           <View
             style={{
               flexDirection: "row",

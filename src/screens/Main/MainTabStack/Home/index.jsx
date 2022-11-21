@@ -501,9 +501,11 @@ const HomeScreen = () => {
       <SafeAreaView>
         <HomeScreenHeader userData={userData} navigation={navigation} />
         {newPostCreated.state ? (
-          <Text style={styles.newPostPill}>
-            Post {newPostCreated.state.type}
-          </Text>
+          <View style={styles.newPostPill}>
+            <Text style={{ color: themeStyle.colors.white }}>
+              Post {newPostCreated.state.type}
+            </Text>
+          </View>
         ) : null}
         {userData.profileVideoUrl || userData.profileImageUrl ? (
           <View
