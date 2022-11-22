@@ -33,15 +33,22 @@ import { detectFacesAsync } from "expo-face-detector";
 import { getThumbnailAsync } from "expo-video-thumbnails";
 // import Upload from "react-native-background-upload";
 import { useDispatch, useSelector } from "react-redux";
-import * as ImagePicker from "expo-image-picker";
+import {
+  launchImageLibraryAsync,
+  MediaTypeOptions,
+  requestMediaLibraryPermissionsAsync,
+  UIImagePickerControllerQualityType,
+} from "expo-image-picker";
 import openAppSettings from "../../../helpers/openAppSettings";
 import { getInfoAsync } from "expo-file-system";
 import webPersistUserData from "../../../helpers/webPersistUserData";
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 import CameraStandard from "../../../components/CameraStandard";
-import convertAndEncodeVideo from "../../../helpers/convertAndEncodeVideo";
+import { convertAndEncodeVideo } from "../../../helpers/convertAndEncodeVideo";
 import generateGif from "../../../helpers/generateGif";
 import { FileSystemUploadType, uploadAsync } from "expo-file-system";
+import { FFmpegKit } from "ffmpeg-kit-react-native";
+import getVideoCodecName from "../../../helpers/getVideoCodecName";
 
 const { statusBarHeight } = Constants;
 const EditUserDetailsScreen = () => {
@@ -92,6 +99,12 @@ const EditUserDetailsScreen = () => {
   const [showUpdatedPill, setShowUpdatedPill] = useState(false);
   const [pickedFromCameraRoll, setPickedFromCameraRoll] = useState(false);
 
+  const [compressionProgress, setCompressionProgress] = useState(0);
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [processedVideoUri, setProcessedVideoUri] = useState("");
+  const [processingFile, setProcessingFile] = useState(false);
+  const [selectedMediaType, setSelectedMediaType] = useState(false);
+
   const [typingStatus, setTypingStatus] = useState({
     name: "",
     typing: false,
@@ -110,7 +123,7 @@ const EditUserDetailsScreen = () => {
   const dispatch = useDispatch();
 
   const pickProfileMedia = async (type = "video") => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const { status } = await requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
         "Unable access camera roll",
@@ -128,20 +141,51 @@ const EditUserDetailsScreen = () => {
     }
 
     if (status === "granted") {
-      const result = await ImagePicker.launchImageLibraryAsync({
+      const result = await launchImageLibraryAsync({
         mediaTypes:
-          type === "video"
-            ? ImagePicker.MediaTypeOptions.Videos
-            : ImagePicker.MediaTypeOptions.Images,
+          type === "video" ? MediaTypeOptions.Videos : MediaTypeOptions.Images,
         quality: 0.3,
-        allowsMultipleSelection: false,
-        videoMaxDuration: 30,
-        allowsEditing: false,
+        selectionLimit: 1,
+        allowsEditing:
+          (Platform.OS === "ios" && type === "video") ||
+          Platform.OS === "android",
+        videoQuality: UIImagePickerControllerQualityType.Medium,
       });
-      if (!result.cancelled) {
+      if (type === "video") {
+        const encoding = await getVideoCodecName(result.assets[0]?.uri);
+        const unsupportedCodec =
+          encoding === "hevc" || encoding === "h265" || !encoding;
+        if (unsupportedCodec && Platform.OS === "android") {
+          Alert.alert(
+            "Sorry, this video is unsupportedn.",
+            "Please choose another video.",
+            [
+              {
+                text: "Cancel",
+              },
+              {
+                text: "Open files",
+                onPress: () => pickProfileMedia(type),
+              },
+            ]
+          );
+          return;
+        }
+      }
+      if (!result.canceled) {
+        const mediaType = result.assets[0].type.split("/")[0];
+
+        await FFmpegKit.cancel();
+        setCompressionProgress(0);
+        setSelectedMediaType("");
+        setShowVideoSizeError(false);
+        setProcessedVideoUri("");
+        setProcessingFile(Platform.OS === "ios" && mediaType === "video");
+        setCompressionProgress(0);
+
         setShowProfileImageOptions(false);
         setShowProfileVideoOptions(false);
-        const mediaInfo = await getInfoAsync(result.uri);
+        const mediaInfo = await getInfoAsync(result.assets[0]?.uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
         if (mediaSizeInMb > (isLowendDevice ? 30 : 50)) {
           setShowVideoSizeError(true);
@@ -161,6 +205,7 @@ const EditUserDetailsScreen = () => {
             ]
           );
           setLoading(false);
+
           return;
         }
         setFaceDetected(false);
@@ -168,12 +213,28 @@ const EditUserDetailsScreen = () => {
         setPickedFromCameraRoll(true);
         setShowVideoSizeError(false);
         if (type === "video") {
-          setProfileVideo(result.uri);
+          setProfileVideo("");
+          setProfileVideo(result.assets[0]?.uri);
           setProfileImage("");
         } else {
-          setProfileImage(result.uri);
-          await handleFaceDetection(0, result.uri);
+          setProfileImage(result.assets[0]?.uri);
+          await handleFaceDetection(0, result.assets[0]?.uri);
           setProfileVideo("");
+        }
+        setSelectedMediaType(mediaType);
+
+        if (mediaType === "video") {
+          setVideoDuration(result.assets[0].duration);
+          if (Platform.OS === "ios") {
+            await convertAndEncodeVideo({
+              uri: result.assets[0].uri,
+              setProgress: setCompressionProgress,
+              videoDuration: result.assets[0].duration,
+              setIsRunning: setProcessingFile,
+              setProcessedVideoUri,
+              isProfileVideo: true,
+            });
+          }
         }
       }
     }
@@ -422,18 +483,31 @@ const EditUserDetailsScreen = () => {
         }
       }
 
-      // need to make sure we don't just check extension but the actual encoding using ffprobe
-      const validVideoTypes = ["mp4", "webm"];
-      const profileVideoUri = !validVideoTypes.includes(
-        profileVideo?.split(".")[1]
-      )
-        ? await convertAndEncodeVideo({
-            uri: profileVideo,
-            isProfileVideo: true,
-          })
-        : profileVideo;
+      let convertedCodecAndCompressedUrl =
+        profileVideo &&
+        (Platform.OS === "ios"
+          ? processedVideoUri
+          : await convertAndEncodeVideo({
+              uri: profileVideo,
+              setProgress: setCompressionProgress,
+              videoDuration,
+              isProfileVideo: true,
+            }));
+      const gifResponse = profileVideo
+        ? await generateGif(convertedCodecAndCompressedUrl, profileVideo)
+        : null;
 
-      const gifUri = profileVideo ? await generateGif(profileVideoUri) : null;
+      // Check if generateGif has provided a compressed video url and if so, replace profileVideoUri with it
+      // This usually happens when something goes wrong with convertAndEncodeVideo and generateGif has to fall back to ffmpeg
+      const gifUri =
+        typeof gifResponse === "string"
+          ? gifResponse
+          : typeof gifResponse === "object"
+          ? gifResponse?.gif
+          : null;
+      if (typeof gifResponse === "object") {
+        convertedCodecAndCompressedUrl = gifResponse.compressedUri;
+      }
 
       if (profileVideo && !faceDetected) return;
       if (profileImage && !faceDetected) return;
@@ -450,7 +524,10 @@ const EditUserDetailsScreen = () => {
       const { response: signedData, success: signedDataSuccess } =
         await apiCall("POST", apiRoute, {
           username: userdata?.state?.username || "",
-          filename: (profileVideoUri || profileImage)?.replace(/^.*[\\\/]/, ""),
+          filename: (convertedCodecAndCompressedUrl || profileImage)?.replace(
+            /^.*[\\\/]/,
+            ""
+          ),
         });
       if (!signedDataSuccess) {
         setUpdateError(
@@ -486,8 +563,11 @@ const EditUserDetailsScreen = () => {
 
       const filePath =
         Platform.OS == "android"
-          ? (profileVideoUri || profileImage).replace("file://", "")
-          : profileVideoUri || profileImage;
+          ? (convertedCodecAndCompressedUrl || profileImage).replace(
+              "file://",
+              ""
+            )
+          : convertedCodecAndCompressedUrl || profileImage;
 
       const options = {
         url: signedData?.signedUrl,
@@ -702,6 +782,30 @@ const EditUserDetailsScreen = () => {
                       initialProfileData.profileVideoUrl &&
                       !profileImage) ? (
                     <View>
+                      {compressionProgress &&
+                      selectedMediaType === "video" &&
+                      !loadingVideo ? (
+                        <View style={{ width: "95%", alignSelf: "center" }}>
+                          <Text
+                            style={{
+                              color: themeStyle.colors.grayscale.lowest,
+                              textAlign: "center",
+                              marginBottom: 5,
+                            }}
+                          >
+                            Processing - {compressionProgress}%
+                          </Text>
+                          <View
+                            style={{
+                              width: `${compressionProgress || 100}%`,
+                              height: 5,
+                              backgroundColor:
+                                themeStyle.colors.secondary.default,
+                              borderRadius: 5,
+                            }}
+                          />
+                        </View>
+                      ) : null}
                       <PreviewVideo
                         onLoad={(info) =>
                           handleFaceDetection(info?.durationMillis)
@@ -1250,6 +1354,7 @@ const EditUserDetailsScreen = () => {
                   Object.keys(validationErrors).length ||
                   detectingFaces ||
                   loadingVideo ||
+                  (processingFile && profileVideo && !processedVideoUri) ||
                   !dataHasChanged()) && { opacity: 0.3 },
               ]}
             >
@@ -1261,6 +1366,7 @@ const EditUserDetailsScreen = () => {
                   Object.keys(validationErrors).length ||
                   detectingFaces ||
                   loadingVideo ||
+                  (processingFile && profileVideo && !processedVideoUri) ||
                   !dataHasChanged()
                 }
               >
