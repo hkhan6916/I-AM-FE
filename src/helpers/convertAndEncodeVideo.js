@@ -9,13 +9,13 @@ import { getInfoAsync } from "expo-file-system";
 import getVideoCodecName from "./getVideoCodecName";
 import { getRealPath } from "react-native-compressor";
 
-export const basicFfmpegCompression = async (uri) => {
+export const basicFfmpegCompression = async (uri = "") => {
   if (!uri) {
     console.log("basicFfmpegCompression: No URI provided.");
     return null;
   }
 
-  const realPath = await getRealPath(uri);
+  const realPath = uri.includes("file:/") ? uri : await getRealPath(uri);
 
   const mediaInfo = await getInfoAsync(realPath);
   const mediaSizeInMb = mediaInfo?.size / 1000000;
@@ -38,6 +38,7 @@ export const basicFfmpegCompression = async (uri) => {
   const oldNewFileName = `processed${oldFilename}`;
   let resizedUri = oldBaseDir + oldNewFileName;
 
+  // don't want to run asynchronously here as this is mainly for android and need to return a value directly instead of call set state.
   await FFmpegKit.execute(
     `-y -i ${realPath?.replace(
       "file://",
@@ -70,7 +71,7 @@ export const convertAndEncodeVideo = async ({
       return null;
     }
 
-    const realPath = await getRealPath(uri);
+    const realPath = uri.includes("file:/") ? uri : await getRealPath(uri);
 
     const mediaInfo = await getInfoAsync(realPath);
     const mediaSizeInMb = mediaInfo?.size / 1000000;

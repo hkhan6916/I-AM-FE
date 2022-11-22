@@ -1,17 +1,19 @@
-// import Upload from "react-native-background-upload";
 import apiCall from "./apiCall";
 import { uploadAsync, FileSystemUploadType } from "expo-file-system";
 import { Platform } from "react-native";
 import { getRealPath } from "react-native-compressor";
 const backgroundUpload = async ({
-  filePath,
+  filePath = "",
   url,
   parameters,
   failureRoute,
   onComplete,
   disableLogs,
 }) => {
-  const realFilePath = await getRealPath(filePath);
+  const realFilePath = filePath.includes("file:/")
+    ? filePath
+    : await getRealPath(filePath);
+
   const options = {
     url,
     path:
