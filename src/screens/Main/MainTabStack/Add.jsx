@@ -319,10 +319,9 @@ const AddScreen = () => {
         setShowMediaSizeError(false);
 
         setLoadingVideo(false);
-        if (selectedMediaType === "video") {
-          FFmpegKit.cancel();
-        }
+        FFmpegKit.cancel();
         setProcessingFile(Platform.OS === "ios" && mediaType === "video");
+        setProcessedVideoUri("");
         setGif("");
         setThumbnail("");
         setCompressionProgress(0);
@@ -365,13 +364,14 @@ const AddScreen = () => {
           setThumbnail(thumbnailUri);
           setVideoDuration(result.assets[0].duration);
           if (Platform.OS === "ios") {
-            const convertedCodecAndCompressedUrl = await convertAndEncodeVideo({
+            await convertAndEncodeVideo({
               uri: result.assets[0].uri,
               setProgress: setCompressionProgress,
               videoDuration: result.assets[0].duration,
+              setProcessedVideoUri,
+              setIsRunning: setProcessingFile,
+              setError,
             });
-            setProcessedVideoUri(convertedCodecAndCompressedUrl);
-            setProcessingFile(false);
           }
         }
       }
@@ -435,14 +435,14 @@ const AddScreen = () => {
             setThumbnail(thumbnailUri);
             setVideoDuration(file.media.duration);
             if (Platform.OS === "ios") {
-              const convertedCodecAndCompressedUrl =
-                await convertAndEncodeVideo({
-                  uri: file.uri,
-                  setProgress: setCompressionProgress,
-                  videoDuration: file.media.duration,
-                });
-              setProcessedVideoUri(convertedCodecAndCompressedUrl);
-              setProcessingFile(false);
+              await convertAndEncodeVideo({
+                uri: file.uri,
+                setProgress: setCompressionProgress,
+                videoDuration: file.media.duration,
+                setProcessedVideoUri,
+                setIsRunning: setProcessingFile,
+                setError,
+              });
             }
             setProcessingFile(false);
           }
@@ -496,7 +496,7 @@ const AddScreen = () => {
                 loading ||
                 showMediaSizeError ||
                 loadingVideo ||
-                processingFile
+                (processingFile && file.uri && !processedVideoUri)
               }
               onPress={() => handlePostCreation()}
             >
@@ -514,7 +514,7 @@ const AddScreen = () => {
                     (!file?.uri && !postBody && !gif) ||
                     showMediaSizeError ||
                     loadingVideo ||
-                    processingFile
+                    (processingFile && file.uri && !processedVideoUri)
                       ? 0.5
                       : 1,
                 }}

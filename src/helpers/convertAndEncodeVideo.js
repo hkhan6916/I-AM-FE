@@ -1,4 +1,8 @@
-import { FFmpegKit, FFmpegKitConfig } from "ffmpeg-kit-react-native";
+import {
+  FFmpegKit,
+  FFmpegKitConfig,
+  ReturnCode,
+} from "ffmpeg-kit-react-native";
 import { Alert, Platform } from "react-native";
 import { Video as VideoCompress } from "react-native-compressor";
 import { getInfoAsync } from "expo-file-system";
@@ -55,6 +59,9 @@ export const convertAndEncodeVideo = async ({
   videoDuration,
   useFfmpeg = false,
   useStandardCompressor = false,
+  setProcessedVideoUri = () => null,
+  setIsRunning = () => null,
+  setError = () => null,
 }) => {
   try {
     await FFmpegKit.cancel();
@@ -153,22 +160,33 @@ export const convertAndEncodeVideo = async ({
           }
         );
 
-        await FFmpegKit.execute(
-          `-y -i ${
-            Platform.OS == "android"
-              ? realPath?.replace("file://", "")
-              : realPath
-          } -c:v libx264 -crf ${
+        await FFmpegKit.executeAsync(
+          `-hide_banner -loglevel error -y -i ${realPath} -c:v libx264 -crf ${
             isProfileVideo ? "28" : "36"
-          } -preset ultrafast -vf format=yuv420p -c:a copy ${videoUri}`
+          } -preset ultrafast -vf format=yuv420p -c:a copy ${videoUri}`,
+          async (session) => {
+            const returnCode = await session.getReturnCode();
+
+            if (ReturnCode.isSuccess(returnCode)) {
+              // SUCCESS
+              setProcessedVideoUri(videoUri);
+              setIsRunning(false);
+            } else if (ReturnCode.isCancel(returnCode)) {
+              setProcessedVideoUri("");
+            } else {
+              setError(
+                "There was an issue processing this video. Please try again."
+              );
+              setIsRunning(false);
+            }
+          }
         );
+        console.log({ videoUri });
       } catch (e) {
         console.error("Failed to convert the video");
       }
-
       return videoUri;
     }
-    return null;
   } catch (err) {
     console.log({ err });
     if (!useFfmpeg && Platform.OS === "android") {
