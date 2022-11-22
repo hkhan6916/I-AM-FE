@@ -380,6 +380,7 @@ const AddScreen = () => {
 
   const handleGifSelect = (gifUrl) => {
     FFmpegKit.cancel();
+    setProcessedVideoUri("");
     setSelectedMediaType("");
     setCompressionProgress(0);
     setShowMediaSizeError(false);
@@ -409,10 +410,15 @@ const AddScreen = () => {
         recording={recording}
         setCameraActive={setCameraActive}
         setFile={async (file) => {
+          await FFmpegKit.cancel();
+          const mediaType = file.type?.split("/")[0];
+          setProcessingFile(Platform.OS === "ios" && mediaType === "video");
           setGif("");
           setThumbnail("");
           setCompressionProgress(0);
           setSelectedMediaType("");
+          setProcessedVideoUri("");
+          setGif("");
           const mediaInfo = await getInfoAsync(file.uri);
           const mediaSizeInMb = mediaInfo.size / 1000000;
           if (mediaSizeInMb > (isLowendDevice ? 50 : 100)) {
@@ -421,13 +427,10 @@ const AddScreen = () => {
             setLoading(false);
             return;
           }
-          const mediaType = file.type?.split("/")[0];
           setSelectedMediaType(mediaType);
           setFile({ ...file, ...mediaInfo });
 
           if (mediaType === "video") {
-            setProcessingFile(Platform.OS === "ios" && mediaType === "video");
-
             const thumbnailUri = await generateThumbnail(
               file.uri,
               file.media.duration
@@ -438,13 +441,12 @@ const AddScreen = () => {
               await convertAndEncodeVideo({
                 uri: file.uri,
                 setProgress: setCompressionProgress,
-                videoDuration: file.media.duration,
+                videoDuration: (file.media.duration || 0) * 1000,
                 setProcessedVideoUri,
                 setIsRunning: setProcessingFile,
                 setError,
               });
             }
-            setProcessingFile(false);
           }
         }}
         setRecording={setRecording}
