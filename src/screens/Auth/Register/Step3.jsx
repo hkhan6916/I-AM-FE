@@ -81,7 +81,6 @@ const Step1Screen = () => {
   const [skipProfileVideo, setSkipProfileVideo] = useState(false);
 
   const [pickedFromCameraRoll, setPickedFromCameraRoll] = useState(false);
-  const [loadingMedia, setLoadingMedia] = useState(false);
 
   const [registrationError, setRegistrationError] = useState("");
   const navigation = useNavigation();
@@ -365,16 +364,16 @@ const Step1Screen = () => {
     }
 
     if (status === "granted") {
-      setLoadingMedia(true);
       const result = await launchImageLibraryAsync({
         mediaTypes:
           type === "video" ? MediaTypeOptions.Videos : MediaTypeOptions.Images,
         quality: 0.3,
         selectionLimit: 1,
-        allowsEditing: true,
+        allowsEditing:
+          (Platform.OS === "ios" && type === "video") ||
+          Platform.OS === "android",
         videoQuality: UIImagePickerControllerQualityType.Medium,
       });
-      setLoadingMedia(false);
       if (type === "video") {
         const encoding = await getVideoCodecName(result.assets[0]?.uri);
         const unsupportedCodec =
@@ -511,7 +510,7 @@ const Step1Screen = () => {
         setRecording={setRecording}
         setProfileVideo={async (video) => {
           setPickedFromCameraRoll(false);
-          setProfileVideo(video);
+          setProfileVideo(video.path);
           setProfileImage("");
           setShowProfileImageOptions(false);
           setShowProfileVideoOptions(false);

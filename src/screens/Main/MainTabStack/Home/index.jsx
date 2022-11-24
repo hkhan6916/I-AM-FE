@@ -53,13 +53,14 @@ const HomeScreen = () => {
   const [showPostOptions, setShowPostOptions] = useState(null);
   const [error, setError] = useState("");
   const [feedError, setFeedError] = useState("");
-  const [currentVisible, setCurrentVisible] = useState(0);
-  const [nextVisible, setNextVisible] = useState(0);
-  const [prevVisible, setPrevVisible] = useState(0);
-  const navigation = useNavigation();
-  const listRef = useRef(null);
+  const currentVisible = useRef();
+  const nextVisible = useRef();
   const [scrolling, setScrolling] = useState(false);
   const [positionBeforeScroll, setPositionBeforeScroll] = useState(0);
+
+  const navigation = useNavigation();
+  const listRef = useRef(null);
+  const scrollTimeoutRef = useRef();
 
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
@@ -77,7 +78,7 @@ const HomeScreen = () => {
   useScrollToTop(
     useRef({
       scrollToTop: () => {
-        setCurrentVisible(0);
+        currentVisible.current = 0;
         listRef.current?.scrollToOffset({ offset: 2000 });
       },
     })
@@ -313,7 +314,7 @@ const HomeScreen = () => {
         />
       );
     },
-    [isFocussed]
+    [isFocussed, currentVisible.current, nextVisible.current]
   );
   const triggerOptionsModal = (post) => {
     setError("");
@@ -432,20 +433,24 @@ const HomeScreen = () => {
             onEndReachedThreshold={0.5}
             // initialRenderIndex={currentVisible + 1}
             extendedState={{
-              currentVisible: canPlayFeedVideos ? currentVisible : null,
-              nextVisible: canPlayFeedVideos ? nextVisible : null,
+              currentVisible: canPlayFeedVideos ? currentVisible.current : null,
+              nextVisible: canPlayFeedVideos ? nextVisible.current : null,
               scrolling: canPlayFeedVideos ? scrolling : null,
             }}
             rowRenderer={rowRenderer}
             forceNonDeterministicRendering
             renderFooter={renderFooter}
             onScroll={(event) => {
+              if (scrollTimeoutRef.current) {
+                clearTimeout(scrollTimeoutRef.current);
+                scrollTimeoutRef.current = null;
+              }
               if (
                 !scrolling &&
                 Math.abs(
                   event.nativeEvent.contentOffset.y - positionBeforeScroll
                 ) > 300 &&
-                currentVisible !== 0
+                currentVisible.current !== 0
                 // if they scroll far enough, enable scroll to pause video
               ) {
                 setScrolling(true);
@@ -457,8 +462,8 @@ const HomeScreen = () => {
               //   (typeof items[0] === "number" && items[0] !== currentVisible) ||
               //   (typeof items[1] === "number" && items[1] !== nextVisible)
               // ) {
-              setCurrentVisible(items[0]);
-              setNextVisible(items[1] || items[0]);
+              currentVisible.current = items[0];
+              nextVisible.current = items[1] || items[0];
               // }
             }}
             scrollViewProps={{
@@ -468,9 +473,18 @@ const HomeScreen = () => {
               },
               removeClippedSubviews: true,
               onMomentumScrollEnd: () => {
-                if (prevVisible !== currentVisible) {
+                const debounce = setTimeout(() => {
                   setScrolling(false);
-                }
+                }, 400);
+                scrollTimeoutRef.current = debounce;
+              },
+              onScrollEndDrag: () => {
+                // if (nextVisible !== currentVisible) {
+                const debounce = setTimeout(() => {
+                  setScrolling(false);
+                }, 400);
+                scrollTimeoutRef.current = debounce;
+                // }
               },
               refreshControl: (
                 <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />

@@ -27,6 +27,7 @@ const ProfileVideoCamera = ({
   setRecordingLength,
   hasCameraPermission,
   hasAudioPermission,
+  setVideoDuration,
 }) => {
   const [showNotice, setShowNotice] = useState(null);
   const cameraRef = useRef();
@@ -58,7 +59,9 @@ const ProfileVideoCamera = ({
       setRecordingLength(30);
       setRecording(true);
       await cameraRef?.current?.startRecording({
-        onRecordingFinished: (video) => setProfileVideo(video.path),
+        onRecordingFinished: (video) => {
+          setProfileVideo(video);
+        },
         onRecordingError: (error) => console.error(error),
       });
     } else {

@@ -658,12 +658,31 @@ const EditUserDetailsScreen = () => {
     return (
       <ProfileVideoCamera
         setRecording={setRecording}
-        setProfileVideo={(video) => {
+        setProfileVideo={async (video) => {
+          await FFmpegKit.cancel();
+          setProcessingFile(Platform.OS === "ios");
+          setCompressionProgress(0);
+          setProcessedVideoUri("");
+          setShowVideoSizeError(false);
+          setFaceDetected(false);
+          setDetectingFaces(false);
           setPickedFromCameraRoll(false);
-          setProfileVideo(video);
+          setProfileVideo(video.path);
           setProfileImage("");
           setShowProfileImageOptions(false);
           setShowProfileVideoOptions(false);
+          setSelectedMediaType("video");
+          setVideoDuration((video.duration || 0) * 1000);
+          if (Platform.OS === "ios") {
+            await convertAndEncodeVideo({
+              uri: video.path,
+              setProgress: setCompressionProgress,
+              videoDuration: (video.duration || 0) * 1000,
+              setIsRunning: setProcessingFile,
+              setProcessedVideoUri,
+              isProfileVideo: true,
+            });
+          }
         }}
         setCameraActivated={setProfileVideoCameraActivated}
         setRecordingLength={setRecordingLength}
@@ -684,9 +703,13 @@ const EditUserDetailsScreen = () => {
         defaultCameraPosition="front"
         setCameraActive={setProfileImageCameraActivated}
         setFile={async (file) => {
+          setProcessingFile(false);
+          setCompressionProgress(0);
+          setShowVideoSizeError(false);
           setProfileImage(file.uri);
           await handleFaceDetection(0, file.uri);
           setProfileVideo("");
+          setProcessedVideoUri("");
           setShowProfileImageOptions(false);
           setShowProfileVideoOptions(false);
         }}
