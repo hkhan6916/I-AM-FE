@@ -49,6 +49,7 @@ import getVideoCodecName from "../../../helpers/getVideoCodecName";
 import { FFmpegKit } from "ffmpeg-kit-react-native";
 import { launchImageLibraryAsync } from "expo-image-picker";
 import ActionSheet from "react-native-actions-sheet";
+import { Video } from "expo-av";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -61,6 +62,7 @@ const AddScreen = () => {
   const [showMediaSizeError, setShowMediaSizeError] = useState(false);
   const [showGifsModal, setShowGifsModal] = useState(false);
   const [gif, setGif] = useState("");
+  const [gifPreview, setGifPreview] = useState("");
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
   const [thumbnail, setThumbnail] = useState("");
@@ -91,6 +93,7 @@ const AddScreen = () => {
     if (gif) {
       // if there's a gif, skip everything and just upload the gif
       postData.gif = gif;
+      postData.gifPreview = gifPreview;
       return postData;
     }
     if (file.uri) {
@@ -176,7 +179,7 @@ const AddScreen = () => {
   const generateThumbnail = async (path, duration) => {
     try {
       const { uri } = await getThumbnailAsync(path || file.uri, {
-        time: (duration || 0) / 2,
+        time: (duration || 0) > 1 ? 1 : 0,
         quality: 0.5,
       });
       return uri;
@@ -378,7 +381,7 @@ const AddScreen = () => {
     }
   };
 
-  const handleGifSelect = (gifUrl) => {
+  const handleGifSelect = ({ gif, gifPreview }) => {
     FFmpegKit.cancel();
     setProcessedVideoUri("");
     setSelectedMediaType("");
@@ -386,7 +389,8 @@ const AddScreen = () => {
     setShowMediaSizeError(false);
     setFile({});
     setVideoDuration(0);
-    setGif(gifUrl);
+    setGif(gif);
+    setGifPreview(gifPreview);
   };
 
   useEffect(() => {
@@ -436,7 +440,7 @@ const AddScreen = () => {
               file.media.duration
             );
             setThumbnail(thumbnailUri);
-            setVideoDuration(file.media.duration);
+            setVideoDuration((file.media.duration || 0) * 1000);
             if (Platform.OS === "ios") {
               await convertAndEncodeVideo({
                 uri: file.uri,
@@ -747,7 +751,9 @@ const AddScreen = () => {
                     height: screenWidth - 40,
                   }}
                 >
-                  <Image
+                  <Video
+                    shouldPlay
+                    isLooping
                     resizeMode="contain"
                     style={{ width: "100%", height: "100%", maxHeight: 300 }}
                     source={{ uri: gif }}

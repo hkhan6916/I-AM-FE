@@ -120,7 +120,7 @@ const HomeScreen = () => {
             textAlign: "center",
           }}
         >
-          That&apos;s all for now.
+          That&apos;s all for now
         </Text>
       ) : (
         <ActivityIndicator animating size={"large"} />

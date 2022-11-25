@@ -26,7 +26,6 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
 
   const { width: screen } = Dimensions.get("window");
   const screenWidth = Math.min(screen, 900);
-  const imageHeight = screenWidth / 2;
   const handleGifSearch = async (searchInput) => {
     let isCancelled = false;
     if (!isCancelled) {
@@ -72,7 +71,10 @@ const GifModal = ({ setShowModal, selectGif, active }) => {
       >
         <TouchableOpacity
           onPress={() => {
-            selectGif(item?.media[0].tinygif.url); // TODO: pick a smaller gif here. These take too long to render
+            selectGif({
+              gif: item?.media[0].tinymp4.url,
+              gifPreview: item?.media[0].tinymp4.preview,
+            });
             setShowModal(false);
           }}
         >

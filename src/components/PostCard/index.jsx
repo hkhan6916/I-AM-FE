@@ -120,10 +120,26 @@ const PostCard = ({
                       flex: 1,
                       flexDirection: "column",
                       alignItems: "center",
-                      maxHeight: 500,
-                      backgroundColor: themeStyle.colors.black,
                     }}
                   >
+                    <VideoPlayer
+                      disableVideo={disableVideo || Platform.OS === "web"}
+                      shouldPlay={isVisible}
+                      shouldLoad={isNearlyVisible}
+                      mediaIsSelfie={post.mediaIsSelfie}
+                      url={post.gif}
+                      thumbnailUrl={post.gifPreview}
+                      thumbnailHeaders={post.thumbnailHeaders}
+                      isUploading={post.ready === false}
+                      isCancelled={post.cancelled}
+                      screenHeight={screenHeight}
+                      screenWidth={screenWidth}
+                      height={post.height}
+                      width={post.width}
+                      unMute={!!post.unMute}
+                      setUnMuteVideos={setUnMuteVideos}
+                      hideIcons
+                    />
                     <View
                       style={{
                         position: "absolute",
@@ -141,20 +157,6 @@ const PostCard = ({
                         source={require("../../../assets/via_tenor_logo_blue.png")}
                       />
                     </View>
-                    <Image
-                      resizeMode={"contain"}
-                      style={{
-                        aspectRatio: 1 / 1,
-                        width: screenWidth || 300,
-                        height: screenWidth,
-                        backgroundColor: themeStyle.colors.black,
-                        maxWidth: 900,
-                        maxHeight: 500,
-                      }}
-                      source={{
-                        uri: post.gif,
-                      }}
-                    />
                   </View>
                 ) : post.mediaType === "video" ? (
                   <View

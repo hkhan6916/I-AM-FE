@@ -27,7 +27,6 @@ const ProfileVideoCamera = ({
   setRecordingLength,
   hasCameraPermission,
   hasAudioPermission,
-  setVideoDuration,
 }) => {
   const [showNotice, setShowNotice] = useState(null);
   const cameraRef = useRef();

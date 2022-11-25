@@ -27,6 +27,7 @@ const VideoPlayer = ({
   width,
   disableVideo,
   setUnMuteVideos,
+  hideIcons = false,
 }) => {
   const calculatedVideoHeight =
     height && width && (Number(height) / Number(width)) * screenWidth;
@@ -208,7 +209,7 @@ const VideoPlayer = ({
           ) : null}
           {/* ) : null} */}
 
-          {(!showToggle && !readyForDisplay) || disableVideo || !shouldPlay ? (
+          {!hideIcons && (!readyForDisplay || disableVideo || !shouldPlay) ? (
             <View
               style={{
                 position: "absolute",
@@ -236,42 +237,45 @@ const VideoPlayer = ({
               />
             </View>
           ) : null}
-
-          <View
-            style={{
-              position: "absolute",
-              display: disableVideo ? "none" : "flex",
-              right: 0,
-              bottom: 0,
-            }}
-          >
-            <TouchableOpacity
-              onPress={() => setUnMuteVideos(!globalUnMuteVideos)}
+          {!hideIcons ? (
+            <View
               style={{
-                height: 48,
-                width: 48,
-                alignItems: "center",
-                justifyContent: "center",
+                position: "absolute",
+                display: disableVideo ? "none" : "flex",
+                right: 0,
+                bottom: 0,
               }}
             >
-              <Ionicons
-                name={
-                  !globalUnMuteVideos ? "ios-volume-mute" : "ios-volume-medium"
-                }
+              <TouchableOpacity
+                onPress={() => setUnMuteVideos(!globalUnMuteVideos)}
                 style={{
-                  color: themeStyle.colors.white,
-                  textShadowOffset: {
-                    width: 1,
-                    height: 1,
-                  },
-                  textShadowRadius: 8,
-                  textShadowColor: themeStyle.colors.black,
+                  height: 48,
+                  width: 48,
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
-                size={24}
-                color={themeStyle.colors.white}
-              />
-            </TouchableOpacity>
-          </View>
+              >
+                <Ionicons
+                  name={
+                    !globalUnMuteVideos
+                      ? "ios-volume-mute"
+                      : "ios-volume-medium"
+                  }
+                  style={{
+                    color: themeStyle.colors.white,
+                    textShadowOffset: {
+                      width: 1,
+                      height: 1,
+                    },
+                    textShadowRadius: 8,
+                    textShadowColor: themeStyle.colors.black,
+                  }}
+                  size={24}
+                  color={themeStyle.colors.white}
+                />
+              </TouchableOpacity>
+            </View>
+          ) : null}
         </View>
       </View>
       {videoStatus?.playableDuration && videoStatus?.currentTime ? (
