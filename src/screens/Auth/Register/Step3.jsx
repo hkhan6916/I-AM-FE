@@ -171,14 +171,16 @@ const Step1Screen = () => {
 
   const uploadMediaAndSendUserData = async (notificationToken) => {
     setLoading(true);
-    let profileVideoUri = await convertAndEncodeVideo({
-      uri: profileVideo,
-      isProfileVideo: true,
-    });
+    let profileVideoUri =
+      profileVideo &&
+      (await convertAndEncodeVideo({
+        uri: profileVideo,
+        isProfileVideo: true,
+      }));
+
     const gifResponse = profileVideo
       ? await generateGif(profileVideoUri, profileVideo)
       : null;
-
     // Check if generateGif has provided a compressed video url and if so, replace profileVideoUri with it
     // This usually happens when something goes wrong with convertAndEncodeVideo and generateGif has to fall back to ffmpeg
     const gifUri =
@@ -188,7 +190,7 @@ const Step1Screen = () => {
         ? gifResponse?.gif
         : null;
 
-    if (typeof gifResponse === "object") {
+    if (profileVideo && typeof gifResponse === "object") {
       profileVideoUri = gifResponse.compressedUri;
     }
 

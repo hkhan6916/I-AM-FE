@@ -500,12 +500,13 @@ const EditUserDetailsScreen = () => {
       // Check if generateGif has provided a compressed video url and if so, replace profileVideoUri with it
       // This usually happens when something goes wrong with convertAndEncodeVideo and generateGif has to fall back to ffmpeg
       const gifUri =
-        typeof gifResponse === "string"
+        profileVideo && typeof gifResponse === "string"
           ? gifResponse
           : typeof gifResponse === "object"
           ? gifResponse?.gif
           : null;
-      if (typeof gifResponse === "object") {
+      // null is type of object so need to check if gif response is nullish before checking if object
+      if (profileVideo && typeof gifResponse === "object") {
         convertedCodecAndCompressedUrl = gifResponse.compressedUri;
       }
 
