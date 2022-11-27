@@ -176,6 +176,8 @@ const Step1Screen = () => {
       (await convertAndEncodeVideo({
         uri: profileVideo,
         isProfileVideo: true,
+        disableAsync: true,
+        useFfmpeg: true,
       }));
 
     const gifResponse = profileVideo
@@ -376,28 +378,28 @@ const Step1Screen = () => {
           Platform.OS === "android",
         videoQuality: UIImagePickerControllerQualityType.Medium,
       });
-      if (type === "video") {
-        const encoding = await getVideoCodecName(result.assets[0]?.uri);
-        const unsupportedCodec =
-          encoding === "hevc" || encoding === "h265" || !encoding;
-        if (unsupportedCodec && Platform.OS === "android") {
-          Alert.alert(
-            "Sorry, this video is unsupportedn.",
-            "Please choose another video.",
-            [
-              {
-                text: "Cancel",
-              },
-              {
-                text: "Open files",
-                onPress: () => pickProfileMedia(type),
-              },
-            ]
-          );
-          return;
+      if (!result.canceled) {
+        if (type === "video") {
+          const encoding = await getVideoCodecName(result.assets[0]?.uri);
+          const unsupportedCodec =
+            encoding === "hevc" || encoding === "h265" || !encoding;
+          if (unsupportedCodec && Platform.OS === "android") {
+            Alert.alert(
+              "Sorry, this video is unsupportedn.",
+              "Please choose another video.",
+              [
+                {
+                  text: "Cancel",
+                },
+                {
+                  text: "Open files",
+                  onPress: () => pickProfileMedia(type),
+                },
+              ]
+            );
+            return;
+          }
         }
-      }
-      if (!result.didCancel) {
         FFmpegKit.cancel();
         setShowProfileImageOptions(false);
         setShowProfileVideoOptions(false);
@@ -512,8 +514,8 @@ const Step1Screen = () => {
         setRecording={setRecording}
         setProfileVideo={async (video) => {
           setPickedFromCameraRoll(false);
-          setProfileVideo(video.path);
           setProfileImage("");
+          setProfileVideo(video.path);
           setShowProfileImageOptions(false);
           setShowProfileVideoOptions(false);
         }}

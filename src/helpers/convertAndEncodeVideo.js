@@ -10,6 +10,7 @@ import getVideoCodecName from "./getVideoCodecName";
 import { getRealPath } from "react-native-compressor";
 
 export const basicFfmpegCompression = async (uri = "") => {
+  console.log("Running Basic Compression (FFMPEG)");
   if (!uri) {
     console.log("basicFfmpegCompression: No URI provided.");
     return null;
@@ -49,10 +50,13 @@ export const basicFfmpegCompression = async (uri = "") => {
   return resizedUri;
 };
 
+// FLAG: -pix_fmt yuv420p
+// URL: https://stackoverflow.com/questions/21184014/ffmpeg-converted-mp4-file-does-not-play-in-firefox-and-chrome
+
 /**
- * FLAG: -pix_fmt yuv420p
- * URL: https://stackoverflow.com/questions/21184014/ffmpeg-converted-mp4-file-does-not-play-in-firefox-and-chrome
- * */
+ *
+ * @param {Boolean} useStandardCompressor - Android only
+ */
 export const convertAndEncodeVideo = async ({
   uri,
   isProfileVideo,
@@ -63,6 +67,7 @@ export const convertAndEncodeVideo = async ({
   setProcessedVideoUri = () => null,
   setIsRunning = () => null,
   setError = () => null,
+  disableAsync = false,
 }) => {
   try {
     await FFmpegKit.cancel();
@@ -94,17 +99,19 @@ export const convertAndEncodeVideo = async ({
      * Why? Because react-native-compressor runs in the background but also gives better quality videos with manual compression. It also feels more reliable. But it's slow so we don't use it for large files.
      */
     if (Platform.OS === "android") {
+      console.log("Running Android Compression (React-Native-Compressor)");
+
       const encoding = await getVideoCodecName(realPath);
 
-      // Checks if encoding is unsupported by standard compressor
+      // Checks if encoding is unsupported by standard compressor and whether to use ffmpeg
       const requiresFFMPEG = ["aac"].includes(encoding);
-      // if small profile video, use standard compression
-      if (
-        useStandardCompressor ||
-        (!requiresFFMPEG &&
-          ((mediaSizeInMb <= 25 && isProfileVideo) || !isProfileVideo) &&
-          !useFfmpeg)
-      ) {
+
+      // if not profile video OR we force standard compression e.g. in EditUserDetailsScreen, we set useStandardCompressor to true because we want to compress profile video in background on android.
+      const shouldUseStandardCompression =
+        !isProfileVideo ||
+        (useStandardCompressor && !useFfmpeg && !requiresFFMPEG);
+
+      if (shouldUseStandardCompression) {
         const videoUri = await VideoCompress.compress(
           realPath,
           {
@@ -141,6 +148,7 @@ export const convertAndEncodeVideo = async ({
      * We run ffmpeg since IOS devices likely has hevc/h265 videos. Since ffmpeg runs quite fast on IOS, we run it in the foreground. Running in background is not possible in a stable way for ffmpeg and neither for react-native-compressor package.
      */
     if (Platform.OS === "ios") {
+      console.log("Running Ios Compression (FFMPEG)");
       const oldFilename = realPath.replace(/^.*[\\\/]/, "");
       const oldBaseDir = realPath.split(oldFilename)[0];
       const oldNewFileName = `processed${oldFilename.split(".")[0]}.mp4`;
@@ -160,29 +168,37 @@ export const convertAndEncodeVideo = async ({
             }
           }
         );
+        // we want to run in a synchronous manner for sign up because we show a loader. No need for executeAsync
+        if (disableAsync) {
+          await FFmpegKit.execute(
+            `-hide_banner -loglevel error -y -i ${realPath} -c:v libx264 -crf ${
+              isProfileVideo ? "28" : "36"
+            } -preset ultrafast -vf format=yuv420p -c:a copy ${videoUri}`
+          );
+        } else {
+          await FFmpegKit.executeAsync(
+            `-hide_banner -loglevel error -y -i ${realPath} -c:v libx264 -crf ${
+              isProfileVideo ? "28" : "36"
+            } -preset ultrafast -vf format=yuv420p -c:a copy ${videoUri}`,
+            async (session) => {
+              const returnCode = await session.getReturnCode();
 
-        await FFmpegKit.executeAsync(
-          `-hide_banner -loglevel error -y -i ${realPath} -c:v libx264 -crf ${
-            isProfileVideo ? "28" : "36"
-          } -preset ultrafast -vf format=yuv420p -c:a copy ${videoUri}`,
-          async (session) => {
-            const returnCode = await session.getReturnCode();
-
-            if (ReturnCode.isSuccess(returnCode)) {
-              // SUCCESS
-              setProcessedVideoUri(videoUri);
-              setIsRunning(false);
-            } else if (ReturnCode.isCancel(returnCode)) {
-              setProcessedVideoUri("");
-            } else {
-              setError(
-                "There was an issue processing this video. Please try again."
-              );
-              setIsRunning(false);
+              if (ReturnCode.isSuccess(returnCode)) {
+                // SUCCESS
+                setProcessedVideoUri(videoUri);
+                setIsRunning(false);
+              } else if (ReturnCode.isCancel(returnCode)) {
+                setProcessedVideoUri("");
+              } else {
+                setError(
+                  "There was an issue processing this video. Please try again."
+                );
+                setIsRunning(false);
+              }
             }
-          }
-        );
-        console.log({ videoUri });
+          );
+          console.log({ videoUri });
+        }
       } catch (e) {
         console.error("Failed to convert the video");
       }

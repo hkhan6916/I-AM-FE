@@ -492,6 +492,7 @@ const EditUserDetailsScreen = () => {
               setProgress: setCompressionProgress,
               videoDuration,
               isProfileVideo: true,
+              useStandardCompressor: true, // for android we use react-native-compressor for background compression
             }));
       const gifResponse = profileVideo
         ? await generateGif(convertedCodecAndCompressedUrl, profileVideo)
