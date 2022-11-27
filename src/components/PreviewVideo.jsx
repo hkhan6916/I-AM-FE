@@ -195,20 +195,19 @@ const PreviewVideo = ({
                 height: "100%", //isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
                 borderColor: themeStyle.colors.primary.default,
                 borderRadius: isFullWidth ? 0 : 10,
-                backgroundColor: themeStyle.colors.grayscale.lowest,
-                opacity: 0.7,
+                backgroundColor: themeStyle.colors.black,
+                opacity: 0.8,
                 padding: 2,
               }}
             >
               {ready ? (
                 <Text
                   style={{
-                    flex: 1,
                     position: "absolute",
                     fontSize: 20,
                     textAlign: "center",
                     width: screenWidth,
-                    color: themeStyle.colors.black,
+                    color: themeStyle.colors.white,
                     opacity: 1,
                     textShadowOffset: {
                       width: 1,

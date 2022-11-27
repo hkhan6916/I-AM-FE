@@ -801,36 +801,30 @@ const EditUserDetailsScreen = () => {
                           face is shown in your profile image.
                         </Text>
                       ) : null}
+                      {profileImage ? (
+                        <TouchableOpacity
+                          style={{ marginBottom: 10, marginTop: 20 }}
+                          onPress={() => {
+                            setProfileVideo("");
+                            setProfileImage("");
+                            setFaceDetected(true);
+                            setDetectingFaces(false);
+                            setLoadingVideo(false);
+                            setTooShort(false);
+                            setTooLong(false);
+                          }}
+                        >
+                          <Text style={styles.resetProfileVideoText}>
+                            Remove Profile Image
+                          </Text>
+                        </TouchableOpacity>
+                      ) : null}
                     </View>
                   ) : (profileVideo && faceDetected) ||
                     (!profileVideo &&
                       initialProfileData.profileVideoUrl &&
                       !profileImage) ? (
                     <View>
-                      {compressionProgress &&
-                      selectedMediaType === "video" &&
-                      !loadingVideo ? (
-                        <View style={{ width: "95%", alignSelf: "center" }}>
-                          <Text
-                            style={{
-                              color: themeStyle.colors.grayscale.lowest,
-                              textAlign: "center",
-                              marginBottom: 5,
-                            }}
-                          >
-                            Processing - {compressionProgress}%
-                          </Text>
-                          <View
-                            style={{
-                              width: `${compressionProgress || 100}%`,
-                              height: 5,
-                              backgroundColor:
-                                themeStyle.colors.secondary.default,
-                              borderRadius: 5,
-                            }}
-                          />
-                        </View>
-                      ) : null}
                       <PreviewVideo
                         onLoad={(info) =>
                           handleFaceDetection(info?.durationMillis)
@@ -849,6 +843,42 @@ const EditUserDetailsScreen = () => {
                         }
                         headers={initialProfileData?.profileVideoHeaders}
                       />
+                      {compressionProgress &&
+                      selectedMediaType === "video" &&
+                      !loadingVideo ? (
+                        <View
+                          style={{
+                            width: screenWidth,
+                            marginVertical: 10,
+                            height: 20,
+                            maxWidth: 400,
+                            alignSelf: "center",
+                            paddingHorizontal: 20,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: themeStyle.colors.grayscale.lowest,
+                              textAlign: "center",
+                              marginBottom: 5,
+                              fontWeight: "700",
+                            }}
+                          >
+                            {compressionProgress == 100
+                              ? "Ready"
+                              : `Processing Profile Video - ${compressionProgress}%`}
+                          </Text>
+                          <View
+                            style={{
+                              width: `${compressionProgress || 100}%`,
+                              height: 5,
+                              backgroundColor:
+                                themeStyle.colors.secondary.default,
+                              borderRadius: 5,
+                            }}
+                          />
+                        </View>
+                      ) : null}
                       {!detectingFaces &&
                       !loadingVideo &&
                       !faceDetected &&
@@ -863,9 +893,9 @@ const EditUserDetailsScreen = () => {
                             : ""}
                         </Text>
                       ) : null}
-                      {profileVideo || profileImage ? (
+                      {profileVideo ? (
                         <TouchableOpacity
-                          style={{ marginVertical: 10 }}
+                          style={{ marginBottom: 10, marginTop: 20 }}
                           onPress={() => {
                             setProfileVideo("");
                             setProfileImage("");
@@ -877,7 +907,7 @@ const EditUserDetailsScreen = () => {
                           }}
                         >
                           <Text style={styles.resetProfileVideoText}>
-                            Reset
+                            Remove Profile Video
                           </Text>
                         </TouchableOpacity>
                       ) : null}
@@ -913,7 +943,7 @@ const EditUserDetailsScreen = () => {
                           onPress={() => setProfileVideo("")}
                         >
                           <Text style={styles.resetProfileVideoText}>
-                            Reset
+                            Remove Profile Video
                           </Text>
                         </TouchableOpacity>
                       </View>
@@ -1399,7 +1429,7 @@ const EditUserDetailsScreen = () => {
                   <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
                     Updating...
                   </Text>
-                ) : isUpdating ? (
+                ) : isUpdating || processingFile ? (
                   <ActivityIndicator
                     size="small"
                     color={themeStyle.colors.white}
