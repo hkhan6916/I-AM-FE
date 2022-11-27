@@ -135,29 +135,13 @@ const MediaScreen = (props) => {
       <StatusBar hidden />
       <SafeAreaView style={styles.container}>
         <View>
-          {post?.mediaType === "video" ? (
+          {post?.mediaType === "video" || post.gif ? (
             <ExpoVideoPlayer
               isSelfie={post.mediaIsSelfie}
-              uri={post.mediaUrl}
+              uri={post.mediaUrl || post.gif}
+              isGif={post.gif && !post.mediaUrl}
             />
-          ) : // <VideoPlayer
-          //   source={{ uri: post.mediaUrl }}
-          //   navigator={navigation}
-          //   videoStyle={{
-          //     transform: [{ scaleX: post.mediaIsSelfie ? -1 : 1 }],
-          //     // height: "100%",
-          //   }}
-          //   onError={(e) => console.log(e)}
-          //   style={{ width: screenWidth }}
-          //   paused={!isFocused}
-          //   disableFullscreen
-          //   fullscreen={false}
-          //   Ionicons
-          //   controlAnimationTiming={100}
-          //   disableVolume
-          //   // scrubbing={1000}
-          // />
-          post?.mediaType === "image" ? (
+          ) : post?.mediaType === "image" ? (
             <View
               style={{
                 alignItems: "center",

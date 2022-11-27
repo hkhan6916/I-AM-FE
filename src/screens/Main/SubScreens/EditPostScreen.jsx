@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
   Platform,
   Dimensions,
-  Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import themeStyle from "../../../theme.style";
@@ -20,6 +19,7 @@ import RepostCard from "../../../components/RepostCard";
 import VideoPlayer from "expo-video-player";
 import { AntDesign } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
+import { Video } from "expo-av";
 
 const EditPostScreen = (props) => {
   const [postBody, setPostBody] = useState("");
@@ -218,10 +218,13 @@ const EditPostScreen = (props) => {
                     padding: 5,
                   }}
                 >
-                  <Image
+                  <Video
                     resizeMode="contain"
                     style={{ width: "100%", height: "100%" }}
                     source={{ uri: existingPost?.gif }}
+                    posterSource={existingPost?.gifPreview}
+                    shouldPlay
+                    isLooping
                   />
                 </View>
               ) : existingPost?.mediaType === "video" ? (

@@ -28,6 +28,7 @@ const VideoPlayer = ({
   disableVideo,
   setUnMuteVideos,
   hideIcons = false,
+  innerRef,
 }) => {
   const calculatedVideoHeight =
     height && width && (Number(height) / Number(width)) * screenWidth;
@@ -166,7 +167,7 @@ const VideoPlayer = ({
               shouldPlay={play}
               usePoster
               isMuted={!globalUnMuteVideos}
-              ref={video}
+              ref={innerRef || video}
               posterSource={{ uri: thumbnailUrl, headers: thumbnailHeaders }}
               posterStyle={[
                 {

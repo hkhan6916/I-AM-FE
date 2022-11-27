@@ -12,19 +12,15 @@ import {
   Platform,
 } from "react-native";
 import apiCall from "../../../helpers/apiCall";
-import formatAge from "../../../helpers/formatAge";
 import themeStyle from "../../../theme.style";
 import Avatar from "../../../components/Avatar";
 import {
-  Feather,
   FontAwesome,
   Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
-import ImageWithCache from "../../../components/ImageWithCache";
 import VideoPlayer from "../../../components/VideoPlayer";
-import AnimatedLottieView from "lottie-react-native";
 import { useDispatch } from "react-redux";
 import PostAge from "../../../components/PostAge";
 import CardImage from "../../../components/CardImage";
@@ -59,6 +55,8 @@ const PostScreen = (props) => {
 
   const navigation = useNavigation();
   const isFocused = useIsFocused();
+
+  const videoRef = useRef();
 
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
   const lottieRef = useRef(null);
@@ -123,6 +121,11 @@ const PostScreen = (props) => {
     navigation.addListener("focus", async () => {
       (async () => {
         await getAdditionalPostData();
+      })();
+    });
+    navigation.addListener("blur", async () => {
+      (async () => {
+        await videoRef.current?.unloadAsync();
       })();
     });
     return () => {
@@ -243,6 +246,7 @@ const PostScreen = (props) => {
                       height={post.height}
                       width={post.width}
                       setUnMuteVideos={handleUnMute} // TODO: test this
+                      innerRef={videoRef}
                     />
                   </View>
                 ) : post.mediaType === "image" ? (

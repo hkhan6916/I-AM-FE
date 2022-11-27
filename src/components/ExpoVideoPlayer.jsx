@@ -10,6 +10,7 @@ const ExpoVideoPlayer = ({
   uri,
   isSelfie,
   enableIOSNativeControls = false,
+  isGif = false,
 }) => {
   const [focussed, setFocussed] = useState(true);
 
@@ -31,6 +32,7 @@ const ExpoVideoPlayer = ({
       transform: [{ scaleX: isSelfie ? -1 : 1 }],
       height: "100%",
     },
+    isLooping: isGif,
   };
 
   useEffect(() => {
@@ -55,8 +57,16 @@ const ExpoVideoPlayer = ({
 
   return (
     <View style={{ flex: 1, justifyContent: "center" }}>
-      {(!enableIOSNativeControls && Platform.OS === "ios") ||
-      Platform.OS !== "ios" ? (
+      {(enableIOSNativeControls && Platform.OS === "ios") || isGif ? (
+        <Video
+          {...videoProps}
+          useNativeControls={!isGif}
+          style={{
+            width: screenWidth,
+            flex: 1,
+          }}
+        />
+      ) : (
         <VideoPlayer
           autoHidePlayer={false}
           timeVisible
@@ -67,15 +77,6 @@ const ExpoVideoPlayer = ({
           slider={{ height: Platform.OS === "android" ? 100 : 0 }}
           videoProps={videoProps}
           fullscreen
-        />
-      ) : (
-        <Video
-          {...videoProps}
-          useNativeControls
-          style={{
-            width: screenWidth,
-            flex: 1,
-          }}
         />
       )}
     </View>

@@ -107,11 +107,12 @@ const PostCard = ({
         ) : (
           <View>
             <TouchableOpacity
-              onPress={() =>
-                !post.private && !post.gif && handleNavigation(post)
-              }
+              onPress={() => handleNavigation(post)}
               underlayColor={themeStyle.colors.grayscale.high}
               delayPressIn={150}
+              disabled={
+                !!(post.private || post.cancelled || post.ready === false)
+              }
             >
               <View>
                 {post.gif ? (
@@ -120,6 +121,7 @@ const PostCard = ({
                       flex: 1,
                       flexDirection: "column",
                       alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
                     <VideoPlayer
@@ -140,6 +142,31 @@ const PostCard = ({
                       setUnMuteVideos={setUnMuteVideos}
                       hideIcons
                     />
+                    {disableVideo ? (
+                      // Disable video also prevents gifs from playing in postcard.
+                      <View
+                        style={{
+                          position: "absolute",
+                          backgroundColor:
+                            themeStyle.colors.grayscale.transparentHighest50,
+                          height: 70,
+                          width: 70,
+                          justifyContent: "center",
+                          alignItems: "center",
+                          borderRadius: 35,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: themeStyle.colors.grayscale.lowest,
+                            fontWeight: "700",
+                            fontSize: 20,
+                          }}
+                        >
+                          GIF
+                        </Text>
+                      </View>
+                    ) : null}
                     <View
                       style={{
                         position: "absolute",

@@ -53,7 +53,7 @@ const HomeScreen = () => {
   const [showPostOptions, setShowPostOptions] = useState(null);
   const [error, setError] = useState("");
   const [feedError, setFeedError] = useState("");
-  const currentVisible = useRef();
+  const currentVisible = useRef(0);
   const nextVisible = useRef();
   const [scrolling, setScrolling] = useState(false);
   const [positionBeforeScroll, setPositionBeforeScroll] = useState(0);
@@ -377,7 +377,6 @@ const HomeScreen = () => {
   useEffect(() => {
     (async () => {
       const { success, response } = await apiCall("POST", "/user/feed");
-
       if (success) {
         setFeed(response.feed);
         setOriginalFeed(response.feed);
