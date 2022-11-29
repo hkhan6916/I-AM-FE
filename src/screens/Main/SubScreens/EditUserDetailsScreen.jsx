@@ -89,7 +89,6 @@ const EditUserDetailsScreen = () => {
 
   const [profileVideo, setProfileVideo] = useState("");
   const [profileImage, setProfileImage] = useState("");
-  const [prevProfileVideo, setPrevProfileVideo] = useState("");
 
   const [updateError, setUpdateError] = useState("");
   const [showVideoSizeError, setShowVideoSizeError] = useState(false);
@@ -151,28 +150,28 @@ const EditUserDetailsScreen = () => {
           Platform.OS === "android",
         videoQuality: UIImagePickerControllerQualityType.Medium,
       });
-      if (type === "video") {
-        const encoding = await getVideoCodecName(result.assets[0]?.uri);
-        const unsupportedCodec =
-          encoding === "hevc" || encoding === "h265" || !encoding;
-        if (unsupportedCodec && Platform.OS === "android") {
-          Alert.alert(
-            "Sorry, this video is unsupportedn.",
-            "Please choose another video.",
-            [
-              {
-                text: "Cancel",
-              },
-              {
-                text: "Open files",
-                onPress: () => pickProfileMedia(type),
-              },
-            ]
-          );
-          return;
-        }
-      }
       if (!result.canceled) {
+        if (type === "video") {
+          const encoding = await getVideoCodecName(result.assets[0]?.uri);
+          const unsupportedCodec =
+            encoding === "hevc" || encoding === "h265" || !encoding;
+          if (unsupportedCodec && Platform.OS === "android") {
+            Alert.alert(
+              "Sorry, this video is unsupportedn.",
+              "Please choose another video.",
+              [
+                {
+                  text: "Cancel",
+                },
+                {
+                  text: "Open files",
+                  onPress: () => pickProfileMedia(type),
+                },
+              ]
+            );
+            return;
+          }
+        }
         const mediaType = result.assets[0].type.split("/")[0];
 
         await FFmpegKit.cancel();
@@ -181,7 +180,6 @@ const EditUserDetailsScreen = () => {
         setShowVideoSizeError(false);
         setProcessedVideoUri("");
         setProcessingFile(Platform.OS === "ios" && mediaType === "video");
-        setCompressionProgress(0);
 
         setShowProfileImageOptions(false);
         setShowProfileVideoOptions(false);
@@ -189,6 +187,9 @@ const EditUserDetailsScreen = () => {
         const mediaSizeInMb = mediaInfo.size / 1000000;
         if (mediaSizeInMb > (isLowendDevice ? 30 : 50)) {
           setShowVideoSizeError(true);
+          FFmpegKit.cancel();
+          setProcessingFile(false);
+          setCompressionProgress(0);
           Alert.alert(
             `Unable to process this ${type}`,
             `This ${type} is too large. Please choose a ${type} that is ${
@@ -246,19 +247,23 @@ const EditUserDetailsScreen = () => {
     setTooShort(false);
     setTooLong(false);
     setDetectingFaces(true);
-    if (Number(duration) < 3000 && !profileImageUri) {
-      // setProfileVideo(prevProfileVideo || initialProfileData?.profileVideoUrl);
+    if (Number(duration) < 2500 && !profileImageUri) {
       setDetectingFaces(false);
       setFaceDetected(false);
       setTooShort(true);
       setLoadingVideo(false);
-
+      setProcessingFile(false);
+      setCompressionProgress(0);
+      await FFmpegKit.cancel();
       return;
     }
     if (Number(duration) > 32000 && !profileImageUri) {
       setDetectingFaces(false);
       setLoadingVideo(false);
       setTooLong(true);
+      setProcessingFile(false);
+      setCompressionProgress(0);
+      await FFmpegKit.cancel();
       return;
     }
     setDetectingFaces(true);
@@ -276,15 +281,17 @@ const EditUserDetailsScreen = () => {
     }
 
     const { uri } = await getThumbnailAsync(profileVideo, {
-      time: 3000,
+      time: 2000,
     });
     const { faces } = await detectFacesAsync(uri);
 
     if (faces?.length) {
       setFaceDetected(true);
-      setPrevProfileVideo(profileVideo);
     } else {
       setFaceDetected(false);
+      setProcessingFile(false);
+      setCompressionProgress(0);
+      await FFmpegKit.cancel();
     }
     setDetectingFaces(false);
     setLoadingVideo(false);
@@ -860,21 +867,28 @@ const EditUserDetailsScreen = () => {
                             style={{
                               color: themeStyle.colors.grayscale.lowest,
                               textAlign: "center",
-                              marginBottom: 5,
                               fontWeight: "700",
                             }}
                           >
-                            {compressionProgress == 100
+                            {compressionProgress == 100 && !processingFile
                               ? "Ready"
-                              : `Processing Profile Video - ${compressionProgress}%`}
+                              : `Processing Profile Video - ${Math.min(
+                                  compressionProgress,
+                                  90
+                                )}%`}
                           </Text>
                           <View
                             style={{
-                              width: `${compressionProgress || 100}%`,
+                              width: `${
+                                processingFile
+                                  ? Math.min(compressionProgress, 90)
+                                  : compressionProgress
+                              }%`,
                               height: 5,
                               backgroundColor:
                                 themeStyle.colors.secondary.default,
                               borderRadius: 5,
+                              marginVertical: 10,
                             }}
                           />
                         </View>
