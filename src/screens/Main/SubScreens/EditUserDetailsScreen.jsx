@@ -103,6 +103,7 @@ const EditUserDetailsScreen = () => {
   const [processedVideoUri, setProcessedVideoUri] = useState("");
   const [processingFile, setProcessingFile] = useState(false);
   const [selectedMediaType, setSelectedMediaType] = useState(false);
+  const [profileMediaChanged, setProfileMediaChanged] = useState(false);
 
   const [typingStatus, setTypingStatus] = useState({
     name: "",
@@ -151,6 +152,7 @@ const EditUserDetailsScreen = () => {
         videoQuality: UIImagePickerControllerQualityType.Medium,
       });
       if (!result.canceled) {
+        setProfileMediaChanged(true);
         if (type === "video") {
           const encoding = await getVideoCodecName(result.assets[0]?.uri);
           const unsupportedCodec =
@@ -353,16 +355,16 @@ const EditUserDetailsScreen = () => {
   const dataHasChanged = () => {
     const existingUserData = initialProfileData;
     if (
-      profileImage ||
-      profileVideo ||
+      ((profileImage || profileVideo) && profileMediaChanged) ||
       (username && username !== existingUserData?.username) ||
       (firstName && firstName !== existingUserData?.firstName) ||
       (lastName && lastName !== existingUserData?.lastName) ||
       (jobTitle && jobTitle !== existingUserData?.jobTitle) ||
       (email && email !== existingUserData?.email) ||
       password
-    )
+    ) {
       return true;
+    }
     return false;
   };
 
@@ -472,6 +474,8 @@ const EditUserDetailsScreen = () => {
       setIsUpdating(false);
 
       if (success) {
+        setProfileMediaChanged(false);
+
         setShowUpdatedPill(true);
 
         setTimeout(() => {
@@ -593,6 +597,20 @@ const EditUserDetailsScreen = () => {
         // customUploadId: post?._id,
       };
       await handleSignedUploads(options, signedData, false);
+    }
+    if (profileVideo) {
+      setInitialProfileData({
+        ...(initialProfileData || {}),
+        profileVideoUrl: processedVideoUri,
+      });
+      return;
+    }
+    if (profileImage) {
+      setInitialProfileData({
+        ...(initialProfileData || {}),
+        profileImage: profileImage,
+      });
+      return;
     }
   };
 
@@ -759,7 +777,7 @@ const EditUserDetailsScreen = () => {
             keyboardShouldPersistTaps="handled"
           >
             {!profileVideo &&
-            !initialProfileData.profileVideoUrl &&
+            !initialProfileData?.profileVideoUrl &&
             !initialProfileData.profileImageUrl ? (
               <View style={{ width: "100%", alignItems: "center" }}>
                 <Text
@@ -808,7 +826,7 @@ const EditUserDetailsScreen = () => {
                           face is shown in your profile image.
                         </Text>
                       ) : null}
-                      {profileImage ? (
+                      {profileImage && profileMediaChanged ? (
                         <TouchableOpacity
                           style={{ marginBottom: 10, marginTop: 20 }}
                           onPress={() => {
@@ -829,7 +847,7 @@ const EditUserDetailsScreen = () => {
                     </View>
                   ) : (profileVideo && faceDetected) ||
                     (!profileVideo &&
-                      initialProfileData.profileVideoUrl &&
+                      initialProfileData?.profileVideoUrl &&
                       !profileImage) ? (
                     <View>
                       <PreviewVideo
@@ -863,26 +881,36 @@ const EditUserDetailsScreen = () => {
                             paddingHorizontal: 20,
                           }}
                         >
-                          <Text
-                            style={{
-                              color: themeStyle.colors.grayscale.lowest,
-                              textAlign: "center",
-                              fontWeight: "700",
-                            }}
-                          >
-                            {compressionProgress == 100 && !processingFile
-                              ? "Ready"
-                              : `Processing Profile Video - ${Math.min(
-                                  compressionProgress,
-                                  90
-                                )}%`}
-                          </Text>
+                          {processingFile ? (
+                            <Text
+                              style={{
+                                color: themeStyle.colors.grayscale.lowest,
+                                textAlign: "center",
+                                fontWeight: "700",
+                              }}
+                            >
+                              {`Processing Profile Video - ${Math.min(
+                                compressionProgress,
+                                90
+                              )}%`}
+                            </Text>
+                          ) : (
+                            <Text
+                              style={{
+                                color: themeStyle.colors.grayscale.lowest,
+                                textAlign: "center",
+                                fontWeight: "700",
+                              }}
+                            >
+                              Ready
+                            </Text>
+                          )}
                           <View
                             style={{
                               width: `${
                                 processingFile
                                   ? Math.min(compressionProgress, 90)
-                                  : compressionProgress
+                                  : 100
                               }%`,
                               height: 5,
                               backgroundColor:
@@ -907,10 +935,10 @@ const EditUserDetailsScreen = () => {
                             : ""}
                         </Text>
                       ) : null}
-                      {profileVideo ? (
+                      {profileVideo && profileMediaChanged ? (
                         <TouchableOpacity
                           style={{ marginBottom: 10, marginTop: 20 }}
-                          onPress={() => {
+                          onPress={async () => {
                             setProfileVideo("");
                             setProfileImage("");
                             setFaceDetected(true);
@@ -918,6 +946,9 @@ const EditUserDetailsScreen = () => {
                             setLoadingVideo(false);
                             setTooShort(false);
                             setTooLong(false);
+                            setProcessingFile(false);
+                            setCompressionProgress(0);
+                            await FFmpegKit.cancel();
                           }}
                         >
                           <Text style={styles.resetProfileVideoText}>
@@ -952,14 +983,16 @@ const EditUserDetailsScreen = () => {
                               : ""}
                           </Text>
                         ) : null}
-                        <TouchableOpacity
-                          style={{ marginVertical: 10 }}
-                          onPress={() => setProfileVideo("")}
-                        >
-                          <Text style={styles.resetProfileVideoText}>
-                            Remove Profile Video
-                          </Text>
-                        </TouchableOpacity>
+                        {profileMediaChanged ? (
+                          <TouchableOpacity
+                            style={{ marginVertical: 10 }}
+                            onPress={() => setProfileVideo("")}
+                          >
+                            <Text style={styles.resetProfileVideoText}>
+                              Remove Profile Video
+                            </Text>
+                          </TouchableOpacity>
+                        ) : null}
                       </View>
                     </View>
                   ) : null}
