@@ -602,13 +602,15 @@ const EditUserDetailsScreen = () => {
       setInitialProfileData({
         ...(initialProfileData || {}),
         profileVideoUrl: processedVideoUri,
+        profileImageUrl: "",
       });
       return;
     }
     if (profileImage) {
       setInitialProfileData({
         ...(initialProfileData || {}),
-        profileImage: profileImage,
+        profileImageUrl: profileImage,
+        profileVideoUrl: "",
       });
       return;
     }
@@ -695,6 +697,7 @@ const EditUserDetailsScreen = () => {
           setDetectingFaces(false);
           setPickedFromCameraRoll(false);
           setProfileVideo(video.path);
+          setProfileMediaChanged(true);
           setProfileImage("");
           setShowProfileImageOptions(false);
           setShowProfileVideoOptions(false);
@@ -734,6 +737,7 @@ const EditUserDetailsScreen = () => {
           setCompressionProgress(0);
           setShowVideoSizeError(false);
           setProfileImage(file.uri);
+          setProfileMediaChanged(true);
           await handleFaceDetection(0, file.uri);
           setProfileVideo("");
           setProcessedVideoUri("");
@@ -827,22 +831,27 @@ const EditUserDetailsScreen = () => {
                         </Text>
                       ) : null}
                       {profileImage && profileMediaChanged ? (
-                        <TouchableOpacity
-                          style={{ marginBottom: 10, marginTop: 20 }}
-                          onPress={() => {
-                            setProfileVideo("");
-                            setProfileImage("");
-                            setFaceDetected(true);
-                            setDetectingFaces(false);
-                            setLoadingVideo(false);
-                            setTooShort(false);
-                            setTooLong(false);
-                          }}
-                        >
-                          <Text style={styles.resetProfileVideoText}>
-                            Remove Profile Image
-                          </Text>
-                        </TouchableOpacity>
+                        <View style={{ alignItems: "center" }}>
+                          <TouchableOpacity
+                            style={{
+                              marginBottom: 10,
+                              marginTop: 20,
+                            }}
+                            onPress={() => {
+                              setProfileVideo("");
+                              setProfileImage("");
+                              setFaceDetected(true);
+                              setDetectingFaces(false);
+                              setLoadingVideo(false);
+                              setTooShort(false);
+                              setTooLong(false);
+                            }}
+                          >
+                            <Text style={styles.resetProfileVideoText}>
+                              Remove Profile Image
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
                       ) : null}
                     </View>
                   ) : (profileVideo && faceDetected) ||
@@ -936,25 +945,27 @@ const EditUserDetailsScreen = () => {
                         </Text>
                       ) : null}
                       {profileVideo && profileMediaChanged ? (
-                        <TouchableOpacity
-                          style={{ marginBottom: 10, marginTop: 20 }}
-                          onPress={async () => {
-                            setProfileVideo("");
-                            setProfileImage("");
-                            setFaceDetected(true);
-                            setDetectingFaces(false);
-                            setLoadingVideo(false);
-                            setTooShort(false);
-                            setTooLong(false);
-                            setProcessingFile(false);
-                            setCompressionProgress(0);
-                            await FFmpegKit.cancel();
-                          }}
-                        >
-                          <Text style={styles.resetProfileVideoText}>
-                            Remove Profile Video
-                          </Text>
-                        </TouchableOpacity>
+                        <View style={{ alignItems: "center" }}>
+                          <TouchableOpacity
+                            style={{ marginBottom: 10, marginTop: 20 }}
+                            onPress={async () => {
+                              setProfileVideo("");
+                              setProfileImage("");
+                              setFaceDetected(true);
+                              setDetectingFaces(false);
+                              setLoadingVideo(false);
+                              setTooShort(false);
+                              setTooLong(false);
+                              setProcessingFile(false);
+                              setCompressionProgress(0);
+                              await FFmpegKit.cancel();
+                            }}
+                          >
+                            <Text style={styles.resetProfileVideoText}>
+                              Remove Profile Video
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
                       ) : null}
                     </View>
                   ) : profileVideo ? (
@@ -984,14 +995,16 @@ const EditUserDetailsScreen = () => {
                           </Text>
                         ) : null}
                         {profileMediaChanged ? (
-                          <TouchableOpacity
-                            style={{ marginVertical: 10 }}
-                            onPress={() => setProfileVideo("")}
-                          >
-                            <Text style={styles.resetProfileVideoText}>
-                              Remove Profile Video
-                            </Text>
-                          </TouchableOpacity>
+                          <View style={{ alignItems: "center" }}>
+                            <TouchableOpacity
+                              style={{ marginVertical: 10 }}
+                              onPress={() => setProfileVideo("")}
+                            >
+                              <Text style={styles.resetProfileVideoText}>
+                                Remove Profile Video
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
                         ) : null}
                       </View>
                     </View>
