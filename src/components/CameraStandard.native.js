@@ -57,6 +57,7 @@ const CameraStandard = ({
   const [cameraPosition, setCameraPosition] = useState(defaultCameraPosition);
   const [flash, setFlash] = useState("off");
   const [enableNightMode, setEnableNightMode] = useState(false);
+  const [cancelled, setCancelled] = useState(false);
 
   const screenOrientation = useScreenOrientation(true);
   const orientation = useOrientation(recording);
@@ -162,6 +163,7 @@ const CameraStandard = ({
   }, []);
   const onMediaCaptured = useCallback(
     async (media, type) => {
+      if (!media) return;
       await ScreenOrientation.lockAsync(
         ScreenOrientation.OrientationLock.PORTRAIT_UP
       );
@@ -202,6 +204,8 @@ const CameraStandard = ({
   }, []);
 
   const deactivateCamera = async () => {
+    setCancelled(true);
+    await camera?.current?.stopRecording?.();
     setCameraActive(false);
     await ScreenOrientation.lockAsync(
       ScreenOrientation.OrientationLock.PORTRAIT_UP
@@ -223,6 +227,7 @@ const CameraStandard = ({
 
   useEffect(() => {
     (async () => {
+      setCancelled(false);
       BackHandler.addEventListener("hardwareBackPress", deactivateCamera);
       if (Platform.OS === "android") {
         await ScreenOrientation.unlockAsync();
@@ -393,7 +398,7 @@ const CameraStandard = ({
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity
-        onPress={() => setCameraActive(false)}
+        onPress={async () => await deactivateCamera()}
         style={{
           height: 48,
           width: 48,
@@ -463,6 +468,7 @@ const CameraStandard = ({
         ]}
       >
         <CaptureButton
+          cancelled={cancelled}
           style={{
             captureButton: {
               width: screenOrientation === "PORTRAIT" ? "100%" : "auto",

@@ -29,6 +29,9 @@ const ProfileVideoCamera = ({
   hasAudioPermission,
 }) => {
   const [showNotice, setShowNotice] = useState(null);
+  const [cancelled, setCancelled] = useState(false);
+  const [video, setVideo] = useState(null);
+
   const cameraRef = useRef();
   const packageName = Constants.manifest.releaseChannel
     ? Constants.manifest.android.package
@@ -57,16 +60,15 @@ const ProfileVideoCamera = ({
     if (!recording) {
       setRecordingLength(30);
       setRecording(true);
+      setCancelled(false);
       await cameraRef?.current?.startRecording({
         onRecordingFinished: (video) => {
-          setProfileVideo(video);
+          setVideo(video);
         },
         onRecordingError: (error) => console.error(error),
       });
     } else {
       await cameraRef?.current?.stopRecording();
-      setRecording(false);
-      setCameraActivated(false);
     }
   };
 
@@ -109,11 +111,23 @@ const ProfileVideoCamera = ({
   };
 
   useEffect(() => {
+    if (!cancelled && video) {
+      setProfileVideo(video);
+    }
+    if (video) {
+      setRecording(false);
+      setCameraActivated(false);
+    }
+  }, [video, cancelled]);
+
+  useEffect(() => {
+    setCancelled(false);
     BackHandler.addEventListener("hardwareBackPress", deactivateCamera);
     return async () => {
       BackHandler.removeEventListener("hardwareBackPress", deactivateCamera);
     };
   }, []);
+
   if (hasCameraPermission === null || hasAudioPermission === null) {
     return <View />;
   }
@@ -240,8 +254,10 @@ const ProfileVideoCamera = ({
         }}
       >
         <TouchableOpacity
-          onPress={() => {
+          onPress={async () => {
             setRecording(false);
+            setCancelled(true);
+            await cameraRef.current?.stopRecording();
             setCameraActivated(false);
           }}
           style={{
