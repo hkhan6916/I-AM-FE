@@ -205,7 +205,9 @@ const CameraStandard = ({
 
   const deactivateCamera = async () => {
     setCancelled(true);
-    await camera?.current?.stopRecording?.();
+    if (recording) {
+      await camera?.current?.stopRecording?.();
+    }
     setCameraActive(false);
     await ScreenOrientation.lockAsync(
       ScreenOrientation.OrientationLock.PORTRAIT_UP

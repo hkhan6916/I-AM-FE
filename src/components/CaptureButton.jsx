@@ -12,9 +12,9 @@ import { Feather } from "@expo/vector-icons";
 
 const _CaptureButton = ({
   camera,
-  onMediaCaptured,
+  onMediaCaptured = () => null,
   flash,
-  setRecording,
+  setRecording = () => null,
   disableVideo,
   cancelled,
   style,
@@ -42,7 +42,7 @@ const _CaptureButton = ({
       if (camera.current == null) throw new Error("Camera ref is null!");
 
       console.log("Taking photo...");
-      const photo = await camera.current.takePhoto(takePhotoOptions);
+      const photo = await camera?.current?.takePhoto(takePhotoOptions);
       setFile(photo);
       setType("photo");
     } catch (e) {

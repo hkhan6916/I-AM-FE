@@ -255,10 +255,7 @@ const ProfileVideoCamera = ({
       >
         <TouchableOpacity
           onPress={async () => {
-            setRecording(false);
-            setCancelled(true);
-            await cameraRef.current?.stopRecording();
-            setCameraActivated(false);
+            await deactivateCamera();
           }}
           style={{
             height: 48,

@@ -534,6 +534,7 @@ const Step1Screen = () => {
       <CameraStandard
         cameraActive={profileImageCameraActivated}
         recording={recording}
+        setRecording={setRecording}
         disableVideo
         defaultCameraPosition="front"
         setCameraActive={setProfileImageCameraActivated}
