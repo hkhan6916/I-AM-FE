@@ -384,8 +384,7 @@ const HomeScreen = () => {
     })();
   }, []);
 
-  if (!feed) {
-    // if (feed) {
+  if (feed) {
     return (
       <SafeAreaView
         style={{
@@ -397,12 +396,12 @@ const HomeScreen = () => {
         <View
           style={{
             backgroundColor: themeStyle.colors.grayscale.cardsOuter,
-            alignItems: "center",
+            // alignItems: "center",
           }}
         >
-          <PostCardLoader hasImage screenWidth={maxWidth} />
-          <PostCardLoader hasImage screenWidth={maxWidth} />
-          <PostCardLoader hasImage screenWidth={maxWidth} />
+          <PostCardLoader screenWidth={maxWidth} />
+          <PostCardLoader screenWidth={maxWidth} />
+          <PostCardLoader screenWidth={maxWidth} />
         </View>
       </SafeAreaView>
     );

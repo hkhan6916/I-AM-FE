@@ -1,62 +1,97 @@
-import ContentLoader, { Circle, Rect } from "react-content-loader/native";
-import { View } from "react-native";
 import themeStyle from "../../theme.style";
+import SkeletonPlaceholder from "react-native-skeleton-placeholder";
 
-const PostCardLoader = ({ hasImage, screenWidth }) => (
-  <View
-    style={{
-      backgroundColor: themeStyle.colors.grayscale.cards,
-      marginVertical: 2,
-    }}
+const PostCardLoader = ({ screenWidth }) => (
+  <SkeletonPlaceholder
+    backgroundColor={themeStyle.colors.grayscale.cards}
+    highlightColor={themeStyle.colors.grayscale.higher}
   >
-    <ContentLoader
-      backgroundColor={themeStyle.colors.grayscale.higher}
-      foregroundColor={themeStyle.colors.grayscale.high}
-      viewBox={`0 0 ${screenWidth} ${screenWidth + 200}`}
+    <SkeletonPlaceholder.Item
+      padding={5}
       width={screenWidth}
-      height={screenWidth + 200}
+      height={screenWidth + 100}
+      marginBottom={50}
     >
-      <Circle cx="31" cy="31" r="25" />
-      <Rect x="75" y="18" rx="2" ry="2" width="140" height="10" />
-      <Rect x="75" y="34" rx="2" ry="2" width="140" height="10" />
-      {hasImage ? (
-        <Rect
-          x="0"
-          y="60"
-          rx="2"
-          ry="2"
-          width={`${screenWidth}`}
-          height={`${screenWidth}`}
-        />
-      ) : null}
-      <Circle cx="20" cy={`${screenWidth + 80}`} r="13" />
-      <Circle cx="60" cy={`${screenWidth + 80}`} r="13" />
-      <Rect
-        x="5"
-        y={`${screenWidth + 120}`}
-        rx="5"
-        ry="5"
-        width={`${screenWidth - 10}`}
-        height="10"
-      />
-      <Rect
-        x="5"
-        y={`${screenWidth + 140}`}
-        rx="5"
-        ry="5"
-        width={`${screenWidth - 10}`}
-        height="10"
-      />
-      <Rect
-        x="5"
-        y={`${screenWidth + 160}`}
-        rx="5"
-        ry="5"
-        width={`${screenWidth - 50}`}
-        height="10"
-      />
-    </ContentLoader>
-  </View>
+      <SkeletonPlaceholder.Item flexDirection={"row"} alignItems={"center"}>
+        <SkeletonPlaceholder.Item
+          height={50}
+          width={50}
+          borderRadius={30}
+          marginRight={20}
+        ></SkeletonPlaceholder.Item>
+        <SkeletonPlaceholder.Item>
+          <SkeletonPlaceholder.Item width={100} height={10} marginBottom={5} />
+          <SkeletonPlaceholder.Item width={100} height={10} marginBottom={5} />
+        </SkeletonPlaceholder.Item>
+      </SkeletonPlaceholder.Item>
+      <SkeletonPlaceholder.Item
+        height={screenWidth - 100}
+        width={screenWidth - 10}
+        alignSelf={"center"}
+        marginTop={20}
+      ></SkeletonPlaceholder.Item>
+      <SkeletonPlaceholder.Item
+        height={10}
+        marginBottom={5}
+        marginTop={10}
+        width={screenWidth - 20}
+      ></SkeletonPlaceholder.Item>
+      <SkeletonPlaceholder.Item
+        height={10}
+        marginBottom={5}
+        width={screenWidth - 20}
+      ></SkeletonPlaceholder.Item>
+      <SkeletonPlaceholder.Item
+        height={10}
+        marginBottom={5}
+        width={100}
+      ></SkeletonPlaceholder.Item>
+      <SkeletonPlaceholder.Item
+        justifyContent="space-between"
+        flexDirection="row"
+      >
+        <SkeletonPlaceholder.Item flexDirection="row">
+          <SkeletonPlaceholder.Item
+            height={24}
+            width={24}
+            borderRadius={12}
+            marginTop={15}
+            marginRight={20}
+          ></SkeletonPlaceholder.Item>
+          <SkeletonPlaceholder.Item
+            height={24}
+            width={24}
+            borderRadius={12}
+            marginTop={15}
+            marginRight={20}
+          ></SkeletonPlaceholder.Item>
+        </SkeletonPlaceholder.Item>
+        <SkeletonPlaceholder.Item
+          height={24}
+          width={24}
+          borderRadius={12}
+          marginTop={15}
+          marginRight={20}
+        ></SkeletonPlaceholder.Item>
+      </SkeletonPlaceholder.Item>
+      <SkeletonPlaceholder.Item
+        height={10}
+        width={50}
+        marginBottom={15}
+        marginTop={20}
+      ></SkeletonPlaceholder.Item>
+      <SkeletonPlaceholder.Item
+        height={10}
+        width={50}
+        marginBottom={15}
+      ></SkeletonPlaceholder.Item>
+    </SkeletonPlaceholder.Item>
+    <SkeletonPlaceholder.Item
+      height={2}
+      marginBottom={10}
+      backgroundColor={themeStyle.colors.grayscale.cardsOuter}
+    ></SkeletonPlaceholder.Item>
+  </SkeletonPlaceholder>
 );
 
 export default PostCardLoader;
