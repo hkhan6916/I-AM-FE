@@ -384,7 +384,7 @@ const HomeScreen = () => {
     })();
   }, []);
 
-  if (feed) {
+  if (!feed) {
     return (
       <SafeAreaView
         style={{

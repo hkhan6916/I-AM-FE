@@ -3,8 +3,8 @@ import SkeletonPlaceholder from "react-native-skeleton-placeholder";
 
 const PostCardLoader = ({ screenWidth }) => (
   <SkeletonPlaceholder
-    backgroundColor={themeStyle.colors.grayscale.cards}
-    highlightColor={themeStyle.colors.grayscale.higher}
+    backgroundColor={themeStyle.colors.grayscale.cardContentSkeleton}
+    highlightColor={themeStyle.colors.grayscale.cardContentSkeletonHighlight}
   >
     <SkeletonPlaceholder.Item
       padding={5}

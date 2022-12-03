@@ -22,6 +22,7 @@ import {
   RecyclerListView,
 } from "recyclerlistview";
 import usePersistedWebParams from "../../../helpers/hooks/usePersistedWebParams";
+import { useSelector } from "react-redux";
 
 const CommentRepliesScreen = (props) => {
   const routeParamsObj = props.route.params;
@@ -48,6 +49,8 @@ const CommentRepliesScreen = (props) => {
   const [error, setError] = useState("");
   const navigation = useNavigation();
   const textInputRef = useRef();
+
+  const userData = useSelector((state) => state.userData)?.state;
 
   const { width: screenWidth } = Dimensions.get("window");
 
@@ -238,6 +241,10 @@ const CommentRepliesScreen = (props) => {
       setNewRepliesIds([...newRepliesIds, response._id]);
       const newReply = {
         ...response,
+        replyAuthor: {
+          ...(response.replyAuthor || {}),
+          flipProfileVideo: userData?.flipProfileVideo,
+        },
         age: { minutes: 1 },
         replyingToObj:
           replyingTo?.replyingToType === "reply" ? replyingTo : null,

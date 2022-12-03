@@ -15,7 +15,6 @@ import { useNavigation } from "@react-navigation/native";
 import PostCommentCard from "../../../components/PostCommentCard";
 import apiCall from "../../../helpers/apiCall";
 import CommentTextInput from "../../../components/CommentTextInput";
-import ContentLoader from "../../../components/ContentLoader";
 import themeStyle from "../../../theme.style";
 import CommentOptionsModal from "../../../components/CommentOptionsModal";
 import {
@@ -24,6 +23,8 @@ import {
   RecyclerListView,
 } from "recyclerlistview";
 import usePersistedWebParams from "../../../helpers/hooks/usePersistedWebParams";
+import Comment from "../../../components/ContentLoader/Comment";
+import { useSelector } from "react-redux";
 
 const CommentsScreen = (props) => {
   const routeParamsObj = props.route.params;
@@ -43,7 +44,7 @@ const CommentsScreen = (props) => {
   const [newCommentsIds, setNewCommentsIds] = useState([]);
   const [allCommentsLoaded, setAllCommentsLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [intialLoading, setInitialLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showOptionsForComment, setShowOptionsForComment] = useState(null);
@@ -52,6 +53,8 @@ const CommentsScreen = (props) => {
 
   const navigation = useNavigation();
   const textInputRef = useRef();
+
+  const userData = useSelector((state) => state.userData)?.state;
 
   const { width: screenWidth } = Dimensions.get("window");
 
@@ -174,6 +177,10 @@ const CommentsScreen = (props) => {
       setNewCommentsIds([...newCommentsIds, response._id]);
       const tweakedResponse = {
         ...response,
+        commentAuthor: {
+          ...(response.commentAuthor || {}),
+          flipProfileVideo: userData?.flipProfileVideo,
+        },
         age: { minutes: 1 },
         new: true,
       };
@@ -349,17 +356,15 @@ const CommentsScreen = (props) => {
     };
   }, []);
 
-  if (intialLoading) {
+  if (initialLoading) {
     return (
-      <View style={{ maxWidth: 900, width: "100%", alignSelf: "center" }}>
-        <ContentLoader active showAvatar avatarSize={50} />
-        <ContentLoader active showAvatar avatarSize={50} />
-        <ContentLoader active showAvatar avatarSize={50} />
-        <ContentLoader active showAvatar avatarSize={50} />
-        <ContentLoader active showAvatar avatarSize={50} />
-        <ContentLoader active showAvatar avatarSize={50} />
-        <ContentLoader active showAvatar avatarSize={50} />
-      </View>
+      <>
+        <Comment />
+        <Comment />
+        <Comment />
+        <Comment />
+        <Comment />
+      </>
     );
   }
 

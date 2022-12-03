@@ -99,7 +99,6 @@ const Actions = ({ post, handleReaction, navigation }) => {
           alignItems: "center",
           justifyContent: "space-between",
           flexDirection: "row",
-          marginTop: 5,
         }}
       >
         {post.likedBy ? (
