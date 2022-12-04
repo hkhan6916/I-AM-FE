@@ -27,7 +27,6 @@ import {
 import getWebPersistedUserData from "../../../helpers/getWebPersistedData";
 import JobHistoryItem from "../../../components/JobHistory/JobHistoryItem";
 import EducationHistoryItem from "../../../components/EducationHistory/EducationHistoryItem";
-import ContentLoader, { Rect } from "react-content-loader/native";
 import AddJobModal from "../../../components/JobHistory/AddJobModal";
 import AddEducationModal from "../../../components/EducationHistory/AddEducationModal";
 import JobAndEducationHistoryLoader from "../../../components/ContentLoader/JobAndEducationHistory";

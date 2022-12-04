@@ -422,7 +422,6 @@ const AddScreen = () => {
           setCompressionProgress(0);
           setSelectedMediaType("");
           setProcessedVideoUri("");
-          setGif("");
           const mediaInfo = await getInfoAsync(file.uri);
           const mediaSizeInMb = mediaInfo.size / 1000000;
           if (mediaSizeInMb > (isLowendDevice ? 50 : 100)) {
@@ -568,15 +567,27 @@ const AddScreen = () => {
             selectedMediaType === "video" &&
             !loadingVideo ? (
               <View style={{ width: "95%", alignSelf: "center" }}>
-                <Text
-                  style={{
-                    color: themeStyle.colors.grayscale.lowest,
-                    textAlign: "center",
-                    marginBottom: 5,
-                  }}
-                >
-                  Processing - {compressionProgress}%
-                </Text>
+                {processingFile ? (
+                  <Text
+                    style={{
+                      color: themeStyle.colors.grayscale.lowest,
+                      textAlign: "center",
+                      fontWeight: "700",
+                    }}
+                  >
+                    {`Processing - ${Math.min(compressionProgress, 90)}%`}
+                  </Text>
+                ) : (
+                  <Text
+                    style={{
+                      color: themeStyle.colors.grayscale.lowest,
+                      textAlign: "center",
+                      fontWeight: "700",
+                    }}
+                  >
+                    Ready
+                  </Text>
+                )}
                 <View
                   style={{
                     width: `${compressionProgress || 100}%`,
