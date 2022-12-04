@@ -30,6 +30,7 @@ import EducationHistoryItem from "../../../components/EducationHistory/Education
 import ContentLoader, { Rect } from "react-content-loader/native";
 import AddJobModal from "../../../components/JobHistory/AddJobModal";
 import AddEducationModal from "../../../components/EducationHistory/AddEducationModal";
+import JobAndEducationHistoryLoader from "../../../components/ContentLoader/JobAndEducationHistory";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -382,73 +383,11 @@ const ProfileScreen = () => {
                     flex: 1,
                   }}
                 >
-                  {[...Array(6)].map((_, i) => (
-                    <View
-                      key={i}
-                      style={{
-                        backgroundColor: themeStyle.colors.grayscale.cards,
-                        marginVertical: 2,
-                      }}
-                    >
-                      <ContentLoader
-                        backgroundColor={themeStyle.colors.grayscale.higher}
-                        foregroundColor={themeStyle.colors.grayscale.high}
-                        viewBox={`0 0 ${screenWidth} ${120}`}
-                        width={screenWidth}
-                        height={120}
-                      >
-                        <Rect x="15" y="18" r="25" width="34" height="34" />
-                        <Rect
-                          x="70"
-                          y="18"
-                          rx="2"
-                          ry="2"
-                          width={`${screenWidth / 1.6}`}
-                          height="10"
-                        />
-                        <Rect
-                          x="70"
-                          y="34"
-                          rx="2"
-                          ry="2"
-                          width={`${screenWidth / 1.6}`}
-                          height="10"
-                        />
-                        <Rect
-                          x="70"
-                          y="50"
-                          rx="2"
-                          ry="2"
-                          width={`${screenWidth / 1.6}`}
-                          height="10"
-                        />
-                        <Rect
-                          x="70"
-                          y="66"
-                          rx="2"
-                          ry="2"
-                          width={`${screenWidth / 1.6}`}
-                          height="10"
-                        />
-                        <Rect
-                          x="70"
-                          y="82"
-                          rx="2"
-                          ry="2"
-                          width={`${screenWidth / 1.6}`}
-                          height="10"
-                        />
-                        <Rect
-                          x="70"
-                          y="98"
-                          rx="2"
-                          ry="2"
-                          width={`${screenWidth / 3}`}
-                          height="10"
-                        />
-                      </ContentLoader>
-                    </View>
-                  ))}
+                  <JobAndEducationHistoryLoader />
+                  <JobAndEducationHistoryLoader />
+                  <JobAndEducationHistoryLoader />
+                  <JobAndEducationHistoryLoader />
+                  <JobAndEducationHistoryLoader />
                 </View>
               ) : userJobHistory?.length || userEducationHistory?.length ? (
                 <>

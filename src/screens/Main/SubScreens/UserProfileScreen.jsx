@@ -28,6 +28,7 @@ import { AntDesign } from "@expo/vector-icons";
 import EducationHistoryItem from "../../../components/EducationHistory/EducationHistoryItem";
 import JobHistoryItem from "../../../components/JobHistory/JobHistoryItem";
 import ReactContentLoader, { Rect } from "react-content-loader/native";
+import ProfileLoader from "../../../components/ContentLoader/Profile";
 
 const UserProfileScreen = (props) => {
   const { userId } = props.route.params;
@@ -678,18 +679,7 @@ const UserProfileScreen = (props) => {
       </SafeAreaView>
     );
   }
-  return (
-    <View>
-      <View style={{ width: screenWidth, height: screenWidth }}>
-        <ContentLoader active isProfileVideo />
-      </View>
-      <ContentLoader active listSize={1} />
-      <View style={{ width: screenWidth, height: screenWidth }}>
-        <ContentLoader active isProfileVideo />
-      </View>
-      <ContentLoader active listSize={1} />
-    </View>
-  );
+  return <ProfileLoader />;
 };
 
 export default UserProfileScreen;

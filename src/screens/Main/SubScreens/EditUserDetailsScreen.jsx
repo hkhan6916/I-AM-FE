@@ -49,6 +49,7 @@ import generateGif from "../../../helpers/generateGif";
 import { FileSystemUploadType, uploadAsync } from "expo-file-system";
 import { FFmpegKit } from "ffmpeg-kit-react-native";
 import getVideoCodecName from "../../../helpers/getVideoCodecName";
+import SkeletonPlaceholder from "react-native-skeleton-placeholder";
 
 const { statusBarHeight } = Constants;
 const EditUserDetailsScreen = () => {
@@ -751,14 +752,81 @@ const EditUserDetailsScreen = () => {
   if (loading) {
     return (
       <View>
-        <View style={{ width: screenWidth, height: screenWidth }}>
-          <ContentLoader active isProfileVideo />
-        </View>
-        <ContentLoader active isInput />
-        <ContentLoader active isInput />
-        <ContentLoader active isInput />
-        <ContentLoader active isInput />
-        <ContentLoader active isInput />
+        <SkeletonPlaceholder
+          backgroundColor={themeStyle.colors.grayscale.low}
+          highlightColor={
+            themeStyle.colors.grayscale.cardContentSkeletonHighlight
+          }
+        >
+          {/* profile video */}
+          <SkeletonPlaceholder.Item
+            width={screenWidth - 20}
+            alignSelf={"center"}
+            height={screenWidth - 20}
+            aspectRatio={1}
+            maxHeight={900}
+            maxWidth={900}
+          ></SkeletonPlaceholder.Item>
+          {/* Profile media buttons */}
+          <SkeletonPlaceholder.Item
+            height={48}
+            width={170}
+            marginTop={20}
+            marginBottom={20}
+            alignSelf={"center"}
+          ></SkeletonPlaceholder.Item>
+          <SkeletonPlaceholder.Item
+            height={48}
+            width={170}
+            marginBottom={20}
+            alignSelf={"center"}
+          ></SkeletonPlaceholder.Item>
+          {/* inputs with labels */}
+          <SkeletonPlaceholder.Item>
+            <SkeletonPlaceholder.Item
+              width={100}
+              height={10}
+              marginTop={20}
+              marginBottom={5}
+              marginLeft={20}
+            ></SkeletonPlaceholder.Item>
+            <SkeletonPlaceholder.Item
+              width={screenWidth - 40}
+              alignSelf={"center"}
+              height={48}
+              maxHeight={900}
+              maxWidth={900}
+            ></SkeletonPlaceholder.Item>
+            <SkeletonPlaceholder.Item
+              width={100}
+              height={10}
+              marginTop={20}
+              marginBottom={5}
+              marginLeft={20}
+            ></SkeletonPlaceholder.Item>
+            <SkeletonPlaceholder.Item
+              width={screenWidth - 40}
+              alignSelf={"center"}
+              height={48}
+              maxHeight={900}
+              maxWidth={900}
+            ></SkeletonPlaceholder.Item>
+            <SkeletonPlaceholder.Item
+              width={100}
+              height={10}
+              marginTop={20}
+              marginBottom={5}
+              marginLeft={20}
+            ></SkeletonPlaceholder.Item>
+            <SkeletonPlaceholder.Item
+              width={screenWidth - 40}
+              alignSelf={"center"}
+              height={48}
+              maxHeight={900}
+              maxWidth={900}
+            ></SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder.Item>
+        </SkeletonPlaceholder>
       </View>
     );
   }
