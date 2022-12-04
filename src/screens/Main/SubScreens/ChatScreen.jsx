@@ -13,6 +13,7 @@ import {
   Alert,
   ActivityIndicator,
   FlatList,
+  Keyboard,
 } from "react-native";
 import { getItemAsync } from "expo-secure-store";
 import { io } from "socket.io-client";
@@ -20,7 +21,12 @@ import * as ImagePicker from "expo-image-picker";
 import { Video } from "expo-av";
 import { getInfoAsync } from "expo-file-system";
 import { useNavigation } from "@react-navigation/native";
-import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
+import {
+  Feather,
+  FontAwesome,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import { nanoid } from "nanoid/non-secure";
 import apiCall from "../../../helpers/apiCall";
 import get12HourTime from "../../../helpers/get12HourTime";
@@ -71,12 +77,19 @@ const ChatScreen = (props) => {
   const [loading, setLoading] = useState(false);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [thumbnail, setThumbnail] = useState("");
+
   const [compressionProgress, setCompressionProgress] = useState(0);
   const [videoDuration, setVideoDuration] = useState(0);
   const [processedVideoUri, setProcessedVideoUri] = useState("");
   const [processingFile, setProcessingFile] = useState(false);
   const [selectedMediaType, setSelectedMediaType] = useState(false);
+  const [showImageOrVideoOption, setShowImageOrVideoOption] = useState(false);
+  const [error, setError] = useState("");
+  const [keyboardIsShown, setKeyboardIsShown] = useState(false);
+
   const [port, setPort] = useState("5000");
+
+  const inputRef = useRef();
 
   const isLowendDevice = useSelector((state) => state.isLowEndDevice)?.state;
 
@@ -374,7 +387,7 @@ const ChatScreen = (props) => {
                   setProgress: setCompressionProgress,
                   videoDuration,
                 });
-          // convertAndEncodeVideo will also compress
+
           const compressedUrl = convertedCodecAndCompressedUrl;
           await handleBackgroundUpload(
             compressedUrl,
@@ -459,8 +472,7 @@ const ChatScreen = (props) => {
     }
   };
 
-  const pickMedia = async () => {
-    setShowMediaSizeError(false);
+  const pickMedia = async (type = "image") => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
@@ -480,78 +492,79 @@ const ChatScreen = (props) => {
 
     if (status === "granted") {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
         quality: 0.3,
+        allowsMultipleSelection: false,
+        selectionLimit: 1,
+        allowsEditing:
+          (Platform.OS === "ios" && type === "video") ||
+          Platform.OS === "android",
+        mediaTypes:
+          type === "image"
+            ? ImagePicker.MediaTypeOptions.Images
+            : ImagePicker.MediaTypeOptions.Videos,
+        videoQuality: ImagePicker.UIImagePickerControllerQualityType.Medium,
       });
+      if (!result.canceled) {
+        setShowActions(false);
+        const mediaType = result.assets[0].type.split("/")[0];
+        setShowMediaSizeError(false);
 
-      if (!result.cancelled) {
-        if (selectedMediaType === "video") {
-          FFmpegKit.cancel();
-        }
+        FFmpegKit.cancel();
+        setProcessingFile(Platform.OS === "ios" && mediaType === "video");
+        setProcessedVideoUri("");
         setThumbnail("");
         setCompressionProgress(0);
-        setProcessingFile(false);
         setSelectedMediaType("");
-        const mediaInfo = await getInfoAsync(result.uri);
+        const mediaInfo = await getInfoAsync(result.assets[0].uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
-        setShowActions(false);
-        if (mediaSizeInMb > (isLowendDevice ? 50 : 50)) {
+        if (mediaSizeInMb > (isLowendDevice ? 50 : 100)) {
           setShowMediaSizeError(true);
-          setMedia(result);
+          setMedia({ ...result.assets[0], ...mediaInfo });
+          setLoading(false);
           return;
-        } else {
-          if (showMediaSizeError) {
-            setShowMediaSizeError(false);
-          }
-          setMedia(result);
         }
-        const encoding = await getVideoCodecName(result.uri);
+        const encoding = await getVideoCodecName(mediaInfo.uri);
         const unsupportedCodec =
           encoding === "hevc" || encoding === "h265" || !encoding;
         if (unsupportedCodec && Platform.OS === "android") {
           Alert.alert(
             "Sorry, this video is unsupported.",
-            "Please choose another video or image.",
+            `Please choose another ${type}.`,
             [
               {
                 text: "Cancel",
               },
               {
                 text: "Open files",
-                onPress: () => pickMedia(),
+                onPress: () => pickMedia(type),
               },
             ]
           );
           return;
         }
-        const mediaType = result.type.split("/")[0];
         setSelectedMediaType(mediaType);
-        setMedia({ ...result, ...mediaInfo });
+        setMedia({ ...result.assets[0], ...mediaInfo });
+
         if (mediaType === "video") {
-          const thumbnailUri = await generateThumbnail(result.uri);
+          const thumbnailUri = await generateThumbnail(
+            result.assets[0].uri,
+            result.assets[0].duration
+          );
           setThumbnail(thumbnailUri);
-          setVideoDuration(result.duration);
+          setVideoDuration(result.assets[0].duration);
           if (Platform.OS === "ios") {
-            setProcessingFile(true);
-            const convertedCodecAndCompressedUrl = await convertAndEncodeVideo({
-              uri: result.uri,
+            await convertAndEncodeVideo({
+              uri: result.assets[0].uri,
               setProgress: setCompressionProgress,
-              videoDuration: result.duration,
+              videoDuration: result.assets[0].duration,
+              setProcessedVideoUri,
+              setIsRunning: setProcessingFile,
+              setError, // need to use this somewhere
             });
-            setProcessedVideoUri(convertedCodecAndCompressedUrl);
-            setProcessingFile(false);
           }
         }
-
-        setShowMediaSizeError(false);
       }
     }
-  };
-
-  const handleActivateCamera = () => {
-    setMedia({});
-    navigation.setOptions({ headerShown: false });
-    setCameraActive(true);
   };
 
   const toggleCamera = (state) => {
@@ -805,6 +818,19 @@ const ChatScreen = (props) => {
     };
   }, [persistedParams]);
 
+  useEffect(() => {
+    Keyboard.addListener("keyboardWillShow", () => {
+      setKeyboardIsShown(true);
+    });
+    Keyboard.addListener("keyboardWillHide", () => {
+      setKeyboardIsShown(false);
+    });
+    return () => {
+      Keyboard.removeAllListeners("keyboardWillShow");
+      Keyboard.removeAllListeners("keyboardWillHide");
+    };
+  }, []);
+
   if (loading) {
     return (
       <View
@@ -821,7 +847,47 @@ const ChatScreen = (props) => {
         cameraActive={cameraActive}
         recording={recording}
         setCameraActive={toggleCamera}
-        setFile={setMedia}
+        setFile={async (file) => {
+          setMedia(file);
+          setShowActions(false);
+
+          await FFmpegKit.cancel();
+          const mediaType = file.type?.split("/")[0];
+          setProcessingFile(Platform.OS === "ios" && mediaType === "video");
+          setThumbnail("");
+          setCompressionProgress(0);
+          setSelectedMediaType("");
+          setProcessedVideoUri("");
+          const mediaInfo = await getInfoAsync(file.uri);
+          const mediaSizeInMb = mediaInfo.size / 1000000;
+          if (mediaSizeInMb > (isLowendDevice ? 50 : 100)) {
+            setShowMediaSizeError(true);
+            setMedia({});
+            setLoading(false);
+            return;
+          }
+          setSelectedMediaType(mediaType);
+          setMedia({ ...file, ...mediaInfo });
+
+          if (mediaType === "video") {
+            const thumbnailUri = await generateThumbnail(
+              file.uri,
+              file.media.duration
+            );
+            setThumbnail(thumbnailUri);
+            setVideoDuration((file.media.duration || 0) * 1000);
+            if (Platform.OS === "ios") {
+              await convertAndEncodeVideo({
+                uri: file.uri,
+                setProgress: setCompressionProgress,
+                videoDuration: (file.media.duration || 0) * 1000,
+                setProcessedVideoUri,
+                setIsRunning: setProcessingFile,
+                setError,
+              });
+            }
+          }
+        }}
         setRecording={setRecording}
       />
     );
@@ -937,73 +1003,18 @@ const ChatScreen = (props) => {
             You have blocked this user.
           </Text>
         ) : null}
-        <View
-          style={{
-            flexDirection: "row",
-            height: Math.max(height, 70),
-            // maxHeight: 100,
-            alignItems: "flex-end",
-            paddingVertical: 10,
-            justifyContent: "center",
-          }}
-        >
-          {Platform.OS !== "web" ? (
-            <View
-              style={[
-                {
-                  flexDirection: "column",
-                  justifyContent: "flex-end",
-                  alignItems: "center",
-                  height: "100%",
-                },
-              ]}
-            >
-              <TouchableOpacity
-                style={[
-                  {
-                    marginHorizontal: 5,
-                    width: 48,
-                    height: 48,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: "rgba(140, 140, 140, 0.9)",
-                    borderRadius: 50,
-                    marginBottom: 5,
-                  },
-                  !showActions && { display: "none" },
-                ]}
-                onPress={() => pickMedia()}
-              >
-                <FontAwesome
-                  name="photo"
-                  size={24}
-                  color={themeStyle.colors.white}
-                />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  {
-                    marginHorizontal: 5,
-                    width: 48,
-                    height: 48,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: "rgba(140, 140, 140, 0.9)",
-                    borderRadius: 50,
-                    marginBottom: 5,
-                  },
-                  !showActions && { display: "none" },
-                ]}
-                onPress={() => handleActivateCamera(true)}
-              >
-                <Feather
-                  name="camera"
-                  size={26}
-                  color={themeStyle.colors.white}
-                />
-              </TouchableOpacity>
-
+        {Platform.OS !== "web" ? (
+          <View
+            style={{
+              flexDirection: "row",
+              height: Math.max(height, 70),
+              // maxHeight: 100,
+              alignItems: "flex-end",
+              paddingVertical: 10,
+              justifyContent: "center",
+            }}
+          >
+            {Platform.OS !== "web" ? (
               <TouchableOpacity
                 style={{
                   width: 48,
@@ -1014,7 +1025,15 @@ const ChatScreen = (props) => {
                   borderRadius: 100,
                   backgroundColor: "rgba(140, 140, 140, 0.3)",
                 }}
-                onPress={() => setShowActions(!showActions)}
+                onPress={() => {
+                  const showActionsState = !showActions;
+                  if (showActionsState) {
+                    Keyboard.dismiss();
+                  } else {
+                    inputRef?.current?.focus();
+                  }
+                  setShowActions(!showActions);
+                }}
               >
                 <Ionicons
                   name={showActions ? "close" : "add"}
@@ -1022,123 +1041,214 @@ const ChatScreen = (props) => {
                   color={themeStyle.colors.grayscale.lowest}
                 />
               </TouchableOpacity>
-            </View>
-          ) : null}
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              paddingHorizontal: 10,
-              backgroundColor: themeStyle.colors.grayscale.higher,
-              borderWidth: 0.5,
-              borderColor: themeStyle.colors.grayscale.low,
-              borderRadius: 5,
-              flex: 1,
-              opacity: userHasBlocked || userIsBlocked ? 0.3 : 1,
-              maxWidth: 900,
-              alignSelf: "center",
-            }}
-          >
-            <ScrollView scrollEnabled={height > 48}>
-              <View
-                style={[
-                  {
-                    justifyContent: "center",
-                    color: themeStyle.colors.grayscale.lowest,
-                  },
-                  {
-                    height: height < 48 ? 48 : height,
-                    paddingTop: height < 48 ? 0 : 10,
-                    paddingBottom: height < 48 ? 0 : 10,
-                  },
-                ]}
-              >
-                <TextInput
-                  maxLength={2000}
+            ) : null}
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                paddingHorizontal: 10,
+                backgroundColor: themeStyle.colors.grayscale.higher,
+                borderWidth: 0.5,
+                borderColor: themeStyle.colors.grayscale.low,
+                borderRadius: 5,
+                flex: 1,
+                opacity: userHasBlocked || userIsBlocked ? 0.3 : 1,
+                maxWidth: 900,
+                alignSelf: "center",
+              }}
+            >
+              <ScrollView scrollEnabled={height > 48}>
+                <View
                   style={[
                     {
+                      justifyContent: "center",
                       color: themeStyle.colors.grayscale.lowest,
                     },
                     {
+                      height: height < 48 ? 48 : height,
                       paddingTop: height < 48 ? 0 : 10,
                       paddingBottom: height < 48 ? 0 : 10,
                     },
                   ]}
-                  value={messageBody}
-                  placeholderTextColor={themeStyle.colors.grayscale.lower}
-                  multiline
-                  placeholder="Type a message..."
-                  onChangeText={(v) => setMessageBody(v)}
-                  scrollEnabled
-                  editable={!userHasBlocked && !userIsBlocked}
-                  onContentSizeChange={(event) => {
-                    setHeight(
-                      event.nativeEvent.contentSize.height < 150
-                        ? event.nativeEvent.contentSize.height
-                        : 150
-                    );
-                  }}
-                />
-              </View>
-            </ScrollView>
-          </View>
-          <View
-            style={{
-              justifyContent: "flex-end",
-              height: "100%",
-            }}
-          >
-            <TouchableOpacity
+                >
+                  <TextInput
+                    ref={inputRef}
+                    onFocus={() => setShowActions(false)}
+                    maxLength={2000}
+                    style={[
+                      {
+                        color: themeStyle.colors.grayscale.lowest,
+                      },
+                      {
+                        paddingTop: height < 48 ? 0 : 10,
+                        paddingBottom: height < 48 ? 0 : 10,
+                      },
+                    ]}
+                    value={messageBody}
+                    placeholderTextColor={themeStyle.colors.grayscale.lower}
+                    multiline
+                    placeholder="Type a message..."
+                    onChangeText={(v) => setMessageBody(v)}
+                    scrollEnabled
+                    editable={!userHasBlocked && !userIsBlocked}
+                    onContentSizeChange={(event) => {
+                      setHeight(
+                        event.nativeEvent.contentSize.height < 150
+                          ? event.nativeEvent.contentSize.height
+                          : 150
+                      );
+                    }}
+                  />
+                </View>
+              </ScrollView>
+            </View>
+            <View
               style={{
-                marginLeft: 10,
-                marginRight: 10,
-                alignItems: "center",
-                justifyContent: "center",
-                height: 48,
-                width: 48,
-                opacity:
-                  ((!media?.uri || !media.type) && !messageBody) ||
-                  userIsBlocked ||
-                  showMediaSizeError ||
-                  processingFile
-                    ? 0.5
-                    : 1,
+                justifyContent: "flex-end",
+                height: "100%",
               }}
-              disabled={
-                ((!media?.uri || !media.type) && !messageBody) ||
-                userIsBlocked ||
-                creatingChat ||
-                sendingMessage | showMediaSizeError ||
-                processingFile
-              }
-              onPress={() => handleMessage()}
             >
-              {!creatingChat && !sendingMessage ? (
-                <Ionicons
-                  name="send-sharp"
-                  size={24}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
-              ) : (
-                <ActivityIndicator animating size="small" />
-              )}
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  marginLeft: 10,
+                  marginRight: 10,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: 48,
+                  width: 48,
+                  opacity:
+                    ((!media?.uri || !media.type) && !messageBody) ||
+                    userIsBlocked ||
+                    showMediaSizeError ||
+                    processingFile
+                      ? 0.5
+                      : 1,
+                }}
+                disabled={
+                  !!(
+                    ((!media?.uri || !media.type) && !messageBody) ||
+                    userIsBlocked ||
+                    creatingChat ||
+                    sendingMessage | showMediaSizeError ||
+                    processingFile
+                  )
+                }
+                onPress={() => handleMessage()}
+              >
+                {!creatingChat && !sendingMessage ? (
+                  <Ionicons
+                    name="send-sharp"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                ) : (
+                  <ActivityIndicator animating size="small" />
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        ) : null}
+
         <View
           style={[
-            { alignItems: "center", position: "relative" },
+            {
+              alignItems: "center",
+              position: "relative",
+              backgroundColor: themeStyle.colors.grayscale.transparentHighest50,
+              borderRadius: 10,
+              width: "90%",
+              alignSelf: "center",
+              marginVertical: 10,
+            },
             media.uri && { margin: 20 },
           ]}
         >
-          {media?.type?.includes("image") ? (
+          {media.uri ? (
+            <>
+              {compressionProgress && selectedMediaType === "video" ? (
+                <View style={{ width: "95%", alignSelf: "center", padding: 5 }}>
+                  {processingFile ? (
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.lowest,
+                        textAlign: "center",
+                        fontWeight: "700",
+                      }}
+                    >
+                      {`Processing - ${Math.min(compressionProgress, 90)}%`}
+                    </Text>
+                  ) : (
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.lowest,
+                        textAlign: "center",
+                        fontWeight: "700",
+                      }}
+                    >
+                      Ready
+                    </Text>
+                  )}
+                  <View
+                    style={{
+                      width: `${compressionProgress || 100}%`,
+                      height: 5,
+                      backgroundColor: themeStyle.colors.secondary.default,
+                      borderRadius: 5,
+                    }}
+                  />
+                </View>
+              ) : null}
+              <TouchableOpacity
+                onPress={() => {
+                  setShowActions(false);
+                  Keyboard.dismiss();
+                }}
+                style={{
+                  padding: 10,
+                  alignSelf: "flex-end",
+                  alignItems: "center",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
+                {keyboardIsShown || showActions ? (
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      color: themeStyle.colors.grayscale.lowest,
+                      fontWeight: "700",
+                    }}
+                  >
+                    {media?.type?.includes("image") ? "Image" : "Video"}
+                  </Text>
+                ) : (
+                  <View />
+                )}
+                <Ionicons
+                  name="close"
+                  color={themeStyle.colors.grayscale.lowest}
+                  size={30}
+                  onPress={() => {
+                    setMedia({});
+                    setShowMediaSizeError(false);
+                  }}
+                />
+              </TouchableOpacity>
+            </>
+          ) : null}
+          {media.uri &&
+          (keyboardIsShown || showActions) ? null : media?.type?.includes(
+              "image"
+            ) ? (
             <View
               style={{
-                height: screenWidth - 40,
+                height: 200,
                 alignItems: "center",
                 padding: 5,
+                aspectRatio: 1,
               }}
             >
               <Image
@@ -1152,28 +1262,7 @@ const ChatScreen = (props) => {
               />
             </View>
           ) : media?.type?.includes("video") ? (
-            <View style={{ width: 200, height: 200 }}>
-              {compressionProgress && selectedMediaType === "video" ? (
-                <View style={{ width: "95%", alignSelf: "center" }}>
-                  <Text
-                    style={{
-                      color: themeStyle.colors.grayscale.lowest,
-                      textAlign: "center",
-                      marginBottom: 5,
-                    }}
-                  >
-                    Processing - {compressionProgress}%
-                  </Text>
-                  <View
-                    style={{
-                      width: `${compressionProgress || 100}%`,
-                      height: 5,
-                      backgroundColor: themeStyle.colors.secondary.default,
-                      borderRadius: 5,
-                    }}
-                  />
-                </View>
-              ) : null}
+            <View style={{ aspectRatio: 1, height: 200 }}>
               <Video
                 useNativeControls
                 source={{ uri: media.uri }}
@@ -1182,26 +1271,163 @@ const ChatScreen = (props) => {
               />
             </View>
           ) : null}
-          {media.uri ? (
-            <TouchableOpacity
-              onPress={() => {
-                setMedia({});
-                setShowActions(false);
-                setShowMediaSizeError(false);
-              }}
-              style={{ padding: 10 }}
-            >
-              <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                Cancel
-              </Text>
-            </TouchableOpacity>
-          ) : null}
           {showMediaSizeError ? (
             <Text style={{ color: themeStyle.colors.error.default }}>
               Choose a file smaller than 50MB.
             </Text>
           ) : null}
         </View>
+        {showActions && !keyboardIsShown ? (
+          <View
+            style={{
+              backgroundColor: "rgba(19, 130, 148, 1)",
+              width: screenWidth - 20,
+              alignSelf: "center",
+              borderRadius: 10,
+            }}
+          >
+            <View style={{ marginVertical: 20, paddingHorizontal: 10 }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginHorizontal: 10,
+                  marginBottom: 30,
+                }}
+              >
+                <TouchableOpacity
+                  onPress={() => pickMedia("image")}
+                  style={{ alignItems: "center", flexDirection: "row" }}
+                >
+                  <View
+                    style={{
+                      backgroundColor:
+                        themeStyle.colors.grayscale.transparentHighest50,
+                      height: 48,
+                      width: 48,
+                      borderRadius: 26,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <FontAwesome
+                      name="image"
+                      size={24}
+                      color={themeStyle.colors.grayscale.lowest}
+                    />
+                  </View>
+                  <Text
+                    style={{
+                      color: themeStyle.colors.grayscale.lowest,
+                      fontWeight: "700",
+                      marginLeft: 10,
+                    }}
+                  >
+                    Add Image
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginHorizontal: 10,
+                  marginBottom: 30,
+                }}
+              >
+                <TouchableOpacity
+                  onPress={() => pickMedia("video")}
+                  style={{ alignItems: "center", flexDirection: "row" }}
+                >
+                  <View
+                    style={{
+                      backgroundColor:
+                        themeStyle.colors.grayscale.transparentHighest50,
+                      height: 48,
+                      width: 48,
+                      borderRadius: 26,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <View
+                      style={{
+                        borderColor: themeStyle.colors.grayscale.highest,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name="movie-open-play-outline"
+                        size={26}
+                        color={themeStyle.colors.grayscale.lowest}
+                      />
+                    </View>
+                  </View>
+                  <Text
+                    style={{
+                      color: themeStyle.colors.grayscale.lowest,
+                      fontWeight: "700",
+                      marginLeft: 10,
+                    }}
+                  >
+                    Add Video
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              {!showImageOrVideoOption ? (
+                <>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginHorizontal: 10,
+                      marginBottom: 30,
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => {
+                        navigation.setOptions({ headerShown: false });
+                        setCameraActive(true);
+                      }}
+                      style={{
+                        alignItems: "center",
+                        flexDirection: "row",
+                      }}
+                    >
+                      <View
+                        style={{
+                          backgroundColor:
+                            themeStyle.colors.grayscale.transparentHighest50,
+                          height: 48,
+                          width: 48,
+                          borderRadius: 26,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Feather
+                          name="camera"
+                          size={26}
+                          color={themeStyle.colors.grayscale.lowest}
+                        />
+                      </View>
+                      <Text
+                        style={{
+                          color: themeStyle.colors.grayscale.lowest,
+                          fontWeight: "700",
+                          marginLeft: 10,
+                        }}
+                      >
+                        Use Camera
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : null}
+            </View>
+          </View>
+        ) : null}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
