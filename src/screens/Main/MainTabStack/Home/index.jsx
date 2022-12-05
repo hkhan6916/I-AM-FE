@@ -27,7 +27,6 @@ import {
   DataProvider,
   LayoutProvider,
 } from "recyclerlistview";
-// import ContentLoader from "../../../../components/ContentLoader";
 import PostCardLoader from "../../../../components/ContentLoader/PostCard";
 
 const { statusBarHeight } = Constants;

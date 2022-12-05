@@ -13,7 +13,6 @@ import apiCall from "../../../helpers/apiCall";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import PostCard from "../../../components/PostCard";
 import ProfileInfo from "../../../components/ProfileInfo";
-import ContentLoader from "../../../components/ContentLoader";
 import PostOptionsModal from "../../../components/PostOptionsModal";
 import { useSelector } from "react-redux";
 import makeCancelable from "../../../helpers/makeCancelable";
@@ -27,8 +26,8 @@ import themeStyle from "../../../theme.style";
 import { AntDesign } from "@expo/vector-icons";
 import EducationHistoryItem from "../../../components/EducationHistory/EducationHistoryItem";
 import JobHistoryItem from "../../../components/JobHistory/JobHistoryItem";
-import ReactContentLoader, { Rect } from "react-content-loader/native";
 import ProfileLoader from "../../../components/ContentLoader/Profile";
+import JobAndEducationHistoryLoader from "../../../components/ContentLoader/JobAndEducationHistory";
 
 const UserProfileScreen = (props) => {
   const { userId } = props.route.params;
@@ -39,7 +38,6 @@ const UserProfileScreen = (props) => {
   const [accepted, setAccepted] = useState(false);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [visibleItems, setVisibleItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showPostOptions, setShowPostOptions] = useState(null);
   const [error, setError] = useState("");
@@ -518,71 +516,7 @@ const UserProfileScreen = (props) => {
                   }}
                 >
                   {[...Array(6)].map((_, i) => (
-                    <View
-                      key={i}
-                      style={{
-                        backgroundColor: themeStyle.colors.grayscale.cards,
-                        marginVertical: 2,
-                      }}
-                    >
-                      <ReactContentLoader
-                        backgroundColor={themeStyle.colors.grayscale.higher}
-                        foregroundColor={themeStyle.colors.grayscale.high}
-                        viewBox={`0 0 ${screenWidth} ${120}`}
-                        width={screenWidth}
-                        height={120}
-                      >
-                        <Rect x="15" y="18" r="25" width="34" height="34" />
-                        <Rect
-                          x="70"
-                          y="18"
-                          rx="2"
-                          ry="2"
-                          width={`${screenWidth / 1.6}`}
-                          height="10"
-                        />
-                        <Rect
-                          x="70"
-                          y="34"
-                          rx="2"
-                          ry="2"
-                          width={`${screenWidth / 1.6}`}
-                          height="10"
-                        />
-                        <Rect
-                          x="70"
-                          y="50"
-                          rx="2"
-                          ry="2"
-                          width={`${screenWidth / 1.6}`}
-                          height="10"
-                        />
-                        <Rect
-                          x="70"
-                          y="66"
-                          rx="2"
-                          ry="2"
-                          width={`${screenWidth / 1.6}`}
-                          height="10"
-                        />
-                        <Rect
-                          x="70"
-                          y="82"
-                          rx="2"
-                          ry="2"
-                          width={`${screenWidth / 1.6}`}
-                          height="10"
-                        />
-                        <Rect
-                          x="70"
-                          y="98"
-                          rx="2"
-                          ry="2"
-                          width={`${screenWidth / 3}`}
-                          height="10"
-                        />
-                      </ReactContentLoader>
-                    </View>
+                    <JobAndEducationHistoryLoader key={`loader-${i}`} />
                   ))}
                 </View>
               ) : userJobHistory?.length || userEducationHistory?.length ? (

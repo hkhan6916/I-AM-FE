@@ -154,19 +154,25 @@ const ChatListScreen = () => {
   return (
     <View style={styles.container}>
       {!loaded && !error ? (
-        <View style={{ marginLeft: 10 }}>
-          <ContentLoader
-            listSize={6}
-            active
-            showAvatar
-            hideExtraText
-            avatarSize={50}
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "flex-start",
+            alignItems: "center",
+          }}
+        >
+          <ActivityIndicator
+            size={"large"}
+            color={themeStyle.colors.grayscale.lowest}
+            style={{ marginTop: 50 }}
           />
         </View>
       ) : null}
       {error ? (
         <View>
-          <Text>Oops, something went wrong</Text>
+          <Text>
+            There was a problem loading your chats. Please try again later.
+          </Text>
         </View>
       ) : chats.length ? (
         <RecyclerListView

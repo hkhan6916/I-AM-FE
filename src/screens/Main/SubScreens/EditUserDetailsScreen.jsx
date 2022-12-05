@@ -24,7 +24,6 @@ import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import ProfileVideoCamera from "../../../components/ProfileVideoCamera";
 import PreviewVideo from "../../../components/PreviewVideo";
-import ContentLoader from "../../../components/ContentLoader";
 import InputNoBorder from "../../../components/InputNoBorder";
 import validateEmail from "../../../helpers/validateEmail";
 import validatePassword from "../../../helpers/validatePassword";
