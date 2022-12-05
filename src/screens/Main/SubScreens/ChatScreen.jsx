@@ -50,6 +50,11 @@ import { convertAndEncodeVideo } from "../../../helpers/convertAndEncodeVideo";
 import { FFmpegKit } from "ffmpeg-kit-react-native";
 import { useSelector } from "react-redux";
 import getVideoCodecName from "../../../helpers/getVideoCodecName";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -77,6 +82,7 @@ const ChatScreen = (props) => {
   const [loading, setLoading] = useState(false);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [thumbnail, setThumbnail] = useState("");
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const [compressionProgress, setCompressionProgress] = useState(0);
   const [videoDuration, setVideoDuration] = useState(0);
@@ -90,6 +96,14 @@ const ChatScreen = (props) => {
   const [port, setPort] = useState("5000");
 
   const inputRef = useRef();
+  const offset = useSharedValue(0);
+
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      height: offset.value,
+      opacity: offset.value ? 1 : 0,
+    };
+  });
 
   const isLowendDevice = useSelector((state) => state.isLowEndDevice)?.state;
 
@@ -506,6 +520,7 @@ const ChatScreen = (props) => {
       });
       if (!result.canceled) {
         setShowActions(false);
+        offset.value = withTiming(0, { duration: 100 });
         const mediaType = result.assets[0].type.split("/")[0];
         setShowMediaSizeError(false);
 
@@ -819,16 +834,27 @@ const ChatScreen = (props) => {
   }, [persistedParams]);
 
   useEffect(() => {
-    Keyboard.addListener("keyboardWillShow", () => {
-      setKeyboardIsShown(true);
-    });
-    Keyboard.addListener("keyboardWillHide", () => {
-      setKeyboardIsShown(false);
-    });
-    return () => {
-      Keyboard.removeAllListeners("keyboardWillShow");
-      Keyboard.removeAllListeners("keyboardWillHide");
-    };
+    Keyboard.addListener(
+      Platform.OS === "android" ? "keyboardDidShow" : "keyboardWillShow",
+      (e) => {
+        setKeyboardIsShown(true);
+        setKeyboardHeight(e.endCoordinates.height);
+      }
+    );
+    Keyboard.addListener(
+      Platform.OS === "android" ? "keyboardDidHide" : "keyboardWillHide",
+      () => {
+        setKeyboardIsShown(false);
+      }
+    );
+    // return () => {
+    //   Keyboard.removeAllListeners(
+    //     Platform.OS === "android" ? "keyboardDidShow" : "keyboardWillShow"
+    //   );
+    //   Keyboard.removeAllListeners(
+    //     Platform.OS === "android" ? "keyboardDidHide" : "keyboardWillHide"
+    //   );
+    // };
   }, []);
 
   if (loading) {
@@ -850,6 +876,7 @@ const ChatScreen = (props) => {
         setFile={async (file) => {
           setMedia(file);
           setShowActions(false);
+          offset.value = withTiming(0, { duration: 100 });
 
           await FFmpegKit.cancel();
           const mediaType = file.type?.split("/")[0];
@@ -1029,8 +1056,14 @@ const ChatScreen = (props) => {
                   const showActionsState = !showActions;
                   if (showActionsState) {
                     Keyboard.dismiss();
+                    offset.value = withTiming(keyboardHeight || screenWidth, {
+                      duration: 300,
+                    });
                   } else {
-                    inputRef?.current?.focus();
+                    offset.value = withTiming(0, { duration: 100 });
+                    setTimeout(() => {
+                      inputRef?.current?.focus();
+                    }, 150);
                   }
                   setShowActions(!showActions);
                 }}
@@ -1075,7 +1108,10 @@ const ChatScreen = (props) => {
                 >
                   <TextInput
                     ref={inputRef}
-                    onFocus={() => setShowActions(false)}
+                    onFocus={() => {
+                      setShowActions(false);
+                      offset.value = withTiming(0, { duration: 100 });
+                    }}
                     maxLength={2000}
                     style={[
                       {
@@ -1203,6 +1239,7 @@ const ChatScreen = (props) => {
               <TouchableOpacity
                 onPress={() => {
                   setShowActions(false);
+                  offset.value = withTiming(0, { duration: 100 });
                   Keyboard.dismiss();
                 }}
                 style={{
@@ -1240,9 +1277,9 @@ const ChatScreen = (props) => {
             </>
           ) : null}
           {media.uri &&
-          (keyboardIsShown || showActions) ? null : media?.type?.includes(
-              "image"
-            ) ? (
+          (keyboardIsShown ||
+            showActions ||
+            offset.value) ? null : media?.type?.includes("image") ? (
             <View
               style={{
                 height: 200,
@@ -1277,157 +1314,158 @@ const ChatScreen = (props) => {
             </Text>
           ) : null}
         </View>
-        {showActions && !keyboardIsShown ? (
-          <View
-            style={{
+        <Animated.View
+          style={[
+            {
               backgroundColor: "rgba(19, 130, 148, 1)",
               width: screenWidth - 20,
               alignSelf: "center",
               borderRadius: 10,
-            }}
-          >
-            <View style={{ marginVertical: 20, paddingHorizontal: 10 }}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginHorizontal: 10,
-                  marginBottom: 30,
-                }}
+            },
+            animatedStyles,
+          ]}
+        >
+          <View style={{ marginVertical: 20, paddingHorizontal: 10 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginHorizontal: 10,
+                marginBottom: 30,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => pickMedia("image")}
+                style={{ alignItems: "center", flexDirection: "row" }}
               >
-                <TouchableOpacity
-                  onPress={() => pickMedia("image")}
-                  style={{ alignItems: "center", flexDirection: "row" }}
+                <View
+                  style={{
+                    backgroundColor:
+                      themeStyle.colors.grayscale.transparentHighest50,
+                    height: 48,
+                    width: 48,
+                    borderRadius: 26,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <FontAwesome
+                    name="image"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </View>
+                <Text
+                  style={{
+                    color: themeStyle.colors.grayscale.lowest,
+                    fontWeight: "700",
+                    marginLeft: 10,
+                  }}
+                >
+                  Add Image
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginHorizontal: 10,
+                marginBottom: 30,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => pickMedia("video")}
+                style={{ alignItems: "center", flexDirection: "row" }}
+              >
+                <View
+                  style={{
+                    backgroundColor:
+                      themeStyle.colors.grayscale.transparentHighest50,
+                    height: 48,
+                    width: 48,
+                    borderRadius: 26,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
                 >
                   <View
                     style={{
-                      backgroundColor:
-                        themeStyle.colors.grayscale.transparentHighest50,
-                      height: 48,
-                      width: 48,
-                      borderRadius: 26,
+                      borderColor: themeStyle.colors.grayscale.highest,
                       justifyContent: "center",
                       alignItems: "center",
                     }}
                   >
-                    <FontAwesome
-                      name="image"
-                      size={24}
+                    <MaterialCommunityIcons
+                      name="movie-open-play-outline"
+                      size={26}
                       color={themeStyle.colors.grayscale.lowest}
                     />
                   </View>
-                  <Text
-                    style={{
-                      color: themeStyle.colors.grayscale.lowest,
-                      fontWeight: "700",
-                      marginLeft: 10,
-                    }}
-                  >
-                    Add Image
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginHorizontal: 10,
-                  marginBottom: 30,
-                }}
-              >
-                <TouchableOpacity
-                  onPress={() => pickMedia("video")}
-                  style={{ alignItems: "center", flexDirection: "row" }}
+                </View>
+                <Text
+                  style={{
+                    color: themeStyle.colors.grayscale.lowest,
+                    fontWeight: "700",
+                    marginLeft: 10,
+                  }}
                 >
-                  <View
+                  Add Video
+                </Text>
+              </TouchableOpacity>
+            </View>
+            {!showImageOrVideoOption ? (
+              <>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    marginHorizontal: 10,
+                    marginBottom: 30,
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() => {
+                      navigation.setOptions({ headerShown: false });
+                      setCameraActive(true);
+                    }}
                     style={{
-                      backgroundColor:
-                        themeStyle.colors.grayscale.transparentHighest50,
-                      height: 48,
-                      width: 48,
-                      borderRadius: 26,
-                      justifyContent: "center",
                       alignItems: "center",
+                      flexDirection: "row",
                     }}
                   >
                     <View
                       style={{
-                        borderColor: themeStyle.colors.grayscale.highest,
+                        backgroundColor:
+                          themeStyle.colors.grayscale.transparentHighest50,
+                        height: 48,
+                        width: 48,
+                        borderRadius: 26,
                         justifyContent: "center",
                         alignItems: "center",
                       }}
                     >
-                      <MaterialCommunityIcons
-                        name="movie-open-play-outline"
+                      <Feather
+                        name="camera"
                         size={26}
                         color={themeStyle.colors.grayscale.lowest}
                       />
                     </View>
-                  </View>
-                  <Text
-                    style={{
-                      color: themeStyle.colors.grayscale.lowest,
-                      fontWeight: "700",
-                      marginLeft: 10,
-                    }}
-                  >
-                    Add Video
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              {!showImageOrVideoOption ? (
-                <>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      marginHorizontal: 10,
-                      marginBottom: 30,
-                    }}
-                  >
-                    <TouchableOpacity
-                      onPress={() => {
-                        navigation.setOptions({ headerShown: false });
-                        setCameraActive(true);
-                      }}
+                    <Text
                       style={{
-                        alignItems: "center",
-                        flexDirection: "row",
+                        color: themeStyle.colors.grayscale.lowest,
+                        fontWeight: "700",
+                        marginLeft: 10,
                       }}
                     >
-                      <View
-                        style={{
-                          backgroundColor:
-                            themeStyle.colors.grayscale.transparentHighest50,
-                          height: 48,
-                          width: 48,
-                          borderRadius: 26,
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Feather
-                          name="camera"
-                          size={26}
-                          color={themeStyle.colors.grayscale.lowest}
-                        />
-                      </View>
-                      <Text
-                        style={{
-                          color: themeStyle.colors.grayscale.lowest,
-                          fontWeight: "700",
-                          marginLeft: 10,
-                        }}
-                      >
-                        Use Camera
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </>
-              ) : null}
-            </View>
+                      Use Camera
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            ) : null}
           </View>
-        ) : null}
+        </Animated.View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
