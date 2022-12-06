@@ -62,7 +62,6 @@ const ChatScreen = (props) => {
   const [height, setHeight] = useState(1);
 
   const [media, setMedia] = useState({});
-  const [showMediaSizeError, setShowMediaSizeError] = useState(false);
   const [messageBody, setMessageBody] = useState("");
   const [messages, setMessages] = useState([]);
   const [showError, setShowError] = useState(false);
@@ -429,9 +428,7 @@ const ChatScreen = (props) => {
               });
 
               setMessages(newMessages);
-              setMessageBody("");
               setHeight(0);
-              setMedia({});
             }
           });
           return;
@@ -519,10 +516,30 @@ const ChatScreen = (props) => {
         videoQuality: ImagePicker.UIImagePickerControllerQualityType.Medium,
       });
       if (!result.canceled) {
+        const mediaInfo = await getInfoAsync(result.assets[0].uri);
+        const mediaSizeInMb = mediaInfo.size / 1000000;
+        if (mediaSizeInMb > (isLowendDevice ? 50 : 100)) {
+          Alert.alert(
+            `Sorry, this ${type} is too large.`,
+            `Please choose a file that does not exceed ${
+              isLowendDevice ? 50 : 100
+            }MB in size.`,
+            [
+              {
+                text: "Cancel",
+              },
+              {
+                text: "Open files",
+                onPress: () => pickMedia(type),
+              },
+            ]
+          );
+          setLoading(false);
+          return;
+        }
         setShowActions(false);
         offset.value = withTiming(0, { duration: 100 });
         const mediaType = result.assets[0].type.split("/")[0];
-        setShowMediaSizeError(false);
 
         FFmpegKit.cancel();
         setProcessingFile(Platform.OS === "ios" && mediaType === "video");
@@ -530,14 +547,6 @@ const ChatScreen = (props) => {
         setThumbnail("");
         setCompressionProgress(0);
         setSelectedMediaType("");
-        const mediaInfo = await getInfoAsync(result.assets[0].uri);
-        const mediaSizeInMb = mediaInfo.size / 1000000;
-        if (mediaSizeInMb > (isLowendDevice ? 50 : 100)) {
-          setShowMediaSizeError(true);
-          setMedia({ ...result.assets[0], ...mediaInfo });
-          setLoading(false);
-          return;
-        }
         const encoding = await getVideoCodecName(mediaInfo.uri);
         const unsupportedCodec =
           encoding === "hevc" || encoding === "h265" || !encoding;
@@ -888,8 +897,17 @@ const ChatScreen = (props) => {
           const mediaInfo = await getInfoAsync(file.uri);
           const mediaSizeInMb = mediaInfo.size / 1000000;
           if (mediaSizeInMb > (isLowendDevice ? 50 : 100)) {
-            setShowMediaSizeError(true);
-            setMedia({});
+            Alert.alert(
+              `Sorry, this ${mediaType} is too large.`,
+              `Please choose a file that does not exceed ${
+                isLowendDevice ? 50 : 100
+              }MB in size.`,
+              [
+                {
+                  text: "Cancel",
+                },
+              ]
+            );
             setLoading(false);
             return;
           }
@@ -1056,7 +1074,7 @@ const ChatScreen = (props) => {
                   const showActionsState = !showActions;
                   if (showActionsState) {
                     Keyboard.dismiss();
-                    offset.value = withTiming(keyboardHeight || screenWidth, {
+                    offset.value = withTiming(keyboardHeight || 300, {
                       duration: 300,
                     });
                   } else {
@@ -1157,7 +1175,6 @@ const ChatScreen = (props) => {
                   opacity:
                     ((!media?.uri || !media.type) && !messageBody) ||
                     userIsBlocked ||
-                    showMediaSizeError ||
                     processingFile
                       ? 0.5
                       : 1,
@@ -1167,7 +1184,7 @@ const ChatScreen = (props) => {
                     ((!media?.uri || !media.type) && !messageBody) ||
                     userIsBlocked ||
                     creatingChat ||
-                    sendingMessage | showMediaSizeError ||
+                    sendingMessage ||
                     processingFile
                   )
                 }
@@ -1270,7 +1287,6 @@ const ChatScreen = (props) => {
                   size={30}
                   onPress={() => {
                     setMedia({});
-                    setShowMediaSizeError(false);
                   }}
                 />
               </TouchableOpacity>
@@ -1307,11 +1323,6 @@ const ChatScreen = (props) => {
                 style={{ width: "100%", height: "100%", alignSelf: "center" }}
               />
             </View>
-          ) : null}
-          {showMediaSizeError ? (
-            <Text style={{ color: themeStyle.colors.error.default }}>
-              Choose a file smaller than 50MB.
-            </Text>
           ) : null}
         </View>
         <Animated.View
