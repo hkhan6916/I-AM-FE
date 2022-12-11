@@ -7,6 +7,7 @@ import {
   Modal,
   Platform,
   SafeAreaView,
+  ActivityIndicator,
 } from "react-native";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import ImageWithCache from "./ImageWithCache";
@@ -25,6 +26,7 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
     thumbnailHeaders,
     ready,
     failed,
+    localProcessing,
   } = message;
   const [mediaFullScreen, setMediaFullScreen] = useState(false);
   return (
@@ -248,36 +250,60 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
                   }}
                 />
               </TouchableOpacity>
-            ) : thumbnailUrl && mediaType === "video" ? (
+            ) : (thumbnailUrl || localProcessing) && mediaType === "video" ? (
               <TouchableOpacity onPress={() => setMediaFullScreen(true)}>
                 <View
                   style={{ alignItems: "center", justifyContent: "center" }}
                 >
-                  <ImageWithCache
-                    removeBorderRadius
-                    resizeMode="cover"
-                    mediaUrl={thumbnailUrl}
-                    mediaHeaders={thumbnailHeaders || {}}
-                    style={{
-                      width: mediaSize || 200,
-                      height: mediaSize || 200,
-                      maxWidth: 500,
-                      maxHeight: 500,
-                    }}
-                  />
-                  <View
-                    style={{
-                      position: "absolute",
-                      backgroundColor: themeStyle.colors.secondary.light,
-                      borderRadius: 100,
-                    }}
-                  >
-                    <MaterialCommunityIcons
-                      name="play"
-                      size={60}
-                      color={themeStyle.colors.grayscale.lowest}
-                    />
-                  </View>
+                  {thumbnailUrl ? (
+                    <>
+                      <ImageWithCache
+                        removeBorderRadius
+                        resizeMode="cover"
+                        mediaUrl={thumbnailUrl}
+                        mediaHeaders={thumbnailHeaders || {}}
+                        style={{
+                          width: mediaSize || 200,
+                          height: mediaSize || 200,
+                          maxWidth: 500,
+                          maxHeight: 500,
+                        }}
+                      />
+                      <View
+                        style={{
+                          position: "absolute",
+                          backgroundColor: themeStyle.colors.secondary.light,
+                          borderRadius: 100,
+                        }}
+                      >
+                        <MaterialCommunityIcons
+                          name="play"
+                          size={60}
+                          color={themeStyle.colors.grayscale.lowest}
+                        />
+                      </View>
+                    </>
+                  ) : (
+                    <>
+                      <View
+                        style={{
+                          width: mediaSize || 200,
+                          height: mediaSize || 200,
+                          maxWidth: 500,
+                          maxHeight: 500,
+                          backgroundColor: themeStyle.colors.grayscale.higher,
+                        }}
+                      />
+                      <View
+                        style={{
+                          position: "absolute",
+                          borderRadius: 100,
+                        }}
+                      >
+                        <ActivityIndicator animating size="large" />
+                      </View>
+                    </>
+                  )}
                 </View>
               </TouchableOpacity>
             ) : null}

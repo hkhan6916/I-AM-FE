@@ -14,6 +14,7 @@ import {
   ActivityIndicator,
   FlatList,
   Keyboard,
+  Button,
 } from "react-native";
 import { getItemAsync } from "expo-secure-store";
 import { io } from "socket.io-client";
@@ -55,6 +56,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
+import queue, { Worker } from "react-native-job-queue";
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -120,6 +122,119 @@ const ChatScreen = (props) => {
   const { width: screenWidth } = Dimensions.get("window");
 
   const mediaSize = screenWidth / 1.5;
+
+  queue.configure({
+    onQueueFinish: (executedJobs) => {
+      console.log("Queue stopped and executed", executedJobs);
+    },
+    concurrency: 1,
+  });
+
+  const removeWorker = () => {
+    queue.removeWorker("chat_queue_worker", true);
+  };
+
+  const startQueue = async () => {
+    const runningJobs = await queue.getJobs();
+    console.log({ runningJobs });
+    if (!runningJobs?.length) {
+      // queue.removeWorker("chat_queue_worker", true);
+      queue.addWorker(
+        new Worker("chat_queue_worker", async (payload) => {
+          return new Promise((resolve) => {
+            const signedResponse = payload.signedResponse;
+            setTimeout(async () => {
+              const media = payload.media;
+              const thumbnailUrl = await generateThumbnail(
+                media.uri,
+                media.duration
+              );
+
+              if (thumbnailUrl) {
+                const newMessages = createUpdatedMessagesArray({
+                  body: messageBody,
+                  chatId: payload.chatId,
+                  senderId: authInfo?.senderId,
+                  user: "sender",
+                  mediaUrl: media.uri,
+                  mediaHeaders: {}, // recieved as null if media is video
+                  mediaType: media.type?.split("/")[0],
+                  thumbnailUrl,
+                  stringTime: get12HourTime(new Date()),
+                  stringDate: getNameDate(new Date()),
+                  createdAt: new Date(),
+                  _id: payload.response._id,
+                  ready: false,
+                  localProcessing: false,
+                });
+                setMessages(newMessages);
+
+                await backgroundUpload({
+                  filePath:
+                    Platform.OS == "android"
+                      ? thumbnailUrl.replace("file://", "")
+                      : thumbnailUrl,
+                  url: signedResponse.signedUrl,
+                  disableLogs: true,
+                  failureRoute: `/chat/message/fail/${signedResponse._id}`,
+                });
+
+                // This is the thumbnail. We send this to backend which saves it as the thumbnailkey for this message
+              } else {
+                console.log("No thumbnail found. Cancelling message");
+                return;
+              }
+
+              const mediaType = media.type?.split("/")[0];
+
+              const convertedCodecAndCompressedUrl =
+                await convertAndEncodeVideo({
+                  uri: media.uri,
+                  setProgress: setCompressionProgress,
+                  videoDuration,
+                  useFfmpeg: true,
+                  disableAsync: true,
+                });
+
+              const compressedUrl = convertedCodecAndCompressedUrl;
+              await handleBackgroundUpload(
+                compressedUrl,
+                payload.message,
+                payload.response._id,
+                mediaType
+              ).then((success) => {
+                if (!success) {
+                  setShowError(true);
+                }
+
+                if (socket) {
+                  const newMessages = createUpdatedMessagesArray({
+                    body: messageBody,
+                    chatId: payload.chatId,
+                    senderId: authInfo?.senderId,
+                    user: "sender",
+                    mediaUrl: media.uri,
+                    thumbnailUrl: thumbnailUrl,
+                    mediaHeaders: payload.response.mediaHeaders,
+                    mediaType,
+                    stringTime: get12HourTime(new Date()),
+                    stringDate: getNameDate(new Date()),
+                    createdAt: new Date(),
+                    _id: payload.response._id,
+                  });
+
+                  setMessages(newMessages);
+                  setHeight(0);
+                }
+              });
+
+              resolve();
+            }, payload.delay || 0);
+          });
+        })
+      );
+    }
+  };
 
   const createUpdatedMessagesArray = (newMessage) => {
     return [newMessage, ...messages];
@@ -327,36 +442,16 @@ const ChatScreen = (props) => {
 
       let postData = {};
 
-      if (thumbnail) {
-        const { response, success } = await apiCall(
-          "POST",
-          "/files/signed-upload-url",
-          { filename: `mediaThumbnail.${thumbnail.split(".").pop()}` }
-        );
-        if (!success) {
-          setShowError(true);
-          return;
-        }
-        // upload thumbnail
-        await backgroundUpload({
-          filePath:
-            Platform.OS == "android"
-              ? thumbnail.replace("file://", "")
-              : thumbnail,
-          url: response.signedUrl,
-          disableLogs: true,
+      const { response: signedResponse, success: signedSuccess } =
+        await apiCall("POST", "/files/signed-upload-url", {
+          filename: `mediaThumbnail.jpeg`,
         });
-
-        postData.thumbnailKey = response.fileKey; // This is the thumbnail. We send this to backend which saves it as the thumbnailkey for this message
+      if (!signedSuccess) {
+        setShowError(true);
+        return;
       }
-      // else if (media.type?.split("/")[0] === "image") {
-      //   // We add image here and upload but also in background upload below? WHY? need to test this
-      //   postData.append("file", {
-      //     uri: media.uri,
-      //     name: `image.${media.uri.split(".").pop()}`,
-      //     type: `image/${media.uri.split(".").pop()}`,
-      //   });
-      // }
+
+      postData.thumbnailKey = signedResponse.fileKey; // This is the thumbnail. We send this to backend which saves it as the thumbnailkey for this message
 
       postData = { ...postData, ...message };
 
@@ -373,66 +468,33 @@ const ChatScreen = (props) => {
           chatId,
           senderId: authInfo?.senderId,
           user: "sender",
-          mediaUrl: "",
+          mediaUrl: media.uri,
           mediaHeaders: {}, // recieved as null if media is video
           mediaType: media.type?.split("/")[0],
-          thumbnailUrl:
-            media.type?.split("/")[0] === "video" ? thumbnail : null,
           stringTime: get12HourTime(new Date()),
           stringDate: getNameDate(new Date()),
           createdAt: new Date(),
           _id: response._id,
           ready: false,
+          localProcessing: true,
         });
 
         setMessages(newMessages);
         setMessageBody("");
         setHeight(0);
         setMedia({});
-        const mediaType = media.type?.split("/")[0];
-
-        if (mediaType === "video") {
-          const convertedCodecAndCompressedUrl =
-            Platform.OS === "ios"
-              ? processedVideoUri
-              : await convertAndEncodeVideo({
-                  uri: media.uri,
-                  setProgress: setCompressionProgress,
-                  videoDuration,
-                });
-
-          const compressedUrl = convertedCodecAndCompressedUrl;
-          await handleBackgroundUpload(
-            compressedUrl,
-            message,
-            response._id,
-            mediaType
-          ).then((success) => {
-            if (!success) {
-              setShowError(true);
-            }
-            if (socket) {
-              const newMessages = createUpdatedMessagesArray({
-                body: messageBody,
-                chatId,
-                senderId: authInfo?.senderId,
-                user: "sender",
-                mediaUrl: media.uri,
-                thumbnailUrl: thumbnail,
-                mediaHeaders: response.mediaHeaders,
-                mediaType,
-                stringTime: get12HourTime(new Date()),
-                stringDate: getNameDate(new Date()),
-                createdAt: new Date(),
-                _id: response._id,
-              });
-
-              setMessages(newMessages);
-              setHeight(0);
-            }
-          });
-          return;
-        }
+        setSendingMessage(false);
+        console.log("adding job");
+        queue.addJob("chat_queue_worker", {
+          messageBody,
+          authInfo,
+          media,
+          recipient,
+          chatId: chat?._id,
+          processedVideoUri,
+          response,
+          signedResponse,
+        });
       } else {
         console.log("Failed to upload message media");
       }
@@ -516,6 +578,7 @@ const ChatScreen = (props) => {
         videoQuality: ImagePicker.UIImagePickerControllerQualityType.Medium,
       });
       if (!result.canceled) {
+        setThumbnail("");
         const mediaInfo = await getInfoAsync(result.assets[0].uri);
         const mediaSizeInMb = mediaInfo.size / 1000000;
         if (mediaSizeInMb > (isLowendDevice ? 50 : 100)) {
@@ -541,10 +604,8 @@ const ChatScreen = (props) => {
         offset.value = withTiming(0, { duration: 100 });
         const mediaType = result.assets[0].type.split("/")[0];
 
-        FFmpegKit.cancel();
-        setProcessingFile(Platform.OS === "ios" && mediaType === "video");
+        // setProcessingFile(Platform.OS === "ios" && mediaType === "video");
         setProcessedVideoUri("");
-        setThumbnail("");
         setCompressionProgress(0);
         setSelectedMediaType("");
         const encoding = await getVideoCodecName(mediaInfo.uri);
@@ -570,11 +631,12 @@ const ChatScreen = (props) => {
         setMedia({ ...result.assets[0], ...mediaInfo });
 
         if (mediaType === "video") {
-          const thumbnailUri = await generateThumbnail(
-            result.assets[0].uri,
-            result.assets[0].duration
-          );
-          setThumbnail(thumbnailUri);
+          // const thumbnailUri = await generateThumbnail(
+          //   result.assets[0].uri,
+          //   result.assets[0].duration
+          // );
+          // console.log({ thumbnailUri });
+          // setThumbnail(thumbnailUri);
           setVideoDuration(result.assets[0].duration);
           if (Platform.OS === "ios") {
             await convertAndEncodeVideo({
@@ -637,7 +699,10 @@ const ChatScreen = (props) => {
 
   let dataProvider = new DataProvider((r1, r2) => {
     return (
-      r1._id !== r2._id || r1.mediaUrl !== r2.mediaUrl || r1.ready !== r2.ready
+      r1._id !== r2._id ||
+      r1.mediaUrl !== r2.mediaUrl ||
+      r1.ready !== r2.ready ||
+      r1.localProcessing !== r2.localProcessing
     );
   }).cloneWithRows(messages);
 
@@ -944,6 +1009,19 @@ const ChatScreen = (props) => {
         keyboardVerticalOffset={93}
         style={{ flex: 1 }}
       >
+        <View style={{ flexDirection: "row" }}>
+          <Button
+            style={{ width: 300 }}
+            title="start"
+            onPress={() => startQueue()}
+          />
+          <Button
+            style={{ width: 300 }}
+            title="kill"
+            onPress={() => removeWorker()}
+          />
+        </View>
+
         {/* <TouchableOpacity
           style={{ backgroundColor: "red", margin: 20 }}
           onPress={() => setPort("5000")}

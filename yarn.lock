@@ -9827,6 +9827,11 @@ react-native-in-app-review@^4.1.1:
   resolved "https://registry.yarnpkg.com/react-native-in-app-review/-/react-native-in-app-review-4.2.1.tgz#4bc763e0d33f8dae663c054e87832128cd4e6c63"
   integrity sha512-Bny/ukRhkSSzlsbVpB3vsIuWYuOHBPlxguNwZ0TWK+7IQq8/vTRDf17y1P/4+jMIjBO0WNJCzBxHkXdnlhoTmQ==
 
+react-native-job-queue@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/react-native-job-queue/-/react-native-job-queue-0.5.0.tgz#68085ec7435781dd9510fd950da7922bd82b8f90"
+  integrity sha512-CtxDZddHG1f5IjT0tWxLzcRo2yEz8K7nUw0wTEhozrO/M6JPscsgi43AVsGPP8H0ha38gT41iI6HVTY7eJZ5yg==
+
 react-native-linear-gradient@^2.6.2:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/react-native-linear-gradient/-/react-native-linear-gradient-2.6.2.tgz#56598a76832724b2afa7889747635b5c80948f38"
