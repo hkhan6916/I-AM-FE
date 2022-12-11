@@ -130,45 +130,53 @@ const ChatScreen = (props) => {
     concurrency: 1,
   });
 
-  const removeWorker = () => {
-    queue.removeWorker("chat_queue_worker", true);
-  };
-
-  const startQueue = async () => {
+  const setupVideoUploadQueue = async () => {
+    let messagesArr = messages;
     const runningJobs = await queue.getJobs();
-    console.log({ runningJobs });
-    if (!runningJobs?.length) {
-      // queue.removeWorker("chat_queue_worker", true);
+    const runningWorkers = await queue.registeredWorkers;
+    const shouldRefreshWorker =
+      (!runningJobs?.length && runningWorkers?.["message_video_upload"]) ||
+      !runningWorkers?.["message_video_upload"];
+
+    if (shouldRefreshWorker) {
+      queue.removeWorker("message_video_upload", true);
+      console.log("KILLING WORKER");
+    }
+
+    if (shouldRefreshWorker) {
       queue.addWorker(
-        new Worker("chat_queue_worker", async (payload) => {
+        new Worker("message_video_upload", async (payload) => {
           return new Promise((resolve) => {
-            const signedResponse = payload.signedResponse;
+            const signedResponse = payload?.signedResponse;
             setTimeout(async () => {
-              const media = payload.media;
+              const media = payload?.media;
               const thumbnailUrl = await generateThumbnail(
                 media.uri,
                 media.duration
               );
 
               if (thumbnailUrl) {
-                const newMessages = createUpdatedMessagesArray({
-                  body: messageBody,
-                  chatId: payload.chatId,
-                  senderId: authInfo?.senderId,
-                  user: "sender",
-                  mediaUrl: media.uri,
-                  mediaHeaders: {}, // recieved as null if media is video
-                  mediaType: media.type?.split("/")[0],
-                  thumbnailUrl,
-                  stringTime: get12HourTime(new Date()),
-                  stringDate: getNameDate(new Date()),
-                  createdAt: new Date(),
-                  _id: payload.response._id,
-                  ready: false,
-                  localProcessing: false,
-                });
+                const newMessages = createUpdatedMessagesArray(
+                  {
+                    body: payload.messageBody,
+                    chatId: payload?.chatId,
+                    senderId: payload?.authInfo?.senderId,
+                    user: "sender",
+                    mediaUrl: media.uri,
+                    mediaHeaders: {}, // recieved as null if media is video
+                    mediaType: media.type?.split("/")[0],
+                    thumbnailUrl,
+                    stringTime: get12HourTime(new Date()),
+                    stringDate: getNameDate(new Date()),
+                    createdAt: new Date(),
+                    _id: payload?.response?._id,
+                    ready: false,
+                    localProcessing: false,
+                    messages: payload.messages,
+                  },
+                  messagesArr
+                );
                 setMessages(newMessages);
-
                 await backgroundUpload({
                   filePath:
                     Platform.OS == "android"
@@ -208,20 +216,23 @@ const ChatScreen = (props) => {
                 }
 
                 if (socket) {
-                  const newMessages = createUpdatedMessagesArray({
-                    body: messageBody,
-                    chatId: payload.chatId,
-                    senderId: authInfo?.senderId,
-                    user: "sender",
-                    mediaUrl: media.uri,
-                    thumbnailUrl: thumbnailUrl,
-                    mediaHeaders: payload.response.mediaHeaders,
-                    mediaType,
-                    stringTime: get12HourTime(new Date()),
-                    stringDate: getNameDate(new Date()),
-                    createdAt: new Date(),
-                    _id: payload.response._id,
-                  });
+                  const newMessages = createUpdatedMessagesArray(
+                    {
+                      body: payload.messageBody,
+                      chatId: payload.chatId,
+                      senderId: authInfo?.senderId,
+                      user: "sender",
+                      mediaUrl: media.uri,
+                      thumbnailUrl: thumbnailUrl,
+                      mediaHeaders: payload.response.mediaHeaders,
+                      mediaType,
+                      stringTime: get12HourTime(new Date()),
+                      stringDate: getNameDate(new Date()),
+                      createdAt: new Date(),
+                      _id: payload.response._id,
+                    },
+                    messagesArr
+                  );
 
                   setMessages(newMessages);
                   setHeight(0);
@@ -236,8 +247,22 @@ const ChatScreen = (props) => {
     }
   };
 
-  const createUpdatedMessagesArray = (newMessage) => {
-    return [newMessage, ...messages];
+  const createUpdatedMessagesArray = (newMessage, messagesArg) => {
+    const messagesArr = messagesArg || messages;
+    const messageExists = messagesArr.find(
+      (message) => message?._id === newMessage?._id
+    );
+
+    if (messageExists) {
+      const newMessagesArr = messagesArr?.filter((message) => {
+        if (message._id === newMessage?._id) {
+          return { ...message, ...newMessage };
+        }
+        return message;
+      });
+      return newMessagesArr;
+    }
+    return [newMessage, ...messagesArr];
   };
 
   const createChat = async () => {
@@ -485,7 +510,7 @@ const ChatScreen = (props) => {
         setMedia({});
         setSendingMessage(false);
         console.log("adding job");
-        queue.addJob("chat_queue_worker", {
+        queue.addJob("message_video_upload", {
           messageBody,
           authInfo,
           media,
@@ -494,6 +519,7 @@ const ChatScreen = (props) => {
           processedVideoUri,
           response,
           signedResponse,
+          messages,
         });
       } else {
         console.log("Failed to upload message media");
@@ -702,7 +728,8 @@ const ChatScreen = (props) => {
       r1._id !== r2._id ||
       r1.mediaUrl !== r2.mediaUrl ||
       r1.ready !== r2.ready ||
-      r1.localProcessing !== r2.localProcessing
+      r1.localProcessing !== r2.localProcessing ||
+      r1.thumbnailUrl !== r2.thumbnailUrl
     );
   }).cloneWithRows(messages);
 
@@ -908,6 +935,7 @@ const ChatScreen = (props) => {
   }, [persistedParams]);
 
   useEffect(() => {
+    (async () => await setupVideoUploadQueue())();
     Keyboard.addListener(
       Platform.OS === "android" ? "keyboardDidShow" : "keyboardWillShow",
       (e) => {
@@ -1009,19 +1037,6 @@ const ChatScreen = (props) => {
         keyboardVerticalOffset={93}
         style={{ flex: 1 }}
       >
-        <View style={{ flexDirection: "row" }}>
-          <Button
-            style={{ width: 300 }}
-            title="start"
-            onPress={() => startQueue()}
-          />
-          <Button
-            style={{ width: 300 }}
-            title="kill"
-            onPress={() => removeWorker()}
-          />
-        </View>
-
         {/* <TouchableOpacity
           style={{ backgroundColor: "red", margin: 20 }}
           onPress={() => setPort("5000")}
