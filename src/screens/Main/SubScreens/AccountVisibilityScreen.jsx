@@ -109,9 +109,10 @@ const AccountVisibilityScreen = () => {
             }}
           >
             Toggling <Text style={{ fontWeight: "700" }}>private mode</Text>{" "}
-            will restrict your account activity to contacts only. Users not
-            added as contacts will also need to send you a contact request
-            before adding you or messaging you.
+            will restrict your account activity such as your posts, likes and
+            comments to your contacts only. Users not added as contacts will
+            need to send you a contact request before adding you or messaging
+            you.
           </Text>
           <Text
             style={{
@@ -120,9 +121,9 @@ const AccountVisibilityScreen = () => {
               fontSize: 14,
             }}
           >
-            Your profile will still appear in searches. This will not make your
-            profile information private such as your profile video, username,
-            names etc.
+            This will not hide your profile information such as your profile
+            video or image, username, names, job history etc. Your profile will
+            still appear in searches.
           </Text>
         </View>
       ) : null}

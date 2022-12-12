@@ -104,8 +104,6 @@ const VideoPlayer = ({
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={{ color: "red" }}>{play ? "visible" : ""}</Text>
-      <Text style={{ color: "red" }}>{load ? "nearly visible" : ""}</Text>
       <View
         style={[
           {

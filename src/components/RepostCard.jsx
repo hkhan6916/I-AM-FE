@@ -98,11 +98,14 @@ const RepostCard = ({ postContent, isPreview, mediaIsFullWidth = false }) => {
             </Text>
           </View>
         </View>
-        {postContent.gif ? (
+        {postContent.gifPreview ? (
           <View
             style={{
               flex: 1,
               flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: themeStyle.colors.black,
             }}
           >
             <Image
@@ -114,7 +117,7 @@ const RepostCard = ({ postContent, isPreview, mediaIsFullWidth = false }) => {
                 maxHeight: 500,
                 maxWidth: 878,
               }}
-              source={{ uri: postContent.gif }}
+              source={{ uri: postContent.gifPreview }}
             />
           </View>
         ) : postContent.mediaType === "video" ? (

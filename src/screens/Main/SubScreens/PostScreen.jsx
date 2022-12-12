@@ -214,14 +214,19 @@ const PostScreen = (props) => {
                       flexDirection: "column",
                     }}
                   >
-                    <Image
-                      resizeMode={"contain"}
-                      style={{
-                        aspectRatio: 1 / 1,
-                        width: "100%",
-                        height: "100%",
-                      }}
-                      source={{ uri: post.gif }}
+                    <VideoPlayer
+                      shouldPlay={true}
+                      shouldLoad={true}
+                      mediaIsSelfie={post.mediaIsSelfie}
+                      url={post.gif}
+                      thumbnailUrl={post.gifPreview}
+                      isUploading={post.ready === false}
+                      isCancelled={post.cancelled}
+                      screenHeight={screenHeight}
+                      screenWidth={screenWidth}
+                      height={post.height}
+                      width={post.width}
+                      hideIcons
                     />
                   </View>
                 ) : post.mediaType === "video" ? (
