@@ -353,7 +353,7 @@ const Step1Screen = () => {
     const { status } = await requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
-        "Unable access camera roll",
+        "Unable to access camera roll",
         `Please enable storage permissions to upload a profile ${type} from your local files.`,
         [
           {

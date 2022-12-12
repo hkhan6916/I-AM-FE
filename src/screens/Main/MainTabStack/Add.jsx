@@ -281,11 +281,109 @@ const AddScreen = () => {
     });
   };
 
+  const handleFile = async ({
+    result,
+    type: typeArg,
+    fileSelectionMethod = "files",
+  }) => {
+    const mediaType = result.assets[0].type.split("/")[0];
+    const type = typeArg || mediaType;
+    setShowMediaSizeError(false);
+
+    setLoadingVideo(false);
+    if (Platform.OS === "ios") {
+      FFmpegKit.cancel();
+    }
+    setProcessingFile(Platform.OS === "ios" && mediaType === "video");
+    setProcessedVideoUri("");
+    setGif("");
+    setThumbnail("");
+    setCompressionProgress(0);
+    setSelectedMediaType("");
+    const mediaInfo = await getInfoAsync(result.assets[0].uri);
+    const mediaSizeInMb = mediaInfo.size / 1000000;
+    if (mediaSizeInMb > (isLowendDevice ? 50 : 100)) {
+      Alert.alert(
+        `Sorry, this ${type} is too large.`,
+        `Please choose a file that does not exceed ${
+          isLowendDevice ? 50 : 100
+        }MB in size.`,
+        [
+          {
+            text: "Cancel",
+          },
+          {
+            text: `Open ${fileSelectionMethod}`,
+            onPress: () =>
+              fileSelectionMethod === "files"
+                ? pickMedia(type)
+                : openOSCamera(),
+          },
+        ]
+      );
+      setLoading(false);
+      return;
+    }
+    const encoding = await getVideoCodecName(mediaInfo.uri);
+    const unsupportedCodec =
+      encoding === "hevc" || encoding === "h265" || !encoding;
+    if (unsupportedCodec && Platform.OS === "android") {
+      Alert.alert(
+        "Sorry, this video is unsupported.",
+        `Please choose another ${type}.`,
+        [
+          {
+            text: "Cancel",
+          },
+          {
+            text: `Open ${fileSelectionMethod}`,
+            onPress: () =>
+              fileSelectionMethod === "files"
+                ? pickMedia(type)
+                : openOSCamera(),
+          },
+        ]
+      );
+      return;
+    }
+    setSelectedMediaType(mediaType);
+    setFile({ ...result.assets[0], ...mediaInfo });
+
+    if (mediaType === "video") {
+      const thumbnailUri = await generateThumbnail(
+        result.assets[0].uri,
+        result.assets[0].duration
+      );
+      setThumbnail(thumbnailUri);
+      setVideoDuration(result.assets[0].duration);
+      if (Platform.OS === "ios") {
+        await convertAndEncodeVideo({
+          uri: result.assets[0].uri,
+          setProgress: setCompressionProgress,
+          videoDuration: result.assets[0].duration,
+          setProcessedVideoUri,
+          setIsRunning: setProcessingFile,
+          setError,
+        });
+      }
+    }
+  };
+
+  const openOSCamera = async () => {
+    ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      videoQuality: ImagePicker.UIImagePickerControllerQualityType.VGA640x480,
+      quality: 0.5,
+    }).then(async (file) => {
+      await handleFile({ result: file, fileSelectionMethod: "camera" });
+    });
+  };
+
   const pickMedia = async (type = "image") => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
-        "Unable access camera roll",
+        "Unable to access camera roll",
         "Please enable storage permissions to post media from your local files.",
         [
           {
@@ -318,65 +416,7 @@ const AddScreen = () => {
         setLoadingVideo(false);
       }
       if (!result.canceled) {
-        const mediaType = result.assets[0].type.split("/")[0];
-        setShowMediaSizeError(false);
-
-        setLoadingVideo(false);
-        FFmpegKit.cancel();
-        setProcessingFile(Platform.OS === "ios" && mediaType === "video");
-        setProcessedVideoUri("");
-        setGif("");
-        setThumbnail("");
-        setCompressionProgress(0);
-        setSelectedMediaType("");
-        const mediaInfo = await getInfoAsync(result.assets[0].uri);
-        const mediaSizeInMb = mediaInfo.size / 1000000;
-        if (mediaSizeInMb > (isLowendDevice ? 50 : 100)) {
-          setShowMediaSizeError(true);
-          setFile({ uri: "none" });
-          setLoading(false);
-          return;
-        }
-        const encoding = await getVideoCodecName(mediaInfo.uri);
-        const unsupportedCodec =
-          encoding === "hevc" || encoding === "h265" || !encoding;
-        if (unsupportedCodec && Platform.OS === "android") {
-          Alert.alert(
-            "Sorry, this video is unsupported.",
-            `Please choose another ${type}.`,
-            [
-              {
-                text: "Cancel",
-              },
-              {
-                text: "Open files",
-                onPress: () => pickMedia(type),
-              },
-            ]
-          );
-          return;
-        }
-        setSelectedMediaType(mediaType);
-        setFile({ ...result.assets[0], ...mediaInfo });
-
-        if (mediaType === "video") {
-          const thumbnailUri = await generateThumbnail(
-            result.assets[0].uri,
-            result.assets[0].duration
-          );
-          setThumbnail(thumbnailUri);
-          setVideoDuration(result.assets[0].duration);
-          if (Platform.OS === "ios") {
-            await convertAndEncodeVideo({
-              uri: result.assets[0].uri,
-              setProgress: setCompressionProgress,
-              videoDuration: result.assets[0].duration,
-              setProcessedVideoUri,
-              setIsRunning: setProcessingFile,
-              setError,
-            });
-          }
-        }
+        await handleFile({ result, type, fileSelectionMethod: "files" });
       }
     }
   };
@@ -409,6 +449,7 @@ const AddScreen = () => {
 
   if (cameraActive && isFocused) {
     return (
+      // This is only used on android. Not on IOS
       <CameraStandard
         cameraActive={cameraActive}
         recording={recording}
@@ -946,7 +987,13 @@ const AddScreen = () => {
                           }}
                         >
                           <TouchableOpacity
-                            onPress={() => setCameraActive(true)}
+                            onPress={async () => {
+                              if (Platform.OS === "ios") {
+                                await openOSCamera();
+                              } else {
+                                setCameraActive(true);
+                              }
+                            }}
                             style={{
                               alignItems: "center",
                               flexDirection: "row",
@@ -1007,7 +1054,13 @@ const AddScreen = () => {
               )}
             </View>
             <TouchableOpacity
-              onPress={() => setCameraActive(true)}
+              onPress={async () => {
+                if (Platform.OS === "ios") {
+                  await openOSCamera();
+                } else {
+                  setCameraActive(true);
+                }
+              }}
               style={{ marginHorizontal: 5 }}
             >
               <View
