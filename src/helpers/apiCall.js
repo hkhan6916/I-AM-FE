@@ -14,7 +14,7 @@ const apiCall = async (method, route, payload = null) => {
     data: payload,
     headers: {},
   };
- 
+
   try {
     const token =
       Platform.OS === "web"
