@@ -4,7 +4,7 @@ const deleteUserSearchHistoryTable = async (db) => {
       tx.executeSql(`DROP TABLE user_search_history `);
     },
     (error) => {
-      console.log("db error creating user_search_history table");
+      console.log("db error deleting user_search_history table");
       console.log(error);
     },
     (success) => {
