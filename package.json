@@ -62,7 +62,7 @@
     "react-dom": "18.1.0",
     "react-native": "0.70.5",
     "react-native-actions-sheet": "^0.8.10",
-    "react-native-compressor": "^1.5.2",
+    "react-native-compressor": "1.6.1",
     "react-native-confirmation-code-field": "^7.3.0",
     "react-native-error-boundary": "^1.1.12",
     "react-native-fast-image": "^8.5.11",
