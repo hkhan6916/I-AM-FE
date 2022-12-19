@@ -1,6 +1,6 @@
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
-import { View, Platform, Linking } from "react-native";
+import { View, Platform } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
@@ -16,6 +16,10 @@ import { deleteUserSearchHistoryTable } from "../helpers/sqlite/userSearchHistor
 import { openDatabase } from "expo-sqlite";
 import NetInfo from "@react-native-community/netinfo";
 import { totalMemory } from "expo-device";
+import {
+  deleteRunningUploadsTable,
+  getRunningUploads,
+} from "../helpers/sqlite/runningUploads";
 
 const Screens = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -169,6 +173,35 @@ const Screens = () => {
   useEffect(() => {
     (async () => {
       if (Platform.OS === "android") {
+        const db = await openDatabase("localdb");
+        // a list of uploads that were running before the app was closed
+        const runningUploads = await getRunningUploads(db);
+
+        let runningUploadsForMessages = [];
+        let runningUploadsForPosts = [];
+        if (runningUploads?.length) {
+          runningUploads.forEach((upload) => {
+            if (upload?.messageId) {
+              runningUploadsForMessages.push(upload.messageId);
+            }
+            if (upload?.postId) {
+              runningUploadsForPosts.push(upload.postId);
+            }
+          });
+
+          if (runningUploadsForMessages?.length) {
+            await apiCall("POST", "/chat/message/fail/bulk", {
+              messageIds: runningUploadsForMessages,
+            });
+            // We delete the table even if the above request is not successful. This is incase there is an issue marking a single message as failed which would hold up the rest of the messages. If we just delete the table, we no longer have to process this message and start fresh allowing newer messages to be marked as failed. The prev messages will just stay as "sending..." which the user can delete later if this ever happens.
+            await deleteRunningUploadsTable(db);
+          }
+
+          // if (runningUploadsForPosts?.length) {
+          //   await apiCall("POST", "");
+          // }
+        }
+
         const ram = totalMemory;
         // if android phone has less than 5gb ram or ram is undefined, don't play feed videos and mark as low end device.
         if (!ram || ram / 1000000000 < 5) {

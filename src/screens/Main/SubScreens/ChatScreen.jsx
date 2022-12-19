@@ -57,6 +57,14 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import queue, { Worker } from "react-native-job-queue";
+import * as SQLite from "expo-sqlite";
+import {
+  createRunningUploadsTable,
+  deleteRunningUploadRecord,
+  deleteRunningUploadsTable,
+  getRunningUploads,
+  insertRunningUploadRecord,
+} from "../../../helpers/sqlite/runningUploads";
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -192,7 +200,7 @@ const ChatScreen = (props) => {
       payload.message,
       payload.response._id,
       mediaType
-    ).then((success) => {
+    ).then(async (success) => {
       if (!success) {
         setShowError(true);
       }
@@ -218,6 +226,15 @@ const ChatScreen = (props) => {
 
         setMessages(newMessages);
         setHeight(0);
+      }
+      if (Platform.OS === "android") {
+        const db = SQLite.openDatabase("localdb");
+
+        await deleteRunningUploadRecord({
+          db,
+          messageId: payload.response._id,
+        });
+        await getRunningUploads(db);
       }
     });
   };
@@ -513,6 +530,17 @@ const ChatScreen = (props) => {
         setMedia({});
         setSendingMessage(false);
         if (Platform.OS === "android") {
+          const db = SQLite.openDatabase("localdb");
+
+          if (Platform.OS === "android") {
+            await createRunningUploadsTable(db);
+            await insertRunningUploadRecord({
+              db,
+              messageId: response._id,
+            });
+            await getRunningUploads(db);
+          }
+
           queue.addJob("message_video_upload", {
             messageBody,
             authInfo,
@@ -978,7 +1006,10 @@ const ChatScreen = (props) => {
   }, [persistedParams]);
 
   useEffect(() => {
-    (async () => await setupVideoUploadQueue())();
+    (async () => {
+      await setupVideoUploadQueue();
+      // await createRunningUploadsTable(db);
+    })();
     Keyboard.addListener(
       Platform.OS === "android" ? "keyboardDidShow" : "keyboardWillShow",
       (e) => {

@@ -31,6 +31,8 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
   const [mediaFullScreen, setMediaFullScreen] = useState(false);
   return (
     <View style={styles.container}>
+      {/* {console.log({ id: message._id })}
+      <Text style={{ color: "red" }}>{message?._id}</Text> */}
       {mediaType === "video" ? ( // render video in fullcsreen, for image this is handled inside imagewithcache component.
         <Modal
           presentationStyle="pageSheet"
@@ -169,7 +171,7 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
                 <TouchableOpacity onPress={() => cancelUpload(message?._id)}>
                   <Text
                     style={{
-                      color: themeStyle.colors.error.default,
+                      color: themeStyle.colors.error.dark,
                       fontWeight: "700",
                     }}
                   >
@@ -181,12 +183,12 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
                     fontSize: 12,
                     fontWeight: "700",
                     textAlign: "right",
-                    color: themeStyle.colors.white,
+                    color: themeStyle.colors.error.dark,
                     alignSelf: belongsToSender ? "flex-end" : "flex-start",
                     padding: 5,
                   }}
                 >
-                  Failed to send message.
+                  Failed to send message
                 </Text>
               </View>
             ) : !ready ? (

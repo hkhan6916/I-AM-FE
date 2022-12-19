@@ -22,6 +22,7 @@ const themeStyle =
           },
           error: {
             default: "#FF0000",
+            dark: "#BF0000",
           },
           grayscale: {
             highest: "#15171F",
@@ -62,6 +63,7 @@ const themeStyle =
           },
           error: {
             default: "#FF0000",
+            dark: "#BF0000",
           },
           grayscale: {
             lowest: "#000000",
