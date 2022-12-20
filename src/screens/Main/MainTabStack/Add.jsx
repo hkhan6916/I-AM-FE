@@ -12,7 +12,6 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Alert,
-  Image,
   Keyboard,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
@@ -50,6 +49,14 @@ import { FFmpegKit } from "ffmpeg-kit-react-native";
 import { launchImageLibraryAsync } from "expo-image-picker";
 import ActionSheet from "react-native-actions-sheet";
 import { Video } from "expo-av";
+import { openDatabase } from "expo-sqlite";
+import {
+  createRunningUploadsTable,
+  deleteRunningUploadRecord,
+  getRunningUploads,
+  insertRunningUploadRecord,
+} from "../../../helpers/sqlite/runningUploads";
+import * as Notifications from "expo-notifications";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -195,12 +202,24 @@ const AddScreen = () => {
 
     if (!postData) return;
     const { success, response } = await apiCall("POST", "/posts/new", postData);
+
     setLoading(false);
     if (success) {
       setThumbnail("");
       setGif("");
       if (!response.post) return;
       setPostBody("");
+      if (Platform.OS === "android") {
+        const db = openDatabase("localdb");
+
+        if (Platform.OS === "android") {
+          await createRunningUploadsTable(db);
+          await insertRunningUploadRecord({
+            db,
+            postId: response.post._id,
+          });
+        }
+      }
       if (file.type?.split("/")[0] === "video") {
         dispatch({
           type: "SET_POST_CREATED",
@@ -267,18 +286,39 @@ const AddScreen = () => {
     await compressorUpload(signedData.signedUrl, filePath, {
       httpMethod: "PUT",
       headers,
-    }).then(async () => {
-      const { success } = await apiCall("POST", "/posts/new", {
-        postId: post?._id,
-        mediaType: "video",
-        mediaKey: signedData.fileKey,
+    })
+      .then(async () => {
+        const { success } = await apiCall("POST", "/posts/new", {
+          postId: post?._id,
+          mediaType: "video",
+          mediaKey: signedData.fileKey,
+        });
+        if (!success) {
+          setError(
+            "Sorry, we could not upload the selected media. Please try again later."
+          );
+          return;
+        }
+        if (Platform.OS === "android") {
+          const db = openDatabase("localdb");
+
+          await deleteRunningUploadRecord({
+            db,
+            postId: post?._id,
+          });
+          await getRunningUploads(db);
+        }
+      })
+      .catch(async (err) => {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: `Failed to upload post`,
+            body: `Something went wrong when uploading the media for your post.`,
+          },
+          trigger: null,
+        });
+        console.log({ err });
       });
-      if (!success) {
-        setError(
-          "Sorry, we could not upload the selected media. Please try again later."
-        );
-      }
-    });
   };
 
   const handleFile = async ({

@@ -222,6 +222,7 @@ const PostScreen = (props) => {
                       thumbnailUrl={post.gifPreview}
                       isUploading={post.ready === false}
                       isCancelled={post.cancelled}
+                      failed={post.failed}
                       screenHeight={screenHeight}
                       screenWidth={screenWidth}
                       height={post.height}
@@ -246,6 +247,7 @@ const PostScreen = (props) => {
                       thumbnailHeaders={post.thumbnailHeaders}
                       isUploading={post.ready === false}
                       isCancelled={post.cancelled}
+                      failed={post.failed}
                       screenHeight={screenHeight}
                       screenWidth={screenWidth}
                       height={post.height}

@@ -190,16 +190,41 @@ const Screens = () => {
           });
 
           if (runningUploadsForMessages?.length) {
-            await apiCall("POST", "/chat/message/fail/bulk", {
+            const multipleMessages = runningUploadsForMessages.length > 1;
+            await Notifications.scheduleNotificationAsync({
+              content: {
+                title: `Failed to send ${
+                  multipleMessages ? "messages" : "message"
+                }`,
+                body: `Connection was lost when sending your ${
+                  multipleMessages ? "messages" : "message"
+                }.`,
+              },
+              trigger: { seconds: 2 },
+            });
+
+            await apiCall("POST", "/chat/message/bulk-fail", {
               messageIds: runningUploadsForMessages,
             });
-            // We delete the table even if the above request is not successful. This is incase there is an issue marking a single message as failed which would hold up the rest of the messages. If we just delete the table, we no longer have to process this message and start fresh allowing newer messages to be marked as failed. The prev messages will just stay as "sending..." which the user can delete later if this ever happens.
-            await deleteRunningUploadsTable(db);
+          }
+          if (runningUploadsForPosts?.length) {
+            const multiplePosts = runningUploadsForPosts.length > 1;
+            await Notifications.scheduleNotificationAsync({
+              content: {
+                title: `Failed to upload ${multiplePosts ? "posts" : "post"}`,
+                body: `Connection was lost when uploading your ${
+                  multiplePosts ? "posts" : "post"
+                }.`,
+              },
+              trigger: { seconds: 2 },
+            });
+            await apiCall("POST", "/posts/bulk-fail", {
+              postIds: runningUploadsForPosts,
+            });
           }
 
-          // if (runningUploadsForPosts?.length) {
-          //   await apiCall("POST", "");
-          // }
+          // We delete the table even if the above request is not successful. This is incase there is an issue marking a single message/post as failed which would hold up the rest of the messages/posts. If we just delete the table, we no longer have to process this message/post and start fresh allowing newer messages/posts to be marked as failed. The prev messages/posts will just stay as "sending..." which the user can delete later if this ever happens.
+          await deleteRunningUploadsTable(db);
         }
 
         const ram = totalMemory;

@@ -5,6 +5,7 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { Video } from "expo-av";
 import themeStyle from "../theme.style";
@@ -15,11 +16,11 @@ const VideoPlayer = ({
   url,
   shouldPlay,
   shouldLoad,
-  showToggle,
   thumbnailUrl,
   thumbnailHeaders,
   isUploading,
   isCancelled,
+  failed,
   preventPlay,
   screenWidth = 400,
   screenHeight = 600,
@@ -118,15 +119,15 @@ const VideoPlayer = ({
           },
         ]}
       >
-        {isUploading || isCancelled ? (
+        {isCancelled || failed ? (
           <Text
             style={{
-              position: "absolute",
-              fontSize: 20,
-              color: themeStyle.colors.white,
+              fontSize: 16,
+              color: themeStyle.colors.error.default,
               zIndex: 1,
-              textAlign: "center",
-              margin: 10,
+              textAlign: "right",
+              marginHorizontal: 10,
+              marginVertical: 5,
               textShadowOffset: {
                 width: 1,
                 height: 1,
@@ -135,12 +136,45 @@ const VideoPlayer = ({
               textShadowColor: themeStyle.colors.black,
             }}
           >
-            {isCancelled ? "Upload Cancelled" : "Uploading..."}
+            {isCancelled ? "Upload Cancelled" : failed ? "Upload Failed" : ""}
           </Text>
+        ) : isUploading ? (
+          <View
+            style={{
+              alignItems: "center",
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              marginRight: 10,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 16,
+                color: themeStyle.colors.grayscale.lowest,
+                zIndex: 1,
+                textAlign: "right",
+                marginHorizontal: 5,
+                marginVertical: 5,
+                textShadowOffset: {
+                  width: 1,
+                  height: 1,
+                },
+                textShadowRadius: 8,
+                textShadowColor: themeStyle.colors.black,
+              }}
+            >
+              Uploading
+            </Text>
+            <ActivityIndicator
+              size="small"
+              color={themeStyle.colors.primary.default}
+            />
+          </View>
         ) : null}
         <View style={{ backgroundColor: themeStyle.colors.black }}>
           {isUploading ||
           isCancelled ||
+          failed ||
           preventPlay ||
           disableVideo ||
           !load ? (
@@ -156,6 +190,7 @@ const VideoPlayer = ({
           ) : null}
           {!isUploading &&
           !isCancelled &&
+          !failed &&
           !preventPlay &&
           !disableVideo &&
           load ? (

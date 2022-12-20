@@ -111,7 +111,12 @@ const PostCard = ({
               underlayColor={themeStyle.colors.grayscale.high}
               delayPressIn={150}
               disabled={
-                !!(post.private || post.cancelled || post.ready === false)
+                !!(
+                  post.private ||
+                  post.cancelled ||
+                  post.failed ||
+                  post.ready === false
+                )
               }
             >
               <View>
@@ -134,6 +139,7 @@ const PostCard = ({
                       thumbnailHeaders={post.thumbnailHeaders}
                       isUploading={post.ready === false}
                       isCancelled={post.cancelled}
+                      failed={post.failed}
                       screenHeight={screenHeight}
                       screenWidth={screenWidth}
                       height={post.height}
@@ -203,6 +209,7 @@ const PostCard = ({
                       thumbnailHeaders={post.thumbnailHeaders}
                       isUploading={post.ready === false}
                       isCancelled={post.cancelled}
+                      failed={post.failed}
                       screenHeight={screenHeight}
                       screenWidth={screenWidth}
                       height={post.height}
