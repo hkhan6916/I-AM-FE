@@ -59,7 +59,6 @@ const PostScreen = (props) => {
   const videoRef = useRef();
 
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
-  const lottieRef = useRef(null);
 
   const onTextLayout = (e) => {
     setIsCollapsible(e.nativeEvent.lines.length >= 3);
@@ -67,7 +66,6 @@ const PostScreen = (props) => {
 
   const getAdditionalPostData = async () => {
     if (initialPost) {
-      console.log("heyyeyey");
       const { success, response } = await apiCall(
         "POST",
         `/posts/${initialPost?._id}/additionaldata`
@@ -109,7 +107,6 @@ const PostScreen = (props) => {
       }
       dispatch({ type: "SET_UPDATED_POST", payload: newPost });
     }
-    // lottieRef?.current?.play(15, 1000);
   };
 
   useEffect(() => {
