@@ -942,6 +942,9 @@ const ChatScreen = (props) => {
               setRecipient({ userId: user?._id, online: true });
             }
 
+            if (showError) {
+              setShowError(false);
+            }
             setMessages((prevMessages) => {
               if (senderId !== authInfo.senderId) {
                 if (!prevMessages.find((message) => message._id === _id)) {
@@ -1190,7 +1193,7 @@ const ChatScreen = (props) => {
               textAlign: "center",
             }}
           >
-            Something has gone wrong... {"\n"}Please try again later.
+            Something went wrong... {"\n"}Please try again later.
           </Text>
         ) : null}
 
