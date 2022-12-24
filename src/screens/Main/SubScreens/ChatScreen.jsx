@@ -532,7 +532,7 @@ const ChatScreen = (props) => {
         if (Platform.OS === "android") {
           const db = SQLite.openDatabase("localdb");
 
-          if (Platform.OS === "android") {
+          if (media.type?.split("/")[0] === "video") {
             await createRunningUploadsTable(db);
             await insertRunningUploadRecord({
               db,
