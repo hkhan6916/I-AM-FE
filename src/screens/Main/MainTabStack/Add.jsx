@@ -57,6 +57,7 @@ import {
   insertRunningUploadRecord,
 } from "../../../helpers/sqlite/runningUploads";
 import * as Notifications from "expo-notifications";
+import queue, { Worker } from "react-native-job-queue";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -107,11 +108,8 @@ const AddScreen = () => {
       // if there's a file, determine if compression is required
       const { type, uri, isSelfie } = file;
       if (type.split("/")[0] === "video") {
-        ///here, need to upload figure out how to upload thumbnails
-
         // just adds thumbnail for videos. We add the rest of the media later.
-        const thumbnailUri = thumbnail || (await generateThumbnail(uri));
-        const thumbnailFormat = thumbnailUri.split(".").pop();
+        const thumbnailFormat = "jpg";
 
         // get signed url for uploading thumbnail
         const { response, success } = await apiCall(
@@ -123,6 +121,7 @@ const AddScreen = () => {
           setError(
             "Sorry, we could not upload the selected media. Please try again later."
           );
+          setLoading(false);
           return;
         }
         postData.mimetype = thumbnailFormat;
@@ -131,12 +130,7 @@ const AddScreen = () => {
         postData.mediaIsSelfie = isSelfie || false;
         postData.height = height;
         postData.width = width;
-
-        await backgroundUpload({
-          // TODO: try axios here
-          filePath: thumbnailUri,
-          url: response.signedUrl,
-        });
+        postData.thumbnailSignedUrl = response.signedUrl;
       } else {
         const mediaInfo = await getInfoAsync(uri);
         const mediaSizeInMb = mediaInfo?.size / 100000;
@@ -164,6 +158,8 @@ const AddScreen = () => {
           setError(
             "Sorry, we could not upload the selected media. Please try again later."
           );
+          setLoading(false);
+
           return;
         }
         postData.height = height;
@@ -209,23 +205,41 @@ const AddScreen = () => {
       setGif("");
       if (!response.post) return;
       setPostBody("");
-      if (Platform.OS === "android") {
+      if (Platform.OS === "android" && file.type?.split("/")[0] === "video") {
         const db = openDatabase("localdb");
 
-        if (Platform.OS === "android") {
-          await createRunningUploadsTable(db);
-          await insertRunningUploadRecord({
-            db,
-            postId: response.post._id,
-          });
-        }
+        await createRunningUploadsTable(db);
+        await insertRunningUploadRecord({
+          db,
+          postId: response.post._id,
+        });
       }
       if (file.type?.split("/")[0] === "video") {
         dispatch({
           type: "SET_POST_CREATED",
           payload: { posted: true, type: "created" },
         });
-        await handleVideoCompressionAndUpload(response.post);
+        if (Platform.OS === "ios") {
+          await handleVideoCompressionAndUpload({
+            post: response.post,
+            file,
+            thumbnailSignedUrl: postData.thumbnailSignedUrl,
+          });
+        } else {
+          queue.addJob("post_video_upload", {
+            post: response.post,
+            file,
+            thumbnailSignedUrl: postData.thumbnailSignedUrl,
+          });
+          Keyboard.dismiss();
+          navigation.navigate("Home");
+        }
+        setFile({});
+        setGif("");
+        setThumbnail("");
+        setCompressionProgress(0);
+        setProcessingFile(false);
+        setSelectedMediaType("");
       } else {
         dispatch({
           type: "SET_POST_CREATED",
@@ -242,9 +256,29 @@ const AddScreen = () => {
     }
   };
 
-  const handleVideoCompressionAndUpload = async (post) => {
-    Keyboard.dismiss();
-    navigation.navigate("Home");
+  const handleVideoCompressionAndUpload = async ({
+    post,
+    file,
+    thumbnailSignedUrl,
+  }) => {
+    if (!file?.uri) return;
+    const thumbnailUri = await generateThumbnail(file.uri, file.duration);
+    if (!thumbnailUri) {
+      setError(
+        "Something went wrong when creating your post. Please try again."
+      );
+      return;
+    }
+    // upload the thumbnail for the video
+    await backgroundUpload({
+      filePath: thumbnailUri,
+      url: thumbnailSignedUrl,
+    });
+
+    if (Platform.OS === "ios") {
+      Keyboard.dismiss();
+      navigation.navigate("Home");
+    }
 
     const convertedCodecAndCompressedUrl =
       Platform.OS === "ios"
@@ -262,8 +296,10 @@ const AddScreen = () => {
     );
     if (!success) {
       setError(
-        "Sorry, we could not upload the selected media. Please try again later."
+        "Sorry, there was a problem uploading the selected media. Please try again later."
       );
+      setLoading(false);
+
       return;
     }
 
@@ -276,12 +312,6 @@ const AddScreen = () => {
       : file?.uri;
 
     const headers = {};
-    setFile({});
-    setGif("");
-    setThumbnail("");
-    setCompressionProgress(0);
-    setProcessingFile(false);
-    setSelectedMediaType("");
     // Not sure why we use thi instead of the background helper but could be a good reason here.
     await compressorUpload(signedData.signedUrl, filePath, {
       httpMethod: "PUT",
@@ -297,6 +327,8 @@ const AddScreen = () => {
           setError(
             "Sorry, we could not upload the selected media. Please try again later."
           );
+          setLoading(false);
+
           return;
         }
         if (Platform.OS === "android") {
@@ -310,15 +342,52 @@ const AddScreen = () => {
         }
       })
       .catch(async (err) => {
+        console.log({ err });
+        await apiCall("GET", `/posts/fail/${post?._id}`);
+        const db = openDatabase("localdb");
+
+        // delete the record of the job so we don't show a notification of its failure on app launch
+        await deleteRunningUploadRecord({ db, postId: post?._id });
+        // show notification
         await Notifications.scheduleNotificationAsync({
           content: {
             title: `Failed to upload post`,
-            body: `Something went wrong when uploading the media for your post.`,
+            body: `Something went wrong when uploading the media for your post. Please try again later.`,
           },
           trigger: null,
         });
-        console.log({ err });
       });
+  };
+
+  const setupVideoUploadQueue = async () => {
+    const runningJobs = await queue.getJobs();
+    const runningWorkers = await queue.registeredWorkers;
+    const shouldRefreshWorker =
+      (!runningJobs?.length && runningWorkers?.["post_video_upload"]) ||
+      !runningWorkers?.["post_video_upload"];
+
+    if (shouldRefreshWorker) {
+      queue.removeWorker("post_video_upload", true);
+      console.log("KILLING WORKER");
+    }
+
+    if (shouldRefreshWorker) {
+      queue.addWorker(
+        new Worker("post_video_upload", async (payload) => {
+          return new Promise((resolve) => {
+            setTimeout(async () => {
+              await handleVideoCompressionAndUpload({
+                post: payload.post,
+                file: payload.file,
+                thumbnailSignedUrl: payload.thumbnailSignedUrl,
+              });
+
+              resolve();
+            }, 0);
+          });
+        })
+      );
+    }
   };
 
   const handleFile = async ({
@@ -390,11 +459,6 @@ const AddScreen = () => {
     setFile({ ...result.assets[0], ...mediaInfo });
 
     if (mediaType === "video") {
-      const thumbnailUri = await generateThumbnail(
-        result.assets[0].uri,
-        result.assets[0].duration
-      );
-      setThumbnail(thumbnailUri);
       setVideoDuration(result.assets[0].duration);
       if (Platform.OS === "ios") {
         await convertAndEncodeVideo({
@@ -487,6 +551,12 @@ const AddScreen = () => {
     })();
   }, [isFocused, file]);
 
+  useEffect(() => {
+    (async () => {
+      await setupVideoUploadQueue();
+    })();
+  }, []);
+
   if (cameraActive && isFocused) {
     return (
       // This is only used on android. Not on IOS
@@ -512,14 +582,9 @@ const AddScreen = () => {
             return;
           }
           setSelectedMediaType(mediaType);
-          setFile({ ...file, ...mediaInfo });
+          setFile({ ...file, duration: file?.media?.duration, ...mediaInfo });
 
           if (mediaType === "video") {
-            const thumbnailUri = await generateThumbnail(
-              file.uri,
-              file.media.duration
-            );
-            setThumbnail(thumbnailUri);
             setVideoDuration((file.media.duration || 0) * 1000);
             if (Platform.OS === "ios") {
               await convertAndEncodeVideo({
@@ -724,7 +789,7 @@ const AddScreen = () => {
                     Choose a file smaller than{" "}
                     {isLowendDevice ? "50MB" : "100MB"}
                   </Text>
-                ) : thumbnail || loadingVideo ? (
+                ) : selectedMediaType === "video" || loadingVideo ? (
                   <View
                     style={{
                       alignItems: "center",
@@ -755,7 +820,7 @@ const AddScreen = () => {
                             setWidth(e?.nativeEvent?.source?.width);
                           }}
                           style={{ height: 1, width: 1, opacity: 0 }} // so onload gets called we set height and width to 1. Doesn't when set to 0
-                          mediaUrl={thumbnail}
+                          mediaUrl={file.uri}
                         />
 
                         <VideoPlayer
