@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Entypo } from "@expo/vector-icons";
@@ -40,7 +41,9 @@ const PostCard = ({
   const onTextLayout = (e) => {
     setIsCollapsible(e.nativeEvent.lines.length >= 3);
   };
-
+  const isUploading = post.ready === false;
+  const isCancelled = post.cancelled;
+  const failed = post.failed;
   return (
     <View style={{ flex: 1, width: screenWidth, maxWidth: 900 }}>
       {/* {console.log(isVisible)}
@@ -120,6 +123,51 @@ const PostCard = ({
               }
             >
               <View>
+                {isCancelled || failed ? (
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      color: themeStyle.colors.error.default,
+                      zIndex: 1,
+                      textAlign: "right",
+                      marginHorizontal: 10,
+                      marginVertical: 5,
+                      alignSelf: "flex-end",
+                      fontWeight: "700",
+                    }}
+                  >
+                    {isCancelled ? "Upload Cancelled" : "Upload Failed"}
+                  </Text>
+                ) : isUploading ? (
+                  <View
+                    style={{
+                      alignItems: "center",
+                      flexDirection: "row",
+                      justifyContent: "flex-end",
+                      marginRight: 10,
+                      alignSelf: "flex-end",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        color: themeStyle.colors.grayscale.lowest,
+                        zIndex: 1,
+                        textAlign: "right",
+                        marginHorizontal: 5,
+                        marginVertical: 5,
+                        textShadowColor: themeStyle.colors.black,
+                        fontWeight: "700",
+                      }}
+                    >
+                      Uploading
+                    </Text>
+                    <ActivityIndicator
+                      size="small"
+                      color={themeStyle.colors.primary.default}
+                    />
+                  </View>
+                ) : null}
                 {post.gif ? (
                   <View
                     style={{

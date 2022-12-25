@@ -78,15 +78,12 @@ const HomeScreen = () => {
     useRef({
       scrollToTop: () => {
         currentVisible.current = 0;
-        listRef.current?.scrollToOffset({ offset: 2000 });
+        listRef.current?.scrollToOffset?.(0, 0, true);
       },
     })
   );
 
-  // const adsManager = new FacebookAds.NativeAdsManager(
-  //   "3130380047243958_3167702336845062",
-  //   10
-  // );
+  useScrollToTop(listRef);
 
   const calculateOffsets = async () => {
     if (!originalFeed?.length) {

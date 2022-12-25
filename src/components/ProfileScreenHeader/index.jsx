@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import themeStyle from "../../theme.style";
 import { TouchableOpacity, View, Text, ScrollView } from "react-native";
 import PreviewVideo from "../PreviewVideo";
@@ -40,7 +40,7 @@ const ProfileScreenHeader = React.forwardRef(
     const onBioTextLayout = (e) => {
       setBioIsCollapsible(e.nativeEvent.lines.length >= 3);
     };
- 
+
     return (
       <ScrollView ref={ref} {...props}>
         <View>
@@ -282,8 +282,14 @@ const ProfileScreenHeader = React.forwardRef(
                 >
                   {userData?.bio}
                 </Text>
-                {bioIsCollapsible && !bioCollapsed ? (
-                  <TouchableOpacity onPress={() => setBioCollapsed(true)}>
+                {bioIsCollapsible ? (
+                  <TouchableOpacity
+                    onPress={() =>
+                      !bioCollapsed
+                        ? setBioCollapsed(true)
+                        : setBioCollapsed(false)
+                    }
+                  >
                     <Text
                       style={{
                         color: themeStyle.colors.grayscale.low,
@@ -291,7 +297,7 @@ const ProfileScreenHeader = React.forwardRef(
                         marginTop: 5,
                       }}
                     >
-                      Read more
+                      {!bioCollapsed ? "Read more" : "Show less"}
                     </Text>
                   </TouchableOpacity>
                 ) : null}

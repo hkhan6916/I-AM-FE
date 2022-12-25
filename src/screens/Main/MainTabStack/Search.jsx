@@ -32,6 +32,7 @@ import {
   DataProvider,
   LayoutProvider,
 } from "recyclerlistview";
+import SkeletonPlaceholder from "react-native-skeleton-placeholder";
 
 const SearchScreen = () => {
   const [results, setResults] = useState([]);
@@ -79,26 +80,18 @@ const SearchScreen = () => {
       `/posts/searchfeed/${searchFeed.length}`
     );
     if (success) {
-      const newFeed = [...searchFeed, ...response];
       setSearchFeed(
         [...searchFeed, ...response].filter(
           (item) => !!item.postAuthor.profileGifUrl === true // Move this to the backend where we only return posts for users with completed profiles (with profile gifs)
         )
       );
-      if (!searchItemsVisible && newFeed.length) {
-        setTimeout(() => setSearchItemsVisible(true), 400);
-      }
     }
   };
 
-  const rowRenderer = useCallback(
-    (_, item) => {
-      //We have only one view type so not checks are needed here
-      return <SearchFeedItem post={item} />;
-      // return <FastImage source={{uri:item.mediaUrl}}/>
-    },
-    [searchItemsVisible]
-  );
+  const rowRenderer = useCallback((_, item) => {
+    //We have only one view type so no checks are needed here
+    return <SearchFeedItem post={item} />;
+  }, []);
 
   const thumbnailRenderer = useCallback(
     (_, item, index, extendedState) => {
@@ -113,7 +106,7 @@ const SearchScreen = () => {
         />
       );
     },
-    [searchItemsVisible, showAllResults]
+    [showAllResults]
   );
 
   let dataProvider = new DataProvider((r1, r2) => {
@@ -270,25 +263,56 @@ const SearchScreen = () => {
               onEndReachedThreshold={0.5}
             />
           ) : null}
-          {!hideFeedAndSuggestions &&
-          !results.length &&
-          searchFeed.length &&
-          searchItemsVisible ? (
-            <RecyclerListView
-              {...mobileSpecificListProps}
-              style={{
-                minHeight: 1,
-                minWidth: 1,
-              }}
-              dataProvider={dataProvider}
-              layoutProvider={layoutProvider}
-              onEndReached={() => getSearchFeed()}
-              onEndReachedThreshold={0.5}
-              rowRenderer={rowRenderer}
-              scrollViewProps={{
-                removeClippedSubviews: true,
-              }}
-            />
+          {!hideFeedAndSuggestions && !results.length ? (
+            <>
+              {searchFeed.length ? (
+                <RecyclerListView
+                  {...mobileSpecificListProps}
+                  style={{
+                    minHeight: 1,
+                    minWidth: 1,
+                  }}
+                  dataProvider={dataProvider}
+                  layoutProvider={layoutProvider}
+                  onEndReached={() => getSearchFeed()}
+                  onEndReachedThreshold={0.5}
+                  rowRenderer={rowRenderer}
+                  scrollViewProps={{
+                    removeClippedSubviews: true,
+                  }}
+                />
+              ) : (
+                <>
+                  {Array.from(Array(10).keys()).map((number) => (
+                    <SkeletonPlaceholder
+                      backgroundColor={themeStyle.colors.grayscale.low}
+                      highlightColor={
+                        themeStyle.colors.grayscale.cardContentSkeletonHighlight
+                      }
+                      key={number}
+                    >
+                      <SkeletonPlaceholder.Item
+                        padding={2}
+                        width={"100%"}
+                        height={150}
+                        display="flex"
+                        flexDirection="row"
+                      >
+                        <SkeletonPlaceholder.Item
+                          height={150}
+                          width={150}
+                          marginRight={0.5}
+                        ></SkeletonPlaceholder.Item>
+                        <SkeletonPlaceholder.Item
+                          flex={1}
+                          height={150}
+                        ></SkeletonPlaceholder.Item>
+                      </SkeletonPlaceholder.Item>
+                    </SkeletonPlaceholder>
+                  ))}
+                </>
+              )}
+            </>
           ) : null}
         </View>
       </SafeAreaView>

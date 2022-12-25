@@ -331,7 +331,7 @@ const ProfileInfo = ({
           style={{
             flexDirection: "row",
             alignItems: "center",
-            marginVertical: 20,
+            marginTop: 20,
           }}
         >
           <Ionicons
@@ -365,33 +365,37 @@ const ProfileInfo = ({
           )}
         </View>
 
-        <View style={{ marginBottom: 10 }}>
-          {user?.bio ? (
+        {user?.bio ? (
+          <View style={{ marginBottom: 10, marginTop: 20 }}>
             <Text style={{ color: themeStyle.colors.grayscale.low }}>Bio</Text>
-          ) : null}
-          <Text
-            style={{
-              color: themeStyle.colors.grayscale.lowest,
-            }}
-            onTextLayout={onBioTextLayout}
-            numberOfLines={!bioCollapsed ? 3 : null}
-          >
-            {user?.bio}
-          </Text>
-          {bioIsCollapsible && !bioCollapsed ? (
-            <TouchableOpacity onPress={() => setBioCollapsed(true)}>
-              <Text
-                style={{
-                  color: themeStyle.colors.grayscale.low,
-                  marginBottom: 10,
-                  marginTop: 5,
-                }}
+            <Text
+              style={{
+                color: themeStyle.colors.grayscale.lowest,
+              }}
+              onTextLayout={onBioTextLayout}
+              numberOfLines={!bioCollapsed ? 3 : null}
+            >
+              {user?.bio}
+            </Text>
+            {bioIsCollapsible ? (
+              <TouchableOpacity
+                onPress={() =>
+                  !bioCollapsed ? setBioCollapsed(true) : setBioCollapsed(false)
+                }
               >
-                Read more
-              </Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
+                <Text
+                  style={{
+                    color: themeStyle.colors.grayscale.low,
+                    marginBottom: 10,
+                    marginTop: 5,
+                  }}
+                >
+                  {!bioCollapsed ? "Read more" : "Show less"}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        ) : null}
 
         {user.blockedByUser ? (
           <Text
@@ -552,7 +556,7 @@ const ProfileInfo = ({
           </View>
         ) : null}
       </View>
-      <View style={{ paddingHorizontal: 5 }}>
+      <View style={{ paddingHorizontal: 5, marginBottom: 10 }}>
         <JobHistoryDropdown
           showJobHistory={showJobHistory}
           setShowEducationHistory={setShowEducationHistory}

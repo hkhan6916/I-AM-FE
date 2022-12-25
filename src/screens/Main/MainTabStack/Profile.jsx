@@ -49,12 +49,12 @@ const ProfileScreen = () => {
   const [educationToEdit, setEducationToEdit] = useState(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
-  const nativeGobalUserData = useSelector((state) => state.userData);
+  const nativeGlobalUserData = useSelector((state) => state.userData);
 
   const globalUserData =
     Platform.OS === "web"
       ? { state: getWebPersistedUserData() }
-      : nativeGobalUserData;
+      : nativeGlobalUserData;
 
   const navigation = useNavigation();
 
@@ -72,7 +72,7 @@ const ProfileScreen = () => {
   useScrollToTop(
     useRef({
       scrollToTop: () => {
-        listRef.current?.scrollToOffset({ offset: 2000 });
+        listRef.current?.scrollToOffset?.(0, 0, true);
       },
     })
   );
