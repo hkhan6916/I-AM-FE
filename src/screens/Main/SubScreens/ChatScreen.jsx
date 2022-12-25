@@ -61,10 +61,9 @@ import * as SQLite from "expo-sqlite";
 import {
   createRunningUploadsTable,
   deleteRunningUploadRecord,
-  deleteRunningUploadsTable,
-  getRunningUploads,
   insertRunningUploadRecord,
 } from "../../../helpers/sqlite/runningUploads";
+import * as Notifications from "expo-notifications";
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -138,6 +137,26 @@ const ChatScreen = (props) => {
     concurrency: 1,
   });
 
+  const handleMessageUploadFailure = async (messageId) => {
+    // Delete the running upload record since we don't want to notify user again on app launch
+    const db = SQLite.openDatabase("localdb");
+
+    await deleteRunningUploadRecord({
+      db,
+      messageId,
+    });
+    if (messageId) {
+      await apiCall("GET", `/chat/message/fail/${messageId}`);
+    }
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: `Failed to send message`,
+        body: `Connection was lost when sending your message.`,
+      },
+      trigger: { seconds: 2 },
+    });
+  };
+
   const uploadVideo = async ({ payload, messagesArr }) => {
     const signedResponse = payload?.signedResponse;
     const media = payload?.media;
@@ -202,7 +221,7 @@ const ChatScreen = (props) => {
       mediaType
     ).then(async (success) => {
       if (!success) {
-        setShowError(true);
+        await handleMessageUploadFailure(payload.response._id);
       }
 
       if (socket) {
@@ -227,15 +246,12 @@ const ChatScreen = (props) => {
         setMessages(newMessages);
         setHeight(0);
       }
-      if (Platform.OS === "android") {
-        const db = SQLite.openDatabase("localdb");
+      const db = SQLite.openDatabase("localdb");
 
-        await deleteRunningUploadRecord({
-          db,
-          messageId: payload.response._id,
-        });
-        await getRunningUploads(db);
-      }
+      await deleteRunningUploadRecord({
+        db,
+        messageId: payload.response._id,
+      });
     });
   };
 
@@ -260,7 +276,7 @@ const ChatScreen = (props) => {
               await uploadVideo({ messagesArr, payload });
 
               resolve();
-            }, payload.delay || 0);
+            }, 0);
           });
         })
       );
@@ -371,7 +387,8 @@ const ChatScreen = (props) => {
       { filename: `media.${filePath.split(".").pop()}` }
     );
     if (!signedSuccess) {
-      setShowError(true);
+      await handleMessageUploadFailure(messageId);
+
       return;
     }
 
@@ -489,10 +506,10 @@ const ChatScreen = (props) => {
 
       const { response: signedResponse, success: signedSuccess } =
         await apiCall("POST", "/files/signed-upload-url", {
-          filename: `mediaThumbnail.jpeg`,
+          filename: `mediaThumbnail.jpg`,
         });
       if (!signedSuccess) {
-        setShowError(true);
+        await handleMessageUploadFailure();
         return;
       }
 
@@ -529,18 +546,16 @@ const ChatScreen = (props) => {
         setHeight(0);
         setMedia({});
         setSendingMessage(false);
+        const db = SQLite.openDatabase("localdb");
+
+        if (media.type?.split("/")[0] === "video") {
+          await createRunningUploadsTable(db);
+          await insertRunningUploadRecord({
+            db,
+            messageId: response._id,
+          });
+        }
         if (Platform.OS === "android") {
-          const db = SQLite.openDatabase("localdb");
-
-          if (media.type?.split("/")[0] === "video") {
-            await createRunningUploadsTable(db);
-            await insertRunningUploadRecord({
-              db,
-              messageId: response._id,
-            });
-            await getRunningUploads(db);
-          }
-
           queue.addJob("message_video_upload", {
             messageBody,
             authInfo,
@@ -1186,15 +1201,23 @@ const ChatScreen = (props) => {
         ) : (
           <View style={{ flex: 1 }} />
         )}
-        {showError ? (
-          <Text
+        {!showError ? (
+          <View
             style={{
-              color: themeStyle.colors.error.default,
-              textAlign: "center",
+              width: "100%",
+              padding: 10,
+              backgroundColor: themeStyle.colors.error.default,
             }}
           >
-            Something went wrong... {"\n"}Please try again later.
-          </Text>
+            <Text
+              style={{
+                color: themeStyle.colors.white,
+                textAlign: "center",
+              }}
+            >
+              Connection was lost... {"\n"}Please try again later.
+            </Text>
+          </View>
         ) : null}
 
         {userIsBlocked ? (
