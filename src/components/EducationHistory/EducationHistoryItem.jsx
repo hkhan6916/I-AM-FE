@@ -44,7 +44,7 @@ const EducationHistoryItem = ({
         <Ionicons
           size={30}
           name="school-sharp"
-          color={themeStyle.colors.grayscale.low}
+          color={themeStyle.colors.slateGray}
           style={{ marginHorizontal: 20 }}
         />
         <View>
@@ -69,9 +69,7 @@ const EducationHistoryItem = ({
               {education.institutionName}
             </Text>
           ) : null}
-          <Text
-            style={{ color: themeStyle.colors.grayscale.lower, fontSize: 12 }}
-          >
+          <Text style={{ color: themeStyle.colors.slateGray, fontSize: 12 }}>
             {getMonthAndYearDate(education.dateFrom)} -{" "}
             {education.dateTo ? (
               getMonthAndYearDate(education.dateTo)
@@ -103,7 +101,7 @@ const EducationHistoryItem = ({
                 <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
                   <Text
                     style={{
-                      color: themeStyle.colors.grayscale.low,
+                      color: themeStyle.colors.slateGray,
                       marginBottom: 10,
                       marginTop: 5,
                     }}

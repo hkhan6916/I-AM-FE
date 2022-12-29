@@ -43,7 +43,7 @@ const JobHistoryItem = ({
         <Ionicons
           size={30}
           name="briefcase-sharp"
-          color={themeStyle.colors.grayscale.low}
+          color={themeStyle.colors.slateGray}
           style={{ marginHorizontal: 20 }}
         />
         <View>
@@ -59,7 +59,7 @@ const JobHistoryItem = ({
               {jobRole.roleType ? (
                 <Text
                   style={{
-                    color: themeStyle.colors.grayscale.low,
+                    color: themeStyle.colors.slateGray,
                     fontSize: 12,
                     fontWeight: "400",
                   }}
@@ -93,9 +93,7 @@ const JobHistoryItem = ({
                 : jobRole.city || jobRole.country}
             </Text>
           ) : null}
-          <Text
-            style={{ color: themeStyle.colors.grayscale.low, fontSize: 12 }}
-          >
+          <Text style={{ color: themeStyle.colors.slateGray, fontSize: 12 }}>
             {getMonthAndYearDate(jobRole.dateFrom)} -{" "}
             {jobRole.dateTo ? (
               getMonthAndYearDate(jobRole.dateTo)
@@ -127,7 +125,7 @@ const JobHistoryItem = ({
                 <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
                   <Text
                     style={{
-                      color: themeStyle.colors.grayscale.low,
+                      color: themeStyle.colors.slateGray,
                       marginBottom: 10,
                       marginTop: 5,
                     }}

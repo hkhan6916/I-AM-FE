@@ -225,6 +225,7 @@ const PostScreen = (props) => {
                       height={post.height}
                       width={post.width}
                       hideIcons
+                      mute={!!post.gif}
                     />
                   </View>
                 ) : post.mediaType === "video" ? (
@@ -292,7 +293,7 @@ const PostScreen = (props) => {
                   <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
                     <Text
                       style={{
-                        color: themeStyle.colors.grayscale.low,
+                        color: themeStyle.colors.slateGray,
                         marginBottom: 10,
                         marginTop: 5,
                       }}

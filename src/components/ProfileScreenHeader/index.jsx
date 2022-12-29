@@ -292,7 +292,7 @@ const ProfileScreenHeader = React.forwardRef(
                   >
                     <Text
                       style={{
-                        color: themeStyle.colors.grayscale.low,
+                        color: themeStyle.colors.slateGray,
                         marginBottom: 10,
                         marginTop: 5,
                       }}

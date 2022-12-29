@@ -11,6 +11,7 @@ const ExpoVideoPlayer = ({
   isSelfie,
   enableIOSNativeControls = false,
   isGif = false,
+  mute = false,
 }) => {
   const [focussed, setFocussed] = useState(true);
 
@@ -65,6 +66,7 @@ const ExpoVideoPlayer = ({
             width: screenWidth,
             flex: 1,
           }}
+          isMuted={mute}
         />
       ) : (
         <VideoPlayer
@@ -77,6 +79,7 @@ const ExpoVideoPlayer = ({
           slider={{ height: Platform.OS === "android" ? 100 : 0 }}
           videoProps={videoProps}
           fullscreen
+          mute={mute}
         />
       )}
     </View>

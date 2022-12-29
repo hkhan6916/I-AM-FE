@@ -140,6 +140,7 @@ const MediaScreen = (props) => {
               isSelfie={post.mediaIsSelfie}
               uri={post.mediaUrl || post.gif}
               isGif={post.gif && !post.mediaUrl}
+              mute={!!post.gif}
             />
           ) : post?.mediaType === "image" ? (
             <View

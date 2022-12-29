@@ -750,9 +750,7 @@ const ChatScreen = (props) => {
         quality: 0.3,
         allowsMultipleSelection: false,
         selectionLimit: 1,
-        allowsEditing:
-          (Platform.OS === "ios" && type === "video") ||
-          Platform.OS === "android",
+        allowsEditing: Platform.OS === "ios" && type === "video",
         mediaTypes:
           type === "image"
             ? ImagePicker.MediaTypeOptions.Images
@@ -1201,18 +1199,30 @@ const ChatScreen = (props) => {
         ) : (
           <View style={{ flex: 1 }} />
         )}
-        {!showError ? (
+        {showError ? (
           <View
             style={{
-              width: "100%",
-              padding: 10,
-              backgroundColor: themeStyle.colors.error.default,
+              width: "85%",
+              padding: 15,
+              backgroundColor: themeStyle.colors.error.defaultBg,
+              alignSelf: "center",
+              borderRadius: 10,
             }}
           >
+            <Ionicons
+              name="close"
+              color={themeStyle.colors.white}
+              size={30}
+              onPress={() => {
+                setShowError(false);
+              }}
+              style={{ position: "absolute", alignSelf: "flex-end", zIndex: 9 }}
+            />
             <Text
               style={{
                 color: themeStyle.colors.white,
                 textAlign: "center",
+                fontWeight: "700",
               }}
             >
               Connection was lost... {"\n"}Please try again later.
@@ -1556,12 +1566,12 @@ const ChatScreen = (props) => {
                   <FontAwesome
                     name="image"
                     size={24}
-                    color={themeStyle.colors.grayscale.lowest}
+                    color={themeStyle.colors.white}
                   />
                 </View>
                 <Text
                   style={{
-                    color: themeStyle.colors.grayscale.lowest,
+                    color: themeStyle.colors.white,
                     fontWeight: "700",
                     marginLeft: 10,
                   }}
@@ -1603,13 +1613,13 @@ const ChatScreen = (props) => {
                     <MaterialCommunityIcons
                       name="movie-open-play-outline"
                       size={26}
-                      color={themeStyle.colors.grayscale.lowest}
+                      color={themeStyle.colors.white}
                     />
                   </View>
                 </View>
                 <Text
                   style={{
-                    color: themeStyle.colors.grayscale.lowest,
+                    color: themeStyle.colors.white,
                     fontWeight: "700",
                     marginLeft: 10,
                   }}
@@ -1656,12 +1666,12 @@ const ChatScreen = (props) => {
                       <Feather
                         name="camera"
                         size={26}
-                        color={themeStyle.colors.grayscale.lowest}
+                        color={themeStyle.colors.white}
                       />
                     </View>
                     <Text
                       style={{
-                        color: themeStyle.colors.grayscale.lowest,
+                        color: themeStyle.colors.white,
                         fontWeight: "700",
                         marginLeft: 10,
                       }}

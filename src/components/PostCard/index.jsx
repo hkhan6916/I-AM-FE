@@ -95,7 +95,7 @@ const PostCard = ({
                   <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
                     <Text
                       style={{
-                        color: themeStyle.colors.grayscale.low,
+                        color: themeStyle.colors.slateGray,
                         marginBottom: 10,
                         marginTop: 5,
                       }}
@@ -195,6 +195,7 @@ const PostCard = ({
                       unMute={!!post.unMute}
                       setUnMuteVideos={setUnMuteVideos}
                       hideIcons
+                      mute
                     />
                     {disableVideo ? (
                       // Disable video also prevents gifs from playing in postcard.
@@ -338,7 +339,7 @@ const PostCard = ({
                   <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
                     <Text
                       style={{
-                        color: themeStyle.colors.grayscale.low,
+                        color: themeStyle.colors.slateGray,
                         marginBottom: 10,
                         marginTop: 5,
                       }}

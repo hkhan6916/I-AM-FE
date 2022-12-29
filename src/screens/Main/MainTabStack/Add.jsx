@@ -78,7 +78,7 @@ const AddScreen = () => {
   const [videoDuration, setVideoDuration] = useState(0);
   const [processedVideoUri, setProcessedVideoUri] = useState("");
   const [processingFile, setProcessingFile] = useState(false);
-  const [selectedMediaType, setSelectedMediaType] = useState(false);
+  const [selectedMediaType, setSelectedMediaType] = useState("");
   const [loadingVideo, setLoadingVideo] = useState(false);
   const [showImageOrVideoOption, setShowImageOrVideoOption] = useState(false);
 
@@ -180,9 +180,11 @@ const AddScreen = () => {
   };
 
   const generateThumbnail = async (path, duration) => {
+    const videoDurationMs = (duration || 0) / 1000;
+
     try {
       const { uri } = await getThumbnailAsync(path || file.uri, {
-        time: (duration || 0) > 1 ? 1 : 0,
+        time: videoDurationMs > 1 ? 1 : 0,
         quality: 0.5,
       });
       return uri;
@@ -198,7 +200,6 @@ const AddScreen = () => {
 
     if (!postData) return;
     const { success, response } = await apiCall("POST", "/posts/new", postData);
-
     setLoading(false);
     if (success) {
       setThumbnail("");
@@ -241,6 +242,12 @@ const AddScreen = () => {
         setProcessingFile(false);
         setSelectedMediaType("");
       } else {
+        setFile({});
+        setGif("");
+        setThumbnail("");
+        setCompressionProgress(0);
+        setProcessingFile(false);
+        setSelectedMediaType("");
         dispatch({
           type: "SET_POST_CREATED",
           payload: { posted: true, type: "created" },
@@ -251,7 +258,7 @@ const AddScreen = () => {
     } else {
       setLoading(false);
       setError(
-        "An error occurred creating your post. Please try again, or check your connection."
+        "An error occurred when creating your post. Please try again, or check your connection."
       );
     }
   };
@@ -395,9 +402,17 @@ const AddScreen = () => {
     type: typeArg,
     fileSelectionMethod = "files",
   }) => {
+    if (!result?.assets?.[0]) return;
+
     const mediaType = result.assets[0].type.split("/")[0];
     const type = typeArg || mediaType;
     setShowMediaSizeError(false);
+
+    // we get media height and width for ios so we set it. We don't get it for android.
+    if (Platform.OS === "ios") {
+      setHeight(result.assets[0]?.height);
+      setWidth(result.assets[0]?.width);
+    }
 
     setLoadingVideo(false);
     if (Platform.OS === "ios") {
@@ -457,10 +472,16 @@ const AddScreen = () => {
     }
     setSelectedMediaType(mediaType);
     setFile({ ...result.assets[0], ...mediaInfo });
+    actionSheetRef.current?.hide();
 
     if (mediaType === "video") {
       setVideoDuration(result.assets[0].duration);
       if (Platform.OS === "ios") {
+        const thumbnailUri = await generateThumbnail(
+          result.assets[0].uri,
+          result.assets[0].duration
+        );
+        setThumbnail(thumbnailUri);
         await convertAndEncodeVideo({
           uri: result.assets[0].uri,
           setProgress: setCompressionProgress,
@@ -507,9 +528,7 @@ const AddScreen = () => {
         quality: 0.3,
         allowsMultipleSelection: false,
         selectionLimit: 1,
-        allowsEditing:
-          (Platform.OS === "ios" && type === "video") ||
-          Platform.OS === "android",
+        allowsEditing: Platform.OS === "ios" && type === "video",
         mediaTypes:
           type === "image"
             ? ImagePicker.MediaTypeOptions.Images
@@ -816,11 +835,14 @@ const AddScreen = () => {
                       <>
                         <ImageWithCache
                           onLoad={(e) => {
-                            setHeight(e?.nativeEvent?.source?.height);
-                            setWidth(e?.nativeEvent?.source?.width);
+                            if (!height || !width) {
+                              setHeight(e?.nativeEvent?.source?.height);
+                              setWidth(e?.nativeEvent?.source?.width);
+                            }
                           }}
                           style={{ height: 1, width: 1, opacity: 0 }} // so onload gets called we set height and width to 1. Doesn't when set to 0
-                          mediaUrl={file.uri}
+                          // For ios, we generate thumbnail following video selection. We don't do this for android so we fallback to file.uri
+                          mediaUrl={thumbnail || file.uri}
                         />
 
                         <VideoPlayer
@@ -914,6 +936,7 @@ const AddScreen = () => {
                     resizeMode="contain"
                     style={{ width: "100%", height: "100%", maxHeight: 300 }}
                     source={{ uri: gif }}
+                    isMuted
                   />
                 </View>
               </View>

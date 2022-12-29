@@ -22,6 +22,7 @@ const themeStyle =
           },
           error: {
             default: "#FF0000",
+            defaultBg: "rgba(255, 70, 70, 0.4)",
             dark: "#BF0000",
           },
           grayscale: {
@@ -40,6 +41,8 @@ const themeStyle =
           },
           black: "#000000",
           white: "#FFFFFF",
+          slateGray: "#708090",
+          gray: "#939393",
           mediaLoad: "rgba(50,50,50,1)",
         },
       }
@@ -63,6 +66,7 @@ const themeStyle =
           },
           error: {
             default: "#FF0000",
+            defaultBg: "rgba(220, 0, 0, 0.7)",
             dark: "#BF0000",
           },
           grayscale: {
@@ -81,6 +85,8 @@ const themeStyle =
           },
           black: "#000000",
           white: "#FFFFFF",
+          slateGray: "#708090",
+          gray: "#939393",
           mediaLoad: "rgba(168,168,168,1)",
         },
       };
