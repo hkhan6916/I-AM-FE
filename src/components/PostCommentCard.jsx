@@ -173,7 +173,7 @@ const PostCommentCard = ({
                 })
               }
             >
-              <Text style={{ color: themeStyle.colors.grayscale.low }}>
+              <Text style={{ color: themeStyle.colors.slateGray }}>
                 View {comment.replyCount}{" "}
                 {comment.replyCount > 1 ? "replies" : "reply"}
               </Text>

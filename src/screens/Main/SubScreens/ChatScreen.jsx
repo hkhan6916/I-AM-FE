@@ -191,7 +191,9 @@ const ChatScreen = (props) => {
             : thumbnailUrl,
         url: signedResponse.signedUrl,
         disableLogs: true,
-        failureRoute: `/chat/message/fail/${signedResponse._id}`,
+        failureRoute: `/chat/message/fail/${payload?.response?._id}`,
+        onFail: async () =>
+          await handleMessageUploadFailure(payload?.response?._id),
       });
 
       // This is the thumbnail. We send this to backend which saves it as the thumbnailkey for this message
@@ -541,11 +543,6 @@ const ChatScreen = (props) => {
           localProcessing: true,
         });
 
-        setMessages(newMessages);
-        setMessageBody("");
-        setHeight(0);
-        setMedia({});
-        setSendingMessage(false);
         const db = SQLite.openDatabase("localdb");
 
         if (media.type?.split("/")[0] === "video") {
@@ -583,6 +580,11 @@ const ChatScreen = (props) => {
             },
           });
         }
+        setMessages(newMessages);
+        setMessageBody("");
+        setHeight(0);
+        setMedia({});
+        setSendingMessage(false);
       } else {
         console.log("Failed to upload message media");
       }

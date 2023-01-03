@@ -356,7 +356,7 @@ const CommentRepliesScreen = (props) => {
     return async () => {
       (await getCommentReplies()).cancel();
     };
-  }, [navigation, comment]);
+  }, [comment]);
   if (!comment) return null;
   return (
     <SafeAreaView style={styles.container}>
@@ -412,6 +412,8 @@ const CommentRepliesScreen = (props) => {
             submitAction={postComment}
             replyingTo={replyingTo}
             setReplyingTo={setReplyingTo}
+            autoFocus
+            placeholder="Type a reply here..."
           />
         </View>
       </KeyboardAvoidingView>

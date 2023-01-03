@@ -50,6 +50,7 @@ const LoginScreen = ({ route }) => {
       } else {
         await setItemAsync("userId", response.userId);
         await setItemAsync("authToken", response.token);
+        await setItemAsync("loginDateTime", new Date().toString());
       }
 
       dispatch({ type: "SET_USER_DATA", payload: response.userData });
@@ -69,7 +70,7 @@ const LoginScreen = ({ route }) => {
           })
         )?.data;
       if (token) {
-        const { success, message } = await apiCall(
+        const { success } = await apiCall(
           "POST",
           "/user/notifications/token/update",
           { notificationToken: token }

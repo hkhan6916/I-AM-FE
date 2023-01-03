@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import React, { useState, forwardRef } from "react";
 import {
   TextInput,
@@ -23,6 +24,7 @@ const CommentTextInput = forwardRef(
       hasBorderRadius,
       initialCommentBody = "",
       isFullWidth = true,
+      ...rest
     },
     ref
   ) => {
@@ -80,7 +82,7 @@ const CommentTextInput = forwardRef(
             >
               <Text
                 style={{
-                  fontWeight: "700",
+                  fontWeight: "900",
                   color: themeStyle.colors.secondary.default,
                 }}
               >
@@ -134,6 +136,7 @@ const CommentTextInput = forwardRef(
                       : 150
                   );
                 }}
+                {...rest}
               />
             </ScrollView>
             <View
@@ -161,7 +164,10 @@ const CommentTextInput = forwardRef(
                     justifyContent: "center",
                   }}
                 >
-                  <Text
+                  <Ionicons
+                    name="send-sharp"
+                    size={24}
+                    color="black"
                     style={[
                       styles.postTrigger,
                       (!commentBody ||
@@ -170,9 +176,7 @@ const CommentTextInput = forwardRef(
                         opacity: 0.5,
                       },
                     ]}
-                  >
-                    Post
-                  </Text>
+                  />
                 </TouchableOpacity>
               ) : (
                 <ActivityIndicator
@@ -201,15 +205,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 10,
-    backgroundColor: themeStyle.colors.grayscale.higher,
+    backgroundColor: themeStyle.colors.grayscale.highest,
     marginHorizontal: 2,
     marginBottom: 5,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: themeStyle.colors.grayscale.lowest,
     borderRadius: 5,
   },
   postTrigger: {
-    color: themeStyle.colors.secondary.default,
+    color: themeStyle.colors.grayscale.lowest,
     fontWeight: "700",
   },
   replyingToBanner: {
@@ -221,10 +225,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginHorizontal: 5,
     marginBottom: 5,
-    borderRadius: 10,
+    borderRadius: 5,
   },
   replyingToBannerText: {
     color: themeStyle.colors.grayscale.lowest,
+    fontWeight: "700",
   },
 });
 export default React.memo(CommentTextInput);

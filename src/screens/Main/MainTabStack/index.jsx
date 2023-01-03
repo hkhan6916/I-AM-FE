@@ -10,6 +10,7 @@ import ContactsScreen from "./Contacts";
 import themeStyle from "../../../theme.style";
 import apiCall from "../../../helpers/apiCall";
 import webPersistUserData from "../../../helpers/webPersistUserData";
+import checkPasswordChanged from "../../../helpers/checkPasswordChanged";
 
 const Tab = createBottomTabNavigator();
 
@@ -22,6 +23,13 @@ const MainTabStack = () => {
     const { success, response } = await apiCall("GET", "/user/data");
 
     if (success) {
+      const passwordChanged = await checkPasswordChanged(
+        response?.lastPasswordChangedDateTime
+      );
+      if (passwordChanged) {
+        dispatch({ type: "SET_USER_LOGGED_IN", payload: false });
+        return;
+      }
       dispatch({ type: "SET_USER_DATA", payload: response });
       webPersistUserData(response);
     }

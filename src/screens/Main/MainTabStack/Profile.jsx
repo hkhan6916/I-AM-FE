@@ -18,7 +18,7 @@ import ProfileScreenHeader from "../../../components/ProfileScreenHeader/index";
 import { useScrollToTop } from "@react-navigation/native";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import PostOptionsModal from "../../../components/PostOptionsModal";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   RecyclerListView,
   DataProvider,
@@ -30,6 +30,7 @@ import EducationHistoryItem from "../../../components/EducationHistory/Education
 import AddJobModal from "../../../components/JobHistory/AddJobModal";
 import AddEducationModal from "../../../components/EducationHistory/AddEducationModal";
 import JobAndEducationHistoryLoader from "../../../components/ContentLoader/JobAndEducationHistory";
+import checkPasswordChanged from "../../../helpers/checkPasswordChanged";
 
 const ProfileScreen = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -50,7 +51,7 @@ const ProfileScreen = () => {
   const [loadingHistory, setLoadingHistory] = useState(false);
 
   const nativeGlobalUserData = useSelector((state) => state.userData);
-
+  const dispatch = useDispatch();
   const globalUserData =
     Platform.OS === "web"
       ? { state: getWebPersistedUserData() }
@@ -198,6 +199,13 @@ const ProfileScreen = () => {
     setLoading(true);
     const { success, response } = await apiCall("GET", `/user/data`);
     if (success) {
+      const passwordChanged = await checkPasswordChanged(
+        response?.lastPasswordChangedDateTime
+      );
+      if (passwordChanged) {
+        dispatch({ type: "SET_USER_LOGGED_IN", payload: false });
+        return;
+      }
       setUserData(response);
     }
     setLoading(false);

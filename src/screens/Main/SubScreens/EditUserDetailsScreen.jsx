@@ -49,6 +49,7 @@ import { FileSystemUploadType, uploadAsync } from "expo-file-system";
 import { FFmpegKit } from "ffmpeg-kit-react-native";
 import getVideoCodecName from "../../../helpers/getVideoCodecName";
 import SkeletonPlaceholder from "react-native-skeleton-placeholder";
+import checkPasswordChanged from "../../../helpers/checkPasswordChanged";
 
 const { statusBarHeight } = Constants;
 const EditUserDetailsScreen = () => {
@@ -663,6 +664,13 @@ const EditUserDetailsScreen = () => {
       const { response, success } = await apiCall("GET", "/user/data");
       setLoading(false);
       if (success) {
+        const passwordChanged = await checkPasswordChanged(
+          response?.lastPasswordChangedDateTime
+        );
+        if (passwordChanged) {
+          dispatch({ type: "SET_USER_LOGGED_IN", payload: false });
+          return;
+        }
         setInitialProfileData(response);
       } else {
         setUpdateError("Something went wrong... Please try again later");

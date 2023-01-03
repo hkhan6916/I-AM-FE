@@ -131,6 +131,7 @@ const AddScreen = () => {
         postData.height = height;
         postData.width = width;
         postData.thumbnailSignedUrl = response.signedUrl;
+        postData.videoEncoding = file.encoding;
       } else {
         const mediaInfo = await getInfoAsync(uri);
         const mediaSizeInMb = mediaInfo?.size / 100000;
@@ -471,7 +472,7 @@ const AddScreen = () => {
       return;
     }
     setSelectedMediaType(mediaType);
-    setFile({ ...result.assets[0], ...mediaInfo });
+    setFile({ ...result.assets[0], ...mediaInfo, encoding });
     actionSheetRef.current?.hide();
 
     if (mediaType === "video") {

@@ -74,7 +74,7 @@ const Screens = () => {
       }
       token = (
         await Notifications.getExpoPushTokenAsync({
-          experienceId: Constants.manifest.extra.experienceId, // TODO: Move into environment variable
+          experienceId: Constants.manifest.extra.experienceId,
         })
       ).data;
     } else {
@@ -118,6 +118,7 @@ const Screens = () => {
       // if loaded, but not authenticated. This is used for logging out a user.
       if (loaded && !loginAttemptStatus.state) {
         setLoggedIn(false);
+        setItemAsync("loginDateTime", "");
         await apiCall("GET", "/user/notifications/token/delete");
         Platform.OS === "web"
           ? localStorage.setItem("authToken", "")

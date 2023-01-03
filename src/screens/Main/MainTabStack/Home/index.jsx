@@ -28,6 +28,7 @@ import {
   LayoutProvider,
 } from "recyclerlistview";
 import PostCardLoader from "../../../../components/ContentLoader/PostCard";
+import checkPasswordChanged from "../../../../helpers/checkPasswordChanged";
 
 const { statusBarHeight } = Constants;
 
@@ -322,6 +323,13 @@ const HomeScreen = () => {
       setFocussed(true);
       const { success, response } = await apiCall("GET", "/user/data");
       if (success) {
+        const passwordChanged = await checkPasswordChanged(
+          response?.lastPasswordChangedDateTime
+        );
+        if (passwordChanged) {
+          dispatch({ type: "SET_USER_LOGGED_IN", payload: false });
+          return;
+        }
         setUserData(response);
       }
     });

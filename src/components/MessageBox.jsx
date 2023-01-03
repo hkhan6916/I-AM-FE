@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import {
   View,
   Text,
@@ -348,4 +348,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MessageBox;
+export default memo(MessageBox);
