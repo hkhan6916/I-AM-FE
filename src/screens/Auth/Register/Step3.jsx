@@ -122,7 +122,7 @@ const Step1Screen = () => {
             flipProfileVideo:
               Platform.OS === "android" &&
               !profileImage &&
-              profileVideo &&
+              !!profileVideo &&
               !pickedFromCameraRoll,
             profileVideoKey: signedData.profileVideoKey,
             profileGifKey: signedData.profileGifKey,
@@ -212,7 +212,7 @@ const Step1Screen = () => {
         flipProfileVideo: (
           Platform.OS === "android" &&
           !profileImage &&
-          profileVideo &&
+          !!profileVideo &&
           !pickedFromCameraRoll
         ).toString(), //TODO check if we still need to convert to string
       }
@@ -263,19 +263,16 @@ const Step1Screen = () => {
       await uploadMediaAndSendUserData(apiUrl, notificationToken);
     } else {
       setVerifying(true);
-      const { response, success, message } = await apiCall(
-        "POST",
-        `/user/register`,
-        {
-          ...existingInfo.state,
-          notificationToken,
-          flipProfileVideo:
-            Platform.OS === "android" &&
-            !profileImage &&
-            profileVideo &&
-            !pickedFromCameraRoll,
-        }
-      );
+      const { success } = await apiCall("POST", `/user/register`, {
+        ...existingInfo.state,
+        notificationToken,
+        flipProfileVideo:
+          Platform.OS === "android" &&
+          !profileImage &&
+          !!profileVideo &&
+          !pickedFromCameraRoll,
+      });
+
       setVerifying(false);
 
       if (success) {
