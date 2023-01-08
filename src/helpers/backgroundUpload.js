@@ -8,8 +8,10 @@ const backgroundUpload = async ({
   parameters,
   failureRoute,
   onComplete,
+  onFail = async () => null,
   disableLogs,
 }) => {
+  console.log("starting background upload");
   const realFilePath = filePath.includes("file:/")
     ? filePath
     : await getRealPath(filePath);
@@ -48,6 +50,7 @@ const backgroundUpload = async ({
         }
       } else {
         await apiCall("GET", failureRoute);
+        await onFail();
       }
     }
     if (!response.status) {
@@ -59,10 +62,12 @@ const backgroundUpload = async ({
       }
     }
   } catch (err) {
+    console.log({ err });
     if (!disableLogs) {
       console.log("Upload error!", err);
     }
     await apiCall("GET", failureRoute);
+    await onFail();
   }
 };
 

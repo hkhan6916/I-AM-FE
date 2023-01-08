@@ -9,6 +9,8 @@ const TextArea = ({
   setValue = () => null,
   value,
   label,
+  labelColor,
+  color,
   ...rest
 }) => {
   const [height, setHeight] = useState(0);
@@ -37,7 +39,7 @@ const TextArea = ({
         style={{
           fontWeight: "400",
           fontSize: 12,
-          color: themeStyle.colors.grayscale.lowest,
+          color: labelColor || themeStyle.colors.grayscale.lowest,
         }}
       >
         {label}
@@ -61,7 +63,7 @@ const TextArea = ({
             {
               paddingVertical: 10,
               height: Math.max(minHeight, height),
-              color: themeStyle.colors.grayscale.lowest,
+              color: color || themeStyle.colors.grayscale.lowest,
               width: "100%",
             },
           ]}

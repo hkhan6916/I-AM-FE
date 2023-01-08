@@ -29,6 +29,9 @@ import {
 } from "recyclerlistview";
 import PostCardLoader from "../../../../components/ContentLoader/PostCard";
 import checkPasswordChanged from "../../../../helpers/checkPasswordChanged";
+import InAppReview from "react-native-in-app-review";
+import AppSatisfactionModal from "../../../../components/AppSatisfactionModal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { statusBarHeight } = Constants;
 
@@ -57,6 +60,7 @@ const HomeScreen = () => {
   const nextVisible = useRef();
   const [scrolling, setScrolling] = useState(false);
   const [positionBeforeScroll, setPositionBeforeScroll] = useState(0);
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   const navigation = useNavigation();
   const listRef = useRef(null);
@@ -319,6 +323,15 @@ const HomeScreen = () => {
   };
 
   useEffect(() => {
+    (async () => {
+      const loginCount = Number(
+        (await AsyncStorage.getItem("loginCount")) || "0"
+      );
+
+      if (loginCount === 15) {
+        setShowReviewModal(true);
+      }
+    })();
     navigation.addListener("focus", async () => {
       setFocussed(true);
       const { success, response } = await apiCall("GET", "/user/data");
@@ -388,7 +401,11 @@ const HomeScreen = () => {
     })();
   }, []);
 
-  if (!feed) {
+  // user has completed profile but no feed
+  if (
+    !feed &&
+    (userData?.state?.profileImageUrl || userData?.state?.profileVideoUrl)
+  ) {
     return (
       <SafeAreaView
         style={{
@@ -414,6 +431,68 @@ const HomeScreen = () => {
   if (feed?.length) {
     return (
       <SafeAreaView style={styles.container}>
+        <AppSatisfactionModal
+          setShowReviewModal={setShowReviewModal}
+          visible={showReviewModal}
+          onUserFeedback={(isSatisfied) => {
+            if (isSatisfied) {
+              setShowReviewModal(false);
+              InAppReview.RequestInAppReview();
+              // trigger UI InAppreview
+              InAppReview.RequestInAppReview()
+                .then((hasFlowFinishedSuccessfully) => {
+                  // when return true in android it means user finished or close review flow
+                  console.log(
+                    "InAppReview in android",
+                    hasFlowFinishedSuccessfully
+                  );
+
+                  // when return true in ios it means review flow lanuched to user.
+                  console.log(
+                    "InAppReview in ios has launched successfully",
+                    hasFlowFinishedSuccessfully
+                  );
+
+                  // 1- you have option to do something ex: (navigate Home page) (in android).
+                  // 2- you have option to do something,
+                  // ex: (save date today to lanuch InAppReview after 15 days) (in android and ios).
+
+                  // 3- another option:
+                  if (hasFlowFinishedSuccessfully) {
+                    // do something for ios
+                    // do something for android
+                  }
+
+                  // for android:
+                  // The flow has finished. The API does not indicate whether the user
+                  // reviewed or not, or even whether the review dialog was shown. Thus, no
+                  // matter the result, we continue our app flow.
+
+                  // for ios
+                  // the flow lanuched successfully, The API does not indicate whether the user
+                  // reviewed or not, or he/she closed flow yet as android, Thus, no
+                  // matter the result, we continue our app flow.
+                })
+                .catch((error) => {
+                  //we continue our app flow.
+                  // we have some error could happen while lanuching InAppReview,
+                  // Check table for errors and code number that can return in catch.
+                  console.log(error);
+                });
+            }
+          }}
+        />
+        <TouchableOpacity
+          onPress={() => {
+            const isAvailable = InAppReview.isAvailable();
+
+            if (!isAvailable) return;
+            setShowReviewModal(true);
+          }}
+          style={{ height: 48, backgroundColor: "red" }}
+        >
+          <Text>hello</Text>
+        </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <HomeScreenHeader navigation={navigation} userData={userData} />
           {newPostCreated.state ? (

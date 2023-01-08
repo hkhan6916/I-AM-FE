@@ -20,6 +20,7 @@ import {
   deleteRunningUploadsTable,
   getRunningUploads,
 } from "../helpers/sqlite/runningUploads";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Screens = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -173,6 +174,13 @@ const Screens = () => {
 
   useEffect(() => {
     (async () => {
+      try {
+        const newLoginCount =
+          Number((await AsyncStorage.getItem("loginCount")) || "0") + 1;
+        await AsyncStorage.setItem("loginCount", newLoginCount.toString());
+      } catch (e) {
+        console.log(e);
+      }
       if (Platform.OS === "android") {
         const db = await openDatabase("localdb");
         // a list of uploads that were running before the app was closed
