@@ -327,8 +327,11 @@ const HomeScreen = () => {
       const loginCount = Number(
         (await AsyncStorage.getItem("loginCount")) || "0"
       );
+      const shouldShowInAppReview = await AsyncStorage.getItem(
+        "shouldShowInAppReview"
+      );
 
-      if (loginCount === 15) {
+      if (loginCount === 20 && shouldShowInAppReview !== "no") {
         setShowReviewModal(true);
       }
     })();
@@ -437,10 +440,9 @@ const HomeScreen = () => {
           onUserFeedback={(isSatisfied) => {
             if (isSatisfied) {
               setShowReviewModal(false);
-              InAppReview.RequestInAppReview();
               // trigger UI InAppreview
               InAppReview.RequestInAppReview()
-                .then((hasFlowFinishedSuccessfully) => {
+                .then(async (hasFlowFinishedSuccessfully) => {
                   // when return true in android it means user finished or close review flow
                   console.log(
                     "InAppReview in android",
@@ -461,6 +463,7 @@ const HomeScreen = () => {
                   if (hasFlowFinishedSuccessfully) {
                     // do something for ios
                     // do something for android
+                    await AsyncStorage.setItem("shouldShowInAppReview", "no");
                   }
 
                   // for android:
@@ -482,17 +485,7 @@ const HomeScreen = () => {
             }
           }}
         />
-        <TouchableOpacity
-          onPress={() => {
-            const isAvailable = InAppReview.isAvailable();
 
-            if (!isAvailable) return;
-            setShowReviewModal(true);
-          }}
-          style={{ height: 48, backgroundColor: "red" }}
-        >
-          <Text>hello</Text>
-        </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <HomeScreenHeader navigation={navigation} userData={userData} />
           {newPostCreated.state ? (
@@ -628,6 +621,8 @@ const HomeScreen = () => {
                 style={{
                   fontWeight: "700",
                   color: themeStyle.colors.grayscale.lowest,
+                  fontSize: 16,
+                  marginBottom: 10,
                 }}
               >
                 It&apos;s quiet here...

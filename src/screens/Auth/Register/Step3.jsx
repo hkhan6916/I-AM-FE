@@ -12,6 +12,7 @@ import {
   Platform,
   Alert,
   Linking,
+  BackHandler,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Camera } from "expo-camera";
@@ -439,7 +440,9 @@ const Step1Screen = () => {
       }
     }
   };
-
+  const handleBackButton = () => {
+    return true;
+  };
   useEffect(() => {
     (async () => {
       const cameraStatus = await Camera.requestCameraPermissionsAsync();
@@ -460,6 +463,14 @@ const Step1Screen = () => {
       navigation.setOptions({ headerShown: true });
     }
   }, [profileVideoCameraActivated, profileImageCameraActivated, loading]);
+
+  useEffect(() => {
+    if (loading && !registrationError) {
+      BackHandler.addEventListener("hardwareBackPress", handleBackButton);
+    }
+    return () =>
+      BackHandler.removeEventListener("hardwareBackPress", handleBackButton);
+  }, [loading, registrationError]);
 
   if (loading && !registrationError) {
     return (
