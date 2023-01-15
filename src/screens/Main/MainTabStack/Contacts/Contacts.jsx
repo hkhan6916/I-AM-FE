@@ -15,6 +15,7 @@ import UserThumbnail from "../../../../components/UserThumbnail";
 import themeStyle from "../../../../theme.style";
 import { useSelector } from "react-redux";
 import getWebPersistedUserData from "../../../../helpers/getWebPersistedData";
+import { AntDesign } from "@expo/vector-icons";
 const ContactsScreen = () => {
   const [friends, setFriends] = useState([]);
   const [requests, setRequests] = useState([]);
@@ -228,6 +229,61 @@ const ContactsScreen = () => {
                 View all contacts
               </Text>
             </TouchableOpacity>
+          ) : name === "contacts" && !friends?.length ? (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: 60,
+              }}
+            >
+              <AntDesign
+                name="contacts"
+                color={themeStyle.colors.grayscale.lowest}
+                size={80}
+              />
+              <Text
+                style={{
+                  fontWeight: "700",
+                  color: themeStyle.colors.grayscale.lowest,
+                  fontSize: 16,
+                  marginBottom: 10,
+                  marginTop: 20,
+                }}
+              >
+                No one&apos;s here...
+              </Text>
+              <Text
+                style={{
+                  marginBottom: 20,
+                  fontWeight: "700",
+                  color: themeStyle.colors.grayscale.lowest,
+                }}
+              >
+                You can add some contacts.
+              </Text>
+              <TouchableOpacity onPress={() => navigation.navigate("Search")}>
+                <View
+                  style={{
+                    paddingVertical: 5,
+                    paddingHorizontal: 10,
+                    borderWidth: 1,
+                    borderColor: themeStyle.colors.secondary.default,
+                    borderRadius: 5,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontWeight: "700",
+                      color: themeStyle.colors.grayscale.lowest,
+                    }}
+                  >
+                    Search
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
           ) : null
         }
         contentContainerStyle={{ flexGrow: 1 }}

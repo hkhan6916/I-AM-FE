@@ -15,7 +15,7 @@ const PostAge = ({ age }) => {
 
 const styles = StyleSheet.create({
   postAge: {
-    color: themeStyle.colors.grayscale.low,
+    color: themeStyle.colors.slateGray,
     marginHorizontal: 10,
     marginVertical: 5,
     fontSize: 12,

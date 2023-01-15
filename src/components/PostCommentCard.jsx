@@ -141,7 +141,7 @@ const PostCommentCard = ({
                     color={
                       comment.liked
                         ? themeStyle.colors.secondary.default
-                        : themeStyle.colors.grayscale.low
+                        : themeStyle.colors.grayscale.lower
                     }
                   />
                 </TouchableOpacity>
@@ -173,7 +173,12 @@ const PostCommentCard = ({
                 })
               }
             >
-              <Text style={{ color: themeStyle.colors.slateGray }}>
+              <Text
+                style={{
+                  color: themeStyle.colors.slateGray,
+                  fontWeight: "700",
+                }}
+              >
                 View {comment.replyCount}{" "}
                 {comment.replyCount > 1 ? "replies" : "reply"}
               </Text>
@@ -235,7 +240,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   commentAge: {
-    color: themeStyle.colors.grayscale.low,
+    color: themeStyle.colors.slateGray,
     marginHorizontal: 10,
     marginVertical: 5,
     fontSize: 12,

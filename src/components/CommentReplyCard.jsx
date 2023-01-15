@@ -161,7 +161,7 @@ const CommentReplyCard = ({
                   color={
                     reply.liked
                       ? themeStyle.colors.secondary.default
-                      : themeStyle.colors.grayscale.low
+                      : themeStyle.colors.grayscale.lower
                   }
                 />
               </TouchableOpacity>
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   commentAge: {
-    color: themeStyle.colors.grayscale.low,
+    color: themeStyle.colors.slateGray,
     marginHorizontal: 10,
     fontSize: 12,
   },

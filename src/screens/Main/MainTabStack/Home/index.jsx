@@ -405,10 +405,7 @@ const HomeScreen = () => {
   }, []);
 
   // user has completed profile but no feed
-  if (
-    !feed &&
-    (userData?.state?.profileImageUrl || userData?.state?.profileVideoUrl)
-  ) {
+  if (!feed || !userData?._id) {
     return (
       <SafeAreaView
         style={{
@@ -417,16 +414,76 @@ const HomeScreen = () => {
         }}
       >
         <HomeScreenHeader navigation={navigation} userData={userData} />
-        <View
-          style={{
-            backgroundColor: themeStyle.colors.grayscale.cardsOuter,
-            // alignItems: "center",
-          }}
-        >
-          <PostCardLoader screenWidth={maxWidth} />
-          <PostCardLoader screenWidth={maxWidth} />
-          <PostCardLoader screenWidth={maxWidth} />
-        </View>
+        {!userData?._id ||
+        (userData?._id && userData?.profileImageUrl) ||
+        userData?.profileVideoUrl ? (
+          <View
+            style={{
+              backgroundColor: themeStyle.colors.grayscale.cardsOuter,
+              // alignItems: "center",
+            }}
+          >
+            <PostCardLoader screenWidth={maxWidth} />
+            <PostCardLoader screenWidth={maxWidth} />
+            <PostCardLoader screenWidth={maxWidth} />
+          </View>
+        ) : (
+          <View
+            style={{
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <MaterialCommunityIcons
+              name="account-alert-outline"
+              size={150}
+              color={themeStyle.colors.grayscale.low}
+            />
+            <View
+              style={{
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: 20,
+              }}
+            >
+              <Text
+                style={{
+                  fontWeight: "700",
+                  marginBottom: 20,
+                  color: themeStyle.colors.grayscale.lowest,
+                  width: 250,
+                  textAlign: "center",
+                }}
+              >
+                Complete your profile by adding a profile image or video.
+              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("EditUserDetailsScreen")}
+              >
+                <View
+                  style={{
+                    paddingVertical: 5,
+                    paddingHorizontal: 10,
+                    backgroundColor: themeStyle.colors.secondary.default,
+                    borderRadius: 5,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontWeight: "700",
+                      color: themeStyle.colors.white,
+                    }}
+                  >
+                    Complete profile
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
     );
   }
@@ -595,126 +652,68 @@ const HomeScreen = () => {
             </Text>
           </View>
         ) : null}
-        {userData.profileVideoUrl || userData.profileImageUrl ? (
+        <View
+          style={{
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
+          <Feather
+            name="coffee"
+            size={100}
+            color={themeStyle.colors.grayscale.low}
+          />
           <View
             style={{
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
-              height: "100%",
+              marginTop: 20,
             }}
           >
-            <Feather
-              name="coffee"
-              size={100}
-              color={themeStyle.colors.grayscale.high}
-            />
-            <View
+            <Text
               style={{
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: 20,
+                fontWeight: "700",
+                color: themeStyle.colors.grayscale.lowest,
+                fontSize: 16,
+                marginBottom: 10,
               }}
             >
-              <Text
-                style={{
-                  fontWeight: "700",
-                  color: themeStyle.colors.grayscale.lowest,
-                  fontSize: 16,
-                  marginBottom: 10,
-                }}
-              >
-                It&apos;s quiet here...
-              </Text>
-              <Text
-                style={{
-                  marginBottom: 20,
-                  fontWeight: "700",
-                  color: themeStyle.colors.grayscale.lowest,
-                }}
-              >
-                Try adding some people.
-              </Text>
-              <TouchableOpacity onPress={() => navigation.navigate("Search")}>
-                <View
-                  style={{
-                    paddingVertical: 5,
-                    paddingHorizontal: 10,
-                    borderWidth: 1,
-                    borderColor: themeStyle.colors.secondary.default,
-                    borderRadius: 5,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontWeight: "700",
-                      color: themeStyle.colors.grayscale.lowest,
-                    }}
-                  >
-                    Search
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ) : (
-          <View
-            style={{
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100%",
-            }}
-          >
-            <MaterialCommunityIcons
-              name="account-alert-outline"
-              size={150}
-              color={themeStyle.colors.grayscale.high}
-            />
-            <View
+              It&apos;s quiet here...
+            </Text>
+            <Text
               style={{
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: 20,
+                marginBottom: 20,
+                fontWeight: "700",
+                color: themeStyle.colors.grayscale.lowest,
               }}
             >
-              <Text
+              Try adding some people.
+            </Text>
+            <TouchableOpacity onPress={() => navigation.navigate("Search")}>
+              <View
                 style={{
-                  fontWeight: "700",
-                  marginBottom: 20,
-                  color: themeStyle.colors.grayscale.lowest,
-                  width: 250,
-                  textAlign: "center",
+                  paddingVertical: 5,
+                  paddingHorizontal: 10,
+                  borderWidth: 1,
+                  borderColor: themeStyle.colors.secondary.default,
+                  borderRadius: 5,
                 }}
               >
-                Complete your profile by adding a profile image or video.
-              </Text>
-              <TouchableOpacity
-                onPress={() => navigation.navigate("EditUserDetailsScreen")}
-              >
-                <View
+                <Text
                   style={{
-                    paddingVertical: 5,
-                    paddingHorizontal: 10,
-                    backgroundColor: themeStyle.colors.secondary.default,
-                    borderRadius: 5,
+                    fontWeight: "700",
+                    color: themeStyle.colors.grayscale.lowest,
                   }}
                 >
-                  <Text
-                    style={{
-                      fontWeight: "700",
-                      color: themeStyle.colors.white,
-                    }}
-                  >
-                    Complete profile
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
+                  Search
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>
-        )}
+        </View>
       </SafeAreaView>
     </ScrollView>
   );

@@ -91,8 +91,12 @@ const PostCard = ({
                 >
                   {post.body}
                 </Text>
-                {isCollapsible && !bodyCollapsed ? (
-                  <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
+                {isCollapsible ? (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setBodyCollapsed(!bodyCollapsed);
+                    }}
+                  >
                     <Text
                       style={{
                         color: themeStyle.colors.slateGray,
@@ -100,7 +104,7 @@ const PostCard = ({
                         marginTop: 5,
                       }}
                     >
-                      Read more
+                      {!bodyCollapsed ? "Read more" : "Show less"}
                     </Text>
                   </TouchableOpacity>
                 ) : null}
@@ -335,8 +339,12 @@ const PostCard = ({
                 >
                   {post.body}
                 </Text>
-                {isCollapsible && !bodyCollapsed ? (
-                  <TouchableOpacity onPress={() => setBodyCollapsed(true)}>
+                {isCollapsible ? (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setBodyCollapsed(!bodyCollapsed);
+                    }}
+                  >
                     <Text
                       style={{
                         color: themeStyle.colors.slateGray,
@@ -344,7 +352,7 @@ const PostCard = ({
                         marginTop: 5,
                       }}
                     >
-                      Read more
+                      {!bodyCollapsed ? "Read more" : "Show less"}
                     </Text>
                   </TouchableOpacity>
                 ) : null}

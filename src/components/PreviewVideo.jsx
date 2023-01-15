@@ -70,25 +70,13 @@ const PreviewVideo = ({
   }, [navigation]);
   if (!uri) {
     return (
-      <LinearGradient
-        start={[0, 0.5]}
-        end={[1, 0.5]}
+      <View
         style={{
           padding: 2,
           width: isFullWidth ? screenWidth : screenWidth / 1.5,
           height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
+          backgroundColor: themeStyle.colors.grayscale.high,
         }}
-        colors={[
-          ready
-            ? themeStyle.colors.primary.default
-            : themeStyle.colors.grayscale.highest,
-          ready
-            ? themeStyle.colors.grayscale.highest
-            : themeStyle.colors.grayscale.highest,
-          ready
-            ? themeStyle.colors.primary.light
-            : themeStyle.colors.grayscale.highest,
-        ]}
       >
         {Platform.OS !== "web" ? (
           <AnimatedLottieView
@@ -99,7 +87,7 @@ const PreviewVideo = ({
             style={{ width: "100%", height: "100%", position: "absolute" }}
           />
         ) : null}
-      </LinearGradient>
+      </View>
     );
   }
   return (

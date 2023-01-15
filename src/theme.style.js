@@ -41,7 +41,7 @@ const themeStyle =
           },
           black: "#000000",
           white: "#FFFFFF",
-          slateGray: "#708090",
+          slateGray: "#8B9FB2",
           gray: "#939393",
           mediaLoad: "rgba(50,50,50,1)",
         },
