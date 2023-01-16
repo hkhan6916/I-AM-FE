@@ -412,7 +412,7 @@ const CommentRepliesScreen = (props) => {
             submitAction={postComment}
             replyingTo={replyingTo}
             setReplyingTo={setReplyingTo}
-            autoFocus
+            autoFocus={Platform.OS === "android"} // iphone leaves space between keyboard and input only autofocus on android
             placeholder="Type a reply here..."
           />
         </View>
