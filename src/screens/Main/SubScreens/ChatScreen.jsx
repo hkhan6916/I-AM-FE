@@ -1070,7 +1070,7 @@ const ChatScreen = (props) => {
         setFile={async (file) => {
           setMedia(file);
           setShowActions(false);
-          offset.value = withTiming(0, { duration: 100 });
+          offset.value = 0;
 
           await FFmpegKit.cancel();
           const mediaType = file.type?.split("/")[0];
