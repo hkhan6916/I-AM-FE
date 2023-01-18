@@ -100,11 +100,9 @@ const PreviewVideo = ({
         style={[
           {
             padding: 2.5,
-            width: (isFullWidth ? screenWidth : screenWidth / 1.5) - 5,
-            height:
-              (isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5) - 5,
+            width: isFullWidth ? screenWidth : screenWidth / 1.5,
+            height: isFullWidth ? screenWidth : (screenWidth * 1.33) / 1.5,
             alignSelf: "center",
-            borderRadius: 5,
           },
           Platform.OS === "web" && { maxWidth: 900, maxHeight: 600 },
         ]}
@@ -139,7 +137,7 @@ const PreviewVideo = ({
           }}
         >
           <Video
-            positionMillis={0} // TODO check this on IOS if we should revert to 100ms
+            positionMillis={0}
             style={[
               {
                 alignSelf: "center",

@@ -564,27 +564,33 @@ const ChatScreen = (props) => {
             signedResponse,
             messages,
           });
+          setMessages(newMessages);
+          setMessageBody("");
+          setHeight(0);
+          setMedia({});
+          setSendingMessage(false);
         } else {
+          const payload = {
+            messageBody,
+            authInfo,
+            media,
+            recipient,
+            chatId: chat?._id,
+            processedVideoUri,
+            response,
+            signedResponse,
+            messages,
+          };
+          setMessages(newMessages);
+          setMessageBody("");
+          setHeight(0);
+          setMedia({});
+          setSendingMessage(false);
           await uploadVideo({
             messagesArr: messages,
-            payload: {
-              messageBody,
-              authInfo,
-              media,
-              recipient,
-              chatId: chat?._id,
-              processedVideoUri,
-              response,
-              signedResponse,
-              messages,
-            },
+            payload,
           });
         }
-        setMessages(newMessages);
-        setMessageBody("");
-        setHeight(0);
-        setMedia({});
-        setSendingMessage(false);
       } else {
         console.log("Failed to upload message media");
       }

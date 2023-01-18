@@ -315,6 +315,7 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
                 style={{
                   color: themeStyle.colors.white,
                   textAlign: "left",
+                  width: mediaSize || 200,
                 }}
               >
                 {body}

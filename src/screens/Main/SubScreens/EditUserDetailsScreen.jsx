@@ -846,9 +846,11 @@ const EditUserDetailsScreen = () => {
       >
         <View style={{ height: "100%" }}>
           {showUpdatedPill ? (
-            <Text style={styles.newPostPill}>
-              {profileVideo && faceDetected ? "Updating..." : "Updated"}
-            </Text>
+            <View style={styles.editedProfileMediaPill}>
+              <Text style={styles.editedProfileMediaPillText}>
+                {profileVideo && faceDetected ? "Updating..." : "Updated"}
+              </Text>
+            </View>
           ) : null}
 
           <ScrollView
@@ -1561,7 +1563,7 @@ const EditUserDetailsScreen = () => {
                 }
               >
                 {isUpdating && (profileVideo || profileImage) ? (
-                  <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                  <Text style={{ color: themeStyle.colors.white }}>
                     Updating...
                   </Text>
                 ) : isUpdating || processingFile ? (
@@ -1601,11 +1603,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 50,
   },
-  newPostPill: {
+  editedProfileMediaPillText: {
+    color: themeStyle.colors.white,
+  },
+  editedProfileMediaPill: {
     zIndex: 3, // works on ios
     elevation: 3, // works on android
     backgroundColor: themeStyle.colors.primary.default,
-    color: themeStyle.colors.grayscale.lowest,
+    color: themeStyle.colors.white,
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 20,

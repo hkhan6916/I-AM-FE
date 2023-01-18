@@ -85,7 +85,6 @@ const ProfileVideoCamera = ({
         if (recording && length === 0) {
           setRecording(false);
           cameraRef?.current?.stopRecording();
-          setCameraActivated(false);
         }
       }, 1000);
       return () => {
