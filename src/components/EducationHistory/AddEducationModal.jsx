@@ -22,12 +22,16 @@ import apiCall from "../../helpers/apiCall";
 import Checkbox from "../Checkbox";
 import TextArea from "../TextArea";
 import resetHoursOnDate from "../../helpers/resetHoursOnDate";
+import { useRef } from "react";
 
 const AddEducationModal = ({
   setShowModal = () => null,
   setEducationToEdit = () => null,
   setShowEducationHistoryModal = () => null,
   educationToEdit,
+  onRefresh: refreshProfileScreen,
+  refreshEducationHistory,
+  userData,
   ...rest
 }) => {
   const [educationName, setEducationName] = useState(null);
@@ -57,10 +61,21 @@ const AddEducationModal = ({
 
   const currentDate = resetHoursOnDate(new Date());
 
+  const scrollViewRef = useRef();
+
   const handleSubmit = async () => {
     setSubmitted(true);
     setLoading(true);
     setSubmissionError("");
+    if (!educationToEdit && userData?.numberOfEducationHistoryRecords >= 20) {
+      scrollViewRef?.current?.scrollToEnd(0);
+
+      setSubmissionError(
+        "You can not have more than 20 education history records on your profile. Delete older education history records in order to add new ones."
+      );
+      setLoading(false);
+      return;
+    }
     const { success } = await apiCall(
       "POST",
       educationToEdit
@@ -77,6 +92,8 @@ const AddEducationModal = ({
       }
     );
     if (!success) {
+      scrollViewRef?.current?.scrollToEnd(0);
+
       setSubmissionError(
         "There was a problem saving your education history. Please try again later."
       );
@@ -86,6 +103,8 @@ const AddEducationModal = ({
     if (success) {
       setLoading(false);
       setSuccess(true);
+      refreshProfileScreen();
+      refreshEducationHistory(true);
       setTimeout(() => {
         setShowModal(false);
         if (educationToEdit) {
@@ -98,9 +117,10 @@ const AddEducationModal = ({
 
   const handleDelete = async () => {
     setShowDeleteOptions(false);
+    refreshProfileScreen();
     const { success } = await apiCall(
       "POST",
-      `/user/job-history/remove/${educationToEdit._id}`,
+      `/user/education-history/remove/${educationToEdit._id}`,
       {}
     );
     if (success) {
@@ -110,6 +130,8 @@ const AddEducationModal = ({
         setEducationToEdit(null);
       }, 1000);
     } else {
+      scrollViewRef?.current?.scrollToEnd(0);
+
       setSubmissionError(
         "There was a problem updating your education history. Please try again later."
       );
@@ -241,6 +263,7 @@ const AddEducationModal = ({
               <ScrollView
                 keyboardShouldPersistTaps="handled"
                 style={{ paddingHorizontal: 15 }}
+                ref={scrollViewRef}
               >
                 {educationToEdit ? (
                   <View
@@ -763,57 +786,58 @@ const AddEducationModal = ({
                     {submissionError}
                   </Text>
                 ) : null}
-                {!showDeleteOptions ? (
-                  <TouchableOpacity
-                    style={{
-                      borderRadius: 5,
-                      padding: 10,
-                      height: 48,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      backgroundColor:
-                        deleted || success
-                          ? themeStyle.colors.grayscale.low
-                          : themeStyle.colors.primary.default,
-                      marginTop: 5,
-                      opacity: infoIsInvalid() ? 0.5 : 1,
-                    }}
-                    onPress={() => handleSubmit()}
-                    disabled={infoIsInvalid()}
-                  >
-                    {loading ? (
-                      <ActivityIndicator
-                        size={"small"}
-                        color={themeStyle.colors.white}
-                      />
-                    ) : deleted ? (
-                      <Text
-                        style={{
-                          color: themeStyle.colors.grayscale.lowest,
-                          fontWeight: "700",
-                        }}
-                      >
-                        Education deleted
-                      </Text>
-                    ) : success ? (
-                      <Text
-                        style={{
-                          color: themeStyle.colors.grayscale.lowest,
-                          fontWeight: "700",
-                        }}
-                      >
-                        {educationToEdit
-                          ? "Education updated"
-                          : "Education added"}
-                      </Text>
-                    ) : (
-                      <Text style={{ color: themeStyle.colors.white }}>
-                        {educationToEdit ? "Update Education" : "Add Education"}
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                ) : null}
               </ScrollView>
+              {!showDeleteOptions ? (
+                <TouchableOpacity
+                  style={{
+                    borderRadius: 5,
+                    padding: 10,
+                    height: 48,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginBottom: 10,
+                    backgroundColor:
+                      deleted || success
+                        ? themeStyle.colors.grayscale.low
+                        : themeStyle.colors.primary.default,
+                    marginTop: 5,
+                    opacity: infoIsInvalid() ? 0.5 : 1,
+                  }}
+                  onPress={() => handleSubmit()}
+                  disabled={infoIsInvalid() || !!deleted}
+                >
+                  {loading ? (
+                    <ActivityIndicator
+                      size={"small"}
+                      color={themeStyle.colors.white}
+                    />
+                  ) : deleted ? (
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.lowest,
+                        fontWeight: "700",
+                      }}
+                    >
+                      Education deleted
+                    </Text>
+                  ) : success ? (
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.lowest,
+                        fontWeight: "700",
+                      }}
+                    >
+                      {educationToEdit
+                        ? "Education updated"
+                        : "Education added"}
+                    </Text>
+                  ) : (
+                    <Text style={{ color: themeStyle.colors.white }}>
+                      {educationToEdit ? "Update Education" : "Add Education"}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              ) : null}
               {showDeleteOptions ? (
                 <View
                   style={{

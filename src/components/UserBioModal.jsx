@@ -12,15 +12,23 @@ import {
   Platform,
   SafeAreaView,
 } from "react-native";
+import { useDispatch } from "react-redux";
 import apiCall from "../helpers/apiCall";
 import themeStyle from "../theme.style";
 
-const UserBioModal = ({ bio, setShowUserBioModal = () => null, ...rest }) => {
+const UserBioModal = ({
+  bio,
+  setShowUserBioModal = () => null,
+  userData,
+  ...rest
+}) => {
   const [value, setValue] = useState(bio || "");
   const [height, setHeight] = useState(0);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
+
+  const dispatch = useDispatch();
 
   const handleSubmit = async () => {
     setSuccess(false);
@@ -31,6 +39,8 @@ const UserBioModal = ({ bio, setShowUserBioModal = () => null, ...rest }) => {
     });
 
     if (success) {
+      dispatch({ type: "SET_USER_DATA", payload: { ...userData, bio: value } });
+
       setSuccess(true);
     } else {
       setSubmissionError(

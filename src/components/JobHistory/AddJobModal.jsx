@@ -22,12 +22,16 @@ import apiCall from "../../helpers/apiCall";
 import Checkbox from "../Checkbox";
 import TextArea from "../TextArea";
 import resetHoursOnDate from "../../helpers/resetHoursOnDate";
+import { useRef } from "react";
 
 const AddJobModal = ({
   setShowModal = () => null,
   setJobToEdit = () => null,
   setShowJobHistoryModal = () => null,
   jobToEdit,
+  onRefresh: refreshProfileScreen,
+  refreshJobHistory,
+  userData,
   ...rest
 }) => {
   const [roleName, setRoleName] = useState(null);
@@ -57,9 +61,21 @@ const AddJobModal = ({
 
   const currentDate = resetHoursOnDate(new Date());
 
+  const scrollViewRef = useRef();
+
   const handleSubmit = async () => {
     setLoading(true);
     setSubmissionError("");
+    if (!jobToEdit && userData?.numberOfJobHistoryRecords >= 20) {
+      scrollViewRef?.current?.scrollToEnd(0);
+      setSubmissionError(
+        userData?.numberOfJobHistoryRecords >= 20
+          ? "You can not have more than 20 job roles on your profile. Delete older job roles in order to add new ones."
+          : "There was a problem saving your job role. Please try again later."
+      );
+      setLoading(false);
+      return;
+    }
     const { success } = await apiCall(
       "POST",
       jobToEdit
@@ -77,8 +93,10 @@ const AddJobModal = ({
       }
     );
     if (!success) {
+      scrollViewRef?.current?.scrollToEnd(0);
+
       setSubmissionError(
-        "An error occurred saving your job role. Please try again later."
+        "There was a problem saving your job role. Please try again later."
       );
       setLoading(false);
     }
@@ -86,6 +104,8 @@ const AddJobModal = ({
     if (success) {
       setLoading(false);
       setSuccess(true);
+      refreshProfileScreen();
+      refreshJobHistory(true);
       setTimeout(() => {
         setShowModal(false);
         if (jobToEdit) {
@@ -98,6 +118,7 @@ const AddJobModal = ({
 
   const handleDelete = async () => {
     setShowDeleteOptions(false);
+    refreshProfileScreen();
     const { success } = await apiCall(
       "POST",
       `/user/job-history/remove/${jobToEdit._id}`,
@@ -110,6 +131,8 @@ const AddJobModal = ({
         setJobToEdit(null);
       }, 1000);
     } else {
+      scrollViewRef?.current?.scrollToEnd(0);
+
       setSubmissionError(
         "There was an error deleting this role. Please try again later."
       );
@@ -241,6 +264,7 @@ const AddJobModal = ({
               <ScrollView
                 keyboardShouldPersistTaps="handled"
                 style={{ paddingHorizontal: 15 }}
+                ref={scrollViewRef}
               >
                 {jobToEdit ? (
                   <View
@@ -884,55 +908,56 @@ const AddJobModal = ({
                     {submissionError}
                   </Text>
                 ) : null}
-                {!showDeleteOptions ? (
-                  <TouchableOpacity
-                    style={{
-                      borderRadius: 5,
-                      padding: 10,
-                      height: 48,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      backgroundColor:
-                        deleted || success
-                          ? themeStyle.colors.grayscale.low
-                          : themeStyle.colors.primary.default,
-                      marginTop: 5,
-                      opacity: infoIsInvalid() ? 0.5 : 1,
-                    }}
-                    onPress={() => handleSubmit()}
-                    disabled={infoIsInvalid()}
-                  >
-                    {loading ? (
-                      <ActivityIndicator
-                        size={"small"}
-                        color={themeStyle.colors.white}
-                      />
-                    ) : deleted ? (
-                      <Text
-                        style={{
-                          color: themeStyle.colors.white,
-                          fontWeight: "700",
-                        }}
-                      >
-                        Role deleted
-                      </Text>
-                    ) : success ? (
-                      <Text
-                        style={{
-                          color: themeStyle.colors.white,
-                          fontWeight: "700",
-                        }}
-                      >
-                        {jobToEdit ? "Role updated" : "Role added"}
-                      </Text>
-                    ) : (
-                      <Text style={{ color: themeStyle.colors.white }}>
-                        {jobToEdit ? "Update role" : "Add role"}
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                ) : null}
               </ScrollView>
+              {!showDeleteOptions ? (
+                <TouchableOpacity
+                  style={{
+                    borderRadius: 5,
+                    padding: 10,
+                    height: 48,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginBottom: 10,
+                    backgroundColor:
+                      deleted || success
+                        ? themeStyle.colors.grayscale.low
+                        : themeStyle.colors.primary.default,
+                    marginTop: 5,
+                    opacity: infoIsInvalid() ? 0.5 : 1,
+                  }}
+                  onPress={() => handleSubmit()}
+                  disabled={infoIsInvalid() || !!deleted}
+                >
+                  {loading ? (
+                    <ActivityIndicator
+                      size={"small"}
+                      color={themeStyle.colors.white}
+                    />
+                  ) : deleted ? (
+                    <Text
+                      style={{
+                        color: themeStyle.colors.white,
+                        fontWeight: "700",
+                      }}
+                    >
+                      Role deleted
+                    </Text>
+                  ) : success ? (
+                    <Text
+                      style={{
+                        color: themeStyle.colors.white,
+                        fontWeight: "700",
+                      }}
+                    >
+                      {jobToEdit ? "Role updated" : "Role added"}
+                    </Text>
+                  ) : (
+                    <Text style={{ color: themeStyle.colors.white }}>
+                      {jobToEdit ? "Update role" : "Add role"}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              ) : null}
             </View>
           </KeyboardAvoidingView>
           {showDeleteOptions ? (

@@ -117,6 +117,7 @@ const ProfileScreen = () => {
           isVisible={extendedState.profileVideoVisible}
           getUserJobHistory={getFullUserJobHistory}
           getUserEducationHistory={getFullUserEducationHistory}
+          onRefresh={onRefresh}
         />
       );
     }
@@ -199,6 +200,8 @@ const ProfileScreen = () => {
     setLoading(true);
     const { success, response } = await apiCall("GET", `/user/data`);
     if (success) {
+      dispatch({ type: "SET_USER_DATA", payload: response });
+
       const passwordChanged = await checkPasswordChanged(
         response?.lastPasswordChangedDateTime
       );
@@ -211,9 +214,13 @@ const ProfileScreen = () => {
     setLoading(false);
   };
 
-  const getFullUserJobHistory = async () => {
+  // gets the full job history. This is not called for what we show in the JobHistoryDropdown as we use the data in userData global object to get up to three job histories
+  const getFullUserJobHistory = async (preventHistoryModal) => {
     setLoadingHistory(true);
-    setShowJobHistoryModal(true);
+    //preventHistoryModal makes it so we don't show the full job history modal in case it is still open and we just need to refresh it after editing a job history record
+    if (!preventHistoryModal) {
+      setShowJobHistoryModal(true);
+    }
     // if (!userJobHistory) {
     const { success, response } = await apiCall(
       "POST",
@@ -226,9 +233,13 @@ const ProfileScreen = () => {
     setLoadingHistory(false);
   };
 
-  const getFullUserEducationHistory = async () => {
+  // gets the full education history. This is not called for what we show in the EducationHistoryDropdown as we use the data in userData global object to get up to three education histories
+  const getFullUserEducationHistory = async (preventHistoryModal) => {
     setLoadingHistory(true);
-    setShowEducationHistoryModal(true);
+    //preventHistoryModal makes it so we don't show the full education history modal in case it is still open and we just need to refresh it after editing a education history record
+    if (!preventHistoryModal) {
+      setShowEducationHistoryModal(true);
+    }
     // if (!userEducationHistory) {
     const { success, response } = await apiCall(
       "POST",
@@ -284,7 +295,6 @@ const ProfileScreen = () => {
   const onRefresh = async () => {
     setRefreshing(true);
     setAllPostsLoaded(false);
-    setUserJobHistory(null);
     const { success, response } = await apiCall("GET", "/user/posts/0");
     if (success) {
       setUserPosts([]);
@@ -352,14 +362,20 @@ const ProfileScreen = () => {
                 jobToEdit={jobToEdit}
                 setJobToEdit={setJobToEdit}
                 setShowJobHistoryModal={setShowJobHistoryModal}
+                onRefresh={onRefresh}
+                refreshJobHistory={getFullUserJobHistory}
+                userData={userData}
               />
             ) : educationToEdit &&
               !(showJobHistoryModal || showEducationHistoryModal) ? (
               <AddEducationModal
-                visible
+                visible={!!educationToEdit}
                 educationToEdit={educationToEdit}
                 setEducationToEdit={setEducationToEdit}
                 setShowEducationHistoryModal={setShowEducationHistoryModal}
+                onRefresh={onRefresh}
+                refreshEducationHistory={getFullUserEducationHistory}
+                userData={userData}
               />
             ) : null}
           </>

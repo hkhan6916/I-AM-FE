@@ -15,15 +15,16 @@ import EducationHistoryDropdown from "../EducationHistory/EducationHistoryDropdo
 import AddJobModal from "../JobHistory/AddJobModal";
 import AddEducationModal from "../EducationHistory/AddEducationModal";
 import UserBioModal from "../UserBioModal";
+import { useSelector } from "react-redux";
 
 const ProfileScreenHeader = React.forwardRef(
   (
     {
       children,
-      userData,
       isVisible,
       getUserJobHistory,
       getUserEducationHistory,
+      onRefresh,
       ...props
     },
     ref
@@ -37,6 +38,9 @@ const ProfileScreenHeader = React.forwardRef(
     const [bioIsCollapsible, setBioIsCollapsible] = useState(false);
     const [bioCollapsed, setBioCollapsed] = useState(false);
 
+    // We use useSelector over props as this causes a re render whereas passing userData as a prop does not for some reason.
+    const userData = useSelector((state) => state.userData)?.state || {};
+
     const onBioTextLayout = (e) => {
       setBioIsCollapsible(e.nativeEvent.lines.length >= 3);
     };
@@ -45,18 +49,28 @@ const ProfileScreenHeader = React.forwardRef(
       <ScrollView ref={ref} {...props}>
         <View>
           {showAddJobModal ? (
-            <AddJobModal visible setShowModal={setShowAddJobModal} />
+            <AddJobModal
+              visible
+              setShowModal={setShowAddJobModal}
+              onRefresh={onRefresh}
+              refreshJobHistory={getUserJobHistory}
+              userData={userData}
+            />
           ) : null}
           {showAddBioModal ? (
             <UserBioModal
               bio={userData?.bio}
               setShowUserBioModal={setShowAddBioModal}
+              userData={userData}
             />
           ) : null}
           {showAddEducationModal ? (
             <AddEducationModal
               visible
               setShowModal={setShowAddEducationModal}
+              onRefresh={onRefresh}
+              refreshEducationHistory={getUserEducationHistory}
+              userData={userData}
             />
           ) : null}
           {userData?.profileVideoUrl ? (
