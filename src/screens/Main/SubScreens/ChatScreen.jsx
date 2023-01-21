@@ -157,11 +157,11 @@ const ChatScreen = (props) => {
     });
   };
 
-  const uploadVideo = async ({ payload, messagesArr }) => {
+  const uploadVideo = async ({ payload }) => {
     const signedResponse = payload?.signedResponse;
+    const messagesArr = payload.messages;
     const media = payload?.media;
     const thumbnailUrl = await generateThumbnail(media.uri, media.duration);
-
     if (thumbnailUrl) {
       const newMessages = createUpdatedMessagesArray(
         {
@@ -258,7 +258,6 @@ const ChatScreen = (props) => {
   };
 
   const setupVideoUploadQueue = async () => {
-    let messagesArr = messages;
     const runningJobs = await queue.getJobs();
     const runningWorkers = await queue.registeredWorkers;
     const shouldRefreshWorker =
@@ -275,7 +274,7 @@ const ChatScreen = (props) => {
         new Worker("message_video_upload", async (payload) => {
           return new Promise((resolve) => {
             setTimeout(async () => {
-              await uploadVideo({ messagesArr, payload });
+              await uploadVideo({ payload });
 
               resolve();
             }, 0);
@@ -375,6 +374,7 @@ const ChatScreen = (props) => {
     messageId,
     mediaType
   ) => {
+    // sending Video here
     const filePath = compressedUrl
       ? Platform.OS == "android"
         ? compressedUrl?.replace("file://", "")
@@ -502,9 +502,11 @@ const ChatScreen = (props) => {
         setSendingMessage(false);
         return;
       }
+
+      // sending  video thumbnail here
       setSendingMessage(true);
 
-      let postData = {};
+      let messageData = {};
 
       const { response: signedResponse, success: signedSuccess } =
         await apiCall("POST", "/files/signed-upload-url", {
@@ -515,14 +517,14 @@ const ChatScreen = (props) => {
         return;
       }
 
-      postData.thumbnailKey = signedResponse.fileKey; // This is the thumbnail. We send this to backend which saves it as the thumbnailkey for this message
+      messageData.thumbnailKey = signedResponse.fileKey; // This is the thumbnail. We send this to backend which saves it as the thumbnailkey for this message
 
-      postData = { ...postData, ...message };
+      messageData = { ...messageData, ...message };
 
       const { response, success } = await apiCall(
         "POST",
         "/chat/message/upload",
-        postData
+        messageData
       );
       setSendingMessage(false);
 
@@ -563,6 +565,7 @@ const ChatScreen = (props) => {
             response,
             signedResponse,
             messages,
+            message,
           });
           setMessages(newMessages);
           setMessageBody("");
@@ -580,6 +583,7 @@ const ChatScreen = (props) => {
             response,
             signedResponse,
             messages,
+            message,
           };
           setMessages(newMessages);
           setMessageBody("");
@@ -587,7 +591,6 @@ const ChatScreen = (props) => {
           setMedia({});
           setSendingMessage(false);
           await uploadVideo({
-            messagesArr: messages,
             payload,
           });
         }

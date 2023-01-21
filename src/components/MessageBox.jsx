@@ -254,7 +254,10 @@ const MessageBox = ({ belongsToSender, message, mediaSize, cancelUpload }) => {
               </TouchableOpacity>
             ) : (thumbnailUrl || (localProcessing && !ready)) &&
               mediaType === "video" ? (
-              <TouchableOpacity onPress={() => setMediaFullScreen(true)}>
+              <TouchableOpacity
+                onPress={() => setMediaFullScreen(true)}
+                disabled={!mediaUrl}
+              >
                 <View
                   style={{ alignItems: "center", justifyContent: "center" }}
                 >

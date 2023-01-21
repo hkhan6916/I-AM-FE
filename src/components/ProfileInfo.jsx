@@ -418,14 +418,21 @@ const ProfileInfo = ({
         ) : !user.isSameUser && !user.isFriend ? (
           <View style={{ marginBottom: 20 }}>
             {user.requestReceived ? (
-              <View style={{ flexDirection: "column", paddingHorizontal: 20 }}>
+              <View
+                style={{
+                  flexDirection: "column",
+                  paddingHorizontal: 20,
+                  marginTop: 10,
+                }}
+              >
                 <Text
                   style={{
                     color: themeStyle.colors.grayscale.lowest,
                     fontWeight: "700",
+                    textAlign: "center",
                   }}
                 >
-                  I would like to add you as a contact
+                  {user?.firstName || "I"} would like to add you as a contact.
                 </Text>
                 <TouchableOpacity
                   style={{ marginVertical: 10 }}
@@ -437,7 +444,7 @@ const ProfileInfo = ({
                       borderColor: canAdd
                         ? themeStyle.colors.success.default
                         : themeStyle.colors.grayscale.high,
-                      borderWidth: 1,
+                      borderWidth: 2,
                       padding: 10,
                       borderRadius: 5,
                       alignItems: "center",
@@ -470,7 +477,7 @@ const ProfileInfo = ({
                   <View
                     style={{
                       borderColor: themeStyle.colors.grayscale.lowest,
-                      borderWidth: 1,
+                      borderWidth: 2,
                       padding: 10,
                       borderRadius: 5,
                       alignItems: "center",
