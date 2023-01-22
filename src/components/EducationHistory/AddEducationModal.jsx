@@ -796,6 +796,7 @@ const AddEducationModal = ({
                     justifyContent: "center",
                     alignItems: "center",
                     marginBottom: 10,
+                    marginHorizontal: 10,
                     backgroundColor:
                       deleted || success
                         ? themeStyle.colors.grayscale.low

@@ -44,6 +44,7 @@ import { FileSystemUploadType, uploadAsync } from "expo-file-system";
 import PreviewProfileImage from "../../../components/PreviewProfileImage";
 import { FFmpegKit } from "ffmpeg-kit-react-native";
 import getVideoCodecName from "../../../helpers/getVideoCodecName";
+import { useRef } from "react";
 
 const Step1Screen = () => {
   const [loading, setLoading] = useState(false);
@@ -88,6 +89,8 @@ const Step1Screen = () => {
   const dispatch = useDispatch();
 
   const existingNativeUserData = useSelector((state) => state.userData);
+
+  const scrollViewRef = useRef();
 
   const existingInfo =
     Platform.OS === "web"
@@ -146,11 +149,13 @@ const Step1Screen = () => {
               300
             );
           } else {
+            scrollViewRef?.current?.scrollToEnd(0);
             setRegistrationError(
               "We could not create your account. Please try again later."
             );
           }
         } else {
+          scrollViewRef?.current?.scrollToEnd(0);
           setRegistrationError(
             `We could not upload your profile ${
               profileImage ? "image" : "video"
@@ -162,6 +167,7 @@ const Step1Screen = () => {
     } catch (error) {
       console.log(error);
       setLoading(false);
+      scrollViewRef?.current?.scrollToEnd(0);
       setRegistrationError(
         `We could not upload your profile ${
           profileImage ? "image" : "video"
@@ -219,6 +225,7 @@ const Step1Screen = () => {
       }
     );
     if (!success) {
+      scrollViewRef?.current?.scrollToEnd(0);
       setRegistrationError(
         "We could not verify your registration details. Please try again later."
       );
@@ -293,6 +300,7 @@ const Step1Screen = () => {
           300
         );
       } else {
+        scrollViewRef?.current?.scrollToEnd(0);
         setRegistrationError("An error occurred. Please try again.");
       }
     }
@@ -559,7 +567,7 @@ const Step1Screen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={{ marginBottom: 0 }}>
+      <ScrollView style={{ marginBottom: 0 }} ref={scrollViewRef}>
         <View style={styles.formContainer}>
           <Text
             style={[styles.signupText, skipProfileVideo && { opacity: 0.1 }]}
@@ -1016,39 +1024,6 @@ const Step1Screen = () => {
               </Text>
             </TouchableOpacity>
           ) : null}
-          <TouchableOpacity
-            style={[
-              styles.registrationButton,
-              {
-                opacity:
-                  !profileMediaIsValid() ||
-                  (profileVideo && loadingVideo) ||
-                  verifying
-                    ? 0.5
-                    : 1,
-                minWidth: 100,
-                alignItems: "center",
-              },
-            ]}
-            onPress={() => registerUser()}
-            disabled={
-              !profileMediaIsValid() ||
-              (profileVideo && loadingVideo) ||
-              verifying
-            }
-          >
-            {!verifying ? (
-              <Text style={styles.registrationButtonText}>
-                Sign Up <Ionicons name="paper-plane-outline" size={14} />
-              </Text>
-            ) : (
-              <ActivityIndicator
-                size={"small"}
-                animating
-                color={themeStyle.colors.white}
-              />
-            )}
-          </TouchableOpacity>
           {skipProfileVideo ? (
             <TouchableOpacity
               style={{ marginTop: 20 }}
@@ -1070,6 +1045,37 @@ const Step1Screen = () => {
           ) : null}
         </View>
       </ScrollView>
+      <TouchableOpacity
+        style={[
+          styles.registrationButton,
+          {
+            opacity:
+              !profileMediaIsValid() ||
+              (profileVideo && loadingVideo) ||
+              verifying
+                ? 0.5
+                : 1,
+            minWidth: 100,
+            alignItems: "center",
+          },
+        ]}
+        onPress={() => registerUser()}
+        disabled={
+          !profileMediaIsValid() || (profileVideo && loadingVideo) || verifying
+        }
+      >
+        {!verifying ? (
+          <Text style={styles.registrationButtonText}>
+            Sign Up <Ionicons name="paper-plane-outline" size={14} />
+          </Text>
+        ) : (
+          <ActivityIndicator
+            size={"small"}
+            animating
+            color={themeStyle.colors.white}
+          />
+        )}
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -1110,10 +1116,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   registrationButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    margin: 20,
-    borderRadius: 50,
+    height: 48,
+    padding: 10,
+    borderRadius: 5,
+    marginHorizontal: 10,
+    marginBottom: 10,
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: themeStyle.colors.primary.default,
   },
   registrationButtonText: {
