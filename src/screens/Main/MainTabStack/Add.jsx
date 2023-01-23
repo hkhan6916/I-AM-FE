@@ -58,6 +58,7 @@ import {
 } from "../../../helpers/sqlite/runningUploads";
 import * as Notifications from "expo-notifications";
 import queue, { Worker } from "react-native-job-queue";
+import { Camera } from "react-native-vision-camera";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -496,6 +497,44 @@ const AddScreen = () => {
   };
 
   const openOSCamera = async () => {
+    let cameraPermission = true;
+    let audioPermission = true;
+    await Camera.getCameraPermissionStatus().then(async (status) => {
+      if (status !== "authorized") {
+        await Camera.requestCameraPermission().then(
+          (status) => (cameraPermission = status === "authorized")
+        );
+      }
+    });
+    await Camera.getMicrophonePermissionStatus().then(async (status) => {
+      if (status !== "authorized") {
+        await Camera.requestMicrophonePermission().then(
+          (status) => (audioPermission = status === "authorized")
+        );
+      }
+    });
+    const permissionsRequiredString =
+      !cameraPermission && !audioPermission
+        ? "camera and microphone"
+        : !cameraPermission
+        ? "camera"
+        : "microphone";
+    if (!cameraPermission || !audioPermission) {
+      Alert.alert(
+        "Cannot access the camera",
+        `Please enable ${permissionsRequiredString} permissions to use the camera.`,
+        [
+          {
+            text: "Cancel",
+          },
+          {
+            text: "Enable in App Settings",
+            onPress: () => openAppSettings(),
+          },
+        ]
+      );
+      return;
+    }
     ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       videoQuality: ImagePicker.UIImagePickerControllerQualityType.VGA640x480,

@@ -64,6 +64,7 @@ import {
   insertRunningUploadRecord,
 } from "../../../helpers/sqlite/runningUploads";
 import * as Notifications from "expo-notifications";
+import { Camera } from "react-native-vision-camera";
 
 const ChatScreen = (props) => {
   const [authInfo, setAuthInfo] = useState(null);
@@ -645,6 +646,44 @@ const ChatScreen = (props) => {
   };
 
   const openOSCamera = async () => {
+    let cameraPermission = true;
+    let audioPermission = true;
+    await Camera.getCameraPermissionStatus().then(async (status) => {
+      if (status !== "authorized") {
+        await Camera.requestCameraPermission().then(
+          (status) => (cameraPermission = status === "authorized")
+        );
+      }
+    });
+    await Camera.getMicrophonePermissionStatus().then(async (status) => {
+      if (status !== "authorized") {
+        await Camera.requestMicrophonePermission().then(
+          (status) => (audioPermission = status === "authorized")
+        );
+      }
+    });
+    const permissionsRequiredString =
+      !cameraPermission && !audioPermission
+        ? "camera and microphone"
+        : !cameraPermission
+        ? "camera"
+        : "microphone";
+    if (!cameraPermission || !audioPermission) {
+      Alert.alert(
+        "Cannot access the camera",
+        `Please enable ${permissionsRequiredString} permissions to use the camera.`,
+        [
+          {
+            text: "Cancel",
+          },
+          {
+            text: "Enable in App Settings",
+            onPress: () => openAppSettings(),
+          },
+        ]
+      );
+      return;
+    }
     ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
     }).then(async (file) => {
@@ -718,12 +757,6 @@ const ChatScreen = (props) => {
     setMedia({ ...result.assets[0], ...mediaInfo });
 
     if (mediaType === "video") {
-      // const thumbnailUri = await generateThumbnail(
-      //   result.assets[0].uri,
-      //   result.assets[0].duration
-      // );
-      // console.log({ thumbnailUri });
-      // setThumbnail(thumbnailUri);
       setVideoDuration(result.assets[0].duration);
       if (Platform.OS === "ios") {
         await convertAndEncodeVideo({
@@ -743,7 +776,7 @@ const ChatScreen = (props) => {
     if (status !== "granted") {
       Alert.alert(
         "Unable to access camera roll",
-        "Please enable storage permissions to post media from your local files.",
+        "Please enable storage permissions to send media from your local files.",
         [
           {
             text: "Cancel",
@@ -936,6 +969,7 @@ const ChatScreen = (props) => {
           _id,
           tempId,
         }) => {
+          //IF MESSAGE BELONGS TO THE SENDER
           if (senderId === authInfo.senderId) {
             if (mediaType !== "video") return;
             setMessages((messages) => {
@@ -1651,10 +1685,10 @@ const ChatScreen = (props) => {
                 >
                   <TouchableOpacity
                     onPress={async () => {
-                      navigation.setOptions({ headerShown: false });
                       if (Platform.OS === "ios") {
                         await openOSCamera();
                       } else {
+                        navigation.setOptions({ headerShown: false });
                         setCameraActive(true);
                       }
                     }}
