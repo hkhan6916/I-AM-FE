@@ -14,7 +14,7 @@ import {
   ActivityIndicator,
   FlatList,
   Keyboard,
-  Button,
+  AppState,
 } from "react-native";
 import { getItemAsync } from "expo-secure-store";
 import { io } from "socket.io-client";
@@ -325,16 +325,24 @@ const ChatScreen = (props) => {
     }
   };
 
-  const getChatMessages = async () => {
+  const getChatMessages = async (shouldRefreshAllMessages = false) => {
     if (chat && existingChat && !allMessagesLoaded) {
       setShowError(false);
       setLoadingMessages(true);
       const { response, success } = await apiCall(
         "GET",
-        `/chat/${chat._id}/messages/${messages.length}`
+        `/chat/${chat._id}/messages/${
+          shouldRefreshAllMessages ? "0" : messages.length
+        }`
       );
+
       setLoadingMessages(false);
       if (success) {
+        // We referesh messages e.g. if the user backgrounds the app whilst on the chatscreen and the revisits. We need to show the latest messages in that case.
+        if (shouldRefreshAllMessages && response?.length) {
+          setMessages(response);
+          return;
+        }
         if (messages.length && !response?.length) {
           setAllMessagesLoaded(true);
         } else {
@@ -902,6 +910,23 @@ const ChatScreen = (props) => {
 
   useEffect(() => {
     let isMounted = true;
+    const subscribeToBackgroundState = AppState.addEventListener(
+      "change",
+      async (nextAppState) => {
+        if (nextAppState === "active" && !socket) {
+          const token =
+            Platform.OS === "web"
+              ? localStorage.getItem("authToken")
+              : await getItemAsync("authToken");
+          await initSocket(port, token);
+          getChatMessages(true);
+        }
+        if (nextAppState === "background" && socket) {
+          socket.disconnect();
+          setSocket(null);
+        }
+      }
+    );
     if (socket && isMounted && authInfo) {
       if (chat) {
         socket.emit("joinRoom", {
@@ -1036,6 +1061,8 @@ const ChatScreen = (props) => {
 
     return () => {
       isMounted = false;
+      subscribeToBackgroundState.remove();
+
       if (socket) {
         socket.disconnect();
         socket.off("receiveMessage");
@@ -1048,6 +1075,7 @@ const ChatScreen = (props) => {
       }
     };
   }, [socket, authInfo, chat]);
+
   useEffect(() => {
     if (!existingChat) {
       const { existingChat: existing } = params || persistedParams;
@@ -1084,14 +1112,14 @@ const ChatScreen = (props) => {
         setKeyboardIsShown(false);
       }
     );
-    // return () => {
-    //   Keyboard.removeAllListeners(
-    //     Platform.OS === "android" ? "keyboardDidShow" : "keyboardWillShow"
-    //   );
-    //   Keyboard.removeAllListeners(
-    //     Platform.OS === "android" ? "keyboardDidHide" : "keyboardWillHide"
-    //   );
-    // };
+    return () => {
+      Keyboard.removeAllListeners(
+        Platform.OS === "android" ? "keyboardDidShow" : "keyboardWillShow"
+      );
+      Keyboard.removeAllListeners(
+        Platform.OS === "android" ? "keyboardDidHide" : "keyboardWillHide"
+      );
+    };
   }, []);
 
   if (loading) {
