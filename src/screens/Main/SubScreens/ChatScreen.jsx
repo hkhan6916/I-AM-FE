@@ -15,6 +15,7 @@ import {
   FlatList,
   Keyboard,
   AppState,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { getItemAsync } from "expo-secure-store";
 import { io } from "socket.io-client";
@@ -88,7 +89,7 @@ const ChatScreen = (props) => {
   const [userHasBlocked, setUserHasBlocked] = useState(false);
   const [creatingChat, setCreatingChat] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [thumbnail, setThumbnail] = useState("");
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -101,6 +102,7 @@ const ChatScreen = (props) => {
   const [showImageOrVideoOption, setShowImageOrVideoOption] = useState(false);
   const [error, setError] = useState("");
   const [keyboardIsShown, setKeyboardIsShown] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [port, setPort] = useState("5000");
 
@@ -326,6 +328,8 @@ const ChatScreen = (props) => {
   };
 
   const getChatMessages = async (shouldRefreshAllMessages = false) => {
+    if (refreshing) return;
+    setRefreshing(true);
     if (chat && existingChat && !allMessagesLoaded) {
       setShowError(false);
       setLoadingMessages(true);
@@ -335,7 +339,7 @@ const ChatScreen = (props) => {
           shouldRefreshAllMessages ? "0" : messages.length
         }`
       );
-
+      setRefreshing(false);
       setLoadingMessages(false);
       if (success) {
         // We referesh messages e.g. if the user backgrounds the app whilst on the chatscreen and the revisits. We need to show the latest messages in that case.
@@ -883,11 +887,12 @@ const ChatScreen = (props) => {
             : await getItemAsync("userId");
         setAuthInfo({ token, senderId });
 
-        if (chat) {
+        // first load so we need to make sure we only get the messages if there are none already loaded
+        if (chat && !messages?.length) {
           setLoading(true);
           await getChatMessages();
-          setLoading(false);
         }
+        setLoading(false);
 
         if (chat?.users?.length) {
           setRecipient({ userId: chat?.users?.[0]._id, online: false });
@@ -910,23 +915,26 @@ const ChatScreen = (props) => {
 
   useEffect(() => {
     let isMounted = true;
-    const subscribeToBackgroundState = AppState.addEventListener(
-      "change",
-      async (nextAppState) => {
-        if (nextAppState === "active" && !socket) {
-          const token =
-            Platform.OS === "web"
-              ? localStorage.getItem("authToken")
-              : await getItemAsync("authToken");
-          await initSocket(port, token);
-          getChatMessages(true);
+    let subscribeToBackgroundState;
+    if (!loading) {
+      subscribeToBackgroundState = AppState.addEventListener(
+        "change",
+        async (nextAppState) => {
+          if (nextAppState === "active" && !socket) {
+            const token =
+              Platform.OS === "web"
+                ? localStorage.getItem("authToken")
+                : await getItemAsync("authToken");
+            await getChatMessages(true);
+            await initSocket(port, token);
+          }
+          if (nextAppState === "background" && socket) {
+            socket.disconnect();
+            setSocket(null);
+          }
         }
-        if (nextAppState === "background" && socket) {
-          socket.disconnect();
-          setSocket(null);
-        }
-      }
-    );
+      );
+    }
     if (socket && isMounted && authInfo) {
       if (chat) {
         socket.emit("joinRoom", {
@@ -1061,7 +1069,7 @@ const ChatScreen = (props) => {
 
     return () => {
       isMounted = false;
-      subscribeToBackgroundState.remove();
+      subscribeToBackgroundState?.remove();
 
       if (socket) {
         socket.disconnect();
@@ -1369,71 +1377,77 @@ const ChatScreen = (props) => {
                 />
               </TouchableOpacity>
             ) : null}
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                paddingHorizontal: 10,
-                backgroundColor: themeStyle.colors.grayscale.higher,
-                borderWidth: 0.5,
-                borderColor: themeStyle.colors.grayscale.low,
-                borderRadius: 5,
-                flex: 1,
-                opacity: userHasBlocked || userIsBlocked ? 0.3 : 1,
-                maxWidth: 900,
-                alignSelf: "center",
+            <TouchableWithoutFeedback
+              onPress={() => {
+                inputRef?.current?.focus();
               }}
             >
-              <ScrollView scrollEnabled={height > 48}>
-                <View
-                  style={[
-                    {
-                      justifyContent: "center",
-                      color: themeStyle.colors.grayscale.lowest,
-                    },
-                    {
-                      height: height < 48 ? 48 : height,
-                      paddingTop: height < 48 ? 0 : 10,
-                      paddingBottom: height < 48 ? 0 : 10,
-                    },
-                  ]}
-                >
-                  <TextInput
-                    ref={inputRef}
-                    onFocus={() => {
-                      setShowActions(false);
-                      offset.value = withTiming(0, { duration: 100 });
-                    }}
-                    maxLength={2000}
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  paddingHorizontal: 10,
+                  backgroundColor: themeStyle.colors.grayscale.higher,
+                  borderWidth: 0.5,
+                  borderColor: themeStyle.colors.grayscale.low,
+                  borderRadius: 5,
+                  flex: 1,
+                  opacity: userHasBlocked || userIsBlocked ? 0.3 : 1,
+                  maxWidth: 900,
+                  alignSelf: "center",
+                }}
+              >
+                <ScrollView scrollEnabled={height > 48}>
+                  <View
                     style={[
                       {
+                        justifyContent: "center",
                         color: themeStyle.colors.grayscale.lowest,
                       },
                       {
+                        height: height < 48 ? 48 : height,
                         paddingTop: height < 48 ? 0 : 10,
                         paddingBottom: height < 48 ? 0 : 10,
                       },
                     ]}
-                    value={messageBody}
-                    placeholderTextColor={themeStyle.colors.grayscale.lower}
-                    multiline
-                    placeholder="Type a message..."
-                    onChangeText={(v) => setMessageBody(v)}
-                    scrollEnabled
-                    editable={!userHasBlocked && !userIsBlocked}
-                    onContentSizeChange={(event) => {
-                      setHeight(
-                        event.nativeEvent.contentSize.height < 150
-                          ? event.nativeEvent.contentSize.height
-                          : 150
-                      );
-                    }}
-                  />
-                </View>
-              </ScrollView>
-            </View>
+                  >
+                    <TextInput
+                      ref={inputRef}
+                      onFocus={() => {
+                        setShowActions(false);
+                        offset.value = withTiming(0, { duration: 100 });
+                      }}
+                      maxLength={2000}
+                      style={[
+                        {
+                          color: themeStyle.colors.grayscale.lowest,
+                        },
+                        {
+                          paddingTop: height < 48 ? 0 : 10,
+                          paddingBottom: height < 48 ? 0 : 10,
+                        },
+                      ]}
+                      value={messageBody}
+                      placeholderTextColor={themeStyle.colors.grayscale.lower}
+                      multiline
+                      placeholder="Type a message..."
+                      onChangeText={(v) => setMessageBody(v)}
+                      scrollEnabled
+                      editable={!userHasBlocked && !userIsBlocked}
+                      onContentSizeChange={(event) => {
+                        setHeight(
+                          event.nativeEvent.contentSize.height < 150
+                            ? event.nativeEvent.contentSize.height
+                            : 150
+                        );
+                      }}
+                    />
+                  </View>
+                </ScrollView>
+              </View>
+            </TouchableWithoutFeedback>
             <View
               style={{
                 justifyContent: "flex-end",
