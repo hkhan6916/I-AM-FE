@@ -16,10 +16,20 @@
       "ios": {
         "simulator": true
       },
-      "env": { "ANDROID_SDK_ROOT": "/Users/haroonkhan/Library/Android/sdk" }
+      "env": { 
+        "ANDROID_SDK_ROOT": "/Users/haroonkhan/Library/Android/sdk",
+        "TEST_API_URL":"https://test-magnet-backend.onrender.com",
+        "TEST_API_WEBSOCKET_URL":"https://test-magnet-backend.onrender.com",
+        "TESTING":"yes"
+    }
     },
     "production": {
-      "env": { "ANDROID_SDK_ROOT": "/Users/haroonkhan/Library/Android/sdk" }
+      "env": { 
+        "ANDROID_SDK_ROOT": "/Users/haroonkhan/Library/Android/sdk",  
+        "TEST_API_URL":"https://test-magnet-backend.onrender.com",
+        "TEST_API_WEBSOCKET_URL":"https://test-magnet-backend.onrender.com",
+        "TESTING":"yes" 
+      }
     }
   },
   "submit": {
