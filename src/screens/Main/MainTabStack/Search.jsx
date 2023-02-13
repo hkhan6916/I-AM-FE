@@ -82,7 +82,8 @@ const SearchScreen = () => {
     if (success) {
       setSearchFeed(
         [...searchFeed, ...response].filter(
-          (item) => !!item.postAuthor.profileGifUrl === true // Move this to the backend where we only return posts for users with completed profiles (with profile gifs)
+          (item) =>
+            !!(item.postAuthor.profileGifUrl || item.postAuthor.profileImageUrl) // Move this to the backend where we only return posts for users with completed profiles (with profile gifs)
         )
       );
     }

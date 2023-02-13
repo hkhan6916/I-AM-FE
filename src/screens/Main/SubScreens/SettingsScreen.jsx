@@ -137,7 +137,10 @@ const SettingScreen = () => {
         ) : null} */}
       </View>
       <View style={styles.signoutContainer}>
-        <TouchableOpacity onPress={() => logout()}>
+        <TouchableOpacity
+          style={{ height: 48, justifyContent: "center" }}
+          onPress={() => logout()}
+        >
           <Text
             style={{
               color: themeStyle.colors.error.default,

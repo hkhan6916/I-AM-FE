@@ -64,7 +64,6 @@ export default {
           },
         },
       ],
-      "expo-tracking-transparency",
     ],
     extra: {
       apiUrl:
