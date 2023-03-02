@@ -4,7 +4,7 @@ import themeStyle from "../theme.style";
 import Avatar from "./Avatar";
 
 const ChatCard = ({ chat, onPress, userId }) => {
-  const user = chat.users?.[0];
+  const user = chat?.users?.[0];
 
   return (
     <TouchableOpacity
@@ -15,11 +15,11 @@ const ChatCard = ({ chat, onPress, userId }) => {
         <Avatar
           preventClicks
           size={50}
-          avatarUrl={user.profileGifUrl || user.profileImageUrl || ""}
-          hasBorder={!!user.profileGifUrl}
-          profileGifHeaders={user.profileGifHeaders}
-          profileImageHeaders={user.profileImageHeaders}
-          flipProfileVideo={user.flipProfileVideo}
+          avatarUrl={user?.profileGifUrl || user?.profileImageUrl || ""}
+          hasBorder={!!user?.profileGifUrl}
+          profileGifHeaders={user?.profileGifHeaders}
+          profileImageHeaders={user?.profileImageHeaders}
+          flipProfileVideo={user?.flipProfileVideo}
         />
         <View style={styles.chatInfo}>
           <View
@@ -34,11 +34,13 @@ const ChatCard = ({ chat, onPress, userId }) => {
               style={{
                 fontWeight: "600",
                 fontSize: 16,
-                color: themeStyle.colors.grayscale.lowest,
+                color: !user
+                  ? themeStyle.colors.grayscale.low
+                  : themeStyle.colors.grayscale.lowest,
                 flex: 1,
               }}
             >
-              {user.firstName} {user.lastName}
+              {!user ? "Account deleted" : user?.firstName} {user?.lastName}
             </Text>
             {!chat?.upToDateUsers?.includes(userId) ? (
               <View
