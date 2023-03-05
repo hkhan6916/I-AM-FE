@@ -13,6 +13,7 @@ import {
   Text,
   View,
   Dimensions,
+  TouchableOpacity,
 } from "react-native";
 import UserThumbnail from "../../../components/UserThumbnail";
 import themeStyle from "../../../theme.style";
@@ -33,6 +34,8 @@ import {
   LayoutProvider,
 } from "recyclerlistview";
 import SkeletonPlaceholder from "react-native-skeleton-placeholder";
+import { Ionicons } from "@expo/vector-icons";
+import JobSearchModal from "../../../components/JobSearchModal";
 
 const SearchScreen = () => {
   const [results, setResults] = useState([]);
@@ -41,8 +44,9 @@ const SearchScreen = () => {
   const [hideFeedAndSuggestions, setHideFeedAndSuggestions] = useState(false);
   const [userSearchHistory, setUserSearchHistory] = useState([]);
   const [searchItemsVisible, setSearchItemsVisible] = useState(false);
-  const [lastSuccessfullSearchQuery, setLastSuccessfullSearchQuery] =
+  const [lastSuccessfulSearchQuery, setLastSuccessfulSearchQuery] =
     useState("");
+  const [showJobsModal, setShowJobsModal] = useState(false);
 
   const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
@@ -56,7 +60,7 @@ const SearchScreen = () => {
   const db = Platform.OS == "web" ? {} : SQLite.openDatabase("localdb");
 
   const onUserSearch = async (searchQuery) => {
-    setLastSuccessfullSearchQuery(searchQuery);
+    setLastSuccessfulSearchQuery(searchQuery);
     if (!results.length) {
       return;
     }
@@ -153,7 +157,7 @@ const SearchScreen = () => {
       "POST",
       `/user/search/${results.length}`,
       {
-        searchTerm: lastSuccessfullSearchQuery,
+        searchTerm: lastSuccessfulSearchQuery,
       }
     );
     if (response.length) {
@@ -171,7 +175,7 @@ const SearchScreen = () => {
     const keyboardDidHideListener = Keyboard.addListener(
       "keyboardDidHide",
       () => {
-        if (!results.length && !lastSuccessfullSearchQuery) {
+        if (!results.length && !lastSuccessfulSearchQuery) {
           setHideFeedAndSuggestions(false);
         }
       }
@@ -193,7 +197,8 @@ const SearchScreen = () => {
   }, []);
 
   return (
-    <Fragment>
+    <>
+      <JobSearchModal setShowModal={setShowJobsModal} visible={showJobsModal} />
       <SafeAreaView
         style={{
           flex: 0,
@@ -222,6 +227,53 @@ const SearchScreen = () => {
             feedIsVisible={!hideFeedAndSuggestions}
             offset={results.length && showAllResults ? results.length : 0}
           />
+          <View
+            style={{
+              flexDirection: "row",
+              margin: 5,
+              borderWidth: 0.5,
+              borderRadius: 5,
+              borderColor: themeStyle.colors.grayscale.lowest,
+              justifyContent: "space-between",
+              padding: 10,
+              alignItems: "center",
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Ionicons
+                size={30}
+                name="briefcase-sharp"
+                color={themeStyle.colors.slateGray}
+              />
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.lowest,
+                  marginLeft: 10,
+                }}
+              >
+                Looking for work?
+              </Text>
+            </View>
+            <TouchableOpacity onPress={() => setShowJobsModal(true)}>
+              <View
+                style={{
+                  borderWidth: 2,
+                  borderColor: themeStyle.colors.grayscale.lowest,
+                  padding: 10,
+                  borderRadius: 20,
+                }}
+              >
+                <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                  Browse Jobs
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
           {!hideFeedAndSuggestions &&
           !results.length &&
           searchFeed.length >= 20 ? (
@@ -230,6 +282,9 @@ const SearchScreen = () => {
                 borderBottomWidth: 2,
                 borderBottomColor: themeStyle.colors.grayscale.cardsOuter,
                 backgroundColor: themeStyle.colors.grayscale.cards,
+                // flexDirection: "row",
+                // alignItems: "center",
+                // justifyContent: "space-between",
               }}
             >
               <Text
@@ -317,7 +372,7 @@ const SearchScreen = () => {
           ) : null}
         </View>
       </SafeAreaView>
-    </Fragment>
+    </>
   );
 };
 

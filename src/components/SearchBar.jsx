@@ -3,7 +3,13 @@ import React, { useState } from "react";
 import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import themeStyle from "../theme.style";
 
-const SearchBar = ({ onTypingEnd, onFocus, onSubmitEditing, placeholder }) => {
+const SearchBar = ({
+  onTypingEnd,
+  onFocus,
+  onSubmitEditing,
+  placeholder,
+  iconName = "search",
+}) => {
   const [searchInput, setSearchInput] = useState("");
   const [typingStatus, setTypingStatus] = useState({
     name: "",
@@ -30,7 +36,7 @@ const SearchBar = ({ onTypingEnd, onFocus, onSubmitEditing, placeholder }) => {
     <View style={styles.defaultContainerStyles}>
       <Ionicons
         style={styles.searchIcon}
-        name="search"
+        name={iconName}
         size={16}
         color={
           searchInput
