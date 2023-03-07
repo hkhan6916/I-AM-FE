@@ -1,4 +1,4 @@
-import { AntDesign, Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { useCallback, useRef } from "react";
 import { useState } from "react";
@@ -7,7 +7,6 @@ import {
   Modal,
   SafeAreaView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -18,9 +17,11 @@ import {
 } from "recyclerlistview";
 import themeStyle from "../theme.style";
 import SearchBar from "./SearchBar";
-import { decode, encode } from "base-64";
+import { encode } from "base-64";
 import { useEffect } from "react";
-import Input from "./Input";
+
+import { decode as htmlDecode } from "html-entities";
+import * as WebBrowser from "expo-web-browser";
 
 const JobSearchModal = ({ setShowModal, ...rest }) => {
   const [error, setError] = useState("");
@@ -43,6 +44,10 @@ const JobSearchModal = ({ setShowModal, ...rest }) => {
     )
   ).current;
 
+  const handlePressButtonAsync = async (url) => {
+    await WebBrowser.openBrowserAsync(url);
+  };
+
   const rowRenderer = useCallback((_, item) => {
     const minimumSalary = item?.minimumSalary
       ?.toLocaleString("en-GB", {
@@ -64,7 +69,6 @@ const JobSearchModal = ({ setShowModal, ...rest }) => {
         : `${maximumSalary || minimumSalary}`;
 
     const splittedDate = item?.date?.split("/");
-    console.log({ splittedDate });
     const date = new Date(
       splittedDate[2],
       splittedDate[1] - 1,
@@ -75,62 +79,51 @@ const JobSearchModal = ({ setShowModal, ...rest }) => {
     const durationInDays = new Date(duration).getDay();
 
     return (
-      <View style={{ width: "100%", padding: 10 }}>
-        <View
-          style={{
-            borderWidth: 1,
-            borderColor: themeStyle.colors.grayscale.lowest,
-            padding: 10,
-            borderRadius: 5,
-          }}
-        >
-          <Text
+      <TouchableOpacity onPress={() => handlePressButtonAsync(item?.jobUrl)}>
+        <View style={{ width: "100%", padding: 10 }}>
+          <View
             style={{
-              color: themeStyle.colors.primary.text,
-              fontSize: 20,
-              fontWeight: "700",
+              borderWidth: 1,
+              borderColor: themeStyle.colors.grayscale.lowest,
+              padding: 10,
+              borderRadius: 5,
             }}
           >
-            {item?.jobTitle}
-          </Text>
-          <Text
-            style={{
-              color: themeStyle.colors.grayscale.lowest,
-              fontWeight: "700",
-            }}
-          >
-            {item?.employerName}
-          </Text>
-          <Text
-            style={{
-              color: themeStyle.colors.grayscale.lowest,
-              marginTop: 5,
-            }}
-          >
-            {item?.locationName}
-          </Text>
-          {(maximumSalary || minimumSalary) && (
+            <Text
+              style={{
+                color: themeStyle.colors.primary.text,
+                fontSize: 20,
+                fontWeight: "700",
+              }}
+            >
+              {item?.jobTitle}
+            </Text>
+            <Text
+              style={{
+                color: themeStyle.colors.grayscale.lowest,
+                fontWeight: "700",
+              }}
+            >
+              {item?.employerName}
+            </Text>
             <Text
               style={{
                 color: themeStyle.colors.grayscale.lowest,
                 marginTop: 5,
               }}
             >
-              {salary}
+              {item?.locationName}
             </Text>
-          )}
-          <Text
-            style={{
-              color: themeStyle.colors.grayscale.lower,
-              fontSize: 12,
-              marginTop: 5,
-            }}
-          >
-            {!item?.applications
-              ? "No applicants"
-              : `${item?.applications} applications`}
-          </Text>
-          {typeof durationInDays === "number" && (
+            {(maximumSalary || minimumSalary) && (
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.lowest,
+                  marginTop: 5,
+                }}
+              >
+                {salary}
+              </Text>
+            )}
             <Text
               style={{
                 color: themeStyle.colors.grayscale.lower,
@@ -138,43 +131,31 @@ const JobSearchModal = ({ setShowModal, ...rest }) => {
                 marginTop: 5,
               }}
             >
-              {durationInDays === 0
-                ? "Just Posted"
-                : `${durationInDays} ${
-                    durationInDays === 1 ? "day" : "days"
-                  } ago`}
+              {!item?.applications
+                ? "No applicants"
+                : `${item?.applications} applications`}
             </Text>
-          )}
-          {/* Need to paste this into other modal where we show full job description */}
-          {/* <TouchableOpacity
-        // disabled={!canAdd}
-        // onPress={() => sendFriendRequest()}
-        >
-          <View
-            style={{
-              borderColor: themeStyle.colors.primary.default,
-              borderWidth: 1,
-              padding: 10,
-              borderRadius: 5,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              marginTop: 10,
-            }}
-          >
-            <Text
-              style={{
-                fontWeight: "700",
-                color: themeStyle.colors.grayscale.lowest,
-                textAlign: "center",
-              }}
-            >
-              Apply
+            {typeof durationInDays === "number" && (
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.lower,
+                  fontSize: 12,
+                  marginTop: 5,
+                }}
+              >
+                {durationInDays === 0
+                  ? "Just Posted"
+                  : `${durationInDays} ${
+                      durationInDays === 1 ? "day" : "days"
+                    } ago`}
+              </Text>
+            )}
+            <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+              {htmlDecode(item?.jobDescription)}
             </Text>
           </View>
-        </TouchableOpacity> */}
         </View>
-      </View>
+      </TouchableOpacity>
     );
   }, []);
   const handleJobSearch = async (searchQuery) => {
@@ -219,7 +200,7 @@ const JobSearchModal = ({ setShowModal, ...rest }) => {
       const password = "";
 
       const base64Auth = `Basic ${encode(username + ":" + password)}`;
-      const url = `https://www.reed.co.uk/api/1.0/search?resultsToTake=15`;
+      const url = `https://www.reed.co.uk/api/1.0/search?resultsToTake=15&postedByDirectEmployer=true&postedByRecruitmentAgency=false&resultsToSkip=200`;
 
       const { data, status } = await axios({
         url,
@@ -231,7 +212,6 @@ const JobSearchModal = ({ setShowModal, ...rest }) => {
       if (status !== 200)
         setError("There was a problem loading jobs. Please try again later.");
       if (data?.results?.length) {
-        console.log({ data });
         setJobs(data.results);
       }
     })();
