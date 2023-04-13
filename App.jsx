@@ -10,6 +10,8 @@ import { enableScreens } from "react-native-screens";
 import { Platform } from "react-native";
 import { createBrowserApp } from "@react-navigation/web";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
+import "react-native-url-polyfill/auto";
+
 const store = createStore(rootReducer);
 const ignoreWarns = [
   "Setting a timer for a long period of time",
