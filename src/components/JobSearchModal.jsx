@@ -1,4 +1,4 @@
-import { AntDesign, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { useCallback, useRef } from "react";
 import { useState } from "react";
@@ -89,15 +89,29 @@ const JobSearchModal = ({ setShowModal, ...rest }) => {
               borderRadius: 5,
             }}
           >
-            <Text
+            <View
               style={{
-                color: themeStyle.colors.primary.text,
-                fontSize: 20,
-                fontWeight: "700",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                maxWidth: "100%",
               }}
             >
-              {item?.jobTitle}
-            </Text>
+              <Text
+                style={{
+                  color: themeStyle.colors.primary.text,
+                  fontSize: 20,
+                  fontWeight: "700",
+                  width: "90%",
+                }}
+              >
+                {item?.jobTitle}
+              </Text>
+              <Feather
+                name="external-link"
+                size={24}
+                color={themeStyle.colors.grayscale.lowest}
+              />
+            </View>
             <Text
               style={{
                 color: themeStyle.colors.grayscale.lowest,

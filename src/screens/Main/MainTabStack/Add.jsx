@@ -59,6 +59,8 @@ import {
 import * as Notifications from "expo-notifications";
 import queue, { Worker } from "react-native-job-queue";
 import { Camera } from "react-native-vision-camera";
+import { LinearGradient } from "expo-linear-gradient";
+import GPTPromptModal from "../../../components/GPTPromptModal";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();
@@ -82,6 +84,7 @@ const AddScreen = () => {
   const [selectedMediaType, setSelectedMediaType] = useState("");
   const [loadingVideo, setLoadingVideo] = useState(false);
   const [showImageOrVideoOption, setShowImageOrVideoOption] = useState(false);
+  const [enableAI, setEnableAI] = useState(false);
 
   const navigation = useNavigation();
 
@@ -681,6 +684,14 @@ const AddScreen = () => {
             active={showGifsModal}
             setShowModal={setShowGifsModal}
           />
+          {enableAI && (
+            <GPTPromptModal
+              setShowModal={setEnableAI}
+              active={enableAI}
+              postBody={postBody}
+              setPostBody={setPostBody}
+            />
+          )}
           <View
             style={{
               padding: 10,
@@ -984,342 +995,386 @@ const AddScreen = () => {
           </ScrollView>
           <View
             style={{
+              justifyContent: "space-between",
               flexDirection: "row",
               alignItems: "center",
-              padding: 10,
             }}
           >
-            <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
-              {Platform.OS !== "web" && !showGifsModal ? (
-                <ActionSheet
-                  ref={actionSheetRef}
-                  gestureEnabled={true}
-                  containerStyle={{
-                    backgroundColor: themeStyle.colors.grayscale.higher,
-                  }}
-                >
-                  <View style={{ marginVertical: 20, paddingHorizontal: 10 }}>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        marginHorizontal: 10,
-                        marginBottom: 30,
-                      }}
-                    >
-                      <TouchableOpacity
-                        onPress={() => pickMedia("image")}
-                        style={{ alignItems: "center", flexDirection: "row" }}
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                padding: 10,
+              }}
+            >
+              <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+                {Platform.OS !== "web" && !showGifsModal ? (
+                  <ActionSheet
+                    ref={actionSheetRef}
+                    gestureEnabled={true}
+                    containerStyle={{
+                      backgroundColor: themeStyle.colors.grayscale.higher,
+                    }}
+                  >
+                    <View style={{ marginVertical: 20, paddingHorizontal: 10 }}>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          marginHorizontal: 10,
+                          marginBottom: 30,
+                        }}
                       >
-                        <View
-                          style={{
-                            backgroundColor:
-                              themeStyle.colors.grayscale.transparentHighest50,
-                            height: 48,
-                            width: 48,
-                            borderRadius: 26,
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <FontAwesome
-                            name="image"
-                            size={24}
-                            color={themeStyle.colors.grayscale.lowest}
-                          />
-                        </View>
-                        <Text
-                          style={{
-                            color: themeStyle.colors.grayscale.lowest,
-                            fontWeight: "700",
-                            marginLeft: 10,
-                          }}
-                        >
-                          Add Image
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        marginHorizontal: 10,
-                        marginBottom: 30,
-                      }}
-                    >
-                      <TouchableOpacity
-                        onPress={() => pickMedia("video")}
-                        style={{ alignItems: "center", flexDirection: "row" }}
-                      >
-                        <View
-                          style={{
-                            backgroundColor:
-                              themeStyle.colors.grayscale.transparentHighest50,
-                            height: 48,
-                            width: 48,
-                            borderRadius: 26,
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
+                        <TouchableOpacity
+                          onPress={() => pickMedia("image")}
+                          style={{ alignItems: "center", flexDirection: "row" }}
                         >
                           <View
                             style={{
-                              borderColor: themeStyle.colors.grayscale.highest,
+                              backgroundColor:
+                                themeStyle.colors.grayscale
+                                  .transparentHighest50,
+                              height: 48,
+                              width: 48,
+                              borderRadius: 26,
                               justifyContent: "center",
                               alignItems: "center",
                             }}
                           >
-                            <MaterialCommunityIcons
-                              name="movie-open-play-outline"
-                              size={26}
+                            <FontAwesome
+                              name="image"
+                              size={24}
                               color={themeStyle.colors.grayscale.lowest}
                             />
                           </View>
-                        </View>
-                        <Text
-                          style={{
-                            color: themeStyle.colors.grayscale.lowest,
-                            fontWeight: "700",
-                            marginLeft: 10,
-                          }}
-                        >
-                          Add Video
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                    {!showImageOrVideoOption ? (
-                      <>
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            marginHorizontal: 10,
-                            marginBottom: 30,
-                          }}
-                        >
-                          <TouchableOpacity
-                            onPress={() => setShowGifsModal(true)}
+                          <Text
                             style={{
+                              color: themeStyle.colors.grayscale.lowest,
+                              fontWeight: "700",
+                              marginLeft: 10,
+                            }}
+                          >
+                            Add Image
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          marginHorizontal: 10,
+                          marginBottom: 30,
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={() => pickMedia("video")}
+                          style={{ alignItems: "center", flexDirection: "row" }}
+                        >
+                          <View
+                            style={{
+                              backgroundColor:
+                                themeStyle.colors.grayscale
+                                  .transparentHighest50,
+                              height: 48,
+                              width: 48,
+                              borderRadius: 26,
+                              justifyContent: "center",
                               alignItems: "center",
-                              flexDirection: "row",
                             }}
                           >
                             <View
                               style={{
-                                backgroundColor:
-                                  themeStyle.colors.grayscale
-                                    .transparentHighest50,
-                                height: 48,
-                                width: 48,
-                                borderRadius: 26,
+                                borderColor:
+                                  themeStyle.colors.grayscale.highest,
                                 justifyContent: "center",
                                 alignItems: "center",
                               }}
                             >
-                              <View
-                                style={{
-                                  borderColor:
-                                    themeStyle.colors.grayscale.lowest,
-                                  borderWidth: 2,
-                                  height: 27,
-                                  width: 27,
-                                  borderRadius: 5,
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <MaterialIcons
-                                  name="gif"
-                                  size={24}
-                                  color={themeStyle.colors.grayscale.lowest}
-                                />
-                              </View>
-                            </View>
-                            <Text
-                              style={{
-                                color: themeStyle.colors.grayscale.lowest,
-                                fontWeight: "700",
-                                marginLeft: 10,
-                              }}
-                            >
-                              Add Gif
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            marginHorizontal: 10,
-                            marginBottom: 30,
-                          }}
-                        >
-                          <TouchableOpacity
-                            onPress={async () => {
-                              if (Platform.OS === "ios") {
-                                await openOSCamera();
-                              } else {
-                                setCameraActive(true);
-                              }
-                            }}
-                            style={{
-                              alignItems: "center",
-                              flexDirection: "row",
-                            }}
-                          >
-                            <View
-                              style={{
-                                backgroundColor:
-                                  themeStyle.colors.grayscale
-                                    .transparentHighest50,
-                                height: 48,
-                                width: 48,
-                                borderRadius: 26,
-                                justifyContent: "center",
-                                alignItems: "center",
-                              }}
-                            >
-                              <Feather
-                                name="camera"
+                              <MaterialCommunityIcons
+                                name="movie-open-play-outline"
                                 size={26}
                                 color={themeStyle.colors.grayscale.lowest}
                               />
                             </View>
-                            <Text
+                          </View>
+                          <Text
+                            style={{
+                              color: themeStyle.colors.grayscale.lowest,
+                              fontWeight: "700",
+                              marginLeft: 10,
+                            }}
+                          >
+                            Add Video
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                      {!showImageOrVideoOption ? (
+                        <>
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                              marginHorizontal: 10,
+                              marginBottom: 30,
+                            }}
+                          >
+                            <TouchableOpacity
+                              onPress={() => setShowGifsModal(true)}
                               style={{
-                                color: themeStyle.colors.grayscale.lowest,
-                                fontWeight: "700",
-                                marginLeft: 10,
+                                alignItems: "center",
+                                flexDirection: "row",
                               }}
                             >
-                              Use Camera
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                      </>
-                    ) : null}
+                              <View
+                                style={{
+                                  backgroundColor:
+                                    themeStyle.colors.grayscale
+                                      .transparentHighest50,
+                                  height: 48,
+                                  width: 48,
+                                  borderRadius: 26,
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <View
+                                  style={{
+                                    borderColor:
+                                      themeStyle.colors.grayscale.lowest,
+                                    borderWidth: 2,
+                                    height: 27,
+                                    width: 27,
+                                    borderRadius: 5,
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <MaterialIcons
+                                    name="gif"
+                                    size={24}
+                                    color={themeStyle.colors.grayscale.lowest}
+                                  />
+                                </View>
+                              </View>
+                              <Text
+                                style={{
+                                  color: themeStyle.colors.grayscale.lowest,
+                                  fontWeight: "700",
+                                  marginLeft: 10,
+                                }}
+                              >
+                                Add Gif
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                              marginHorizontal: 10,
+                              marginBottom: 30,
+                            }}
+                          >
+                            <TouchableOpacity
+                              onPress={async () => {
+                                if (Platform.OS === "ios") {
+                                  await openOSCamera();
+                                } else {
+                                  setCameraActive(true);
+                                }
+                              }}
+                              style={{
+                                alignItems: "center",
+                                flexDirection: "row",
+                              }}
+                            >
+                              <View
+                                style={{
+                                  backgroundColor:
+                                    themeStyle.colors.grayscale
+                                      .transparentHighest50,
+                                  height: 48,
+                                  width: 48,
+                                  borderRadius: 26,
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Feather
+                                  name="camera"
+                                  size={26}
+                                  color={themeStyle.colors.grayscale.lowest}
+                                />
+                              </View>
+                              <Text
+                                style={{
+                                  color: themeStyle.colors.grayscale.lowest,
+                                  fontWeight: "700",
+                                  marginLeft: 10,
+                                }}
+                              >
+                                Use Camera
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                        </>
+                      ) : null}
+                    </View>
+                  </ActionSheet>
+                ) : (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginHorizontal: 10,
+                      borderWidth: 1,
+                      borderColor: themeStyle.colors.grayscale.lowest,
+                      borderRadius: 5,
+                    }}
+                  >
+                    <TouchableOpacity onPress={() => setShowGifsModal(true)}>
+                      <MaterialIcons
+                        name="gif"
+                        size={24}
+                        color={themeStyle.colors.grayscale.lowest}
+                      />
+                    </TouchableOpacity>
                   </View>
-                </ActionSheet>
-              ) : (
+                )}
+              </View>
+              <TouchableOpacity
+                onPress={async () => {
+                  if (Platform.OS === "ios") {
+                    await openOSCamera();
+                  } else {
+                    setCameraActive(true);
+                  }
+                }}
+                style={{ marginHorizontal: 5 }}
+              >
                 <View
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginHorizontal: 10,
-                    borderWidth: 1,
                     borderColor: themeStyle.colors.grayscale.lowest,
+                    borderWidth: 2,
+                    height: 36,
+                    width: 36,
                     borderRadius: 5,
+                    justifyContent: "center",
+                    alignItems: "center",
                   }}
                 >
-                  <TouchableOpacity onPress={() => setShowGifsModal(true)}>
-                    <MaterialIcons
-                      name="gif"
-                      size={24}
-                      color={themeStyle.colors.grayscale.lowest}
-                    />
-                  </TouchableOpacity>
+                  <FontAwesome
+                    name="camera"
+                    size={16}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
                 </View>
-              )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setShowImageOrVideoOption(true);
+                  actionSheetRef.current?.show();
+                }}
+                style={{ marginHorizontal: 5 }}
+              >
+                <View
+                  style={{
+                    borderColor: themeStyle.colors.grayscale.lowest,
+                    borderWidth: 2,
+                    height: 36,
+                    width: 36,
+                    borderRadius: 5,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <FontAwesome5
+                    name="photo-video"
+                    size={16}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setShowGifsModal(true)}
+                style={{ marginHorizontal: 5 }}
+              >
+                <View
+                  style={{
+                    borderColor: themeStyle.colors.grayscale.lowest,
+                    borderWidth: 2,
+                    height: 36,
+                    width: 36,
+                    borderRadius: 5,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <MaterialIcons
+                    name="gif"
+                    size={26}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setShowImageOrVideoOption(false);
+                  actionSheetRef.current?.show();
+                }}
+                style={{ marginHorizontal: 5 }}
+              >
+                <View
+                  style={{
+                    borderColor: themeStyle.colors.grayscale.lowest,
+                    borderWidth: 2,
+                    height: 36,
+                    width: 36,
+                    borderRadius: 5,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Entypo
+                    name="dots-three-horizontal"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                </View>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              onPress={async () => {
-                if (Platform.OS === "ios") {
-                  await openOSCamera();
-                } else {
-                  setCameraActive(true);
-                }
-              }}
-              style={{ marginHorizontal: 5 }}
-            >
-              <View
-                style={{
-                  borderColor: themeStyle.colors.grayscale.lowest,
-                  borderWidth: 2,
-                  height: 36,
-                  width: 36,
-                  borderRadius: 5,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
+            <TouchableOpacity onPress={() => setEnableAI(!enableAI)}>
+              <LinearGradient
+                start={[0, 0.5]}
+                end={[0, 1]}
+                style={[
+                  {
+                    width: 60,
+                    height: 60,
+                    alignSelf: "center",
+                    borderRadius: 60,
+                  },
+                ]}
+                colors={["#138294", "#66b5ff"]}
               >
-                <FontAwesome
-                  name="camera"
-                  size={16}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                setShowImageOrVideoOption(true);
-                actionSheetRef.current?.show();
-              }}
-              style={{ marginHorizontal: 5 }}
-            >
-              <View
-                style={{
-                  borderColor: themeStyle.colors.grayscale.lowest,
-                  borderWidth: 2,
-                  height: 36,
-                  width: 36,
-                  borderRadius: 5,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <FontAwesome5
-                  name="photo-video"
-                  size={16}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setShowGifsModal(true)}
-              style={{ marginHorizontal: 5 }}
-            >
-              <View
-                style={{
-                  borderColor: themeStyle.colors.grayscale.lowest,
-                  borderWidth: 2,
-                  height: 36,
-                  width: 36,
-                  borderRadius: 5,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <MaterialIcons
-                  name="gif"
-                  size={26}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                setShowImageOrVideoOption(false);
-                actionSheetRef.current?.show();
-              }}
-              style={{ marginHorizontal: 5 }}
-            >
-              <View
-                style={{
-                  borderColor: themeStyle.colors.grayscale.lowest,
-                  borderWidth: 2,
-                  height: 36,
-                  width: 36,
-                  borderRadius: 5,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Entypo
-                  name="dots-three-horizontal"
-                  size={24}
-                  color={themeStyle.colors.grayscale.lowest}
-                />
-              </View>
+                <View
+                  style={{
+                    borderColor: themeStyle.colors.grayscale.lowest,
+                    borderWidth: 2,
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: 60,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
+                    style={{ color: themeStyle.colors.white, fontSize: 26 }}
+                  >
+                    AI
+                  </Text>
+                </View>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
           {error ? (
