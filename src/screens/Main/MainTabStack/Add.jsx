@@ -1026,6 +1026,104 @@ const AddScreen = () => {
                         }}
                       >
                         <TouchableOpacity
+                          onPress={() => setEnableAI(true)}
+                          style={{ alignItems: "center", flexDirection: "row" }}
+                        >
+                          <View
+                            style={{
+                              backgroundColor:
+                                themeStyle.colors.grayscale
+                                  .transparentHighest50,
+                              height: 48,
+                              width: 48,
+                              borderRadius: 26,
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            <MaterialCommunityIcons
+                              name="robot-happy-outline"
+                              size={24}
+                              color={themeStyle.colors.grayscale.lowest}
+                            />
+                            <Text
+                              style={{
+                                color: themeStyle.colors.grayscale.lowest,
+                                fontSize: 10,
+                              }}
+                            >
+                              Image
+                            </Text>
+                          </View>
+                          <Text
+                            style={{
+                              color: themeStyle.colors.grayscale.lowest,
+                              fontWeight: "700",
+                              marginLeft: 10,
+                            }}
+                          >
+                            Add AI Generated Image
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          marginHorizontal: 10,
+                          marginBottom: 30,
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={() => setEnableAI(true)}
+                          style={{ alignItems: "center", flexDirection: "row" }}
+                        >
+                          <View
+                            style={{
+                              backgroundColor:
+                                themeStyle.colors.grayscale
+                                  .transparentHighest50,
+                              height: 48,
+                              width: 48,
+                              borderRadius: 26,
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            <MaterialCommunityIcons
+                              name="robot-happy-outline"
+                              size={24}
+                              color={themeStyle.colors.grayscale.lowest}
+                            />
+                            <Text
+                              style={{
+                                color: themeStyle.colors.grayscale.lowest,
+                                fontSize: 10,
+                              }}
+                            >
+                              Text
+                            </Text>
+                          </View>
+                          <Text
+                            style={{
+                              color: themeStyle.colors.grayscale.lowest,
+                              fontWeight: "700",
+                              marginLeft: 10,
+                            }}
+                          >
+                            Add AI Generated Post Body
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          marginHorizontal: 10,
+                          marginBottom: 30,
+                        }}
+                      >
+                        <TouchableOpacity
                           onPress={() => pickMedia("image")}
                           style={{ alignItems: "center", flexDirection: "row" }}
                         >
@@ -1250,14 +1348,19 @@ const AddScreen = () => {
                     setCameraActive(true);
                   }
                 }}
-                style={{ marginHorizontal: 5 }}
+                style={{
+                  height: 48,
+                  width: 48,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
               >
                 <View
                   style={{
                     borderColor: themeStyle.colors.grayscale.lowest,
                     borderWidth: 2,
-                    height: 36,
-                    width: 36,
+                    height: 40,
+                    width: 40,
                     borderRadius: 5,
                     justifyContent: "center",
                     alignItems: "center",
@@ -1275,14 +1378,19 @@ const AddScreen = () => {
                   setShowImageOrVideoOption(true);
                   actionSheetRef.current?.show();
                 }}
-                style={{ marginHorizontal: 5 }}
+                style={{
+                  height: 48,
+                  width: 48,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
               >
                 <View
                   style={{
                     borderColor: themeStyle.colors.grayscale.lowest,
                     borderWidth: 2,
-                    height: 36,
-                    width: 36,
+                    height: 40,
+                    width: 40,
                     borderRadius: 5,
                     justifyContent: "center",
                     alignItems: "center",
@@ -1297,14 +1405,19 @@ const AddScreen = () => {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setShowGifsModal(true)}
-                style={{ marginHorizontal: 5 }}
+                style={{
+                  height: 48,
+                  width: 48,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
               >
                 <View
                   style={{
                     borderColor: themeStyle.colors.grayscale.lowest,
                     borderWidth: 2,
-                    height: 36,
-                    width: 36,
+                    height: 40,
+                    width: 40,
                     borderRadius: 5,
                     justifyContent: "center",
                     alignItems: "center",
@@ -1318,18 +1431,72 @@ const AddScreen = () => {
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
+                onPress={() => setEnableAI(!enableAI)}
+                style={{
+                  height: 48,
+                  width: 48,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <LinearGradient
+                  start={[0, 0.5]}
+                  end={[0, 1]}
+                  style={[
+                    {
+                      width: 40,
+                      height: 40,
+                      alignSelf: "center",
+                      padding: 2,
+                      borderRadius: 5,
+                    },
+                  ]}
+                  colors={["#138294", "#66b5ff"]}
+                >
+                  <View
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: themeStyle.colors.grayscale.highest,
+                      borderRadius: 5,
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="robot-happy-outline"
+                      size={24}
+                      color={themeStyle.colors.grayscale.lowest}
+                    />
+                    <Text
+                      style={{
+                        color: themeStyle.colors.grayscale.lowest,
+                        fontSize: 10,
+                      }}
+                    >
+                      AI
+                    </Text>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+              <TouchableOpacity
                 onPress={() => {
                   setShowImageOrVideoOption(false);
                   actionSheetRef.current?.show();
                 }}
-                style={{ marginHorizontal: 5 }}
+                style={{
+                  height: 48,
+                  width: 48,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
               >
                 <View
                   style={{
                     borderColor: themeStyle.colors.grayscale.lowest,
                     borderWidth: 2,
-                    height: 36,
-                    width: 36,
+                    height: 40,
+                    width: 40,
                     borderRadius: 5,
                     justifyContent: "center",
                     alignItems: "center",
@@ -1343,39 +1510,6 @@ const AddScreen = () => {
                 </View>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={() => setEnableAI(!enableAI)}>
-              <LinearGradient
-                start={[0, 0.5]}
-                end={[0, 1]}
-                style={[
-                  {
-                    width: 60,
-                    height: 60,
-                    alignSelf: "center",
-                    borderRadius: 60,
-                  },
-                ]}
-                colors={["#138294", "#66b5ff"]}
-              >
-                <View
-                  style={{
-                    borderColor: themeStyle.colors.grayscale.lowest,
-                    borderWidth: 2,
-                    width: "100%",
-                    height: "100%",
-                    borderRadius: 60,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text
-                    style={{ color: themeStyle.colors.white, fontSize: 26 }}
-                  >
-                    AI
-                  </Text>
-                </View>
-              </LinearGradient>
-            </TouchableOpacity>
           </View>
           {error ? (
             <View>

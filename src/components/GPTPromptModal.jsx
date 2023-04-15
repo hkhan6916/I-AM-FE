@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Text,
   SafeAreaView,
-  Platform,
   TextInput,
   Dimensions,
   ScrollView,
@@ -16,13 +15,16 @@ import themeStyle from "../theme.style";
 import SearchBar from "./SearchBar";
 import { Configuration, OpenAIApi } from "openai";
 import useTypewriter from "../helpers/hooks/useTypeWriter";
+import { LinearGradient } from "expo-linear-gradient";
 
-const GPTPromptModal = ({ setShowModal, active }) => {
+const GPTPromptModal = ({ setShowModal, active, setPostBody }) => {
   const [error, setError] = useState("");
   const [generatingText, setGeneratingText] = useState(false);
   const [generatedText, setGeneratedText] = useState("");
   const [textToComplete, setTextToComplete] = useState("");
+  const [prevTextToComplete, setPrevTextToComplete] = useState("");
   const [placeholder, setPlaceholder] = useState("");
+
   const [disablePlaceholderTypewriter, setDisablePlaceholderTypewriter] =
     useState(false);
   const placeholderTextArray = [
@@ -44,8 +46,9 @@ const GPTPromptModal = ({ setShowModal, active }) => {
   const handleGPTTextGeneration = async () => {
     setGeneratingText(true);
     setGeneratedText("");
+    setPrevTextToComplete(textToComplete);
     const configuration = new Configuration({
-      apiKey: "bruh",
+      apiKey: "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",
     });
     const openai = new OpenAIApi(configuration);
 
@@ -83,6 +86,13 @@ const GPTPromptModal = ({ setShowModal, active }) => {
       }
     }
   };
+
+  const disableWriteButton = !!(
+    prevTextToComplete === textToComplete ||
+    generatingText ||
+    !textToComplete
+  );
+
   return (
     <Modal
       onRequestClose={async () => {
@@ -144,7 +154,7 @@ const GPTPromptModal = ({ setShowModal, active }) => {
               fontSize: 16,
             }}
           >
-            You start... I&apos;'ll do the rest.
+            What&apos;s on your mind?
           </Text>
           <View
             style={{
@@ -152,43 +162,50 @@ const GPTPromptModal = ({ setShowModal, active }) => {
               borderColor: themeStyle.colors.grayscale.lowest,
               borderRadius: 5,
               padding: 5,
+              flex: 1,
+              marginBottom: 10,
             }}
           >
-            <ScrollView style={{ maxHeight: 300 }}>
-              <TextInput
-                style={{
-                  minHeight: Platform.OS === "web" ? screenHeight / 2 : 100,
-                  textAlignVertical: "top",
-                  fontSize: 16,
-                  color: themeStyle.colors.grayscale.lowest,
-                  flex: 1,
-                  borderWidth: 1,
-                }}
-                value={textToComplete}
-                placeholder={placeholder}
-                placeholderTextColor={themeStyle.colors.grayscale.high}
-                multiline
-                maxLength={150}
-                onChangeText={(v) => setTextToComplete(v)}
-                onFocus={() => {
-                  setDisablePlaceholderTypewriter(true);
-                  setPlaceholder("Keep it short and concise");
-                }}
-              />
-              {!!error && (
-                <View style={{ flex: 1 }}>
-                  <Text
-                    style={{
-                      color: themeStyle.colors.error.default,
-                      textAlign: "center",
-                    }}
-                  >
-                    {error}
-                  </Text>
-                </View>
-              )}
-            </ScrollView>
+            <TextInput
+              style={{
+                textAlignVertical: "top",
+                fontSize: 16,
+                color: themeStyle.colors.grayscale.lowest,
+                flex: 1,
+                height: "100%",
+              }}
+              value={textToComplete}
+              placeholder={placeholder}
+              placeholderTextColor={themeStyle.colors.grayscale.high}
+              multiline
+              maxLength={150}
+              onChangeText={(v) => setTextToComplete(v)}
+              onFocus={() => {
+                setDisablePlaceholderTypewriter(true);
+                setPlaceholder("Keep it short and concise...");
+              }}
+            />
+            {!!error && (
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={{
+                    color: themeStyle.colors.error.default,
+                    textAlign: "center",
+                  }}
+                >
+                  {error}
+                </Text>
+              </View>
+            )}
           </View>
+          <Text
+            style={{
+              color: themeStyle.colors.grayscale.lowest,
+              marginBottom: 20,
+            }}
+          >
+            Start off your post. Keep it short and concise.
+          </Text>
           {textToComplete?.length === 150 && (
             <Text
               style={{
@@ -201,44 +218,99 @@ const GPTPromptModal = ({ setShowModal, active }) => {
           )}
           <TouchableOpacity
             onPress={() => handleGPTTextGeneration()}
+            disabled={disableWriteButton}
             style={{
-              height: 48,
-              borderWidth: 1,
-              borderColor: themeStyle.colors.grayscale.lowest,
-              borderRadius: 5,
-              justifyContent: "center",
-              alignItems: "center",
+              opacity: disableWriteButton ? 0.5 : 1,
               marginBottom: 10,
+              marginHorizontal: 5,
             }}
           >
-            <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-              Start Writing
-            </Text>
-          </TouchableOpacity>
-          <ScrollView
-            style={{
-              backgroundColor: themeStyle.colors.slateGray,
-              flex: 1,
-              borderRadius: 10,
-              paddingHorizontal: 5,
-            }}
-          >
-            {generatingText ? (
-              <ActivityIndicator
-                size={24}
-                color={themeStyle.colors.grayscale.lowest}
-              />
-            ) : (
-              <Text
+            <LinearGradient
+              start={[0, 0.5]}
+              end={[0, 1]}
+              style={{
+                height: 48,
+                borderRadius: 5,
+                justifyContent: "center",
+                alignItems: "center",
+                padding: disableWriteButton ? 0 : 2,
+              }}
+              colors={
+                disableWriteButton
+                  ? [themeStyle.colors.slateGray, themeStyle.colors.slateGray]
+                  : ["#138294", "#66b5ff"]
+              }
+            >
+              <View
                 style={{
-                  color: themeStyle.colors.black,
-                  fontWeight: "700",
+                  backgroundColor: themeStyle.colors.grayscale.highest,
+                  flex: 1,
+                  height: "100%",
+                  width: "100%",
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
               >
-                {generatedText || "Ready..."}
-              </Text>
-            )}
-          </ScrollView>
+                <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                  Start Writing
+                </Text>
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
+          {!!(generatedText || generatingText) && (
+            <View
+              style={{
+                backgroundColor: themeStyle.colors.slateGray,
+                flex: 1,
+                borderRadius: 10,
+                paddingHorizontal: 5,
+              }}
+            >
+              <ScrollView
+                style={{
+                  flex: 1,
+                }}
+              >
+                {generatingText ? (
+                  <ActivityIndicator
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                ) : (
+                  <Text
+                    style={{
+                      color: themeStyle.colors.black,
+                      fontWeight: "700",
+                      padding: 5,
+                    }}
+                  >
+                    {generatedText || "Ready..."}
+                  </Text>
+                )}
+              </ScrollView>
+              <View style={{ marginBottom: 10 }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setPostBody(generatedText);
+                    setShowModal(false);
+                  }}
+                  style={{
+                    height: 48,
+                    borderWidth: 1,
+                    backgroundColor: themeStyle.colors.black,
+                    borderRadius: 5,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginHorizontal: 5,
+                  }}
+                >
+                  <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                    Set As Post Body And Review
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
       </SafeAreaView>
     </Modal>
