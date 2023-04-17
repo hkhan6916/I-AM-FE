@@ -6,34 +6,43 @@ import {
   Text,
   SafeAreaView,
   TextInput,
-  Dimensions,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import themeStyle from "../theme.style";
-import SearchBar from "./SearchBar";
 import { Configuration, OpenAIApi } from "openai";
 import useTypewriter from "../helpers/hooks/useTypeWriter";
 import { LinearGradient } from "expo-linear-gradient";
 
-const GPTPromptModal = ({ setShowModal, active, setPostBody }) => {
+const GPTPromptModal = ({
+  setShowModal,
+  active,
+  setPostBody,
+  setPostImage,
+  generateImage,
+}) => {
   const [error, setError] = useState("");
   const [generatingText, setGeneratingText] = useState(false);
+  const [generatingImage, setGeneratingImage] = useState(false);
   const [generatedText, setGeneratedText] = useState("");
-  const [textToComplete, setTextToComplete] = useState("");
+  const [generatedImageUrl, setGeneratedImageUrl] = useState("");
+  const [gptPrompt, setGptPrompt] = useState("");
   const [prevTextToComplete, setPrevTextToComplete] = useState("");
   const [placeholder, setPlaceholder] = useState("");
 
   const [disablePlaceholderTypewriter, setDisablePlaceholderTypewriter] =
     useState(false);
-  const placeholderTextArray = [
-    "I got promoted today...",
-    "The weather is nice today...",
-    "Write a motivational post...",
-    "Looking to hire someone who can...",
-    "I am looking for my next role in...",
-  ];
+  const placeholderTextArray = generateImage
+    ? []
+    : [
+        "I got promoted today...",
+        "The weather is nice today...",
+        "Write a motivational post...",
+        "Looking to hire someone who can...",
+        "I am looking for my next role in...",
+      ];
   useTypewriter(
     placeholderTextArray,
     setPlaceholder,
@@ -41,56 +50,70 @@ const GPTPromptModal = ({ setShowModal, active, setPostBody }) => {
     disablePlaceholderTypewriter
   );
 
-  const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
-
   const handleGPTTextGeneration = async () => {
-    setGeneratingText(true);
-    setGeneratedText("");
-    setPrevTextToComplete(textToComplete);
     const configuration = new Configuration({
       apiKey: "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",
     });
     const openai = new OpenAIApi(configuration);
 
-    try {
-      const completion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
-        // messages: [
-        //   {
-        // prompt: `Create post about the following without hashtags: "${postBody}".`,
-        // role: "user",
-        //   },
-        // ],
-        messages: [
-          {
-            role: "user",
-            content: `Create a post about the following without hashtags and without disclaimers: "${textToComplete}". Limit the response to 1000 characters.`,
-          },
-        ],
-        temperature: 0.6,
-        max_tokens: 200,
-      });
-      console.log(completion.data);
-      // const completionString = completion.data.choices[0].text.trim();
-      const completionString =
-        completion.data.choices[0].message.content.trim();
-      setGeneratingText(false);
-      setGeneratedText(completionString);
-    } catch (error) {
-      setGeneratingText(false);
-      if (error.response) {
-        console.log(error.response.status);
-        console.log(error.response.data);
-      } else {
-        console.log(error.message);
+    if (generateImage) {
+      setGeneratingImage(true);
+      try {
+        const image = await openai.createImage({
+          prompt: `Generate an image of ${gptPrompt}`,
+          size: "512x512",
+        });
+        console.log({ image: image.data.data[0].url });
+        setGeneratedImageUrl(image.data.data[0].url);
+        setGeneratingImage(false);
+        // setGeneratingText(false);
+        // setGeneratedText(completionString);
+      } catch (error) {
+        setGeneratingImage(false);
+        if (error.response) {
+          console.log(error.response.status);
+          console.log(error.response.data);
+        } else {
+          console.log(error.message);
+        }
+      }
+    } else {
+      try {
+        setGeneratingText(true);
+        setGeneratedText("");
+        setPrevTextToComplete(gptPrompt);
+        const completion = await openai.createChatCompletion({
+          model: "gpt-3.5-turbo",
+          messages: [
+            {
+              role: "user",
+              content: `Create a post about the following without hashtags and without disclaimers: "${gptPrompt}". Limit the response to 1000 characters.`,
+            },
+          ],
+          temperature: 0.6,
+          max_tokens: 200,
+        });
+        const completionString =
+          completion.data.choices[0].message.content.trim();
+        setGeneratingText(false);
+        setGeneratedText(completionString);
+      } catch (error) {
+        setGeneratingText(false);
+        if (error.response) {
+          console.log(error.response.status);
+          console.log(error.response.data);
+        } else {
+          console.log(error.message);
+        }
       }
     }
   };
 
   const disableWriteButton = !!(
-    prevTextToComplete === textToComplete ||
+    prevTextToComplete === gptPrompt ||
     generatingText ||
-    !textToComplete
+    !gptPrompt ||
+    generatingImage
   );
 
   return (
@@ -148,65 +171,74 @@ const GPTPromptModal = ({ setShowModal, active, setPostBody }) => {
               </Text>
             </TouchableOpacity>
           </View>
-          <Text
-            style={{
-              color: themeStyle.colors.grayscale.lowest,
-              fontSize: 16,
-            }}
-          >
-            What&apos;s on your mind?
-          </Text>
-          <View
-            style={{
-              borderWidth: 1,
-              borderColor: themeStyle.colors.grayscale.lowest,
-              borderRadius: 5,
-              padding: 5,
-              flex: 1,
-              marginBottom: 10,
-            }}
-          >
-            <TextInput
+          <>
+            <Text
               style={{
-                textAlignVertical: "top",
-                fontSize: 16,
                 color: themeStyle.colors.grayscale.lowest,
+                fontSize: 16,
+              }}
+            >
+              {generateImage
+                ? "Describe the image to generate for your post."
+                : "What's on your mind?"}
+            </Text>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: themeStyle.colors.grayscale.lowest,
+                borderRadius: 5,
+                padding: 5,
                 flex: 1,
-                height: "100%",
+                marginBottom: 10,
               }}
-              value={textToComplete}
-              placeholder={placeholder}
-              placeholderTextColor={themeStyle.colors.grayscale.high}
-              multiline
-              maxLength={150}
-              onChangeText={(v) => setTextToComplete(v)}
-              onFocus={() => {
-                setDisablePlaceholderTypewriter(true);
-                setPlaceholder("Keep it short and concise...");
-              }}
-            />
-            {!!error && (
-              <View style={{ flex: 1 }}>
-                <Text
-                  style={{
-                    color: themeStyle.colors.error.default,
-                    textAlign: "center",
-                  }}
-                >
-                  {error}
-                </Text>
-              </View>
+            >
+              <TextInput
+                style={{
+                  textAlignVertical: "top",
+                  fontSize: 16,
+                  color: themeStyle.colors.grayscale.lowest,
+                  flex: 1,
+                  height: "100%",
+                }}
+                value={gptPrompt}
+                placeholder={
+                  generateImage ? "Keep it short and concise" : placeholder
+                }
+                placeholderTextColor={themeStyle.colors.grayscale.high}
+                multiline
+                maxLength={150}
+                onChangeText={(v) => setGptPrompt(v)}
+                onFocus={() => {
+                  setDisablePlaceholderTypewriter(true);
+                  setPlaceholder("Keep it short and concise.");
+                }}
+              />
+              {!!error && (
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={{
+                      color: themeStyle.colors.error.default,
+                      textAlign: "center",
+                    }}
+                  >
+                    {error}
+                  </Text>
+                </View>
+              )}
+            </View>
+            {!generateImage && (
+              <Text
+                style={{
+                  color: themeStyle.colors.grayscale.lowest,
+                  marginBottom: 20,
+                }}
+              >
+                Start off your post. Keep it short and concise.
+              </Text>
             )}
-          </View>
-          <Text
-            style={{
-              color: themeStyle.colors.grayscale.lowest,
-              marginBottom: 20,
-            }}
-          >
-            Start off your post. Keep it short and concise.
-          </Text>
-          {textToComplete?.length === 150 && (
+          </>
+
+          {gptPrompt?.length === 150 && (
             <Text
               style={{
                 color: themeStyle.colors.grayscale.lowest,
@@ -252,12 +284,15 @@ const GPTPromptModal = ({ setShowModal, active, setPostBody }) => {
                 }}
               >
                 <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                  Start Writing
+                  {!generateImage ? "Start Writing" : "Generate Image"}
                 </Text>
               </View>
             </LinearGradient>
           </TouchableOpacity>
-          {!!(generatedText || generatingText) && (
+          {generatedText ||
+          generatingText ||
+          generatedImageUrl ||
+          generatingImage ? (
             <View
               style={{
                 backgroundColor: themeStyle.colors.slateGray,
@@ -270,13 +305,29 @@ const GPTPromptModal = ({ setShowModal, active, setPostBody }) => {
                 style={{
                   flex: 1,
                 }}
+                contentContainerStyle={{ flex: 1 }}
               >
-                {generatingText ? (
-                  <ActivityIndicator
-                    size={24}
-                    color={themeStyle.colors.grayscale.lowest}
-                  />
-                ) : (
+                {generatingText || generatingImage ? (
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <ActivityIndicator
+                      size={24}
+                      color={themeStyle.colors.grayscale.lowest}
+                    />
+                  </View>
+                ) : generatedImageUrl ? (
+                  <View style={{ flex: 1, padding: 10 }}>
+                    <Image
+                      source={{ uri: generatedImageUrl }}
+                      style={{ width: "100%", height: "100%" }}
+                    />
+                  </View>
+                ) : generatedText ? (
                   <Text
                     style={{
                       color: themeStyle.colors.black,
@@ -286,12 +337,16 @@ const GPTPromptModal = ({ setShowModal, active, setPostBody }) => {
                   >
                     {generatedText || "Ready..."}
                   </Text>
-                )}
+                ) : null}
               </ScrollView>
               <View style={{ marginBottom: 10 }}>
                 <TouchableOpacity
                   onPress={() => {
-                    setPostBody(generatedText);
+                    if (generateImage) {
+                      setPostImage(generatedImageUrl);
+                    } else {
+                      setPostBody(generatedText);
+                    }
                     setShowModal(false);
                   }}
                   style={{
@@ -305,12 +360,14 @@ const GPTPromptModal = ({ setShowModal, active, setPostBody }) => {
                   }}
                 >
                   <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                    Set As Post Body And Review
+                    {generateImage
+                      ? "Set As Post Image And Review"
+                      : "Set As Post Body And Review"}
                   </Text>
                 </TouchableOpacity>
               </View>
             </View>
-          )}
+          ) : null}
         </View>
       </SafeAreaView>
     </Modal>
