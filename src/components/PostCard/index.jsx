@@ -271,7 +271,7 @@ const PostCard = ({
                       setUnMuteVideos={setUnMuteVideos}
                     />
                   </View>
-                ) : post.mediaType === "image" ? (
+                ) : post.mediaType === "image" || post.generatedImageUrl ? (
                   <View
                     style={{
                       flex: 1,
@@ -282,42 +282,12 @@ const PostCard = ({
                   >
                     <CardImage
                       mediaHeaders={post.mediaHeaders}
-                      mediaUrl={post.mediaUrl}
+                      mediaUrl={post.mediaUrl || post.generatedImageUrl}
                       screenWidth={screenWidth}
                       screenHeight={screenHeight}
                       height={post.height}
                       width={post.width}
                     />
-                    {/* {index && Math.abs(currentVisible - index) <= 3 ? (
-                      <CardImage
-                        mediaHeaders={post.mediaHeaders}
-                        mediaUrl={post.mediaUrl}
-                        screenWidth={screenWidth}
-                        screenHeight={screenHeight}
-                        height={post.height}
-                        width={post.width}
-                      />
-                    ) : (
-                      // <CardImage
-                      //   // mediaHeaders={post.mediaHeaders}
-                      //   // mediaUrl={post.mediaUrl}
-                      //   screenWidth={screenWidth}
-                      //   screenHeight={screenHeight}
-                      //   height={post.height}
-                      //   width={post.width}
-                      //   style={{
-                      //     backgroundColor:
-                      //       themeStyle.colors.grayscale.cardsOuter,
-                      //   }}
-                      // />
-                      <View
-                        style={{
-                          backgroundColor: themeStyle.colors.grayscale.low,
-                          height: screenWidth,
-                          width: screenWidth,
-                        }}
-                      />
-                    )} */}
                   </View>
                 ) : null}
               </View>

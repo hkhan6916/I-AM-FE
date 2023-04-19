@@ -56,27 +56,28 @@ const GPTPromptModal = ({
     });
     const openai = new OpenAIApi(configuration);
 
+    // NOT FEASABLE AT THE MOMENT, DALLE IS TOO EXPENSIVE TO USE NOW
     if (generateImage) {
-      setGeneratingImage(true);
-      try {
-        const image = await openai.createImage({
-          prompt: `Generate an image of ${gptPrompt}`,
-          size: "512x512",
-        });
-        console.log({ image: image.data.data[0].url });
-        setGeneratedImageUrl(image.data.data[0].url);
-        setGeneratingImage(false);
-        // setGeneratingText(false);
-        // setGeneratedText(completionString);
-      } catch (error) {
-        setGeneratingImage(false);
-        if (error.response) {
-          console.log(error.response.status);
-          console.log(error.response.data);
-        } else {
-          console.log(error.message);
-        }
-      }
+      //   setGeneratingImage(true);
+      //   try {
+      //     const image = await openai.createImage({
+      //       prompt: `Generate an image of ${gptPrompt}`,
+      //       size: "512x512",
+      //     });
+      //     console.log({ image: image.data.data[0].url });
+      //     setGeneratedImageUrl(image.data.data[0].url);
+      //     setGeneratingImage(false);
+      //     // setGeneratingText(false);
+      //     // setGeneratedText(completionString);
+      //   } catch (error) {
+      //     setGeneratingImage(false);
+      //     if (error.response) {
+      //       console.log(error.response.status);
+      //       console.log(error.response.data);
+      //     } else {
+      //       console.log(error.message);
+      //     }
+      //   }
     } else {
       try {
         setGeneratingText(true);
@@ -305,7 +306,7 @@ const GPTPromptModal = ({
                 style={{
                   flex: 1,
                 }}
-                contentContainerStyle={{ flex: 1 }}
+                contentContainerStyle={generateImage ? { flex: 1 } : {}}
               >
                 {generatingText || generatingImage ? (
                   <View
@@ -339,33 +340,35 @@ const GPTPromptModal = ({
                   </Text>
                 ) : null}
               </ScrollView>
-              <View style={{ marginBottom: 10 }}>
-                <TouchableOpacity
-                  onPress={() => {
-                    if (generateImage) {
-                      setPostImage(generatedImageUrl);
-                    } else {
-                      setPostBody(generatedText);
-                    }
-                    setShowModal(false);
-                  }}
-                  style={{
-                    height: 48,
-                    borderWidth: 1,
-                    backgroundColor: themeStyle.colors.black,
-                    borderRadius: 5,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    marginHorizontal: 5,
-                  }}
-                >
-                  <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                    {generateImage
-                      ? "Set As Post Image And Review"
-                      : "Set As Post Body And Review"}
-                  </Text>
-                </TouchableOpacity>
-              </View>
+              {!!(generateImage || generatedText) && (
+                <View style={{ marginBottom: 10 }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      if (generateImage) {
+                        setPostImage(generatedImageUrl);
+                      } else {
+                        setPostBody(generatedText);
+                      }
+                      setShowModal(false);
+                    }}
+                    style={{
+                      height: 48,
+                      borderWidth: 1,
+                      backgroundColor: themeStyle.colors.black,
+                      borderRadius: 5,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginHorizontal: 5,
+                    }}
+                  >
+                    <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                      {generateImage
+                        ? "Set As Post Image And Review"
+                        : "Set As Post Body And Review"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           ) : null}
         </View>

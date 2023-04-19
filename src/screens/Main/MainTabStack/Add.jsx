@@ -68,6 +68,7 @@ const AddScreen = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [file, setFile] = useState({});
+  const [generatedImageUrl, setGeneratedImageUrl] = useState("");
   const [cameraActive, setCameraActive] = useState(false);
   const [recording, setRecording] = useState(false);
   const [showMediaSizeError, setShowMediaSizeError] = useState(false);
@@ -106,6 +107,11 @@ const AddScreen = () => {
       // if there's a gif, skip everything and just upload the gif
       postData.gif = gif;
       postData.gifPreview = gifPreview;
+      return postData;
+    }
+    if (generatedImageUrl) {
+      // if there's a generatedImageUrl, skip everything and just upload the generatedImageUrl
+      postData.generatedImageUrl = generatedImageUrl;
       return postData;
     }
     if (file.uri) {
@@ -242,6 +248,7 @@ const AddScreen = () => {
         }
         setFile({});
         setGif("");
+        setGeneratedImageUrl("");
         setThumbnail("");
         setCompressionProgress(0);
         setProcessingFile(false);
@@ -249,6 +256,7 @@ const AddScreen = () => {
       } else {
         setFile({});
         setGif("");
+        setGeneratedImageUrl("");
         setThumbnail("");
         setCompressionProgress(0);
         setProcessingFile(false);
@@ -690,6 +698,7 @@ const AddScreen = () => {
               active={enableAI}
               postBody={postBody}
               setPostBody={setPostBody}
+              setPostImage={setGeneratedImageUrl}
             />
           )}
           <View
@@ -713,7 +722,7 @@ const AddScreen = () => {
             </Text>
             <TouchableOpacity
               disabled={
-                (!file.uri && !postBody && !gif) ||
+                (!file.uri && !postBody && !gif && !generatedImageUrl) ||
                 loading ||
                 showMediaSizeError ||
                 loadingVideo ||
@@ -732,7 +741,7 @@ const AddScreen = () => {
                   alignItems: "center",
                   height: 36,
                   opacity:
-                    (!file?.uri && !postBody && !gif) ||
+                    (!file?.uri && !postBody && !gif && !generatedImageUrl) ||
                     showMediaSizeError ||
                     loadingVideo ||
                     (processingFile && file.uri && !processedVideoUri)
@@ -814,7 +823,7 @@ const AddScreen = () => {
                 />
               </View>
             ) : null}
-            {file.uri || loadingVideo ? (
+            {file.uri || loadingVideo || generatedImageUrl ? (
               <View
                 style={{
                   borderWidth: showMediaSizeError ? 2 : 0,
@@ -917,7 +926,7 @@ const AddScreen = () => {
                       </>
                     )}
                   </View>
-                ) : selectedMediaType ? (
+                ) : selectedMediaType || generatedImageUrl ? (
                   <View
                     style={{
                       height: screenWidth - 40,
@@ -931,9 +940,9 @@ const AddScreen = () => {
                         setWidth(e?.nativeEvent?.source?.width);
                       }}
                       removeBackround
-                      mediaIsSelfie={file.isSelfie}
+                      mediaIsSelfie={!!file?.isSelfie}
                       resizeMode="contain"
-                      mediaUrl={file.uri}
+                      mediaUrl={file?.uri || generatedImageUrl}
                       aspectRatio={1 / 1}
                       removeBorderRadius
                     />
@@ -1460,7 +1469,7 @@ const AddScreen = () => {
                       alignItems: "center",
                       justifyContent: "center",
                       backgroundColor: themeStyle.colors.grayscale.highest,
-                      borderRadius: 5,
+                      borderRadius: 3,
                     }}
                   >
                     <MaterialCommunityIcons
