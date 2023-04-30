@@ -75,164 +75,163 @@ const UserBioModal = ({
             active={enableAI}
             setText={(v) => {
               setValue(v);
-              setHeight(300);
             }}
             isBio
           />
           <View style={{ height: "100%" }}>
-            <ScrollView>
-              <View
-                style={{
-                  alignSelf: "flex-start",
-                  marginVertical: 10,
-                }}
-              >
-                <TouchableOpacity
-                  onPress={() => {
-                    setShowUserBioModal(false);
-                  }}
-                  style={{
-                    justifyContent: "center",
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <AntDesign
-                    name="arrowleft"
-                    size={24}
-                    color={themeStyle.colors.grayscale.lowest}
-                  />
-                  <Text
-                    style={{
-                      color: themeStyle.colors.grayscale.lowest,
-                      fontSize: 16,
-                      marginHorizontal: 10,
-                    }}
-                  >
-                    Add Bio
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <View
-                style={{
-                  borderWidth: 1,
-                  borderColor: themeStyle.colors.grayscale.lowest,
-                  borderRadius: 5,
-                  padding: 5,
-                  marginTop: 20,
-                }}
-              >
-                <ScrollView style={{ maxHeight: 300 }}>
-                  <TextInput
-                    placeholderTextColor={themeStyle.colors.grayscale.lowest}
-                    multiline
-                    value={value}
-                    onChangeText={(v) => setValue(v)}
-                    maxLength={1000}
-                    onContentSizeChange={(event) => {
-                      setHeight(
-                        event.nativeEvent.contentSize.height < 300
-                          ? event.nativeEvent.contentSize.height
-                          : 300
-                      );
-                    }}
-                    style={[
-                      {
-                        height: Math.max(48, height),
-                        color: themeStyle.colors.grayscale.lowest,
-                      },
-                    ]}
-                    placeholder={"Write a bit about yourself..."}
-                  />
-                </ScrollView>
-              </View>
-              <Text
-                style={{
-                  color: themeStyle.colors.success.default,
-                  alignSelf: "flex-start",
-                  marginTop: 10,
-                  fontSize: 16,
-                }}
-              >
-                {success ? (bio ? "Bio updated" : "Bio added") : ""}
-              </Text>
-            </ScrollView>
-            <TouchableOpacity
-              onPress={() => setEnableAI(true)}
+            <View
               style={{
-                height: 60,
-                width: 60,
-                borderRadius: 30,
-                alignSelf: "flex-end",
-                marginBottom: 20,
+                alignSelf: "flex-start",
+                marginVertical: 10,
               }}
             >
-              <LinearGradient
-                start={[0, 0.5]}
-                end={[0, 1]}
-                style={[
-                  {
-                    width: 60,
-                    height: 60,
-                    alignSelf: "center",
-                    padding: 2,
-                    borderRadius: 30,
-                  },
-                ]}
-                colors={["#138294", "#66b5ff"]}
+              <TouchableOpacity
+                onPress={() => {
+                  setShowUserBioModal(false);
+                }}
+                style={{
+                  justifyContent: "center",
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
               >
-                <View
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: themeStyle.colors.grayscale.highest,
-                    borderRadius: 30,
-                  }}
-                >
-                  <MaterialCommunityIcons
-                    name="robot-happy-outline"
-                    size={24}
-                    color={themeStyle.colors.grayscale.lowest}
-                  />
-                  <Text
-                    style={{
-                      color: themeStyle.colors.grayscale.lowest,
-                      fontSize: 10,
-                    }}
-                  >
-                    AI
-                  </Text>
-                </View>
-              </LinearGradient>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                borderRadius: 5,
-                padding: 10,
-                height: 48,
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: themeStyle.colors.primary.default,
-                marginTop: 5,
-                marginBottom: 10,
-              }}
-              onPress={() => handleSubmit()}
-            >
-              {loading ? (
-                <ActivityIndicator
-                  size={"small"}
-                  color={themeStyle.colors.white}
+                <AntDesign
+                  name="arrowleft"
+                  size={24}
+                  color={themeStyle.colors.grayscale.lowest}
                 />
-              ) : (
-                <Text style={{ color: themeStyle.colors.white }}>
-                  {bio ? "Update Bio" : "Add Bio"}
+                <Text
+                  style={{
+                    color: themeStyle.colors.grayscale.lowest,
+                    fontSize: 16,
+                    marginHorizontal: 10,
+                  }}
+                >
+                  Add Bio
                 </Text>
-              )}
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: themeStyle.colors.grayscale.lowest,
+                borderRadius: 5,
+                padding: 5,
+                marginTop: 20,
+              }}
+            >
+              <ScrollView style={{ maxHeight: 300 }}>
+                <TextInput
+                  placeholderTextColor={themeStyle.colors.grayscale.lowest}
+                  multiline
+                  value={value}
+                  onChangeText={(v) => setValue(v)}
+                  maxLength={1000}
+                  onContentSizeChange={(event) => {
+                    setHeight(
+                      event.nativeEvent.contentSize.height < 300
+                        ? event.nativeEvent.contentSize.height
+                        : 300
+                    );
+                  }}
+                  style={[
+                    {
+                      height: Math.max(48, height),
+                      color: themeStyle.colors.grayscale.lowest,
+                    },
+                  ]}
+                  placeholder={"Write a bit about yourself..."}
+                />
+              </ScrollView>
+            </View>
+            <Text
+              style={{
+                color: themeStyle.colors.success.default,
+                alignSelf: "flex-start",
+                marginTop: 10,
+                fontSize: 16,
+              }}
+            >
+              {success ? (bio ? "Bio updated" : "Bio added") : ""}
+            </Text>
           </View>
         </KeyboardAvoidingView>
+        <View style={{ flex: 1, justifyContent: "flex-end" }}>
+          <TouchableOpacity
+            onPress={() => setEnableAI(true)}
+            style={{
+              height: 60,
+              width: 60,
+              borderRadius: 30,
+              alignSelf: "flex-end",
+              marginBottom: 10,
+            }}
+          >
+            <LinearGradient
+              start={[0, 0.5]}
+              end={[0, 1]}
+              style={[
+                {
+                  width: 60,
+                  height: 60,
+                  alignSelf: "center",
+                  padding: 2,
+                  borderRadius: 30,
+                },
+              ]}
+              colors={["#138294", "#66b5ff"]}
+            >
+              <View
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: themeStyle.colors.grayscale.highest,
+                  borderRadius: 30,
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="robot-happy-outline"
+                  size={24}
+                  color={themeStyle.colors.grayscale.lowest}
+                />
+                <Text
+                  style={{
+                    color: themeStyle.colors.grayscale.lowest,
+                    fontSize: 10,
+                  }}
+                >
+                  AI
+                </Text>
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              borderRadius: 5,
+              padding: 10,
+              height: 48,
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: themeStyle.colors.primary.default,
+              marginTop: 5,
+              marginBottom: 10,
+            }}
+            onPress={() => handleSubmit()}
+          >
+            {loading ? (
+              <ActivityIndicator
+                size={"small"}
+                color={themeStyle.colors.white}
+              />
+            ) : (
+              <Text style={{ color: themeStyle.colors.white }}>
+                {bio ? "Update Bio" : "Add Bio"}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     </Modal>
   );

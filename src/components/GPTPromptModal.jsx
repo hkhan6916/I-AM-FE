@@ -330,7 +330,11 @@ const GPTPromptModal = ({
                 style={{
                   flex: 1,
                 }}
-                contentContainerStyle={generateImage ? { flex: 1 } : {}}
+                contentContainerStyle={
+                  generateImage || generatingText || generatingImage
+                    ? { flex: 1 }
+                    : {}
+                }
               >
                 {generatingText || generatingImage ? (
                   <View
@@ -342,8 +346,19 @@ const GPTPromptModal = ({
                   >
                     <ActivityIndicator
                       size={24}
-                      color={themeStyle.colors.grayscale.lowest}
+                      color={themeStyle.colors.black}
                     />
+                    <Text
+                      style={{
+                        color: themeStyle.colors.black,
+                        marginTop: 10,
+                        fontWeight: "700",
+                      }}
+                    >
+                      {generateImage
+                        ? "Generating your image..."
+                        : `Writing your ${isBio ? "bio" : "post"}...`}
+                    </Text>
                   </View>
                 ) : generatedImageUrl ? (
                   <View style={{ flex: 1, padding: 10 }}>

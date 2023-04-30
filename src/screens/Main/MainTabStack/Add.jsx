@@ -780,6 +780,7 @@ const AddScreen = () => {
                 textAlignVertical: "top",
                 fontSize: 16,
                 color: themeStyle.colors.grayscale.lowest,
+                marginBottom: 10,
               }}
               value={postBody}
               placeholder="What's on your mind?"
