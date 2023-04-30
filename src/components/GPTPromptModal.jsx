@@ -9,6 +9,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Image,
+  Keyboard,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import themeStyle from "../theme.style";
@@ -19,9 +20,10 @@ import { LinearGradient } from "expo-linear-gradient";
 const GPTPromptModal = ({
   setShowModal,
   active,
-  setPostBody,
+  setText,
   setPostImage,
   generateImage,
+  isBio,
 }) => {
   const [error, setError] = useState("");
   const [generatingText, setGeneratingText] = useState(false);
@@ -36,6 +38,14 @@ const GPTPromptModal = ({
     useState(false);
   const placeholderTextArray = generateImage
     ? []
+    : isBio
+    ? [
+        "I am web developer with 5 years experience...",
+        "I am a digital marketer working at...",
+        "I specialise in...",
+        "I am a recruiter who works with...",
+        "I work as a...",
+      ]
     : [
         "I got promoted today...",
         "The weather is nice today...",
@@ -51,6 +61,9 @@ const GPTPromptModal = ({
   );
 
   const handleGPTTextGeneration = async () => {
+    Keyboard.dismiss();
+    setError("");
+
     const configuration = new Configuration({
       apiKey: "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",
     });
@@ -88,7 +101,11 @@ const GPTPromptModal = ({
           messages: [
             {
               role: "user",
-              content: `Create a post about the following without hashtags and without disclaimers: "${gptPrompt}". Limit the response to 1000 characters.`,
+              content: `${
+                isBio
+                  ? "Create a bio for a user using the following"
+                  : "Create a post about the following"
+              }  without hashtags and without disclaimers: "${gptPrompt}". Limit the response to 1000 characters.`,
             },
           ],
           temperature: 0.6,
@@ -100,6 +117,11 @@ const GPTPromptModal = ({
         setGeneratedText(completionString);
       } catch (error) {
         setGeneratingText(false);
+        setError(
+          `There was a problem generating your ${
+            isBio ? "bio" : "post body"
+          }. Please try again later.`
+        );
         if (error.response) {
           console.log(error.response.status);
           console.log(error.response.data);
@@ -168,7 +190,7 @@ const GPTPromptModal = ({
                   marginHorizontal: 10,
                 }}
               >
-                AI Post Generator
+                AI {isBio ? "Bio" : "Post"} Generator
               </Text>
             </TouchableOpacity>
           </View>
@@ -181,6 +203,8 @@ const GPTPromptModal = ({
             >
               {generateImage
                 ? "Describe the image to generate for your post."
+                : isBio
+                ? "Talk about yourself."
                 : "What's on your mind?"}
             </Text>
             <View
@@ -214,18 +238,6 @@ const GPTPromptModal = ({
                   setPlaceholder("Keep it short and concise.");
                 }}
               />
-              {!!error && (
-                <View style={{ flex: 1 }}>
-                  <Text
-                    style={{
-                      color: themeStyle.colors.error.default,
-                      textAlign: "center",
-                    }}
-                  >
-                    {error}
-                  </Text>
-                </View>
-              )}
             </View>
             {!generateImage && (
               <Text
@@ -234,11 +246,12 @@ const GPTPromptModal = ({
                   marginBottom: 20,
                 }}
               >
-                Start off your post. Keep it short and concise.
+                {isBio
+                  ? "Start off your bio. Keep it short and concise, the rest will be generated."
+                  : "Start off your post. Keep it short and concise."}
               </Text>
             )}
           </>
-
           {gptPrompt?.length === 150 && (
             <Text
               style={{
@@ -247,6 +260,17 @@ const GPTPromptModal = ({
               }}
             >
               Max 150 characters
+            </Text>
+          )}
+          {!!error && (
+            <Text
+              style={{
+                color: themeStyle.colors.error.default,
+                textAlign: "center",
+                marginBottom: 10,
+              }}
+            >
+              {error}
             </Text>
           )}
           <TouchableOpacity
@@ -347,7 +371,7 @@ const GPTPromptModal = ({
                       if (generateImage) {
                         setPostImage(generatedImageUrl);
                       } else {
-                        setPostBody(generatedText);
+                        setText(generatedText);
                       }
                       setShowModal(false);
                     }}
@@ -364,6 +388,8 @@ const GPTPromptModal = ({
                     <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
                       {generateImage
                         ? "Set As Post Image And Review"
+                        : isBio
+                        ? "Set As Bio And Review"
                         : "Set As Post Body And Review"}
                     </Text>
                   </TouchableOpacity>

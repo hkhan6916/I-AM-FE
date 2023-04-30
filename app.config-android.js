@@ -106,6 +106,7 @@ export default {
           ? process.env.TEST_API_WEBSOCKET_URL
           : process.env.API_WEBSOCKET_URL,
       experienceId: process.env.EXPERIENCE_ID,
+      gptSecret: process.env.GPT_SECRET,
       packageName: process.env.PACKAGE_NAME,
       appStoreId: process.env.APP_STORE_ID,
       eas: {

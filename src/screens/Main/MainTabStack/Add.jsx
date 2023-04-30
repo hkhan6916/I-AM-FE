@@ -697,7 +697,7 @@ const AddScreen = () => {
               setShowModal={setEnableAI}
               active={enableAI}
               postBody={postBody}
-              setPostBody={setPostBody}
+              setText={setPostBody}
               setPostImage={setGeneratedImageUrl}
             />
           )}
@@ -1026,7 +1026,7 @@ const AddScreen = () => {
                     }}
                   >
                     <View style={{ marginVertical: 20, paddingHorizontal: 10 }}>
-                      <View
+                      {/* <View
                         style={{
                           flexDirection: "row",
                           alignItems: "center",
@@ -1074,7 +1074,7 @@ const AddScreen = () => {
                             Add AI Generated Image
                           </Text>
                         </TouchableOpacity>
-                      </View>
+                      </View> */}
                       <View
                         style={{
                           flexDirection: "row",

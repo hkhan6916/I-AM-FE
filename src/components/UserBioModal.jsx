@@ -1,4 +1,4 @@
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   Text,
@@ -15,6 +15,8 @@ import {
 import { useDispatch } from "react-redux";
 import apiCall from "../helpers/apiCall";
 import themeStyle from "../theme.style";
+import GPTPromptModal from "./GPTPromptModal";
+import { LinearGradient } from "expo-linear-gradient";
 
 const UserBioModal = ({
   bio,
@@ -27,6 +29,7 @@ const UserBioModal = ({
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
+  const [enableAI, setEnableAI] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -67,6 +70,15 @@ const UserBioModal = ({
             padding: 15,
           }}
         >
+          <GPTPromptModal
+            setShowModal={setEnableAI}
+            active={enableAI}
+            setText={(v) => {
+              setValue(v);
+              setHeight(300);
+            }}
+            isBio
+          />
           <View style={{ height: "100%" }}>
             <ScrollView>
               <View
@@ -116,7 +128,7 @@ const UserBioModal = ({
                     multiline
                     value={value}
                     onChangeText={(v) => setValue(v)}
-                    maxLength={500}
+                    maxLength={1000}
                     onContentSizeChange={(event) => {
                       setHeight(
                         event.nativeEvent.contentSize.height < 300
@@ -145,6 +157,56 @@ const UserBioModal = ({
                 {success ? (bio ? "Bio updated" : "Bio added") : ""}
               </Text>
             </ScrollView>
+            <TouchableOpacity
+              onPress={() => setEnableAI(true)}
+              style={{
+                height: 60,
+                width: 60,
+                borderRadius: 30,
+                alignSelf: "flex-end",
+                marginBottom: 20,
+              }}
+            >
+              <LinearGradient
+                start={[0, 0.5]}
+                end={[0, 1]}
+                style={[
+                  {
+                    width: 60,
+                    height: 60,
+                    alignSelf: "center",
+                    padding: 2,
+                    borderRadius: 30,
+                  },
+                ]}
+                colors={["#138294", "#66b5ff"]}
+              >
+                <View
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: themeStyle.colors.grayscale.highest,
+                    borderRadius: 30,
+                  }}
+                >
+                  <MaterialCommunityIcons
+                    name="robot-happy-outline"
+                    size={24}
+                    color={themeStyle.colors.grayscale.lowest}
+                  />
+                  <Text
+                    style={{
+                      color: themeStyle.colors.grayscale.lowest,
+                      fontSize: 10,
+                    }}
+                  >
+                    AI
+                  </Text>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
             <TouchableOpacity
               style={{
                 borderRadius: 5,

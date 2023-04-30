@@ -22,7 +22,7 @@ const useTypewriter = (textArray, setCurrentText, currentText, disabled) => {
       }
     };
 
-    const timer = setInterval(handleTyping, 50);
+    const timer = setInterval(handleTyping, 10);
 
     return () => clearInterval(timer);
   }, [currentText, currentIndex, textArray, disabled]);
