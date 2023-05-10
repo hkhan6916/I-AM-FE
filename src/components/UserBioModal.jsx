@@ -77,6 +77,7 @@ const UserBioModal = ({
               setValue(v);
             }}
             isBio
+            userData={userData}
           />
           <View style={{ height: "100%" }}>
             <View

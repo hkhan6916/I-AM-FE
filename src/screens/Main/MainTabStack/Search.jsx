@@ -227,7 +227,7 @@ const SearchScreen = () => {
             feedIsVisible={!hideFeedAndSuggestions}
             offset={results.length && showAllResults ? results.length : 0}
           />
-          <View
+          {/* <View
             style={{
               flexDirection: "row",
               margin: 5,
@@ -273,7 +273,7 @@ const SearchScreen = () => {
                 </Text>
               </View>
             </TouchableOpacity>
-          </View>
+          </View> */}
           {!hideFeedAndSuggestions &&
           !results.length &&
           searchFeed.length >= 20 ? (

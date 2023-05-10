@@ -16,6 +16,7 @@ import themeStyle from "../theme.style";
 import { Configuration, OpenAIApi } from "openai";
 import useTypewriter from "../helpers/hooks/useTypeWriter";
 import { LinearGradient } from "expo-linear-gradient";
+import Constants from "expo-constants";
 
 const GPTPromptModal = ({
   setShowModal,
@@ -24,6 +25,7 @@ const GPTPromptModal = ({
   setPostImage,
   generateImage,
   isBio,
+  userData,
 }) => {
   const [error, setError] = useState("");
   const [generatingText, setGeneratingText] = useState(false);
@@ -33,6 +35,8 @@ const GPTPromptModal = ({
   const [gptPrompt, setGptPrompt] = useState("");
   const [prevTextToComplete, setPrevTextToComplete] = useState("");
   const [placeholder, setPlaceholder] = useState("");
+  const [useJobOrEducationHistoryForBio, setUseJobOrEducationHistoryForBio] =
+    useState(false);
 
   const [disablePlaceholderTypewriter, setDisablePlaceholderTypewriter] =
     useState(false);
@@ -53,6 +57,13 @@ const GPTPromptModal = ({
         "Looking to hire someone who can...",
         "I am looking for my next role in...",
       ];
+
+  const userLatestJobHistories = userData?.userJobHistory?.slice(0, 2);
+  const userLatestEducationHistories = userData?.userEducationHistory?.slice(
+    0,
+    2
+  );
+
   useTypewriter(
     placeholderTextArray,
     setPlaceholder,
@@ -65,7 +76,7 @@ const GPTPromptModal = ({
     setError("");
 
     const configuration = new Configuration({
-      apiKey: "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",
+      apiKey: Constants.manifest.extra.gptSecret,
     });
     const openai = new OpenAIApi(configuration);
 
@@ -96,6 +107,50 @@ const GPTPromptModal = ({
         setGeneratingText(true);
         setGeneratedText("");
         setPrevTextToComplete(gptPrompt);
+
+        const jobTitle = userData?.jobTitle;
+
+        const currentJobs = userLatestJobHistories?.filter(
+          (job) => job.dateTo === "present"
+        );
+
+        const pastJobs = userLatestJobHistories?.filter(
+          (job) => job.dateTo !== "present"
+        );
+
+        const currentEducation = userLatestEducationHistories?.filter(
+          (education) => education.dateTo === "present"
+        );
+
+        const pastEducation = userLatestEducationHistories?.filter(
+          (education) => education.dateTo !== "present"
+        );
+
+        let autoGenerateBioPrompt = jobTitle ? `I work as a ${jobTitle}. ` : "";
+        if (userLatestJobHistories?.length) {
+          if (currentJobs?.length) {
+            autoGenerateBioPrompt +=
+              `I work ` +
+              currentJobs
+                .map((job) => `at ${job.companyName} as a ${job.roleName}`)
+                ?.join(", ") +
+              ".";
+          }
+          if (pastJobs?.length) {
+            autoGenerateBioPrompt += "I have worked ";
+            const test =
+              pastJobs
+                .map((job) => `at ${job.companyName} as a ${job.roleName}`)
+                ?.join(", ") + ".";
+            autoGenerateBioPrompt += test;
+          }
+        }
+        if (userLatestEducationHistories?.length) {
+        }
+
+        console.log({ autoGenerateBioPrompt });
+        // A work as a engineer. I currently work as a web dev at abc, a teacher at efg. I used to work as a tester at abc.
+        return;
         const completion = await openai.createChatCompletion({
           model: "gpt-3.5-turbo",
           messages: [
@@ -275,7 +330,7 @@ const GPTPromptModal = ({
           )}
           <TouchableOpacity
             onPress={() => handleGPTTextGeneration()}
-            disabled={disableWriteButton}
+            // disabled={disableWriteButton}
             style={{
               opacity: disableWriteButton ? 0.5 : 1,
               marginBottom: 10,

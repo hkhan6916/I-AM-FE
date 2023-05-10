@@ -1076,55 +1076,63 @@ const AddScreen = () => {
                           </Text>
                         </TouchableOpacity>
                       </View> */}
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          marginHorizontal: 10,
-                          marginBottom: 30,
-                        }}
-                      >
-                        <TouchableOpacity
-                          onPress={() => setEnableAI(true)}
-                          style={{ alignItems: "center", flexDirection: "row" }}
+                      {!showImageOrVideoOption && (
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            marginHorizontal: 10,
+                            marginBottom: 30,
+                          }}
                         >
-                          <View
+                          <TouchableOpacity
+                            onPress={() => {
+                              setEnableAI(true);
+                              actionSheetRef.current?.hide();
+                            }}
                             style={{
-                              backgroundColor:
-                                themeStyle.colors.grayscale
-                                  .transparentHighest50,
-                              height: 48,
-                              width: 48,
-                              borderRadius: 26,
-                              justifyContent: "center",
                               alignItems: "center",
+                              flexDirection: "row",
                             }}
                           >
-                            <MaterialCommunityIcons
-                              name="robot-happy-outline"
-                              size={24}
-                              color={themeStyle.colors.grayscale.lowest}
-                            />
+                            <View
+                              style={{
+                                backgroundColor:
+                                  themeStyle.colors.grayscale
+                                    .transparentHighest50,
+                                height: 48,
+                                width: 48,
+                                borderRadius: 26,
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            >
+                              <MaterialCommunityIcons
+                                name="robot-happy-outline"
+                                size={24}
+                                color={themeStyle.colors.grayscale.lowest}
+                              />
+                              <Text
+                                style={{
+                                  color: themeStyle.colors.grayscale.lowest,
+                                  fontSize: 10,
+                                }}
+                              >
+                                Text
+                              </Text>
+                            </View>
                             <Text
                               style={{
                                 color: themeStyle.colors.grayscale.lowest,
-                                fontSize: 10,
+                                fontWeight: "700",
+                                marginLeft: 10,
                               }}
                             >
-                              Text
+                              Add AI Generated Post Body
                             </Text>
-                          </View>
-                          <Text
-                            style={{
-                              color: themeStyle.colors.grayscale.lowest,
-                              fontWeight: "700",
-                              marginLeft: 10,
-                            }}
-                          >
-                            Add AI Generated Post Body
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
+                          </TouchableOpacity>
+                        </View>
+                      )}
                       <View
                         style={{
                           flexDirection: "row",
