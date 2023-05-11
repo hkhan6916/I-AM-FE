@@ -36,7 +36,7 @@ const GPTPromptModal = ({
   const [prevTextToComplete, setPrevTextToComplete] = useState("");
   const [placeholder, setPlaceholder] = useState("");
   const [useJobOrEducationHistoryForBio, setUseJobOrEducationHistoryForBio] =
-    useState(false);
+    useState(true);
 
   const [disablePlaceholderTypewriter, setDisablePlaceholderTypewriter] =
     useState(false);
@@ -130,27 +130,68 @@ const GPTPromptModal = ({
         if (userLatestJobHistories?.length) {
           if (currentJobs?.length) {
             autoGenerateBioPrompt +=
-              `I work ` +
+              `I currently work ` +
               currentJobs
                 .map((job) => `at ${job.companyName} as a ${job.roleName}`)
                 ?.join(", ") +
               ".";
-          }
-          if (pastJobs?.length) {
-            autoGenerateBioPrompt += "I have worked ";
-            const test =
-              pastJobs
+            const currentJobsPrompt =
+              currentJobs
                 .map((job) => `at ${job.companyName} as a ${job.roleName}`)
                 ?.join(", ") + ".";
-            autoGenerateBioPrompt += test;
+            autoGenerateBioPrompt += currentJobsPrompt;
+          }
+
+          if (pastJobs?.length) {
+            autoGenerateBioPrompt += "I have previously worked ";
+            const pastJobsPrompt =
+              pastJobs
+                .map((job) => {
+                  return `at ${job.companyName} as a ${job.roleName} `;
+                })
+                ?.join("and ") + ".";
+            autoGenerateBioPrompt += pastJobsPrompt;
           }
         }
-        if (userLatestEducationHistories?.length) {
+        if (
+          // !userLatestJobHistories?.length &&
+          userLatestEducationHistories?.length
+        ) {
+          if (currentEducation?.length) {
+            autoGenerateBioPrompt +=
+              `I currently study ` +
+              currentEducation
+                .map(
+                  (education) =>
+                    `${education.educationName} at ${education.institutionName} `
+                )
+                ?.join(", ") +
+              ".";
+            const currentEducationPrompt =
+              currentEducation
+                .map(
+                  (education) =>
+                    `${education.educationName} at ${education.institutionName} `
+                )
+                ?.join(", ") + ".";
+            autoGenerateBioPrompt += currentEducationPrompt;
+          }
+
+          if (pastEducation?.length) {
+            autoGenerateBioPrompt += "I have previously studied ";
+            const pastEducationPrompt =
+              pastEducation
+                .map((job) => {
+                  return `at ${job.institutionName} as a ${job.educationName} `;
+                })
+                ?.join("and ") + ".";
+            autoGenerateBioPrompt += pastEducationPrompt;
+          }
         }
 
         console.log({ autoGenerateBioPrompt });
         // A work as a engineer. I currently work as a web dev at abc, a teacher at efg. I used to work as a tester at abc.
-        return;
+        // return;
         const completion = await openai.createChatCompletion({
           model: "gpt-3.5-turbo",
           messages: [
@@ -160,10 +201,16 @@ const GPTPromptModal = ({
                 isBio
                   ? "Create a bio for a user using the following"
                   : "Create a post about the following"
-              }  without hashtags and without disclaimers: "${gptPrompt}". Limit the response to 1000 characters.`,
+              } in no chronological order, without hashtags and without disclaimers: "${
+                useJobOrEducationHistoryForBio
+                  ? autoGenerateBioPrompt
+                  : gptPrompt
+              }". Limit the response to ${
+                useJobOrEducationHistoryForBio ? "1000" : "1000"
+              } characters.`,
             },
           ],
-          temperature: 0.6,
+          temperature: useJobOrEducationHistoryForBio ? 0.1 : 0.6,
           max_tokens: 200,
         });
         const completionString =
@@ -299,10 +346,16 @@ const GPTPromptModal = ({
                 style={{
                   color: themeStyle.colors.grayscale.lowest,
                   marginBottom: 20,
+                  paddingHorizontal: 5,
                 }}
               >
                 {isBio
-                  ? "Start off your bio. Keep it short and concise, the rest will be generated."
+                  ? `Start off your bio. Keep it short and concise, the rest will be generated${
+                      userLatestJobHistories?.length ||
+                      userLatestEducationHistories?.length
+                        ? ` or click "Auto Generate" to quickly generate your bio.`
+                        : "."
+                    }`
                   : "Start off your post. Keep it short and concise."}
               </Text>
             )}
@@ -328,47 +381,91 @@ const GPTPromptModal = ({
               {error}
             </Text>
           )}
-          <TouchableOpacity
-            onPress={() => handleGPTTextGeneration()}
-            // disabled={disableWriteButton}
-            style={{
-              opacity: disableWriteButton ? 0.5 : 1,
-              marginBottom: 10,
-              marginHorizontal: 5,
-            }}
-          >
-            <LinearGradient
-              start={[0, 0.5]}
-              end={[0, 1]}
+          <View style={{ flexDirection: "column" }}>
+            <TouchableOpacity
+              onPress={() => handleGPTTextGeneration()}
+              // disabled={disableWriteButton}
               style={{
-                height: 48,
-                borderRadius: 5,
-                justifyContent: "center",
-                alignItems: "center",
-                padding: disableWriteButton ? 0 : 2,
+                opacity: disableWriteButton ? 0.5 : 1,
+                marginBottom: 10,
+                marginHorizontal: 5,
               }}
-              colors={
-                disableWriteButton
-                  ? [themeStyle.colors.slateGray, themeStyle.colors.slateGray]
-                  : ["#138294", "#66b5ff"]
-              }
             >
-              <View
+              <LinearGradient
+                start={[0, 0.5]}
+                end={[0, 1]}
                 style={{
-                  backgroundColor: themeStyle.colors.grayscale.highest,
-                  flex: 1,
-                  height: "100%",
-                  width: "100%",
+                  height: 48,
+                  borderRadius: 5,
                   justifyContent: "center",
                   alignItems: "center",
+                  padding: disableWriteButton ? 0 : 2,
+                }}
+                colors={
+                  disableWriteButton
+                    ? [themeStyle.colors.slateGray, themeStyle.colors.slateGray]
+                    : ["#138294", "#66b5ff"]
+                }
+              >
+                <View
+                  style={{
+                    backgroundColor: themeStyle.colors.grayscale.highest,
+                    flex: 1,
+                    height: "100%",
+                    width: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                    {!generateImage ? "Start Writing" : "Generate Image"}
+                  </Text>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+            {!!(
+              userLatestJobHistories?.length ||
+              userLatestEducationHistories?.length
+            ) && (
+              <TouchableOpacity
+                onPress={() => handleGPTTextGeneration()}
+                disabled={generatingText}
+                style={{
+                  opacity: generatingText ? 0.5 : 1,
+                  marginBottom: 10,
+                  marginHorizontal: 5,
                 }}
               >
-                <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
-                  {!generateImage ? "Start Writing" : "Generate Image"}
-                </Text>
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
+                <LinearGradient
+                  start={[0, 0.5]}
+                  end={[0, 1]}
+                  style={{
+                    height: 48,
+                    borderRadius: 5,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: 2,
+                  }}
+                  colors={["#138294", "#66b5ff"]}
+                >
+                  <View
+                    style={{
+                      backgroundColor: themeStyle.colors.grayscale.highest,
+                      flex: 1,
+                      height: "100%",
+                      width: "100%",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text style={{ color: themeStyle.colors.grayscale.lowest }}>
+                      Auto Generate
+                    </Text>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            )}
+          </View>
           {generatedText ||
           generatingText ||
           generatedImageUrl ||
