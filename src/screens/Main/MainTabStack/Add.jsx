@@ -60,7 +60,7 @@ import * as Notifications from "expo-notifications";
 import queue, { Worker } from "react-native-job-queue";
 import { Camera } from "react-native-vision-camera";
 import { LinearGradient } from "expo-linear-gradient";
-import GPTPromptModal from "../../../components/GPTPromptModal";
+import { GPTPromptModal } from "../../../components/GPTPromptModal";
 
 const AddScreen = () => {
   const isFocused = useIsFocused();

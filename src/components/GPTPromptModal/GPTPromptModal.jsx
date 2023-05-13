@@ -5,18 +5,16 @@ import {
   TouchableOpacity,
   Text,
   SafeAreaView,
-  TextInput,
   ScrollView,
   ActivityIndicator,
-  Image,
   Keyboard,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import themeStyle from "../theme.style";
+import themeStyle from "../../theme.style";
 import { Configuration, OpenAIApi } from "openai";
-import useTypewriter from "../helpers/hooks/useTypeWriter";
 import { LinearGradient } from "expo-linear-gradient";
 import Constants from "expo-constants";
+import GPTTextInput from "./GPTTextInput";
 
 const GPTPromptModal = ({ setShowModal, active, setText, isBio, userData }) => {
   const [error, setError] = useState("");
@@ -24,12 +22,7 @@ const GPTPromptModal = ({ setShowModal, active, setText, isBio, userData }) => {
   const [generatedText, setGeneratedText] = useState("");
   const [gptPrompt, setGptPrompt] = useState("");
   const [prevTextToComplete, setPrevTextToComplete] = useState("");
-  const [placeholder, setPlaceholder] = useState("");
-  const [useJobOrEducationHistoryForBio, setUseJobOrEducationHistoryForBio] =
-    useState(true);
 
-  const [disablePlaceholderTypewriter, setDisablePlaceholderTypewriter] =
-    useState(false);
   const placeholderTextArray = isBio
     ? [
         "I am web developer with 5 years experience...",
@@ -52,14 +45,9 @@ const GPTPromptModal = ({ setShowModal, active, setText, isBio, userData }) => {
     2
   );
 
-  useTypewriter(
-    placeholderTextArray,
-    setPlaceholder,
-    placeholder,
-    disablePlaceholderTypewriter
-  );
-
-  const handleGPTTextGeneration = async () => {
+  const handleGPTTextGeneration = async (
+    useJobOrEducationHistoryForBio = false
+  ) => {
     Keyboard.dismiss();
     setError("");
 
@@ -266,36 +254,13 @@ const GPTPromptModal = ({ setShowModal, active, setText, isBio, userData }) => {
             >
               {isBio ? "Talk about yourself." : "What's on your mind?"}
             </Text>
-            <View
-              style={{
-                borderWidth: 1,
-                borderColor: themeStyle.colors.grayscale.lowest,
-                borderRadius: 5,
-                padding: 5,
-                flex: 1,
-                marginBottom: 10,
-              }}
-            >
-              <TextInput
-                style={{
-                  textAlignVertical: "top",
-                  fontSize: 16,
-                  color: themeStyle.colors.grayscale.lowest,
-                  flex: 1,
-                  height: "100%",
-                }}
-                value={gptPrompt}
-                placeholder={placeholder}
-                placeholderTextColor={themeStyle.colors.grayscale.high}
-                multiline
-                maxLength={150}
-                onChangeText={(v) => setGptPrompt(v)}
-                onFocus={() => {
-                  setDisablePlaceholderTypewriter(true);
-                  setPlaceholder("Keep it short and concise.");
-                }}
-              />
-            </View>
+            <GPTTextInput
+              value={gptPrompt}
+              multiline
+              maxLength={150}
+              onChangeText={(v) => setGptPrompt(v)}
+              placeholderTextArray={placeholderTextArray}
+            />
             <Text
               style={{
                 color: themeStyle.colors.grayscale.lowest,
@@ -381,7 +346,7 @@ const GPTPromptModal = ({ setShowModal, active, setText, isBio, userData }) => {
               userLatestEducationHistories?.length
             ) && (
               <TouchableOpacity
-                onPress={() => handleGPTTextGeneration()}
+                onPress={() => handleGPTTextGeneration(true)}
                 disabled={generatingText}
                 style={{
                   opacity: generatingText ? 0.5 : 1,

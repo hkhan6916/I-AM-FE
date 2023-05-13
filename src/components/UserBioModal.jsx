@@ -15,7 +15,7 @@ import {
 import { useDispatch } from "react-redux";
 import apiCall from "../helpers/apiCall";
 import themeStyle from "../theme.style";
-import GPTPromptModal from "./GPTPromptModal";
+import { GPTPromptModal } from "./GPTPromptModal";
 import { LinearGradient } from "expo-linear-gradient";
 
 const UserBioModal = ({
