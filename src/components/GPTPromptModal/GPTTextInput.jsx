@@ -4,7 +4,6 @@ import useTypewriter from "../../helpers/hooks/useTypeWriter";
 import { useState } from "react";
 
 const GPTTextInput = ({ placeholderTextArray, ...rest }) => {
-  const [placeholder, setPlaceholder] = useState("");
   const [disablePlaceholderTypewriter, setDisablePlaceholderTypewriter] =
     useState(false);
   const [text] = useTypewriter({
@@ -24,7 +23,6 @@ const GPTTextInput = ({ placeholderTextArray, ...rest }) => {
         marginBottom: 10,
       }}
     >
-      {console.log("hey")}
       <TextInput
         style={{
           textAlignVertical: "top",
@@ -33,11 +31,12 @@ const GPTTextInput = ({ placeholderTextArray, ...rest }) => {
           flex: 1,
           height: "100%",
         }}
-        placeholder={text}
+        placeholder={
+          disablePlaceholderTypewriter ? "Keep it short and concise." : text
+        }
         placeholderTextColor={themeStyle.colors.grayscale.high}
         onFocus={() => {
           setDisablePlaceholderTypewriter(true);
-          setPlaceholder("Keep it short and concise.");
         }}
         {...rest}
       />

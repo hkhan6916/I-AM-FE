@@ -42,7 +42,7 @@ export default {
       },
       googleServicesFile: "./google-services.json",
       package: "com.magnetapp.magnet",
-      versionCode: 10,
+      versionCode: 21,
       blockedPermissions: [
         "android.permission.USE_FINGERPRINT",
         "android.permission.USE_BIOMETRIC",
@@ -75,7 +75,7 @@ export default {
         "expo-build-properties",
         {
           android: {
-            minSdkVersion: 28,
+            minSdkVersion: 33,
             packagingOptions: {
               pickFirst: [
                 "/armeabi-v7a/libfolly_runtime.so",
@@ -111,7 +111,7 @@ export default {
       appStoreId: process.env.APP_STORE_ID,
       eas: {
         // We need this for production builds
-        projectId: "c8d33980-51de-472d-977a-dc62d80d2683",
+        projectId: process.env.PROJECT_ID,
       },
     },
   },

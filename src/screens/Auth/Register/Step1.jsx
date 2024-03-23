@@ -6,7 +6,6 @@ import {
   ScrollView,
   StyleSheet,
   SafeAreaView,
-  FlatList,
   Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";

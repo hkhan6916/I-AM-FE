@@ -21,7 +21,6 @@ import apiCall from "../../../../helpers/apiCall";
 import { useScrollToTop } from "@react-navigation/native";
 import PostOptionsModal from "../../../../components/PostOptionsModal";
 import HomeScreenHeader from "./HomeScreenHeader";
-// import * as FacebookAds from "expo-ads-facebook";
 import {
   RecyclerListView,
   DataProvider,
@@ -582,7 +581,7 @@ const HomeScreen = () => {
                   event.nativeEvent.contentOffset.y - positionBeforeScroll
                 ) > 300 &&
                 currentVisible.current !== 0
-                // if they scroll far enough, enable scroll to pause video
+                // if they scroll far enough, set scroll to true in order to pause video
               ) {
                 setScrolling(true);
                 setPositionBeforeScroll(event.nativeEvent.contentOffset.y);

@@ -13,7 +13,6 @@ import {
   Text,
   View,
   Dimensions,
-  TouchableOpacity,
 } from "react-native";
 import UserThumbnail from "../../../components/UserThumbnail";
 import themeStyle from "../../../theme.style";
